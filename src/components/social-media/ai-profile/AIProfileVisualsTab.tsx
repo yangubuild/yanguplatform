@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ChevronDown, ChevronUp, Plus, Image, Palette, Layers, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -6,6 +6,7 @@ import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { SYSTEM_THEMES } from "@/data/socialThemes";
 import { ChooseThemesModal } from "./ChooseThemesModal";
+import { ThemePreviewCard } from "./ThemePreviewCard";
 
 interface Props {
   profile: Record<string, unknown>;
@@ -91,15 +92,18 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
             <Button size="sm" variant="outline" onClick={() => setShowThemesPicker(true)}>Choose Themes</Button>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-            {selectedThemes.slice(0, 4).map((t) => (
-              <div key={t.name} className="rounded-xl border border-border bg-muted/20 p-3 text-center">
-                <div className="w-full h-16 rounded-lg bg-gradient-to-br from-accent/20 to-accent/5 mb-2 flex items-center justify-center">
-                  <Layers className="h-6 w-6 text-accent/40" />
+            {selectedThemes.slice(0, 4).map((t) => {
+              const key = ("key" in t ? t.key : t.name) as string;
+              return (
+                <div key={t.name} className="rounded-xl border border-border bg-muted/20 overflow-hidden">
+                  <ThemePreviewCard themeKey={key} size="sm" showText={false} className="!rounded-none" />
+                  <div className="p-2 text-center">
+                    <p className="text-xs font-medium text-foreground">{t.name}</p>
+                    <p className="text-[10px] text-muted-foreground">{("templateCount" in t ? t.templateCount : 0) || 0} Designs</p>
+                  </div>
                 </div>
-                <p className="text-xs font-medium text-foreground">{t.name}</p>
-                <p className="text-[10px] text-muted-foreground">{("templateCount" in t ? t.templateCount : 0) || 0} Designs</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
           {selectedThemes.length > 4 && (
             <p className="text-xs text-muted-foreground">+{selectedThemes.length - 4} more themes selected</p>
@@ -119,23 +123,11 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
           <p className="text-sm font-semibold text-foreground mb-2">Brand Colors</p>
           <div className="flex items-center gap-1 mb-4">
             {brandColors.map((c, i) => (
-              <div
-                key={i}
-                className="h-8 flex-1 rounded relative group cursor-pointer"
-                style={{ backgroundColor: c }}
-              >
-                <button
-                  onClick={() => removeColor(i)}
-                  className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-destructive text-white text-[8px] items-center justify-center hidden group-hover:flex"
-                >
-                  ×
-                </button>
+              <div key={i} className="h-8 flex-1 rounded relative group cursor-pointer" style={{ backgroundColor: c }}>
+                <button onClick={() => removeColor(i)} className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-destructive text-white text-[8px] items-center justify-center hidden group-hover:flex">×</button>
               </div>
             ))}
-            <button
-              onClick={addColor}
-              className="h-8 w-8 rounded border border-dashed border-border flex items-center justify-center text-muted-foreground hover:text-foreground shrink-0"
-            >
+            <button onClick={addColor} className="h-8 w-8 rounded border border-dashed border-border flex items-center justify-center text-muted-foreground hover:text-foreground shrink-0">
               <Plus className="h-3.5 w-3.5" />
             </button>
           </div>
@@ -146,21 +138,13 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
             <div>
               <label className="text-xs text-muted-foreground block mb-1">Title Font</label>
               <select className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground">
-                <option>Default (Theme Font)</option>
-                <option>Lufga</option>
-                <option>Inter</option>
-                <option>Playfair Display</option>
-                <option>Montserrat</option>
+                <option>Default (Theme Font)</option><option>Lufga</option><option>Inter</option><option>Playfair Display</option><option>Montserrat</option>
               </select>
             </div>
             <div>
               <label className="text-xs text-muted-foreground block mb-1">Body Font</label>
               <select className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground">
-                <option>Default (Theme Font)</option>
-                <option>Inter</option>
-                <option>Lufga</option>
-                <option>Open Sans</option>
-                <option>Roboto</option>
+                <option>Default (Theme Font)</option><option>Inter</option><option>Lufga</option><option>Open Sans</option><option>Roboto</option>
               </select>
             </div>
           </div>
@@ -178,65 +162,42 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
           <div className="flex flex-wrap gap-2 mb-4">
             {(["Image", "Design", "GIF", "Meme", "AI Image"] as MediaType[]).map((type) => {
               const icons: Record<string, React.ReactNode> = {
-                Image: <Image className="h-3.5 w-3.5" />,
-                Design: <Palette className="h-3.5 w-3.5" />,
-                GIF: <Layers className="h-3.5 w-3.5" />,
-                Meme: <span className="text-sm">😀</span>,
+                Image: <Image className="h-3.5 w-3.5" />, Design: <Palette className="h-3.5 w-3.5" />,
+                GIF: <Layers className="h-3.5 w-3.5" />, Meme: <span className="text-sm">😀</span>,
                 "AI Image": <Sparkles className="h-3.5 w-3.5" />,
               };
               return (
-                <button
-                  key={type}
-                  onClick={() => toggleMediaType(type)}
+                <button key={type} onClick={() => toggleMediaType(type)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
-                    selectedMediaTypes.includes(type)
-                      ? "border-accent bg-accent/10 text-accent"
-                      : "border-border text-muted-foreground hover:border-accent/40"
-                  }`}
-                >
+                    selectedMediaTypes.includes(type) ? "border-accent bg-accent/10 text-accent" : "border-border text-muted-foreground hover:border-accent/40"
+                  }`}>
                   {selectedMediaTypes.includes(type) && <span>✓</span>}
-                  {icons[type]}
-                  {type}
+                  {icons[type]}{type}
                 </button>
               );
             })}
           </div>
-
           {selectedMediaTypes.map((type) => (
             <div key={type} className="flex items-center gap-4 mb-3">
               <div className="w-24">
                 <p className="text-sm font-medium text-foreground">{type}</p>
                 <p className="text-[10px] text-muted-foreground">
-                  {type === "Image" ? "Only photo, from library or stock" :
-                   type === "Design" ? "Templated graphics with text and photos" :
-                   type === "AI Image" ? "AI-generated artwork" : type}
+                  {type === "Image" ? "Only photo, from library or stock" : type === "Design" ? "Templated graphics with text and photos" : type === "AI Image" ? "AI-generated artwork" : type}
                 </p>
               </div>
               <div className="flex-1">
-                <Slider
-                  value={[mediaMix[type] || Math.floor(100 / selectedMediaTypes.length)]}
-                  onValueChange={([v]) => updateMeta({ media_mix: { ...mediaMix, [type]: v } })}
-                  min={0} max={100} step={5}
-                  className="flex-1"
-                />
+                <Slider value={[mediaMix[type] || Math.floor(100 / selectedMediaTypes.length)]} onValueChange={([v]) => updateMeta({ media_mix: { ...mediaMix, [type]: v } })} min={0} max={100} step={5} className="flex-1" />
               </div>
-              <span className="text-sm font-medium text-foreground w-12 text-right">
-                {mediaMix[type] || Math.floor(100 / selectedMediaTypes.length)}%
-              </span>
+              <span className="text-sm font-medium text-foreground w-12 text-right">{mediaMix[type] || Math.floor(100 / selectedMediaTypes.length)}%</span>
             </div>
           ))}
-
           <div className="flex items-center justify-between mt-4 mb-3">
             <div>
               <p className="text-sm font-semibold text-foreground">Media aspect ratio</p>
               <p className="text-xs text-muted-foreground">Set the default aspect ratio for generated posts</p>
             </div>
             <select className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground">
-              <option>Use template ratio</option>
-              <option>1:1 Square</option>
-              <option>4:5 Portrait</option>
-              <option>9:16 Story</option>
-              <option>16:9 Landscape</option>
+              <option>Use template ratio</option><option>1:1 Square</option><option>4:5 Portrait</option><option>9:16 Story</option><option>16:9 Landscape</option>
             </select>
           </div>
           <Button size="sm" variant="outline" className="mt-1">Resize per social</Button>
@@ -276,16 +237,18 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
             <p className="text-[10px] text-muted-foreground">Using placeholder text and photos</p>
           </div>
           <div className="space-y-4">
-            {selectedThemes.slice(0, 3).map((t) => (
-              <div key={t.name}>
-                <div className="rounded-xl border border-border bg-gradient-to-br from-muted/30 to-muted/10 aspect-square flex flex-col items-center justify-center p-4">
-                  <Layers className="h-10 w-10 text-muted-foreground/30 mb-2" />
-                  <p className="text-xs font-medium text-muted-foreground">{t.name} Template</p>
-                  <p className="text-[10px] text-muted-foreground/60">{("templateCount" in t ? t.templateCount : 0) || 0} designs</p>
+            {(selectedThemes.length > 0 ? selectedThemes.slice(0, 3) : SYSTEM_THEMES.slice(0, 3)).map((t) => {
+              const key = ("key" in t ? t.key : t.name) as string;
+              return (
+                <div key={t.name}>
+                  <ThemePreviewCard themeKey={key} size="lg" className="aspect-square" />
+                  <div className="flex items-center justify-between mt-1.5">
+                    <p className="text-xs text-muted-foreground">From theme: {t.name}</p>
+                    <p className="text-[10px] text-muted-foreground">{("templateCount" in t ? t.templateCount : 0) || 0} designs</p>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1.5">From theme: {t.name}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SYSTEM_THEMES, type SocialTheme } from "@/data/socialThemes";
+import { ThemePreviewCard } from "./ThemePreviewCard";
 
 interface Props {
   open: boolean;
@@ -23,20 +24,15 @@ export function ChooseThemesModal({ open, onClose, selectedKeys, customThemes, o
   const allThemes: (SocialTheme & { isCustom?: boolean })[] = [
     ...SYSTEM_THEMES,
     ...customs.map((c) => ({
-      key: c.key,
-      name: c.name,
-      templateCount: 0,
-      mood: `Custom theme: ${c.name}`,
-      colorHint: "user defined",
-      isSystem: false,
-      isCustom: true,
+      key: c.key, name: c.name, templateCount: 0,
+      mood: `Custom theme: ${c.name}`, colorHint: "user defined",
+      isSystem: false, isCustom: true,
     })),
   ];
 
   const toggle = (key: string) => {
     const next = new Set(selected);
-    if (next.has(key)) next.delete(key);
-    else next.add(key);
+    if (next.has(key)) next.delete(key); else next.add(key);
     setSelected(next);
   };
 
@@ -44,8 +40,7 @@ export function ChooseThemesModal({ open, onClose, selectedKeys, customThemes, o
     if (!newName.trim()) return;
     const key = `custom_${newName.toLowerCase().replace(/[^a-z0-9]+/g, "_")}`;
     if (customs.some((c) => c.key === key)) return;
-    const newCustom = { key, name: newName.trim() };
-    setCustoms([...customs, newCustom]);
+    setCustoms([...customs, { key, name: newName.trim() }]);
     setSelected(new Set([...selected, key]));
     setNewName("");
     setShowCreate(false);
@@ -76,10 +71,10 @@ export function ChooseThemesModal({ open, onClose, selectedKeys, customThemes, o
                     isSelected ? "border-accent" : "border-border hover:border-accent/30"
                   }`}
                 >
-                  <div className="aspect-[3/4] bg-gradient-to-br from-muted/40 to-muted/10 flex items-center justify-center relative">
-                    <span className="text-base font-bold text-foreground/50 px-2 text-center leading-tight">{theme.name}</span>
+                  <div className="aspect-[3/4] relative overflow-hidden">
+                    <ThemePreviewCard themeKey={theme.key} className="!h-full !rounded-none" size="lg" />
                     {isSelected && (
-                      <div className="absolute top-2 right-2 w-5 h-5 rounded bg-accent flex items-center justify-center">
+                      <div className="absolute top-2 right-2 w-5 h-5 rounded bg-accent flex items-center justify-center z-10">
                         <span className="text-white text-[10px] font-bold">✓</span>
                       </div>
                     )}
@@ -134,10 +129,8 @@ export function ChooseThemesModal({ open, onClose, selectedKeys, customThemes, o
             </div>
             <p className="text-sm text-muted-foreground mb-3">Enter a theme name</p>
             <Input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder="e.g. Spring Campaign"
-              className="mb-4"
+              value={newName} onChange={(e) => setNewName(e.target.value)}
+              placeholder="e.g. Spring Campaign" className="mb-4"
               onKeyDown={(e) => e.key === "Enter" && handleCreate()}
             />
             <div className="flex justify-end gap-2">
