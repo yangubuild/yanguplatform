@@ -86,21 +86,22 @@ export const templateService = {
 export const designService = {
   /** Create a new design from a template */
   async createDesign(input: CreateDesignInput & { user_id: string }): Promise<GeneratedDesign> {
+    const insertData: Record<string, unknown> = {
+      workspace_id: input.workspace_id,
+      template_id: input.template_id,
+      user_id: input.user_id,
+      title: input.title || null,
+      layer_overrides: JSON.parse(JSON.stringify(input.layer_overrides || [])),
+      color_overrides: JSON.parse(JSON.stringify(input.color_overrides || {})),
+      font_overrides: JSON.parse(JSON.stringify(input.font_overrides || {})),
+      logo_url: input.logo_url || null,
+      aspect_ratio: input.aspect_ratio || "1:1",
+      ai_prompt: input.ai_prompt || null,
+      status: "draft",
+    };
     const { data, error } = await supabase
       .from("social_generated_designs")
-      .insert({
-        workspace_id: input.workspace_id,
-        template_id: input.template_id,
-        user_id: input.user_id,
-        title: input.title || null,
-        layer_overrides: input.layer_overrides || [],
-        color_overrides: input.color_overrides || {},
-        font_overrides: input.font_overrides || {},
-        logo_url: input.logo_url || null,
-        aspect_ratio: input.aspect_ratio || "1:1",
-        ai_prompt: input.ai_prompt || null,
-        status: "draft",
-      })
+      .insert(insertData as any)
       .select("*")
       .single();
     if (error) throw error;
