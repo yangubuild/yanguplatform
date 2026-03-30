@@ -26,7 +26,7 @@ export function ChooseThemesModal({ open, onClose, selectedKeys, customThemes, o
     ...customs.map((c) => ({
       key: c.key, name: c.name, templateCount: 0,
       mood: `Custom theme: ${c.name}`, colorHint: "user defined",
-      isSystem: false, isCustom: true,
+      isSystem: false, isCustom: true, category: "general" as const,
     })),
   ];
 
