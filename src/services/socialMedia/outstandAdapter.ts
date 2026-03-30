@@ -23,15 +23,23 @@ async function invokeProxy<T = Record<string, unknown>>(
     body,
   });
   if (error) {
+    // Try to extract readable message from the error
+    let message = error.message || "Social provider error";
+    // If it's a FunctionsHttpError, try to get the body
+    try {
+      if ((error as any).context?.body) {
+        const parsed = JSON.parse((error as any).context.body);
+        if (parsed.error) message = parsed.error;
+      }
+    } catch {}
     throw {
       code: "OUTSTAND_ERROR",
-      message: error.message || "Outstand proxy error",
+      message,
       provider: "outstand",
       retryable: false,
       raw: error,
     } as ProviderError;
   }
-  // Check for application-level errors from the proxy
   if (data?.error) {
     throw {
       code: data.code || "OUTSTAND_API_ERROR",
