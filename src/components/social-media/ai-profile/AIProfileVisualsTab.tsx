@@ -1,4 +1,6 @@
 import { useState, useRef } from "react";
+import themePreviewBrand2 from "@/assets/theme-preview-brand2.jpg";
+import themePreviewBurger from "@/assets/theme-preview-burger.jpg";
 import { ChevronDown, ChevronUp, Plus, Image, Palette, Layers, Sparkles, Loader2, MoreVertical, ArrowLeft, Search, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
