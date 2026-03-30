@@ -168,8 +168,14 @@ export function PostCard({ post, onAction, onEdit, onDetails }: Props) {
         >
           {post.source_type === "ai_generated" ? (
             <>
-              <Loader2 className="h-5 w-5 text-accent animate-spin" />
-              <p className="text-[11px] font-medium text-muted-foreground">Generating creative…</p>
+              <Sparkles className="h-5 w-5 text-accent" />
+              <p className="text-[11px] font-medium text-muted-foreground">Image not generated</p>
+              <button
+                onClick={() => onAction("regenerate_image", post)}
+                className="text-[10px] font-medium text-accent hover:underline mt-1"
+              >
+                Regenerate Image
+              </button>
             </>
           ) : (
             <div className="text-center px-4 max-w-[80%]">
