@@ -5,7 +5,8 @@ import { Progress } from "@/components/ui/progress";
 import { useSocialPosts } from "@/hooks/social/useSocialPosts";
 import { useSocialWorkspace } from "@/hooks/social/useSocialWorkspace";
 import { useSocialBrandProfile } from "@/hooks/social/useSocialBrandProfile";
-import { buildThemePromptContext } from "@/data/socialThemes";
+import { getRandomTemplateForThemes, getThemeByKey } from "@/data/socialThemes";
+import { getThemePreviewImage } from "@/data/themePreviewImages";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -13,10 +14,10 @@ type AIState = "generating" | "ready" | "error";
 
 const PHASES = [
   "Analyzing your brand profile…",
-  "Selecting theme direction…",
+  "Selecting template…",
   "Generating captions…",
-  "Creating branded visuals…",
-  "Designing your creatives…",
+  "Editing template with your brand…",
+  "Customizing design…",
   "Polishing your posts…",
 ];
 
@@ -70,16 +71,43 @@ export function AICreateFlow({ onDone, onBack }: Props) {
     return { selectedThemes, brandColors, useLogo };
   };
 
-  const generateImageWithRetry = async (prompt: string, retries = 3): Promise<string | null> => {
+  /**
+   * Convert a local imported asset path to a full URL that the edge function can access.
+   * Vite imported assets are relative paths — we need to make them absolute.
+   */
+  const resolveTemplateUrl = (assetPath: string): string => {
+    if (assetPath.startsWith("http")) return assetPath;
+    // For Vite-bundled assets, construct full URL from current origin
+    return `${window.location.origin}${assetPath}`;
+  };
+
+  const generateImageWithRetry = async (
+    prompt: string,
+    templateImageUrl: string | null,
+    brandColors: string[],
+    businessName: string,
+    contentGoal: string,
+    retries = 3,
+  ): Promise<string | null> => {
     for (let attempt = 0; attempt < retries; attempt++) {
       if (attempt > 0) await delay(4000 * attempt);
       try {
+        const body: Record<string, unknown> = {
+          prompt,
+          model: "google/gemini-3.1-flash-image-preview",
+          aspect_ratio: "4:5",
+          brand_colors: brandColors,
+          business_name: businessName,
+          content_goal: contentGoal,
+        };
+
+        if (templateImageUrl) {
+          body.mode = "edit_template";
+          body.template_image_url = templateImageUrl;
+        }
+
         const { data: imgData, error: imgErr } = await supabase.functions.invoke("social-ai-generate-image", {
-          body: {
-            prompt,
-            model: "google/gemini-3.1-flash-image-preview",
-            aspect_ratio: "4:5",
-          },
+          body,
         });
         if (imgErr) {
           console.warn(`Image attempt ${attempt + 1} error:`, imgErr);
@@ -118,12 +146,19 @@ export function AICreateFlow({ onDone, onBack }: Props) {
           const caption = captionData?.caption || "";
           if (!caption) continue;
 
-          // Stage B: Generate theme-aware branded image
-          const imagePrompt = buildThemeAwareImagePrompt(
+          // Stage B: Select template and edit it with brand context
+          const template = getRandomTemplateForThemes(selectedThemes);
+          const templateUrl = template ? resolveTemplateUrl(template.imageUrl) : null;
+          const theme = template ? getThemeByKey(template.themeKey) : null;
+
+          const editInstructions = buildTemplateEditPrompt(
             businessName, businessDesc, item.topic, item.goal,
-            selectedThemes, brandColors, useLogo
+            brandColors, useLogo, theme?.mood || ""
           );
-          const imageUrl = await generateImageWithRetry(imagePrompt);
+
+          const imageUrl = await generateImageWithRetry(
+            editInstructions, templateUrl, brandColors, businessName, item.goal
+          );
 
           if (!imageUrl) {
             console.warn("Image generation failed after retries for topic:", item.topic);
@@ -138,7 +173,7 @@ export function AICreateFlow({ onDone, onBack }: Props) {
             media_urls: imageUrl ? [imageUrl] : [],
             target_account_ids: [],
             ai_generation_mode: "auto",
-            ai_prompt: imagePrompt,
+            ai_prompt: editInstructions,
           });
 
           savedCount++;
@@ -202,7 +237,7 @@ export function AICreateFlow({ onDone, onBack }: Props) {
         </div>
         <h2 className="text-lg font-bold text-foreground mb-2">Your posts are ready!</h2>
         <p className="text-sm text-muted-foreground mb-6">
-          {generatedCount} post{generatedCount !== 1 ? "s" : ""} created with images. Review and schedule them.
+          {generatedCount} post{generatedCount !== 1 ? "s" : ""} created from templates. Review and schedule them.
         </p>
         <div className="flex justify-center gap-3">
           <Button variant="outline" onClick={onBack}>Dismiss</Button>
@@ -216,43 +251,36 @@ export function AICreateFlow({ onDone, onBack }: Props) {
   );
 }
 
-/** Build a theme-aware, brand-aware image generation prompt */
-function buildThemeAwareImagePrompt(
+/** Build a template editing prompt (NOT from-scratch generation) */
+function buildTemplateEditPrompt(
   businessName: string,
   businessDesc: string,
   topic: string,
   goal: string,
-  selectedThemes: string[],
   brandColors: string[],
   useLogo: boolean,
+  themeMood: string,
 ): string {
-  const themeContext = buildThemePromptContext(selectedThemes);
   const colorContext = brandColors.length > 0
-    ? `Brand colors to use: ${brandColors.join(", ")}. Incorporate these colors as the primary palette.`
-    : "";
+    ? `Change the color scheme to use these brand colors: ${brandColors.join(", ")}.`
+    : "Keep the existing color scheme but make it feel branded and cohesive.";
   const logoContext = useLogo
-    ? `Include the business name "${businessName}" prominently in the design as a logo/brand element.`
+    ? `Add the business name "${businessName}" prominently as a brand element.`
     : "";
 
-  return `Create a professional branded social media post design for "${businessName}".
+  return `Modify this social media post template for "${businessName}".
 
 Business: ${businessDesc}
 Topic: ${topic}
 Goal: ${goal}
+${themeMood ? `Theme mood: ${themeMood}` : ""}
 
-${themeContext}
+EDITS TO MAKE:
+- Replace all headline/title text with content about "${topic}" for "${businessName}"
+- Replace any subtext/body text with a short compelling message related to the goal: ${goal}
 ${colorContext}
 ${logoContext}
-
-CRITICAL REQUIREMENTS:
-- This is a DESIGNED social media post, NOT a photograph
-- Use clean, professional typography with a headline or tagline related to the topic
-- Create a polished, branded visual with clear visual hierarchy
-- Use the brand colors as the dominant color scheme
-- Instagram/Facebook ready format (portrait 4:5 ratio)
-- Include relevant visual elements (icons, shapes, patterns) that match the theme
-- Do NOT use placeholder text like "lorem ipsum" — use real copy relevant to "${topic}"
-- The design should look like it was made by a professional social media designer
-- Make it scroll-stopping and visually cohesive
-- Keep text minimal but impactful — max 2-3 lines of text on the image`;
+- Keep any decorative elements, shapes, patterns, and visual structure intact
+- Make all text professional and relevant to the business
+- The final result should look like the same template design, just customized for this business`;
 }
