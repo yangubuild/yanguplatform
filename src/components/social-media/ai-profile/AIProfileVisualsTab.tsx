@@ -40,6 +40,7 @@ export function AIProfileVisualsTab({ profile, onUpdate, onSave, isSaving }: Pro
   const [designOpen, setDesignOpen] = useState(false);
   const [imagesOpen, setImagesOpen] = useState(false);
   const [showThemesPicker, setShowThemesPicker] = useState(false);
+  const [editingThemeKey, setEditingThemeKey] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
   // Brand color state
