@@ -6954,6 +6954,119 @@ export type Database = {
           },
         ]
       }
+      social_campaign_items: {
+        Row: {
+          campaign_id: string
+          content_bucket: string
+          created_at: string
+          cta_style: string | null
+          day_number: number
+          design_id: string | null
+          id: string
+          metadata: Json | null
+          post_id: string | null
+          scheduled_for: string | null
+          slot_number: number
+          status: string
+          template_id: string | null
+          topic_angle: string | null
+        }
+        Insert: {
+          campaign_id: string
+          content_bucket: string
+          created_at?: string
+          cta_style?: string | null
+          day_number: number
+          design_id?: string | null
+          id?: string
+          metadata?: Json | null
+          post_id?: string | null
+          scheduled_for?: string | null
+          slot_number: number
+          status?: string
+          template_id?: string | null
+          topic_angle?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          content_bucket?: string
+          created_at?: string
+          cta_style?: string | null
+          day_number?: number
+          design_id?: string | null
+          id?: string
+          metadata?: Json | null
+          post_id?: string | null
+          scheduled_for?: string | null
+          slot_number?: number
+          status?: string
+          template_id?: string | null
+          topic_angle?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_campaign_items_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "social_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_campaigns: {
+        Row: {
+          campaign_goal: string | null
+          created_at: string
+          duration_days: number
+          id: string
+          metadata: Json | null
+          name: string
+          posts_per_day: number
+          selected_platforms: string[] | null
+          selected_template_ids: string[] | null
+          start_date: string
+          status: string
+          total_posts: number
+          updated_at: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          campaign_goal?: string | null
+          created_at?: string
+          duration_days?: number
+          id?: string
+          metadata?: Json | null
+          name: string
+          posts_per_day?: number
+          selected_platforms?: string[] | null
+          selected_template_ids?: string[] | null
+          start_date?: string
+          status?: string
+          total_posts?: number
+          updated_at?: string
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          campaign_goal?: string | null
+          created_at?: string
+          duration_days?: number
+          id?: string
+          metadata?: Json | null
+          name?: string
+          posts_per_day?: number
+          selected_platforms?: string[] | null
+          selected_template_ids?: string[] | null
+          start_date?: string
+          status?: string
+          total_posts?: number
+          updated_at?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: []
+      }
       social_connected_accounts: {
         Row: {
           access_token: string | null
@@ -7635,6 +7748,7 @@ export type Database = {
           ai_generation_mode: string | null
           ai_prompt: string | null
           approval_status: string | null
+          campaign_id: string | null
           category_id: string | null
           content: string
           content_type: string | null
@@ -7660,6 +7774,7 @@ export type Database = {
           ai_generation_mode?: string | null
           ai_prompt?: string | null
           approval_status?: string | null
+          campaign_id?: string | null
           category_id?: string | null
           content: string
           content_type?: string | null
@@ -7685,6 +7800,7 @@ export type Database = {
           ai_generation_mode?: string | null
           ai_prompt?: string | null
           approval_status?: string | null
+          campaign_id?: string | null
           category_id?: string | null
           content?: string
           content_type?: string | null
@@ -7707,6 +7823,13 @@ export type Database = {
           workspace_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "social_posts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "social_campaigns"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "social_posts_topic_id_fkey"
             columns: ["topic_id"]
