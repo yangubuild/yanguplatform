@@ -50,6 +50,11 @@ export function useConnectedAccounts(workspaceId?: string) {
       redirectUrl: string;
       workspaceId: string;
     }) => {
+      // Check provider readiness first
+      if (!isProviderReady(params.provider)) {
+        toast.info("Social connection will be activated soon. Final setup in progress.");
+        return { url: "", state: "provider_not_ready" };
+      }
       const provider = providerRegistry.getDefault();
       if (!provider) throw new Error("No provider configured");
       const result = await provider.getConnectUrl(params);
