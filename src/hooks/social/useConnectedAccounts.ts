@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { socialKeys } from "./queryKeys";
 import type { SocialConnectedAccount, SocialProvider } from "@/types/socialMedia";
-import { providerRegistry } from "@/services/socialMedia";
+import { providerRegistry, isProviderReady } from "@/services/socialMedia";
+import { toast } from "sonner";
 
 export function useConnectedAccounts(workspaceId?: string) {
   const { user } = useAuth();
