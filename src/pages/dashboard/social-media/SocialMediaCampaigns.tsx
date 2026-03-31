@@ -48,7 +48,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function SocialMediaCampaigns() {
-  const { workspace } = useWorkspace();
+  const { workspace } = useSocialWorkspace();
   const { campaigns, isLoading, create, isCreating, generate, isGenerating, togglePause } = useCampaigns(workspace?.id);
   const [showCreate, setShowCreate] = useState(false);
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
