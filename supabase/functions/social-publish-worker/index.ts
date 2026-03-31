@@ -362,6 +362,26 @@ serve(async (req) => {
         message: `Job claimed for publishing (attempt ${job.attempts + 1}/${job.max_attempts})`,
       });
 
+      // Check provider readiness — if not ready, park the job (no retry consumed)
+      if (!isProviderReady(job.platform)) {
+        await supabaseAdmin
+          .from("social_post_jobs")
+          .update({
+            status: "waiting_provider",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", job.id);
+
+        await supabaseAdmin.from("social_post_job_events").insert({
+          job_id: job.id,
+          event_type: "waiting_provider",
+          message: `Provider ${job.platform} not yet configured — job parked (no retries consumed)`,
+        });
+
+        results.push({ jobId: job.id, status: "waiting_provider" });
+        continue;
+      }
+
       // Fetch connected account credentials
       const { data: account, error: accErr } = await supabaseAdmin
         .from("social_connected_accounts")
