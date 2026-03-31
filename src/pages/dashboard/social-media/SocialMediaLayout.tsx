@@ -8,6 +8,7 @@ const NAV_ITEMS = [
 
 const CONTENT_ITEMS = [
   { icon: FileText, label: "Posts", path: "/dashboard/social-media/posts" },
+  { icon: Rocket, label: "Campaigns", path: "/dashboard/social-media/campaigns" },
   { icon: Calendar, label: "Calendar", path: "/dashboard/social-media/calendar" },
   { icon: BarChart3, label: "Analytics", path: "/dashboard/social-media/analytics" },
 ];
