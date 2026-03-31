@@ -15,6 +15,8 @@ export { variationGenerationService } from "./variationGenerationService";
 export { resizeEngine, PLATFORM_ASPECT_MAP, CANVAS_SIZES, ALL_PLATFORMS } from "./resizeEngine";
 export { publishGuards } from "./publishGuards";
 export { isProviderReady, getProviderStatus, getAllProviderStatuses } from "./providerReadiness";
+export { campaignEngine } from "./campaignEngine";
+export type { CampaignInput, Campaign, CampaignGoal, CampaignDuration, CampaignStats } from "./campaignEngine";
 
 export {
   brandContextBuilder,

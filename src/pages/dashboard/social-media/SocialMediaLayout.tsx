@@ -1,5 +1,5 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, Plus, Home, FileText, Calendar, BarChart3, BookOpen, MessageCircle, Bot, Settings } from "lucide-react";
+import { ArrowLeft, Plus, Home, FileText, Calendar, BarChart3, BookOpen, MessageCircle, Bot, Settings, Rocket } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const NAV_ITEMS = [
@@ -8,6 +8,7 @@ const NAV_ITEMS = [
 
 const CONTENT_ITEMS = [
   { icon: FileText, label: "Posts", path: "/dashboard/social-media/posts" },
+  { icon: Rocket, label: "Campaigns", path: "/dashboard/social-media/campaigns" },
   { icon: Calendar, label: "Calendar", path: "/dashboard/social-media/calendar" },
   { icon: BarChart3, label: "Analytics", path: "/dashboard/social-media/analytics" },
 ];
