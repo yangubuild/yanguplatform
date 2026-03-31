@@ -28,7 +28,29 @@ type ErrorCategory =
   | "platform_rejection"
   | "network_timeout"
   | "provider_outage"
+  | "provider_not_ready"
   | "unknown";
+
+// ── Provider readiness check (server-side) ───────────────
+// Mirrors client-side providerReadiness.ts
+// When managed keys are configured, flip these to true.
+const PROVIDER_READY: Record<string, boolean> = {
+  facebook: false,
+  instagram: false,
+  instagram_story: false,
+  x: false,
+  linkedin_company: false,
+  linkedin_personal: false,
+  tiktok: false,
+  youtube: false,
+  threads: false,
+  pinterest: false,
+  snapchat: false,
+};
+
+function isProviderReady(platform: string): boolean {
+  return PROVIDER_READY[platform] === true;
+}
 
 function categorizeError(error: string): ErrorCategory {
   const lower = error.toLowerCase();
@@ -339,6 +361,26 @@ serve(async (req) => {
         event_type: "claimed",
         message: `Job claimed for publishing (attempt ${job.attempts + 1}/${job.max_attempts})`,
       });
+
+      // Check provider readiness — if not ready, park the job (no retry consumed)
+      if (!isProviderReady(job.platform)) {
+        await supabaseAdmin
+          .from("social_post_jobs")
+          .update({
+            status: "waiting_provider",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", job.id);
+
+        await supabaseAdmin.from("social_post_job_events").insert({
+          job_id: job.id,
+          event_type: "waiting_provider",
+          message: `Provider ${job.platform} not yet configured — job parked (no retries consumed)`,
+        });
+
+        results.push({ jobId: job.id, status: "waiting_provider" });
+        continue;
+      }
 
       // Fetch connected account credentials
       const { data: account, error: accErr } = await supabaseAdmin
