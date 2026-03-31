@@ -5,6 +5,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import type { SocialProviderAdapter } from "./providerInterface";
+import { isProviderReady } from "./providerReadiness";
 import type {
   SocialProvider,
   SocialConnectedAccount,
