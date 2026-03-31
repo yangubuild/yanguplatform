@@ -57,6 +57,14 @@ export const outstandAdapter: SocialProviderAdapter = {
   name: "outstand",
 
   async getConnectUrl({ provider, redirectUrl, workspaceId }) {
+    if (!isProviderReady(provider)) {
+      throw {
+        code: "PROVIDER_NOT_READY",
+        message: "Social connection will be activated soon. Final setup in progress.",
+        provider,
+        retryable: false,
+      } as ProviderError;
+    }
     const data = await invokeProxy<{ url: string; state?: string }>({
       action: "get_connect_url",
       provider,
