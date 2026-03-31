@@ -28,7 +28,29 @@ type ErrorCategory =
   | "platform_rejection"
   | "network_timeout"
   | "provider_outage"
+  | "provider_not_ready"
   | "unknown";
+
+// ── Provider readiness check (server-side) ───────────────
+// Mirrors client-side providerReadiness.ts
+// When managed keys are configured, flip these to true.
+const PROVIDER_READY: Record<string, boolean> = {
+  facebook: false,
+  instagram: false,
+  instagram_story: false,
+  x: false,
+  linkedin_company: false,
+  linkedin_personal: false,
+  tiktok: false,
+  youtube: false,
+  threads: false,
+  pinterest: false,
+  snapchat: false,
+};
+
+function isProviderReady(platform: string): boolean {
+  return PROVIDER_READY[platform] === true;
+}
 
 function categorizeError(error: string): ErrorCategory {
   const lower = error.toLowerCase();
