@@ -498,6 +498,7 @@ const App = () => (
                     <Route path="posts" element={<SocialMediaPosts />} />
                     <Route path="posts/create" element={<SocialMediaCreatePost />} />
                     <Route path="calendar" element={<SocialMediaCalendar />} />
+                    <Route path="campaigns" element={<SocialMediaCampaigns />} />
                     <Route path="analytics" element={<SocialMediaAnalytics />} />
                     <Route path="library" element={<SocialMediaLibrary />} />
                     <Route path="topics" element={<SocialMediaTopics />} />
