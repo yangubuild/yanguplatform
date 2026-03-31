@@ -131,6 +131,7 @@ const SocialMediaAiProfile = lazy(() => lazyRetry(() => import("./pages/dashboar
 const SocialMediaWorkspace = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaWorkspace")));
 const SocialMediaCallback = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaCallback")));
 const SocialMediaCreatePost = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaCreatePost")));
+const SocialMediaCampaigns = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaCampaigns")));
 
 // Developer Portal (lazy)
 const PortalLayoutModule = lazy(() => lazyRetry(() => import("./components/developers/portal/PortalLayout").then(m => ({ default: m.PortalLayout }))));
