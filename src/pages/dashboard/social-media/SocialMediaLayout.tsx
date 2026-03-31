@@ -1,5 +1,5 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, Plus, Home, FileText, Calendar, BarChart3, BookOpen, MessageCircle, Bot, Settings } from "lucide-react";
+import { ArrowLeft, Plus, Home, FileText, Calendar, BarChart3, BookOpen, MessageCircle, Bot, Settings, Rocket } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const NAV_ITEMS = [
