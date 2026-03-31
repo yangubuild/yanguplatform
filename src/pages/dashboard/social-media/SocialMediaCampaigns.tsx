@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Rocket, Calendar, Target, LayoutGrid, Pause, Play, RefreshCw } from "lucide-react";
 import { useCampaigns, useCampaignDetail } from "@/hooks/social/useCampaigns";
-import { useWorkspace } from "@/hooks/social/useWorkspace";
+import { useSocialWorkspace } from "@/hooks/social/useSocialWorkspace";
 import { campaignEngine, type CampaignInput, type CampaignGoal, type CampaignDuration } from "@/services/socialMedia/campaignEngine";
 import { toast } from "sonner";
 
