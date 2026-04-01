@@ -10,6 +10,7 @@
 
 import { checkActionEligibility, incrementActionUsage, markFirstFreeUsed } from "./unlockDecisionEngine";
 import { getAvailableAdForPlacement, type ServedAd, type AdPlatformContext, detectPlatformContext, isAdTestMode } from "./adProvider";
+import { showRewardedAd as showAdMobRewarded, isAdMobAvailable } from "./admobService";
 import { recordAdImpression, recordAdStart, recordAdCompletion, recordAdSkip, recordUnlockEvent } from "./adEvents";
 import { UNLOCK_MATRIX, shouldShowAd, type ActionKey } from "./unlockMatrix";
 import type { UnlockResult } from "./unlockDecisionEngine";
