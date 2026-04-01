@@ -200,6 +200,7 @@ const ManageAiVisibility = lazy(() => lazyRetry(() => import("./pages/manage/Man
 const ManageAiVisibilityCompetitors = lazy(() => lazyRetry(() => import("./pages/manage/ManageAiVisibilityCompetitors")));
 const ManageAiVisibilityContentGaps = lazy(() => lazyRetry(() => import("./pages/manage/ManageAiVisibilityContentGaps")));
 const ManageSurfaceModeration = lazy(() => lazyRetry(() => import("./pages/manage/ManageSurfaceModeration")));
+const ManageAdsAdmin = lazy(() => lazyRetry(() => import("./pages/manage/ManageAdsAdmin")));
 
 const NavigationDashboardPage = lazy(() => lazyRetry(() => import("@/components/mass/navigation").then((m) => ({ default: m.NavigationDashboardPage }))));
 const DashboardHome = lazy(() => lazyRetry(() => import("./pages/dashboard/DashboardHome")));
@@ -631,6 +632,7 @@ const App = () => (
                   <Route path="ai-visibility/competitors" element={<ManageRoleGate allowedRoles={["admin", "sales_marketing"]}><ManageAiVisibilityCompetitors /></ManageRoleGate>} />
                   <Route path="ai-visibility/content-gaps" element={<ManageRoleGate allowedRoles={["admin", "sales_marketing"]}><ManageAiVisibilityContentGaps /></ManageRoleGate>} />
                   <Route path="surface-moderation" element={<ManageRoleGate allowedRoles={["admin"]}><ManageSurfaceModeration /></ManageRoleGate>} />
+                  <Route path="ads" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAdsAdmin /></ManageRoleGate>} />
                   <Route path="*" element={<ManageNotFound />} />
                 </Route>
                 

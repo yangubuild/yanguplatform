@@ -14,6 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_events: {
+        Row: {
+          ad_id: string | null
+          campaign_id: string | null
+          created_at: string | null
+          device_info: Json | null
+          event_type: string
+          id: string
+          placement_slot: string | null
+          provider: string | null
+          session_id: string | null
+          user_id: string | null
+          watch_duration_ms: number | null
+        }
+        Insert: {
+          ad_id?: string | null
+          campaign_id?: string | null
+          created_at?: string | null
+          device_info?: Json | null
+          event_type: string
+          id?: string
+          placement_slot?: string | null
+          provider?: string | null
+          session_id?: string | null
+          user_id?: string | null
+          watch_duration_ms?: number | null
+        }
+        Update: {
+          ad_id?: string | null
+          campaign_id?: string | null
+          created_at?: string | null
+          device_info?: Json | null
+          event_type?: string
+          id?: string
+          placement_slot?: string | null
+          provider?: string | null
+          session_id?: string | null
+          user_id?: string | null
+          watch_duration_ms?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_events_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ad_events_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "public_ads_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ad_placement_slots: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          is_enabled: boolean | null
+          label: string
+          slot_key: string
+          supported_formats: string[] | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          is_enabled?: boolean | null
+          label: string
+          slot_key: string
+          supported_formats?: string[] | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          is_enabled?: boolean | null
+          label?: string
+          slot_key?: string
+          supported_formats?: string[] | null
+        }
+        Relationships: []
+      }
       ad_placements: {
         Row: {
           ad_id: string
@@ -62,6 +146,67 @@ export type Database = {
             columns: ["surface_id"]
             isOneToOne: false
             referencedRelation: "public_surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ad_review_queue: {
+        Row: {
+          ad_id: string
+          approval_notes: string | null
+          campaign_id: string | null
+          created_at: string | null
+          id: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          submitted_at: string | null
+        }
+        Insert: {
+          ad_id: string
+          approval_notes?: string | null
+          campaign_id?: string | null
+          created_at?: string | null
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          submitted_at?: string | null
+        }
+        Update: {
+          ad_id?: string
+          approval_notes?: string | null
+          campaign_id?: string | null
+          created_at?: string | null
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          submitted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_review_queue_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ad_review_queue_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "public_ads_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ad_review_queue_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "advertiser_campaigns"
             referencedColumns: ["id"]
           },
         ]
@@ -265,14 +410,21 @@ export type Database = {
       }
       ads: {
         Row: {
+          ad_format: string | null
+          advertiser_id: string | null
           budget_cents: number | null
           clicks: number | null
           content: string | null
+          country_targets: string[] | null
           created_at: string
+          cta_text: string | null
+          cta_url: string | null
+          duration_seconds: number | null
           ends_at: string | null
           id: string
           image_url: string | null
           impressions: number | null
+          provider: string | null
           spent_cents: number | null
           starts_at: string | null
           status: Database["public"]["Enums"]["ad_status"]
@@ -281,16 +433,24 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+          video_url: string | null
         }
         Insert: {
+          ad_format?: string | null
+          advertiser_id?: string | null
           budget_cents?: number | null
           clicks?: number | null
           content?: string | null
+          country_targets?: string[] | null
           created_at?: string
+          cta_text?: string | null
+          cta_url?: string | null
+          duration_seconds?: number | null
           ends_at?: string | null
           id?: string
           image_url?: string | null
           impressions?: number | null
+          provider?: string | null
           spent_cents?: number | null
           starts_at?: string | null
           status?: Database["public"]["Enums"]["ad_status"]
@@ -299,16 +459,24 @@ export type Database = {
           title: string
           updated_at?: string
           user_id: string
+          video_url?: string | null
         }
         Update: {
+          ad_format?: string | null
+          advertiser_id?: string | null
           budget_cents?: number | null
           clicks?: number | null
           content?: string | null
+          country_targets?: string[] | null
           created_at?: string
+          cta_text?: string | null
+          cta_url?: string | null
+          duration_seconds?: number | null
           ends_at?: string | null
           id?: string
           image_url?: string | null
           impressions?: number | null
+          provider?: string | null
           spent_cents?: number | null
           starts_at?: string | null
           status?: Database["public"]["Enums"]["ad_status"]
@@ -317,8 +485,178 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+          video_url?: string | null
         }
         Relationships: []
+      }
+      advertiser_accounts: {
+        Row: {
+          business_name: string
+          contact_name: string | null
+          country: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          linked_surface_id: string | null
+          metadata: Json | null
+          phone: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          business_name: string
+          contact_name?: string | null
+          country?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          linked_surface_id?: string | null
+          metadata?: Json | null
+          phone?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          business_name?: string
+          contact_name?: string | null
+          country?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          linked_surface_id?: string | null
+          metadata?: Json | null
+          phone?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      advertiser_campaigns: {
+        Row: {
+          ad_ids: string[] | null
+          advertiser_id: string
+          audience_targeting: Json | null
+          billing_status: string | null
+          budget_cents: number | null
+          campaign_type: string | null
+          country_targets: string[] | null
+          created_at: string | null
+          delivered_clicks: number | null
+          delivered_views: number | null
+          duration_seconds: number | null
+          end_date: string | null
+          id: string
+          name: string
+          spent_cents: number | null
+          start_date: string | null
+          status: string | null
+          target_clicks: number | null
+          target_views: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          ad_ids?: string[] | null
+          advertiser_id: string
+          audience_targeting?: Json | null
+          billing_status?: string | null
+          budget_cents?: number | null
+          campaign_type?: string | null
+          country_targets?: string[] | null
+          created_at?: string | null
+          delivered_clicks?: number | null
+          delivered_views?: number | null
+          duration_seconds?: number | null
+          end_date?: string | null
+          id?: string
+          name: string
+          spent_cents?: number | null
+          start_date?: string | null
+          status?: string | null
+          target_clicks?: number | null
+          target_views?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          ad_ids?: string[] | null
+          advertiser_id?: string
+          audience_targeting?: Json | null
+          billing_status?: string | null
+          budget_cents?: number | null
+          campaign_type?: string | null
+          country_targets?: string[] | null
+          created_at?: string | null
+          delivered_clicks?: number | null
+          delivered_views?: number | null
+          duration_seconds?: number | null
+          end_date?: string | null
+          id?: string
+          name?: string
+          spent_cents?: number | null
+          start_date?: string | null
+          status?: string | null
+          target_clicks?: number | null
+          target_views?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertiser_campaigns_advertiser_id_fkey"
+            columns: ["advertiser_id"]
+            isOneToOne: false
+            referencedRelation: "advertiser_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertiser_kyc: {
+        Row: {
+          advertiser_id: string
+          created_at: string | null
+          id: string
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          submitted_docs: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          advertiser_id: string
+          created_at?: string | null
+          id?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          submitted_docs?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          advertiser_id?: string
+          created_at?: string | null
+          id?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          submitted_docs?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertiser_kyc_advertiser_id_fkey"
+            columns: ["advertiser_id"]
+            isOneToOne: false
+            referencedRelation: "advertiser_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       agencies: {
         Row: {
@@ -8665,6 +9003,92 @@ export type Database = {
           },
         ]
       }
+      unlock_action_registry: {
+        Row: {
+          action_key: string
+          category: string | null
+          created_at: string | null
+          description: string | null
+          is_enabled: boolean | null
+          label: string
+          updated_at: string | null
+        }
+        Insert: {
+          action_key: string
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          is_enabled?: boolean | null
+          label: string
+          updated_at?: string | null
+        }
+        Update: {
+          action_key?: string
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          is_enabled?: boolean | null
+          label?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      unlock_rules: {
+        Row: {
+          action_key: string
+          ad_required: boolean | null
+          created_at: string | null
+          credits_required: number | null
+          free_limit: number | null
+          id: string
+          is_enabled: boolean | null
+          notes: string | null
+          payment_required: boolean | null
+          plan_id: string | null
+          plan_limit: number | null
+          time_unlock_minutes: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          action_key: string
+          ad_required?: boolean | null
+          created_at?: string | null
+          credits_required?: number | null
+          free_limit?: number | null
+          id?: string
+          is_enabled?: boolean | null
+          notes?: string | null
+          payment_required?: boolean | null
+          plan_id?: string | null
+          plan_limit?: number | null
+          time_unlock_minutes?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          action_key?: string
+          ad_required?: boolean | null
+          created_at?: string | null
+          credits_required?: number | null
+          free_limit?: number | null
+          id?: string
+          is_enabled?: boolean | null
+          notes?: string | null
+          payment_required?: boolean | null
+          plan_id?: string | null
+          plan_limit?: number | null
+          time_unlock_minutes?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unlock_rules_action_key_fkey"
+            columns: ["action_key"]
+            isOneToOne: false
+            referencedRelation: "unlock_action_registry"
+            referencedColumns: ["action_key"]
+          },
+        ]
+      }
       usage_quota_config: {
         Row: {
           creator_limit: number | null
@@ -9621,6 +10045,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      check_unlock_eligibility: {
+        Args: { p_action_key: string; p_user_id?: string }
+        Returns: Json
+      }
       claim_dashboard_credits: { Args: never; Returns: Json }
       claim_due_post_jobs: {
         Args: { limit_count?: number }
@@ -10453,6 +10881,19 @@ export type Database = {
         }[]
       }
       reap_stale_dropship_sync_jobs: { Args: never; Returns: number }
+      record_ad_event: {
+        Args: {
+          p_ad_id?: string
+          p_campaign_id?: string
+          p_device_info?: Json
+          p_event_type: string
+          p_placement_slot?: string
+          p_provider?: string
+          p_session_id?: string
+          p_watch_duration_ms?: number
+        }
+        Returns: string
+      }
       refresh_banner_optimization_signals: { Args: never; Returns: undefined }
       refresh_entity_trust_score: {
         Args: { p_entity_id: string }
