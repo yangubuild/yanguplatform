@@ -43,8 +43,29 @@ export {
 export {
   getAvailableAdForPlacement,
   isAdProviderReady,
+  isAdProviderPathReady,
+  setAdTestMode,
+  isAdTestMode,
+  detectPlatformContext,
+  getProviderStatus,
   type ServedAd,
+  type AdProviderPath,
+  type AdPlatformContext,
+  type AdRequestContext,
 } from "./adProvider";
+
+// Rewarded Unlock Service
+export {
+  startUnlockFlow,
+  onAdStarted,
+  onAdCompleted,
+  onAdSkipped,
+  getSessionAdCount,
+  resetSessionAdCount,
+  type UnlockFlowStatus,
+  type UnlockFlowState,
+  type UnlockFlowCallbacks,
+} from "./rewardedUnlockService";
 
 // Advertiser Services
 export {
