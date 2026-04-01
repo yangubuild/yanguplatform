@@ -5,6 +5,8 @@ import { getItemThumbnail, extractDriveFileId } from "@/lib/driveUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useUnlockGate } from "@/hooks/useUnlockGate";
+import type { ActionKey } from "@/lib/ads/unlockMatrix";
 
 interface VisionaireItemCardProps {
   item: any;
