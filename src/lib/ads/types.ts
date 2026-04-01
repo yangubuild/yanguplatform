@@ -125,8 +125,10 @@ export interface AdvertiserCampaign {
   ad_ids: string[];
   target_views: number | null;
   target_clicks: number | null;
+  target_conversions: number | null;
   delivered_views: number;
   delivered_clicks: number;
+  delivered_conversions: number;
   budget_cents: number | null;
   spent_cents: number;
   billing_status: string;
