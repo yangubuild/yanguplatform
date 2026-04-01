@@ -200,6 +200,7 @@ const ManageAiVisibility = lazy(() => lazyRetry(() => import("./pages/manage/Man
 const ManageAiVisibilityCompetitors = lazy(() => lazyRetry(() => import("./pages/manage/ManageAiVisibilityCompetitors")));
 const ManageAiVisibilityContentGaps = lazy(() => lazyRetry(() => import("./pages/manage/ManageAiVisibilityContentGaps")));
 const ManageSurfaceModeration = lazy(() => lazyRetry(() => import("./pages/manage/ManageSurfaceModeration")));
+const ManageAdsAdmin = lazy(() => lazyRetry(() => import("./pages/manage/ManageAdsAdmin")));
 
 const NavigationDashboardPage = lazy(() => lazyRetry(() => import("@/components/mass/navigation").then((m) => ({ default: m.NavigationDashboardPage }))));
 const DashboardHome = lazy(() => lazyRetry(() => import("./pages/dashboard/DashboardHome")));
