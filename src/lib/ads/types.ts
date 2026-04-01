@@ -6,6 +6,7 @@
 
 export type UnlockDecision =
   | "ALLOW"
+  | "FIRST_FREE"
   | "REQUIRE_AD"
   | "REQUIRE_CREDITS"
   | "REQUIRE_PAYMENT"
