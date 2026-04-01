@@ -31,9 +31,11 @@ export interface ServedAd {
   is_test: boolean;
 }
 
+import { isAdMobAvailable } from "./admobService";
+
 /** Provider readiness flags — flip to true when integration is live */
 const PROVIDER_READY: Record<AdProviderPath, boolean> = {
-  admob_mobile: false,
+  admob_mobile: isAdMobAvailable(),
   admanager_web: false,
   direct_campaign: false,
   internal_test: true, // always available for QA
