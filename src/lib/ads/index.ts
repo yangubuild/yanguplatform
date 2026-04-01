@@ -54,6 +54,12 @@ export {
   type AdRequestContext,
 } from "./adProvider";
 
+// AdMob Service
+export {
+  showRewardedAd as showAdMobRewardedAd,
+  isAdMobAvailable,
+} from "./admobService";
+
 // Rewarded Unlock Service
 export {
   startUnlockFlow,
