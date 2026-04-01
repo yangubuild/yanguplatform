@@ -487,7 +487,15 @@ export type Database = {
           user_id?: string
           video_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ads_advertiser_id_fkey"
+            columns: ["advertiser_id"]
+            isOneToOne: false
+            referencedRelation: "advertiser_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       advertiser_accounts: {
         Row: {
@@ -548,6 +556,7 @@ export type Database = {
           country_targets: string[] | null
           created_at: string | null
           delivered_clicks: number | null
+          delivered_conversions: number | null
           delivered_views: number | null
           duration_seconds: number | null
           end_date: string | null
@@ -557,6 +566,7 @@ export type Database = {
           start_date: string | null
           status: string | null
           target_clicks: number | null
+          target_conversions: number | null
           target_views: number | null
           updated_at: string | null
         }
@@ -570,6 +580,7 @@ export type Database = {
           country_targets?: string[] | null
           created_at?: string | null
           delivered_clicks?: number | null
+          delivered_conversions?: number | null
           delivered_views?: number | null
           duration_seconds?: number | null
           end_date?: string | null
@@ -579,6 +590,7 @@ export type Database = {
           start_date?: string | null
           status?: string | null
           target_clicks?: number | null
+          target_conversions?: number | null
           target_views?: number | null
           updated_at?: string | null
         }
@@ -592,6 +604,7 @@ export type Database = {
           country_targets?: string[] | null
           created_at?: string | null
           delivered_clicks?: number | null
+          delivered_conversions?: number | null
           delivered_views?: number | null
           duration_seconds?: number | null
           end_date?: string | null
@@ -601,6 +614,7 @@ export type Database = {
           start_date?: string | null
           status?: string | null
           target_clicks?: number | null
+          target_conversions?: number | null
           target_views?: number | null
           updated_at?: string | null
         }
