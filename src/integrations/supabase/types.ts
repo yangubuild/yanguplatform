@@ -4640,6 +4640,35 @@ export type Database = {
         }
         Relationships: []
       }
+      first_free_log: {
+        Row: {
+          action_key: string
+          id: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          action_key: string
+          id?: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          action_key?: string
+          id?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "first_free_log_action_key_fkey"
+            columns: ["action_key"]
+            isOneToOne: false
+            referencedRelation: "unlock_action_registry"
+            referencedColumns: ["action_key"]
+          },
+        ]
+      }
       follows: {
         Row: {
           created_at: string
@@ -9054,13 +9083,17 @@ export type Database = {
           created_at: string | null
           credits_required: number | null
           free_limit: number | null
+          free_range: Json | null
           id: string
           is_enabled: boolean | null
+          module: string | null
           notes: string | null
           payment_required: boolean | null
+          placement: string | null
           plan_id: string | null
           plan_limit: number | null
           time_unlock_minutes: number | null
+          unlock_tier: string | null
           updated_at: string | null
         }
         Insert: {
@@ -9069,13 +9102,17 @@ export type Database = {
           created_at?: string | null
           credits_required?: number | null
           free_limit?: number | null
+          free_range?: Json | null
           id?: string
           is_enabled?: boolean | null
+          module?: string | null
           notes?: string | null
           payment_required?: boolean | null
+          placement?: string | null
           plan_id?: string | null
           plan_limit?: number | null
           time_unlock_minutes?: number | null
+          unlock_tier?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -9084,13 +9121,17 @@ export type Database = {
           created_at?: string | null
           credits_required?: number | null
           free_limit?: number | null
+          free_range?: Json | null
           id?: string
           is_enabled?: boolean | null
+          module?: string | null
           notes?: string | null
           payment_required?: boolean | null
+          placement?: string | null
           plan_id?: string | null
           plan_limit?: number | null
           time_unlock_minutes?: number | null
+          unlock_tier?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -9130,6 +9171,33 @@ export type Database = {
           reset_days?: number
           starter_limit?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      user_action_counts: {
+        Row: {
+          action_key: string
+          count: number | null
+          id: string
+          period: string | null
+          period_start: string | null
+          user_id: string
+        }
+        Insert: {
+          action_key: string
+          count?: number | null
+          id?: string
+          period?: string | null
+          period_start?: string | null
+          user_id: string
+        }
+        Update: {
+          action_key?: string
+          count?: number | null
+          id?: string
+          period?: string | null
+          period_start?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -10566,6 +10634,10 @@ export type Database = {
             }
             Returns: Json
           }
+      increment_action_usage: {
+        Args: { p_action_key: string }
+        Returns: number
+      }
       is_drive_connected: { Args: never; Returns: boolean }
       is_dropship_provider_cooled_down: {
         Args: { p_provider_key: string }
@@ -10854,6 +10926,7 @@ export type Database = {
         Args: { p_action: string; p_user_id: string }
         Returns: string
       }
+      mark_first_free_used: { Args: { p_action_key: string }; Returns: boolean }
       modify_hub_booking: {
         Args: {
           p_booking_id: string
