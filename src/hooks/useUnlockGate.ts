@@ -11,7 +11,7 @@
  *   {UnlockDialog}
  */
 
-import { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { isAlwaysFree, type ActionKey } from "@/lib/ads/unlockMatrix";
 import { checkActionEligibility, incrementActionUsage, markFirstFreeUsed } from "@/lib/ads/unlockDecisionEngine";
 import { RewardedUnlockDialog } from "@/components/ads/RewardedUnlockDialog";
