@@ -183,6 +183,32 @@ async function attemptAdUnlock(
   state.servedAd = ad;
   state.status = "ad_ready";
   callbacks?.onStatusChange?.(state);
+
+  // If AdMob mobile, auto-trigger native rewarded flow
+  if (ad.provider_path === "admob_mobile" && isAdMobAvailable()) {
+    state.status = "ad_playing";
+    callbacks?.onStatusChange?.(state);
+
+    const startTime = Date.now();
+    await onAdStarted(state);
+    const result = await showAdMobRewarded();
+    const watchMs = Date.now() - startTime;
+
+    if (result.status === "completed") {
+      return await onAdCompleted(state, watchMs, callbacks);
+    } else {
+      await onAdSkipped(state, watchMs);
+      if (result.status === "dismissed") {
+        state.status = "idle";
+      } else {
+        state.status = "error";
+        state.errorMessage = result.error ?? "Ad failed to load";
+      }
+      callbacks?.onStatusChange?.(state);
+      return state;
+    }
+  }
+
   callbacks?.onAdRequired?.(ad);
 
   return state;
