@@ -82,62 +82,59 @@ export async function showRewardedAd(
       "@capacitor-community/admob"
     );
 
-    return new Promise<AdMobRewardResult>((resolve) => {
+    return new Promise<AdMobRewardResult>(async (resolve) => {
       let settled = false;
+      const handles: { remove: () => void }[] = [];
+
       const settle = (result: AdMobRewardResult) => {
         if (settled) return;
         settled = true;
-        // Clean up listeners
-        rewardedHandle?.remove();
-        dismissedHandle?.remove();
-        failedHandle?.remove();
+        handles.forEach((h) => h.remove());
         resolve(result);
       };
 
       // Listen for reward earned
-      const rewardedHandle = AdMob.addListener(
-        RewardAdPluginEvents.Rewarded,
-        (reward) => {
+      handles.push(
+        await AdMob.addListener(RewardAdPluginEvents.Rewarded, (reward) => {
           console.info("[admobService] Reward earned:", reward);
           settle({
             status: "completed",
             rewardType: reward?.type ?? undefined,
             rewardAmount: reward?.amount ?? undefined,
           });
-        }
+        })
       );
 
       // Listen for dismissal without reward
-      const dismissedHandle = AdMob.addListener(
-        RewardAdPluginEvents.Dismissed,
-        () => {
+      handles.push(
+        await AdMob.addListener(RewardAdPluginEvents.Dismissed, () => {
           console.info("[admobService] Ad dismissed");
           settle({ status: "dismissed" });
-        }
+        })
       );
 
       // Listen for failure to show
-      const failedHandle = AdMob.addListener(
-        RewardAdPluginEvents.FailedToShow,
-        (err) => {
+      handles.push(
+        await AdMob.addListener(RewardAdPluginEvents.FailedToShow, (err) => {
           console.warn("[admobService] Ad failed to show:", err);
           settle({
             status: "failed",
             error: err?.message ?? "Failed to show ad",
           });
-        }
+        })
       );
 
       // Load + show
-      AdMob.prepareRewardVideoAd({ adId: unitId, isTesting: ADMOB_CONFIG.USE_TEST_ADS })
-        .then(() => AdMob.showRewardVideoAd())
-        .catch((err: any) => {
-          console.error("[admobService] Load/show error:", err);
-          settle({
-            status: "failed",
-            error: err?.message ?? "Ad load failed",
-          });
+      try {
+        await AdMob.prepareRewardVideoAd({ adId: unitId, isTesting: ADMOB_CONFIG.USE_TEST_ADS });
+        await AdMob.showRewardVideoAd();
+      } catch (err: any) {
+        console.error("[admobService] Load/show error:", err);
+        settle({
+          status: "failed",
+          error: err?.message ?? "Ad load failed",
         });
+      }
     });
   } catch (err: any) {
     console.error("[admobService] Unexpected error:", err);

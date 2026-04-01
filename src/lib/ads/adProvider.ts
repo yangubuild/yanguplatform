@@ -201,12 +201,25 @@ async function fetchDirectAd(ctx: AdRequestContext): Promise<ServedAd | null> {
   }
 }
 
-/** Stub: AdMob SDK adapter for mobile — to be wired with real SDK */
+/** AdMob rewarded ad adapter for Capacitor mobile */
 async function fetchAdMobAd(
-  _ctx: AdRequestContext
+  ctx: AdRequestContext
 ): Promise<ServedAd | null> {
-  // Will integrate with Capacitor AdMob plugin
-  return null;
+  if (!isAdMobAvailable()) return null;
+
+  return {
+    ad_id: `admob_${Date.now()}`,
+    provider: "admob",
+    provider_path: "admob_mobile",
+    format: "rewarded_video",
+    duration_seconds: ctx.preferredDuration ?? 15,
+    media_url: null,
+    image_url: null,
+    cta_text: null,
+    cta_url: null,
+    campaign_id: null,
+    is_test: false,
+  };
 }
 
 /** Stub: Google Ad Manager / web rewarded ad adapter */
