@@ -631,6 +631,7 @@ const App = () => (
                   <Route path="ai-visibility/competitors" element={<ManageRoleGate allowedRoles={["admin", "sales_marketing"]}><ManageAiVisibilityCompetitors /></ManageRoleGate>} />
                   <Route path="ai-visibility/content-gaps" element={<ManageRoleGate allowedRoles={["admin", "sales_marketing"]}><ManageAiVisibilityContentGaps /></ManageRoleGate>} />
                   <Route path="surface-moderation" element={<ManageRoleGate allowedRoles={["admin"]}><ManageSurfaceModeration /></ManageRoleGate>} />
+                  <Route path="ads" element={<ManageRoleGate allowedRoles={["admin"]}><ManageAdsAdmin /></ManageRoleGate>} />
                   <Route path="*" element={<ManageNotFound />} />
                 </Route>
                 
