@@ -4,6 +4,7 @@ import { BuilderSectionList } from "@/components/builder/BuilderSectionList";
 import { BuilderAddSection } from "@/components/builder/BuilderAddSection";
 import { BuilderPreview } from "@/components/builder/BuilderPreview";
 import { BuilderPublishModal } from "@/components/builder/BuilderPublishModal";
+import { getEngineForSurfaceType } from "@/lib/builder/engineRegistry";
 import { BuilderPageEditPanel } from "@/components/builder/BuilderPageEditPanel";
 import { Card } from "@/components/primitives";
 import { SECTION_TYPE_LABELS } from "@/config/builderSectionLabels";
