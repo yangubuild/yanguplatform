@@ -1,28 +1,90 @@
 
+# YANGU Builder — Category Routing & Seller Editor Plan
 
-## Changes (3 files)
+## A. Routing Plan
 
-### 1. `InnerPageSidebar.tsx` — Strip to 7 items only
+**Current:** `/builder/:surfaceId` → `BuilderEditor` (generic, same for all)
 
-- Remove `PINNED_ITEMS` array (lines 28-32) and its rendered section (lines 83-102)
-- Remove "All tools" section (lines 104-129)
-- Remove "Apps" section (lines 131-143)
-- Remove bottom "Developer" + "Settings" buttons and their wrapper (lines 166-182)
-- Remove unused imports: `ShoppingBag`, `LinkIcon`, `FileText`, `LayoutGrid`, `MoreHorizontal`, `Code`, `Settings`
-- Keep: "Preview as Admin" header, 6 NAV_ITEMS, Chat section
+**New:** `/builder/:surfaceId` → `BuilderEditorRouter` (thin wrapper that reads `surface_type` and branches)
 
-### 2. `ProfileWorkspace.tsx` — Composer into scroll flow + tab fix
+| surface_type | Routes to | Status |
+|---|---|---|
+| `emenu` | `SellerEditor` | ✅ Full (this phase) |
+| `eshop` | `SellerEditor` | ✅ Full (this phase) |
+| `estore` | `SellerEditor` | ✅ Full (this phase) |
+| `quick_site` (esite) | `SellerEditor` | ✅ Full (this phase) |
+| `live_bio` | `InfluencerEditorPlaceholder` | 🔲 Stub only |
+| `community_group` | `CommunityEditorPlaceholder` | 🔲 Stub only |
 
-- Change `"KYC"` to `"Chats"` in TABS array (line 16)
-- Move the composer bar (lines 189-213) from outside the scrollable div to inside it, after the Products section (before the closing `</div>` of the scrollable area at line 187)
-- Remove `shrink-0` from the composer div
-- Remove `borderTop` from the composer (it's now inline content, not a footer)
-- Keep `flex flex-col h-full` on root wrapper unchanged
+**Implementation:** `BuilderEditorRouter.tsx` fetches `surface_type` from `builder_surfaces`, then renders the correct editor component. Loading/error states handled here once.
 
-### 3. `DashboardHome.tsx` — Grid proportions + scroll fix + partition
+---
 
-- Change grid columns from `280px 1fr 360px` to `220px 1fr 320px`
-- Remove `overflow-y-auto` from center column cell (line 37) — scrolling handled inside ProfileWorkspace
-- Remove `overflow-y-auto` from left and right column cells — they should not scroll
-- Add `borderLeft: "1px solid rgba(255,255,255,0.08)"` on the inner page sidebar cell to visually separate it from the global sidebar
+## B. Seller Editor Plan
 
+**Rename:** Current `BuilderEditor.tsx` (777 lines) → becomes `SellerEditor.tsx`
+
+**Category-awareness via engine lookup:**
+- On mount, resolve `surface_type` → engine key (using existing `getEngineForSurfaceType`)
+- Engine provides: `editorModules`, `templates`, `aiGenerationRules`
+- These drive which panels, section tools, and add-section options appear
+
+**What changes per seller subtype:**
+
+| Feature | emenu | eshop | estore | esite |
+|---|---|---|---|---|
+| Add Section list | menu, hero, location, delivery | products, hero, cart, order | catalog, hero, inquiry | services, hero, contact, booking |
+| Module panels | Menu editor | Product manager | Catalog manager | Service editor |
+| Preview hint | Food-themed | Commerce-themed | Industrial/catalog | Professional/service |
+
+**How:** The existing `BuilderAddSection` and section type labels will filter based on `engine.templates` and `engine.aiGenerationRules.allowedSectionTypes`. No new components needed — just pass the engine config down.
+
+---
+
+## C. File Structure Plan
+
+### Shared (NO changes):
+- `src/components/builder-new/*` (entry, wizard, AI onboarding, chat)
+- `src/lib/builder/engines/*` (all 6 engine configs)
+- `src/lib/builder/engineRegistry.ts`
+- `src/hooks/useBuilderEditor.ts`
+- `src/hooks/useBuilderSurfaceInit.ts`
+- `src/components/builder/*` (BuilderPreview, BuilderSectionList, etc.)
+
+### New files:
+```
+src/pages/BuilderEditorRouter.tsx      ← thin router (reads surface_type, branches)
+src/pages/SellerEditor.tsx             ← renamed from BuilderEditor.tsx + engine-aware
+src/pages/InfluencerEditorPlaceholder.tsx  ← stub
+src/pages/CommunityEditorPlaceholder.tsx  ← stub
+```
+
+### Modified files:
+```
+src/App.tsx                            ← /builder/:surfaceId → BuilderEditorRouter
+src/components/builder/BuilderAddSection.tsx  ← filter by engine.allowedSectionTypes
+```
+
+---
+
+## D. Placeholder Plan
+
+**InfluencerEditorPlaceholder:**
+- Full-screen card with back-to-dashboard button
+- Shows surface title + "Influencer bio editor coming soon"
+- No functionality
+
+**CommunityEditorPlaceholder:**
+- Same pattern — "Community editor coming soon"
+- No functionality
+
+Both receive `surfaceId` from URL params so they're ready for future wiring.
+
+---
+
+## Execution Order
+1. Create `BuilderEditorRouter.tsx` (fetches surface_type, branches)
+2. Copy `BuilderEditor.tsx` → `SellerEditor.tsx`, add engine-awareness
+3. Create two placeholder editors
+4. Update `App.tsx` route to use router
+5. Wire `BuilderAddSection` to respect engine config
