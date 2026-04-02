@@ -42,7 +42,7 @@ import {
 type RightPanel = "none" | "page_edit" | "section" | "setup";
 type PreviewViewport = "desktop" | "mobile";
 
-export default function BuilderEditor() {
+export default function SellerEditor() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
