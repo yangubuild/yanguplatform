@@ -52,7 +52,7 @@ const ProductVideoPage = lazy(() => lazyRetry(() => import("./components/studio/
 const AiShortsPage = lazy(() => lazyRetry(() => import("./components/studio/ai-shorts/AiShortsPage")));
 const StudioAssetGallery = lazy(() => lazyRetry(() => import("./components/studio/assets/StudioAssetGallery")));
 const PortfolioPage = lazy(() => lazyRetry(() => import("./pages/PortfolioPage")));
-const BuilderEditor = lazy(() => lazyRetry(() => import("./pages/BuilderEditor")));
+const BuilderEditorRouter = lazy(() => lazyRetry(() => import("./pages/BuilderEditorRouter")));
 const BuilderNewPage = lazy(() => lazyRetry(() => import("./pages/BuilderNewPage")));
 const Community = lazy(() => lazyRetry(() => import("./pages/Community")));
 const AdaAi = lazy(() => lazyRetry(() => import("./pages/AdaAi")));
