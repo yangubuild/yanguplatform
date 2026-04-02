@@ -175,7 +175,7 @@ export default function SellerEditor() {
     );
   }
 
-  const surfaceType = (editorState.surface.surface_type || "live_bio") as BuilderSurfaceType;
+  const surfaceType = (editorState.surface.surface_type || "quick_site") as BuilderSurfaceType;
   const surfaceTitle = editorState.surface.title || "Untitled";
   const builderTheme = getThemeFromMetadata(editorState.surface.metadata);
   const surfaceMeta = (editorState.surface.metadata || {}) as Record<string, unknown>;
@@ -183,6 +183,11 @@ export default function SellerEditor() {
   const aiAnswers = (surfaceMeta.ai_answers || {}) as Record<string, unknown>;
   const aiSource = surfaceMeta.ai_source as string | undefined;
   const industry = (surfaceMeta.industry as string) || null;
+
+  // Engine-awareness: resolve the category engine for this seller surface
+  const engine = getEngineForSurfaceType(surfaceType);
+  const allowedSectionTypes = engine?.aiGenerationRules?.allowedSectionTypes;
+  const categoryLabel = engine?.label || "Seller";
 
   const handleSelectSection = (id: string) => {
     setSelectedSectionId(id);
