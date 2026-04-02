@@ -547,7 +547,7 @@ const App = () => (
                   path="/builder/:surfaceId"
                   element={
                     <ProtectedRoute>
-                      <BuilderEditor />
+                      <BuilderEditorRouter />
                     </ProtectedRoute>
                   }
                 />
