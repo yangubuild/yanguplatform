@@ -329,7 +329,7 @@ export default function SellerEditor() {
             />
           </div>
           <div className="p-3 border-t border-border">
-            <BuilderAddSection onAdd={addSection} onAddWithSchema={addSectionWithSchema} isAdding={isAdding || isSwitching} surfaceType={surfaceType} />
+            <BuilderAddSection onAdd={addSection} onAddWithSchema={addSectionWithSchema} isAdding={isAdding || isSwitching} surfaceType={surfaceType} allowedSectionTypes={allowedSectionTypes} />
           </div>
         </aside>
 
