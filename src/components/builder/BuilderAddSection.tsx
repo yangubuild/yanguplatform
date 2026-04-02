@@ -14,6 +14,8 @@ interface BuilderAddSectionProps {
   onAddWithSchema: (sectionType: string, schema: Record<string, unknown>) => Promise<void>;
   isAdding: boolean;
   surfaceType: string;
+  /** When provided, only these section types appear in the "Add Section" popover */
+  allowedSectionTypes?: string[];
 }
 
 export function BuilderAddSection({
@@ -21,11 +23,15 @@ export function BuilderAddSection({
   onAddWithSchema,
   isAdding,
   surfaceType,
+  allowedSectionTypes,
 }: BuilderAddSectionProps) {
   const [open, setOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
 
-  const generalSections = getGeneralSections();
+  const allSections = getGeneralSections();
+  const generalSections = allowedSectionTypes
+    ? allSections.filter((s) => allowedSectionTypes.includes(s.type))
+    : allSections;
 
   const handleSelectGeneral = async (type: string) => {
     setOpen(false);
