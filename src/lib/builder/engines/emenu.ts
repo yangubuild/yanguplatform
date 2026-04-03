@@ -123,10 +123,12 @@ export const emenuEngine: BuilderEngine = {
   editorModules: ["menu_categories", "menu_items", "food_image_ai", "hours", "order_settings", "contact", "social"],
   templates: [
     { key: "hero_restaurant", label: "Hero Restaurant", sectionType: "hero", schema: { headline: "", subheadline: "", logo: "", logo_position: "left", banner: "" } },
-    { key: "menu_categories", label: "Menu Categories", sectionType: "menu", schema: { heading: "Menu", categories: [], layout_style: "grid" } },
+    { key: "menu_categories", label: "Menu Categories", sectionType: "menu", schema: { heading: "Menu", categories: [], layout_style: "grid", show_images: true, show_badges: true, show_dietary: true, columns_desktop: 2 } },
     { key: "featured_dishes", label: "Featured Dishes", sectionType: "featured", schema: { heading: "Featured", items: [] } },
+    { key: "promo_banner", label: "Promotional Banner", sectionType: "offer", schema: { heading: "Special Offer", description: "Limited time deal", layout_variant: "story_block" } },
+    { key: "category_showcase", label: "Category Showcase", sectionType: "showcase", schema: { heading: "Discover Our Menu", items: [] } },
     { key: "qr_menu", label: "QR Menu Card", sectionType: "qr", schema: { heading: "Scan to View Menu" } },
-    { key: "offers_banner", label: "Offers Banner", sectionType: "offers", schema: { heading: "Today's Offers", items: [] } },
+    { key: "offers_banner", label: "Deals & Discounts", sectionType: "offers", schema: { heading: "Today's Offers", items: [] } },
     { key: "reviews", label: "Customer Reviews", sectionType: "reviews", schema: { heading: "Reviews", items: [] } },
   ],
   aiGenerationRules: {
