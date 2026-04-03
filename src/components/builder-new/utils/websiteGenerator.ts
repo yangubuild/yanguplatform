@@ -467,6 +467,17 @@ function buildEmenuTemplateHTML(config: GeneratorConfig, preset: TemplatePreset,
     </section>`;
   }
 
+  // ─── RESERVATION MODE: completely different layout (Gusto / fine dining) ───
+  const isReservationMode = mainSchema.reservation_mode === true || mainSchema.display_mode === "reservation_menu";
+
+  if (isReservationMode) {
+    return buildReservationHTML(config, preset, {
+      pageBg, pageText, cardBg, borderColor, accentColor, accentText, fontHeading,
+      isDark, heroGradient, heroHTML, logoHtml, navLinks, navBg, headerCta,
+      businessName, heroImg,
+    }, variantIndex);
+  }
+
   // Menu section from template items
   const menuItems = (mainSchema.items as any[]) || [];
   const menuHeading = mainSchema.heading || "Our Menu";
@@ -502,7 +513,6 @@ function buildEmenuTemplateHTML(config: GeneratorConfig, preset: TemplatePreset,
       </div>
     </div>
   </section>` : "";
-
   // Category showcase (if present in template)
   const catShowcase = mainSchema.category_showcase;
   let categoryHTML = "";
