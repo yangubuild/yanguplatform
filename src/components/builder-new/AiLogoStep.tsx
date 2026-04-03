@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { RefreshCw, Check, Palette } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { YanguLoader } from "@/components/YanguLoader";
+import { composeLogoOptions } from "./utils/logoComposer";
 
 interface AiLogoStepProps {
   businessName: string;
@@ -15,44 +15,6 @@ const PRESET_COLORS = [
   "#1abc9c", "#f39c12", "#e67e22", "#34495e", "#d35400",
 ];
 
-const STYLE_VARIANTS = [
-  "modern minimalist with a clean icon above the business name",
-  "badge-style circular emblem with the name integrated, artisan feel",
-  "bold typographic with a subtle food element, contemporary and eye-catching",
-];
-
-async function generateSingleLogo(
-  businessName: string,
-  color: string,
-  variantIndex: number,
-  category: string,
-  businessType: string,
-  description?: string
-): Promise<{ url: string | null; source: string }> {
-  const style = STYLE_VARIANTS[variantIndex % STYLE_VARIANTS.length];
-  const descHint = description ? ` Additional style hint: ${description}.` : "";
-
-  try {
-    const { data, error } = await supabase.functions.invoke("generate-logo", {
-      body: {
-        businessName,
-        category,
-        businessType,
-        color,
-        style: style + descHint,
-      },
-    });
-    if (error) throw error;
-    return {
-      url: data?.image_url || null,
-      source: data?.source || "ai_generated",
-    };
-  } catch (err) {
-    console.error(`Logo variant ${variantIndex} failed:`, err);
-    return { url: null, source: "ai_generated" };
-  }
-}
-
 export function AiLogoStep({ businessName, category = "emenu", businessType = "restaurant", onConfirm }: AiLogoStepProps) {
   const [selectedColor, setSelectedColor] = useState(PRESET_COLORS[0]);
   const [customDesc, setCustomDesc] = useState("");
@@ -61,38 +23,34 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [generationSeed, setGenerationSeed] = useState(0);
 
-  const generateLogos = useCallback(async () => {
+  const generateLogos = useCallback(async (seed = generationSeed) => {
     setIsGenerating(true);
     setError(null);
     setSelectedIdx(null);
 
     try {
-      const promises = [0, 1, 2].map(i =>
-        generateSingleLogo(
-          businessName || "My Restaurant",
-          selectedColor,
-          i,
-          category,
-          businessType,
-          customDesc || undefined
-        )
-      );
-      const results = await Promise.all(promises);
-      const urls = results.map(r => r.url);
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      const urls = await composeLogoOptions({
+        businessName: businessName || "My Restaurant",
+        color: selectedColor,
+        description: [category, businessType, customDesc].filter(Boolean).join(" "),
+        seed,
+      });
       setLogos(urls);
       setHasGenerated(true);
 
       if (urls.every(r => r === null)) {
-        setError("Logo generation failed. Please try again.");
+        setError("Logo preparation failed. Please try again.");
       }
     } catch (err) {
-      console.error("Logo generation error:", err);
+      console.error("Logo preparation error:", err);
       setError("Something went wrong. Please try again.");
     } finally {
       setIsGenerating(false);
     }
-  }, [businessName, selectedColor, customDesc, category, businessType]);
+  }, [businessName, selectedColor, customDesc, category, businessType, generationSeed]);
 
   // Auto-generate on first mount
   useEffect(() => {
@@ -112,7 +70,7 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
       {/* Logo grid */}
       {isGenerating ? (
         <div className="flex flex-col items-center justify-center py-12 gap-3">
-          <YanguLoader size={36} fullArea={false} label="Generating logos..." />
+          <YanguLoader size={36} fullArea={false} label="Preparing logos..." />
         </div>
       ) : (
         <div className="grid grid-cols-3 gap-3">
@@ -185,7 +143,11 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
           className="flex-1 px-3 py-2 text-xs rounded-lg bg-muted border border-border focus:border-primary/50 focus:outline-none"
         />
         <button
-          onClick={generateLogos}
+          onClick={() => {
+            const nextSeed = generationSeed + 1;
+            setGenerationSeed(nextSeed);
+            generateLogos(nextSeed);
+          }}
           disabled={isGenerating}
           className="flex items-center gap-1.5 px-3 py-2 text-xs rounded-lg border border-border hover:bg-muted transition-colors disabled:opacity-50"
         >

@@ -340,7 +340,7 @@ function buildHTML(config: GeneratorConfig, theme: StyleTheme, layout: LayoutVar
 
   const logoHtml = config.userLogoUrl
     ? `<img src="${config.userLogoUrl}" alt="${config.businessName}" style="height:28px;width:auto;"/>`
-    : `<span style="font-weight:700;font-size:18px;color:${theme.accent};">${config.businessName || "My Site"}</span>`;
+    : `<span style="font-weight:700;font-size:18px;color:${theme.text};letter-spacing:0.02em;">${config.businessName || "My Site"}</span>`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -623,7 +623,7 @@ function buildEmenuTemplateHTML(config: GeneratorConfig, preset: TemplatePreset,
   // Logo
   const logoHtml = config.userLogoUrl
     ? `<img src="${config.userLogoUrl}" alt="${businessName}" style="height:28px;width:auto;"/>`
-    : `<span style="font-weight:700;font-size:18px;color:${accentColor};">${businessName}</span>`;
+    : `<span style="font-weight:700;font-size:18px;color:${pageText};letter-spacing:0.02em;">${businessName}</span>`;
 
   // Nav items from template
   const navItems = (headerSchema.nav_items as string[]) || ["Home", "Menu", "About"];
