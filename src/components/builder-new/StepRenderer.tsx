@@ -2,6 +2,7 @@ import type { StepConfig, StepOption, BuilderStep } from "./hooks/useStepControl
 import type { UserAssets } from "./hooks/useStepController";
 import { StyleCarousel } from "./StyleCarousel";
 import { AssetUploadStep } from "./AssetUploadStep";
+import { AiLogoStep } from "./AiLogoStep";
 import { Check } from "lucide-react";
 
 interface StepRendererProps {
@@ -14,6 +15,9 @@ interface StepRendererProps {
   userAssets?: UserAssets;
   onAssetsChange?: (assets: UserAssets) => void;
   onConfirmAssetUpload?: () => void;
+  // AI logo props
+  businessName?: string;
+  onConfirmAiLogo?: (logoUrl: string, color?: string) => void;
 }
 
 export function StepRenderer({
