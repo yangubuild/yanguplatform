@@ -37,6 +37,21 @@ export interface StepConfig {
   multiSelect?: boolean;
   allowFreeText?: boolean;
   renderAs?: "chips" | "cards" | "carousel" | "upload" | "location_input" | "ai_logo";
+  categoryContext?: string;
+  businessType?: string;
+  menuType?: string;
+}
+
+function getAiLogoContext(menuClassification: MenuComplexity | null) {
+  switch (menuClassification) {
+    case "simple_cafe":
+      return { category: "cafe", businessType: "simple_cafe" };
+    case "reservation":
+      return { category: "fine_dining", businessType: "reservation" };
+    case "bigger_menu":
+    default:
+      return { category: "restaurant", businessType: menuClassification || "restaurant" };
+  }
 }
 
 // ─── Category detection ────────────────────────────────────────────────
@@ -308,12 +323,18 @@ export function useStepController() {
           renderAs: "cards",
         };
       case "ai_logo":
+        {
+          const logoContext = getAiLogoContext(menuClassification);
         return {
           key: "ai_logo",
           adaMessage: `I'll generate 3 logo options for **${businessName}**. Pick one you like, or regenerate with a description.`,
           options: [],
           renderAs: "ai_logo",
+          categoryContext: logoContext.category,
+          businessType: logoContext.businessType,
+          menuType: selectedScope || undefined,
         };
+        }
       case "asset_upload":
         return {
           key: "asset_upload",
