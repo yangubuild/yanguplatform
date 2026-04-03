@@ -29,7 +29,14 @@ export function StepRenderer({
   userAssets,
   onAssetsChange,
   onConfirmAssetUpload,
+  businessName,
+  onConfirmAiLogo,
 }: StepRendererProps) {
+  // AI logo generation step
+  if (config.renderAs === "ai_logo" && businessName && onConfirmAiLogo) {
+    return <AiLogoStep businessName={businessName} onConfirm={onConfirmAiLogo} />;
+  }
+
   // Asset upload step
   if (config.renderAs === "upload" && userAssets && onAssetsChange && onConfirmAssetUpload) {
     return (
