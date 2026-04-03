@@ -108,12 +108,34 @@ function buildTemplateOption(templateKey: string, category: MenuComplexity): Tem
 }
 
 /**
- * Initialize template selection: classify input, build pool, return first pair.
+ * For reservation mode, return a single-template result (no 2-option selection).
  */
-export function initTemplateSelection(input: EmenuGenerationInput): TemplateSelectionState {
+export interface SingleTemplateResult {
+  category: "reservation";
+  categoryLabel: string;
+  categoryDescription: string;
+  template: TemplateOption;
+}
+
+/**
+ * Initialize template selection: classify input, build pool, return first pair.
+ * For reservation mode, returns a SingleTemplateResult instead (no 2-option flow).
+ */
+export function initTemplateSelection(input: EmenuGenerationInput): TemplateSelectionState | SingleTemplateResult {
   const category = classifyEmenu(input);
   const poolKeys = getTemplatesForComplexity(category);
   const meta = MENU_CATEGORY_LABELS[category];
+
+  // Reservation: always use the single gusto_reservation template — no 2-option selection
+  if (category === "reservation") {
+    const template = buildTemplateOption(poolKeys[0], category)!;
+    return {
+      category: "reservation",
+      categoryLabel: meta.label,
+      categoryDescription: meta.description,
+      template,
+    };
+  }
 
   // Pick first two (structurally most different come first in registry order)
   const pair = pickNextPair(poolKeys, new Set());
@@ -127,6 +149,13 @@ export function initTemplateSelection(input: EmenuGenerationInput): TemplateSele
     poolKeys,
     rejectionCount: 0,
   };
+}
+
+/** Type guard: check if result is a single-template reservation */
+export function isSingleTemplateResult(
+  result: TemplateSelectionState | SingleTemplateResult
+): result is SingleTemplateResult {
+  return result.category === "reservation" && "template" in result;
 }
 
 /**
