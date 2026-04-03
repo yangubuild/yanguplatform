@@ -697,6 +697,13 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     label: "Gusto Reservation",
     description: "Elegant fine dining: dark cinematic hero, reservation form, menu display-only, restaurant gallery, testimonials, opening hours",
     icon: "🍷",
+    reference: {
+      source: "link",
+      url: "https://gusto-template.framer.website/",
+      label: "Gusto Framer fine dining template",
+      sectionOrder: ["header_dark", "hero_fullwidth_cinematic", "menu_display_only", "reservation_form", "gallery", "testimonials", "story_block", "hours", "footer_dark"],
+      layoutPatterns: ["cinematic_dark_hero", "serif_elegant_typography", "reservation_form_grid", "horizontal_menu_rows", "gallery_grid", "star_rating_testimonials"],
+    },
     patches: {
       header: { schema: {
         layout_variant: "nav_split",
