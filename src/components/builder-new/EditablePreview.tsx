@@ -98,19 +98,16 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
     if (doc) onHtmlChange(doc.documentElement.outerHTML);
   }, [getDoc, onHtmlChange]);
 
-  const handleReplaceImage = useCallback((currentSrc?: string) => {
-    const url = prompt("Paste the new image URL:", currentSrc || "");
-    if (!url) return;
+  const handleImageSelected = useCallback((url: string) => {
     const doc = getDoc();
     if (!doc) return;
-    if (currentSrc) {
-      const img = doc.querySelector(`img[src="${CSS.escape(currentSrc)}"]`) as HTMLImageElement | null;
+    if (pendingImageSrc) {
+      const img = doc.querySelector(`img[src="${CSS.escape(pendingImageSrc)}"]`) as HTMLImageElement | null;
       if (img) { img.src = url; pushHtmlUpdate(); toast.success("Image replaced!"); return; }
     }
-    // Replace the selected img
     const sel = doc.querySelector('.yangu-img-selected') as HTMLImageElement | null;
     if (sel) { sel.src = url; pushHtmlUpdate(); toast.success("Image replaced!"); } else { toast.info("Click an image first, then replace."); }
-  }, [getDoc, pushHtmlUpdate]);
+  }, [getDoc, pushHtmlUpdate, pendingImageSrc]);
 
   const handleAddSection = useCallback(() => {
     const doc = getDoc();
