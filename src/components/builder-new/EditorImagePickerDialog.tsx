@@ -26,7 +26,7 @@ const SUGGESTIONS = ["food", "restaurant", "coffee", "bakery", "cocktail", "dess
 export function EditorImagePickerDialog({ open, onOpenChange, onSelect }: EditorImagePickerDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[80vh] flex flex-col">
+      <DialogContent className="w-[calc(100vw-2rem)] max-w-lg sm:max-w-2xl max-h-[80vh] flex flex-col p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle>Replace Image</DialogTitle>
         </DialogHeader>
