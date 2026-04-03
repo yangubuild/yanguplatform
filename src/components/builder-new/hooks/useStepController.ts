@@ -1,15 +1,19 @@
 import { useState, useCallback, useMemo } from "react";
-import type { Category, CategoryConfig, CATEGORY_CONFIGS as CatConfigs } from "../types/builder.types";
+import type { Category } from "../types/builder.types";
 import { CATEGORY_CONFIGS } from "../types/builder.types";
+import { EMENU_TEMPLATE_GROUPS } from "@/lib/builder/emenu/templateClassifier";
+import { classifyEmenu } from "@/lib/builder/emenu/templateFirstGeneration";
+import type { MenuComplexity } from "@/lib/builder/emenu/types";
 
 export type BuilderStep =
   | "greeting"
   | "scope"
   | "assets"
+  | "asset_upload"
   | "sections"
+  | "business_location"
   | "delivery_apps"
-  | "style_category"
-  | "style_specific"
+  | "template_choice"
   | "confirmation"
   | "generation"
   | "refinement";
@@ -29,7 +33,7 @@ export interface StepConfig {
   options: StepOption[];
   multiSelect?: boolean;
   allowFreeText?: boolean;
-  renderAs?: "chips" | "cards" | "carousel";
+  renderAs?: "chips" | "cards" | "carousel" | "upload" | "location_input";
 }
 
 // ─── Category detection ────────────────────────────────────────────────
@@ -41,26 +45,20 @@ export function detectCategory(text: string): Category {
       return key as Category;
     }
   }
-  return "esite"; // default
+  return "esite";
 }
 
 export function extractBusinessName(text: string): string {
-  // Try to extract quoted or capitalized names
   const quotedMatch = text.match(/["']([^"']+)["']/);
   if (quotedMatch) return quotedMatch[1];
-  
-  // Try comma-separated first part
   const commaParts = text.split(",");
   if (commaParts.length > 1) {
     const first = commaParts[0].trim();
     if (first.length <= 40 && first.split(" ").length <= 5) return first;
   }
-  
-  // Try first few capitalized words
   const words = text.split(/\s+/);
   const capWords = words.filter(w => /^[A-Z]/.test(w) && w.length > 1).slice(0, 3);
   if (capWords.length > 0) return capWords.join(" ");
-  
   return "My Website";
 }
 
@@ -130,50 +128,93 @@ const SECTION_OPTIONS_MAP: Partial<Record<Category, StepOption[]>> = {
   ],
 };
 
-const DELIVERY_APP_OPTIONS: StepOption[] = [
-  { id: "talabat", label: "Talabat", value: "talabat" },
-  { id: "deliveroo", label: "Deliveroo", value: "deliveroo" },
-  { id: "noon", label: "Noon Food", value: "noon_food" },
-  { id: "careem", label: "Careem", value: "careem" },
-  { id: "zomato", label: "Zomato", value: "zomato" },
-  { id: "ubereats", label: "Uber Eats", value: "ubereats" },
-];
+// ─── Delivery apps by region ─────────────────────────────────────────
 
-const STYLE_CATEGORY_OPTIONS: StepOption[] = [
-  { id: "bold", label: "Bold & Vibrant", value: "bold", description: "High-energy, eye-catching" },
-  { id: "warm", label: "Warm & Cozy", value: "warm", description: "Earthy tones, inviting feel" },
-  { id: "clean", label: "Clean & Minimal", value: "clean", description: "Whitespace, modern elegance" },
-  { id: "premium", label: "Premium & Luxury", value: "premium", description: "Dark themes, high-end" },
-  { id: "playful", label: "Playful & Fun", value: "playful", description: "Bright, friendly vibe" },
-];
+interface DeliveryRegion {
+  apps: StepOption[];
+}
 
-const STYLE_SPECIFIC_MAP: Record<string, StepOption[]> = {
-  bold: [
-    { id: "vibrant_pop", label: "Vibrant Pop Art", value: "vibrant_pop", description: "Neon accents, comic-style energy" },
-    { id: "neon_glow", label: "Neon Glow", value: "neon_glow", description: "Glowing neon on dark" },
-    { id: "street_bold", label: "Street Bold", value: "street_bold", description: "Urban graffiti-inspired" },
-  ],
-  warm: [
-    { id: "rustic_wood", label: "Rustic Wood", value: "rustic_wood", description: "Natural wood, farm-to-table" },
-    { id: "golden_hour", label: "Golden Hour", value: "golden_hour", description: "Warm sunset tones" },
-    { id: "heritage", label: "Heritage Classic", value: "heritage", description: "Traditional, timeless" },
-  ],
-  clean: [
-    { id: "swiss_minimal", label: "Swiss Minimal", value: "swiss_minimal", description: "Grid-based, ultra-clean" },
-    { id: "soft_pastel", label: "Soft Pastel", value: "soft_pastel", description: "Light pastels, airy" },
-    { id: "mono_sharp", label: "Monochrome Sharp", value: "mono_sharp", description: "Black & white contrast" },
-  ],
-  premium: [
-    { id: "dark_gold", label: "Dark & Gold", value: "dark_gold", description: "Black, gold accents" },
-    { id: "marble_lux", label: "Marble Luxury", value: "marble_lux", description: "Marble, sophisticated" },
-    { id: "noir_class", label: "Noir Classique", value: "noir_class", description: "Deep dark, minimal luxury" },
-  ],
-  playful: [
-    { id: "tropical_burst", label: "Tropical Burst", value: "tropical_burst", description: "Bright tropical colors" },
-    { id: "candy_pop", label: "Candy Pop", value: "candy_pop", description: "Sweet pastel pinks" },
-    { id: "retro_fun", label: "Retro Fun", value: "retro_fun", description: "80s/90s nostalgia" },
-  ],
+const DELIVERY_REGIONS: Record<string, DeliveryRegion> = {
+  uae: {
+    apps: [
+      { id: "talabat", label: "Talabat", value: "talabat" },
+      { id: "deliveroo", label: "Deliveroo", value: "deliveroo" },
+      { id: "noon", label: "Noon Food", value: "noon_food" },
+      { id: "careem", label: "Careem", value: "careem" },
+      { id: "zomato", label: "Zomato", value: "zomato" },
+    ],
+  },
+  saudi: {
+    apps: [
+      { id: "hungerstation", label: "HungerStation", value: "hungerstation" },
+      { id: "jahez", label: "Jahez", value: "jahez" },
+      { id: "toyou", label: "ToYou", value: "toyou" },
+      { id: "careem", label: "Careem", value: "careem" },
+      { id: "talabat", label: "Talabat", value: "talabat" },
+    ],
+  },
+  egypt: {
+    apps: [
+      { id: "talabat", label: "Talabat", value: "talabat" },
+      { id: "elmenus", label: "Elmenus", value: "elmenus" },
+    ],
+  },
+  global: {
+    apps: [
+      { id: "ubereats", label: "Uber Eats", value: "ubereats" },
+      { id: "doordash", label: "DoorDash", value: "doordash" },
+      { id: "deliveroo", label: "Deliveroo", value: "deliveroo" },
+      { id: "grubhub", label: "Grubhub", value: "grubhub" },
+    ],
+  },
 };
+
+const SELF_DELIVERY_OPTIONS: StepOption[] = [
+  { id: "self_delivery", label: "Self Delivery / In-House", value: "self_delivery" },
+  { id: "pickup_only", label: "Pickup Only", value: "pickup_only" },
+];
+
+function detectRegion(location: string): string {
+  const lower = location.toLowerCase();
+  if (lower.includes("uae") || lower.includes("dubai") || lower.includes("abu dhabi") || lower.includes("sharjah")) return "uae";
+  if (lower.includes("saudi") || lower.includes("riyadh") || lower.includes("jeddah") || lower.includes("ksa")) return "saudi";
+  if (lower.includes("egypt") || lower.includes("cairo")) return "egypt";
+  return "global";
+}
+
+function getDeliveryOptions(location: string): StepOption[] {
+  const region = detectRegion(location);
+  const regionApps = DELIVERY_REGIONS[region]?.apps || DELIVERY_REGIONS.global.apps;
+  return [...regionApps, ...SELF_DELIVERY_OPTIONS];
+}
+
+// ─── Emenu template options for template_choice step ─────────────────
+
+function getEmenuTemplateOptions(classification: MenuComplexity): StepOption[] {
+  const group = EMENU_TEMPLATE_GROUPS.find(g => g.complexity === classification);
+  if (!group) return [];
+
+  // Import template labels from registry — we build options from the keys
+  const { getTemplate } = require("@/config/templateRegistry");
+  return group.templateKeys.map(key => {
+    const preset = getTemplate("emenu", key);
+    return {
+      id: key,
+      label: preset?.label || key,
+      value: key,
+      description: preset?.description || "",
+      icon: preset?.icon || "🍽️",
+    };
+  });
+}
+
+// ─── User assets state ───────────────────────────────────────────────
+
+export interface UserAssets {
+  logoUrl?: string;
+  brandColors: string[];
+  images: Array<{ url: string; purpose: string }>;
+}
 
 // ─── Hook ──────────────────────────────────────────────────────────────
 
@@ -184,29 +225,46 @@ export function useStepController() {
   const [selectedAssets, setSelectedAssets] = useState<string | null>(null);
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [selectedDeliveryApps, setSelectedDeliveryApps] = useState<string[]>([]);
-  const [selectedStyleCategory, setSelectedStyleCategory] = useState<string | null>(null);
-  const [selectedStyleSpecific, setSelectedStyleSpecific] = useState<string | null>(null);
+  const [selectedTemplateKey, setSelectedTemplateKey] = useState<string | null>(null);
   const [businessName, setBusinessName] = useState("");
   const [userIdea, setUserIdea] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
+  const [businessLocation, setBusinessLocation] = useState("");
+  const [menuClassification, setMenuClassification] = useState<MenuComplexity | null>(null);
+  const [userUploadedAssets, setUserUploadedAssets] = useState<UserAssets>({
+    brandColors: [],
+    images: [],
+  });
 
   const isFoodCategory = useMemo(() => category === "emenu", [category]);
+
+  // Classify emenu on greeting
+  const classifyOnGreeting = useCallback((text: string, detectedCategory: Category) => {
+    if (detectedCategory === "emenu") {
+      const classification = classifyEmenu({
+        userIdea: text,
+        businessName: extractBusinessName(text),
+      });
+      setMenuClassification(classification);
+    }
+  }, []);
 
   const getNextStep = useCallback((step: BuilderStep): BuilderStep => {
     switch (step) {
       case "greeting": return "scope";
       case "scope": return "assets";
-      case "assets": return "sections";
-      case "sections": return isFoodCategory ? "delivery_apps" : "style_category";
-      case "delivery_apps": return "style_category";
-      case "style_category": return "style_specific";
-      case "style_specific": return "confirmation";
+      case "assets": return selectedAssets === "user_provided" || selectedAssets === "mix" ? "asset_upload" : "sections";
+      case "asset_upload": return "sections";
+      case "sections": return isFoodCategory ? "business_location" : "template_choice";
+      case "business_location": return "delivery_apps";
+      case "delivery_apps": return "template_choice";
+      case "template_choice": return "confirmation";
       case "confirmation": return "generation";
       case "generation": return "refinement";
       default: return "refinement";
     }
-  }, [isFoodCategory]);
+  }, [isFoodCategory, selectedAssets]);
 
   const getStepConfig = useCallback((): StepConfig => {
     switch (currentStep) {
@@ -231,6 +289,13 @@ export function useStepController() {
           options: ASSETS_OPTIONS,
           renderAs: "cards",
         };
+      case "asset_upload":
+        return {
+          key: "asset_upload",
+          adaMessage: "Great! Upload your assets below. Add your **logo**, pick your **brand colors**, and upload **images** (menu photos, restaurant interior, team, etc.).\n\nPlease upload at least 3 images.",
+          options: [],
+          renderAs: "upload",
+        };
       case "sections":
         return {
           key: "sections",
@@ -239,28 +304,47 @@ export function useStepController() {
           multiSelect: true,
           renderAs: "chips",
         };
+      case "business_location":
+        return {
+          key: "business_location",
+          adaMessage: "Where is your business based? This helps me show the right delivery platforms for your area.",
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
       case "delivery_apps":
         return {
           key: "delivery_apps",
-          adaMessage: "Which delivery apps should I link? Select all, then tap **Done**.",
-          options: DELIVERY_APP_OPTIONS,
+          adaMessage: `Here are the delivery options available in your area. Select all that apply, then tap **Done**.`,
+          options: getDeliveryOptions(businessLocation),
           multiSelect: true,
           renderAs: "chips",
         };
-      case "style_category":
+      case "template_choice": {
+        // For emenu, show real template previews from the classified pool
+        if (category === "emenu" && menuClassification) {
+          const templateOpts = getEmenuTemplateOptions(menuClassification);
+          return {
+            key: "template_choice",
+            adaMessage: "Pick a template style that matches your vision. These are real design templates I'll use as the foundation:",
+            options: templateOpts,
+            renderAs: "carousel",
+          };
+        }
+        // Non-emenu categories: generic style options (unchanged for now)
         return {
-          key: "style_category",
+          key: "template_choice",
           adaMessage: "Pick a style direction for your brand:",
-          options: STYLE_CATEGORY_OPTIONS,
+          options: [
+            { id: "bold", label: "Bold & Vibrant", value: "bold", description: "High-energy, eye-catching" },
+            { id: "warm", label: "Warm & Cozy", value: "warm", description: "Earthy tones, inviting feel" },
+            { id: "clean", label: "Clean & Minimal", value: "clean", description: "Whitespace, modern elegance" },
+            { id: "premium", label: "Premium & Luxury", value: "premium", description: "Dark themes, high-end" },
+            { id: "playful", label: "Playful & Fun", value: "playful", description: "Bright, friendly vibe" },
+          ],
           renderAs: "carousel",
         };
-      case "style_specific":
-        return {
-          key: "style_specific",
-          adaMessage: "Pick the specific style you like:",
-          options: STYLE_SPECIFIC_MAP[selectedStyleCategory || "bold"] || STYLE_SPECIFIC_MAP.bold,
-          renderAs: "carousel",
-        };
+      }
       case "confirmation":
         return {
           key: "confirmation",
@@ -287,7 +371,7 @@ export function useStepController() {
       default:
         return { key: "greeting", adaMessage: "", options: [] };
     }
-  }, [currentStep, category, isFoodCategory, selectedStyleCategory]);
+  }, [currentStep, category, isFoodCategory, businessLocation, menuClassification, selectedAssets]);
 
   const buildConfirmationMessage = useCallback(() => {
     const lines = ["Here's your summary:\n"];
@@ -295,12 +379,15 @@ export function useStepController() {
     if (selectedScope) lines.push(`• **Type:** ${selectedScope}`);
     if (selectedAssets) lines.push(`• **Assets:** ${selectedAssets}`);
     if (selectedSections.length) lines.push(`• **Sections:** ${selectedSections.join(", ")}`);
-    if (selectedDeliveryApps.length) lines.push(`• **Delivery Apps:** ${selectedDeliveryApps.join(", ")}`);
-    if (selectedStyleCategory) lines.push(`• **Style:** ${selectedStyleCategory}`);
-    if (selectedStyleSpecific) lines.push(`• **Specific Style:** ${selectedStyleSpecific}`);
+    if (businessLocation) lines.push(`• **Location:** ${businessLocation}`);
+    if (selectedDeliveryApps.length) lines.push(`• **Delivery:** ${selectedDeliveryApps.join(", ")}`);
+    if (selectedTemplateKey) lines.push(`• **Template:** ${selectedTemplateKey}`);
+    if (userUploadedAssets.logoUrl) lines.push(`• **Logo:** Uploaded ✓`);
+    if (userUploadedAssets.brandColors.length) lines.push(`• **Brand Colors:** ${userUploadedAssets.brandColors.join(", ")}`);
+    if (userUploadedAssets.images.length) lines.push(`• **Images:** ${userUploadedAssets.images.length} uploaded`);
     lines.push("\nReady to generate?");
     return lines.join("\n");
-  }, [category, selectedScope, selectedAssets, selectedSections, selectedDeliveryApps, selectedStyleCategory, selectedStyleSpecific]);
+  }, [category, selectedScope, selectedAssets, selectedSections, selectedDeliveryApps, selectedTemplateKey, businessLocation, userUploadedAssets]);
 
   const handleGreetingInput = useCallback((text: string) => {
     const detected = detectCategory(text);
@@ -308,8 +395,9 @@ export function useStepController() {
     setCategory(detected);
     setBusinessName(name);
     setUserIdea(text);
+    classifyOnGreeting(text, detected);
     setCurrentStep("scope");
-  }, []);
+  }, [classifyOnGreeting]);
 
   const handleOptionSelect = useCallback((option: StepOption) => {
     switch (currentStep) {
@@ -318,11 +406,14 @@ export function useStepController() {
         setCurrentStep("assets");
         break;
       case "assets":
-        setSelectedAssets(option.label);
-        setCurrentStep("sections");
+        setSelectedAssets(option.value);
+        if (option.value === "user_provided" || option.value === "mix") {
+          setCurrentStep("asset_upload");
+        } else {
+          setCurrentStep("sections");
+        }
         break;
       case "sections":
-        // Multi-select — toggle
         setSelectedSections(prev =>
           prev.includes(option.value) ? prev.filter(v => v !== option.value) : [...prev, option.value]
         );
@@ -332,12 +423,8 @@ export function useStepController() {
           prev.includes(option.value) ? prev.filter(v => v !== option.value) : [...prev, option.value]
         );
         break;
-      case "style_category":
-        setSelectedStyleCategory(option.value);
-        setCurrentStep("style_specific");
-        break;
-      case "style_specific":
-        setSelectedStyleSpecific(option.value);
+      case "template_choice":
+        setSelectedTemplateKey(option.value);
         setCurrentStep("confirmation");
         break;
       case "confirmation":
@@ -349,7 +436,7 @@ export function useStepController() {
         break;
       case "refinement":
         if (option.value === "change_style") {
-          setCurrentStep("style_category");
+          setCurrentStep("template_choice");
         } else if (option.value === "change_sections") {
           setCurrentStep("sections");
         } else if (option.value === "regenerate") {
@@ -359,15 +446,24 @@ export function useStepController() {
     }
   }, [currentStep]);
 
+  const handleLocationInput = useCallback((text: string) => {
+    setBusinessLocation(text);
+    setCurrentStep("delivery_apps");
+  }, []);
+
+  const confirmAssetUpload = useCallback(() => {
+    setCurrentStep("sections");
+  }, []);
+
   const confirmMultiSelect = useCallback(() => {
     if (currentStep === "sections") {
       if (isFoodCategory) {
-        setCurrentStep("delivery_apps");
+        setCurrentStep("business_location");
       } else {
-        setCurrentStep("style_category");
+        setCurrentStep("template_choice");
       }
     } else if (currentStep === "delivery_apps") {
-      setCurrentStep("style_category");
+      setCurrentStep("template_choice");
     }
   }, [currentStep, isFoodCategory]);
 
@@ -378,16 +474,18 @@ export function useStepController() {
     setSelectedAssets(null);
     setSelectedSections([]);
     setSelectedDeliveryApps([]);
-    setSelectedStyleCategory(null);
-    setSelectedStyleSpecific(null);
+    setSelectedTemplateKey(null);
     setBusinessName("");
     setUserIdea("");
     setIsGenerating(false);
     setGeneratedHtml(null);
+    setBusinessLocation("");
+    setMenuClassification(null);
+    setUserUploadedAssets({ brandColors: [], images: [] });
   }, []);
 
   const inputAllowed = useMemo(() => {
-    return currentStep === "greeting" || currentStep === "refinement";
+    return currentStep === "greeting" || currentStep === "refinement" || currentStep === "business_location";
   }, [currentStep]);
 
   return {
@@ -399,15 +497,16 @@ export function useStepController() {
     getNextStep,
     handleOptionSelect,
     handleGreetingInput,
+    handleLocationInput,
     confirmMultiSelect,
+    confirmAssetUpload,
     resetAll,
     inputAllowed,
     selectedScope,
     selectedAssets,
     selectedSections,
     selectedDeliveryApps,
-    selectedStyleCategory,
-    selectedStyleSpecific,
+    selectedTemplateKey,
     businessName,
     setBusinessName,
     userIdea,
@@ -417,5 +516,13 @@ export function useStepController() {
     generatedHtml,
     setGeneratedHtml,
     isFoodCategory,
+    businessLocation,
+    setBusinessLocation,
+    menuClassification,
+    userUploadedAssets,
+    setUserUploadedAssets,
+    // Kept for backward compat
+    selectedStyleCategory: selectedTemplateKey,
+    selectedStyleSpecific: null as string | null,
   };
 }
