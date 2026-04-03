@@ -12,11 +12,18 @@ import type { StepOption } from "@/components/builder-new/hooks/useStepControlle
 import type { ChatMessage, Selection } from "@/components/builder-new/types/builder.types";
 import yanguLogo from "@/assets/yangu-logo-full.png";
 
+// Natural delay between 800-1500ms for AI replies
+function naturalDelay(): Promise<void> {
+  const ms = 800 + Math.random() * 700;
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export default function BuilderNewPage() {
   const navigate = useNavigate();
   const ctrl = useStepController();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const greetedRef = useRef(false);
+  const [isThinking, setIsThinking] = useState(false);
 
   // Multi-variant state
   const [variants, setVariants] = useState<string[]>([]);
@@ -29,6 +36,14 @@ export default function BuilderNewPage() {
     return msg;
   }, []);
 
+  // Delayed assistant message
+  const addDelayedMsg = useCallback(async (content: string) => {
+    setIsThinking(true);
+    await naturalDelay();
+    setIsThinking(false);
+    addMsg("assistant", content);
+  }, [addMsg]);
+
   // Show Ada's first message
   useEffect(() => {
     if (greetedRef.current) return;
@@ -38,7 +53,7 @@ export default function BuilderNewPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // When step changes, add Ada's message
+  // When step changes, add Ada's message with delay
   const prevStepRef = useRef(ctrl.currentStep);
   useEffect(() => {
     if (ctrl.currentStep === prevStepRef.current) return;
@@ -50,7 +65,9 @@ export default function BuilderNewPage() {
     }
 
     const config = ctrl.getStepConfig();
-    if (config.adaMessage) addMsg("assistant", config.adaMessage);
+    if (config.adaMessage) {
+      addDelayedMsg(config.adaMessage);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ctrl.currentStep]);
 
@@ -69,6 +86,16 @@ export default function BuilderNewPage() {
     ctrl.confirmMultiSelect();
   }, [addMsg, ctrl]);
 
+  const handleConfirmAssetUpload = useCallback(() => {
+    const { userUploadedAssets } = ctrl;
+    const parts: string[] = [];
+    if (userUploadedAssets.logoUrl) parts.push("Logo uploaded");
+    if (userUploadedAssets.brandColors.length) parts.push(`${userUploadedAssets.brandColors.length} colors`);
+    if (userUploadedAssets.images.length) parts.push(`${userUploadedAssets.images.length} images`);
+    addMsg("user", `Assets: ${parts.join(", ") || "None"}`);
+    ctrl.confirmAssetUpload();
+  }, [addMsg, ctrl]);
+
   const handleGenerate = useCallback(() => {
     if (!ctrl.category) ctrl.setCategory("esite");
     ctrl.setIsGenerating(true);
@@ -78,16 +105,23 @@ export default function BuilderNewPage() {
     addMsg("assistant", "⚡ Generating 3 unique designs based on your selections...");
 
     const cat = ctrl.category || "esite";
+    const { userUploadedAssets } = ctrl;
+
     const htmlVariants = generateWebsiteVariants({
       category: cat,
       businessName: ctrl.businessName || "My Website",
-      location: "Dubai, UAE",
+      location: ctrl.businessLocation || "Dubai, UAE",
       scope: ctrl.selectedScope || "showcase",
-      style: ctrl.selectedStyleCategory || "modern",
-      styleSpecific: ctrl.selectedStyleSpecific || "",
+      style: ctrl.selectedTemplateKey || "modern",
+      styleSpecific: "",
       sections: ctrl.selectedSections,
+      // Only use the delivery apps the user selected — no extras
       deliveryApps: ctrl.selectedDeliveryApps,
       userIdea: ctrl.userIdea || "",
+      // Pass user assets for prioritization
+      userLogoUrl: userUploadedAssets.logoUrl,
+      userBrandColors: userUploadedAssets.brandColors,
+      userImages: userUploadedAssets.images,
     });
 
     setTimeout(() => {
@@ -116,11 +150,14 @@ export default function BuilderNewPage() {
     if (ctrl.currentStep === "greeting") {
       addMsg("user", text);
       ctrl.handleGreetingInput(text);
+    } else if (ctrl.currentStep === "business_location") {
+      addMsg("user", text);
+      ctrl.handleLocationInput(text);
     } else {
       addMsg("user", text);
-      addMsg("assistant", "I'll work on that refinement for you. (Refinement AI coming soon!)");
+      addDelayedMsg("I'll work on that refinement for you. (Refinement AI coming soon!)");
     }
-  }, [addMsg, ctrl]);
+  }, [addMsg, addDelayedMsg, ctrl]);
 
   // Build selections list
   const selections: Selection[] = [];
@@ -129,8 +166,8 @@ export default function BuilderNewPage() {
   if (ctrl.selectedAssets) selections.push({ type: "assets", label: ctrl.selectedAssets, value: ctrl.selectedAssets, timestamp: Date.now() });
   ctrl.selectedSections.forEach(s => selections.push({ type: "sections", label: s, value: s, timestamp: Date.now() }));
   ctrl.selectedDeliveryApps.forEach(s => selections.push({ type: "delivery_apps", label: s, value: s, timestamp: Date.now() }));
-  if (ctrl.selectedStyleCategory) selections.push({ type: "style_category", label: ctrl.selectedStyleCategory, value: ctrl.selectedStyleCategory, timestamp: Date.now() });
-  if (ctrl.selectedStyleSpecific) selections.push({ type: "style_specific", label: ctrl.selectedStyleSpecific, value: ctrl.selectedStyleSpecific, timestamp: Date.now() });
+  if (ctrl.selectedTemplateKey) selections.push({ type: "template", label: ctrl.selectedTemplateKey, value: ctrl.selectedTemplateKey, timestamp: Date.now() });
+  if (ctrl.businessLocation) selections.push({ type: "location", label: ctrl.businessLocation, value: ctrl.businessLocation, timestamp: Date.now() });
 
   // Determine center panel state
   const showVariantCarousel = isChoosingVariant && (variants.length > 0 || ctrl.isGenerating);
@@ -138,9 +175,10 @@ export default function BuilderNewPage() {
   const showCenterPanel = showVariantCarousel || showEditablePreview;
   const isEditMode = showEditablePreview;
 
+  const isLoadingState = ctrl.isGenerating || isThinking;
+
   return (
     <div className="h-screen flex flex-col bg-background">
-      {/* Top bar: show editor bar in edit mode, logo bar otherwise */}
       {isEditMode ? (
         <BuilderEditorTopBar businessName={ctrl.businessName} category={ctrl.category} />
       ) : (
@@ -158,7 +196,7 @@ export default function BuilderNewPage() {
         <div className={`${showCenterPanel ? "w-[360px]" : "flex-1"} min-w-0 border-r border-border shrink-0 transition-all overflow-visible`}>
           <ChatInterface
             messages={messages}
-            isLoading={ctrl.isGenerating}
+            isLoading={isLoadingState}
             onSend={handleFreeText}
             stepConfig={ctrl.getStepConfig()}
             onOptionSelect={handleOptionSelect}
@@ -172,6 +210,9 @@ export default function BuilderNewPage() {
             currentStep={ctrl.currentStep}
             builderMode={isEditMode ? "edit" : "new"}
             selections={selections}
+            userAssets={ctrl.userUploadedAssets}
+            onAssetsChange={ctrl.setUserUploadedAssets}
+            onConfirmAssetUpload={handleConfirmAssetUpload}
           />
         </div>
 
