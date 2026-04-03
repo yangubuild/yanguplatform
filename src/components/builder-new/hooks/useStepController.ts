@@ -420,19 +420,29 @@ export function useStepController() {
     setCategory(detected);
     setBusinessName(name);
     setUserIdea(text);
-    classifyOnGreeting(text, detected);
-    setCurrentStep("scope");
-  }, [classifyOnGreeting]);
+    // For emenu, go to business_type step instead of scope
+    if (detected === "emenu") {
+      setCurrentStep("business_type");
+    } else {
+      setCurrentStep("scope");
+    }
+  }, []);
 
   const handleOptionSelect = useCallback((option: StepOption) => {
     switch (currentStep) {
+      case "business_type":
+        setMenuClassification(option.value as MenuComplexity);
+        setCurrentStep("scope");
+        break;
       case "scope":
         setSelectedScope(option.label);
         setCurrentStep("assets");
         break;
       case "assets":
         setSelectedAssets(option.value);
-        if (option.value === "user_provided" || option.value === "mix") {
+        if (option.value === "ai_generated") {
+          setCurrentStep("ai_logo");
+        } else if (option.value === "user_provided" || option.value === "mix") {
           setCurrentStep("asset_upload");
         } else {
           setCurrentStep("sections");
