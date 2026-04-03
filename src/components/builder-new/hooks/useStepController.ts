@@ -490,6 +490,15 @@ export function useStepController() {
     setCurrentStep("sections");
   }, []);
 
+  const confirmAiLogo = useCallback((logoUrl: string, color?: string) => {
+    setUserUploadedAssets(prev => ({
+      ...prev,
+      logoUrl,
+      brandColors: color ? [color, ...prev.brandColors.filter(c => c !== color)] : prev.brandColors,
+    }));
+    setCurrentStep("sections");
+  }, []);
+
   const confirmMultiSelect = useCallback(() => {
     if (currentStep === "sections") {
       if (isFoodCategory) {
