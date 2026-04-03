@@ -2,10 +2,30 @@
 // Provides visual template presets per engine.
 // Each template defines schema patches for core slots (header, hero, main_content, offer, footer).
 // No DB changes required — applied client-side via patch merge.
+//
+// TEMPLATE REFERENCE RULE:
+// Every template must record its provenance via the `reference` field.
+// When generating from a saved template, the output must stay structurally
+// close to the saved source — only branding, colors, content, and images
+// are swapped per the user's business.
 
 export interface TemplateSlotPatch {
   /** Partial schema merged into the section's existing schema */
   schema: Record<string, unknown>;
+}
+
+/** Source provenance for a template — tracks where the design came from */
+export interface TemplateReference {
+  /** "link" = extracted from a live URL, "image" = from screenshot/upload, "mixed" = both */
+  source: "link" | "image" | "mixed" | "original";
+  /** The live URL used for structure extraction (if any) */
+  url?: string;
+  /** Short label for the reference design (e.g. "Gusto Framer template") */
+  label?: string;
+  /** Section ordering extracted from the reference */
+  sectionOrder: string[];
+  /** Key layout patterns preserved from the reference */
+  layoutPatterns: string[];
 }
 
 export interface TemplatePreset {
@@ -14,6 +34,8 @@ export interface TemplatePreset {
   description: string;
   /** Emoji or icon hint for UI card */
   icon: string;
+  /** Source provenance — where this template was derived from */
+  reference?: TemplateReference;
   /** Schema patches keyed by core_slot name */
   patches: Partial<Record<"header" | "hero" | "main_content" | "offer" | "footer" | "showcase", TemplateSlotPatch>>;
 }
