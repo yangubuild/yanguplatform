@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Check, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { YanguLoader } from "@/components/YanguLoader";
 
 interface VariantPreviewCarouselProps {
   variants: string[];
