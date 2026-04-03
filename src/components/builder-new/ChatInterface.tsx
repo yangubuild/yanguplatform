@@ -44,6 +44,8 @@ export function ChatInterface({
   userAssets,
   onAssetsChange,
   onConfirmAssetUpload,
+  businessName,
+  onConfirmAiLogo,
 }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
