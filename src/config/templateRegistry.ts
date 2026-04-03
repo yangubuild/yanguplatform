@@ -1452,3 +1452,20 @@ export function getTemplate(engineKey: string, templateKey: string): TemplatePre
 export function getEngineKeysWithTemplates(): string[] {
   return Object.keys(TEMPLATE_REGISTRY);
 }
+
+/** Get the section ordering from a template's reference (for structural fidelity during generation) */
+export function getTemplateSectionOrder(engineKey: string, templateKey: string): string[] {
+  const t = getTemplate(engineKey, templateKey);
+  return t?.reference?.sectionOrder ?? [];
+}
+
+/** Get layout patterns from a template's reference */
+export function getTemplateLayoutPatterns(engineKey: string, templateKey: string): string[] {
+  const t = getTemplate(engineKey, templateKey);
+  return t?.reference?.layoutPatterns ?? [];
+}
+
+/** Find templates by reference source type */
+export function getTemplatesBySource(engineKey: string, source: "link" | "image" | "mixed" | "original"): TemplatePreset[] {
+  return getTemplatesForEngine(engineKey).filter((t) => t.reference?.source === source);
+}
