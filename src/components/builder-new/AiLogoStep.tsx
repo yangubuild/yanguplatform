@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { RefreshCw, Check, Palette, Loader2 } from "lucide-react";
+import { useState, useCallback, useEffect } from "react";
+import { RefreshCw, Check, Palette } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { YanguLoader } from "@/components/YanguLoader";
 
@@ -14,6 +14,36 @@ const PRESET_COLORS = [
   "#1abc9c", "#f39c12", "#e67e22", "#34495e", "#d35400",
 ];
 
+const STYLE_VARIANTS = [
+  "modern minimalist logo with a clean food icon above the business name, professional and sleek",
+  "badge-style circular emblem logo with the business name integrated, vintage artisan café feel",
+  "bold typographic logo with a subtle utensil or food element, contemporary and eye-catching",
+];
+
+async function generateSingleLogo(
+  businessName: string,
+  color: string,
+  variantIndex: number,
+  description?: string
+): Promise<string | null> {
+  const style = STYLE_VARIANTS[variantIndex % STYLE_VARIANTS.length];
+  const colorHint = color ? `using ${color} as the primary brand color` : "using warm appetizing colors";
+  const descHint = description ? ` Style hint: ${description}.` : "";
+
+  const prompt = `Create a professional food/restaurant logo for "${businessName}". Design: ${style}. ${colorHint}. Clean white background, suitable for digital menu header. Include the text "${businessName}" clearly readable.${descHint} Real professional restaurant brand logo, not a placeholder.`;
+
+  try {
+    const { data, error } = await supabase.functions.invoke("generate-logo", {
+      body: { prompt },
+    });
+    if (error) throw error;
+    return data?.image_url || null;
+  } catch (err) {
+    console.error(`Logo variant ${variantIndex} failed:`, err);
+    return null;
+  }
+}
+
 export function AiLogoStep({ businessName, category = "emenu", onConfirm }: AiLogoStepProps) {
   const [selectedColor, setSelectedColor] = useState(PRESET_COLORS[0]);
   const [customDesc, setCustomDesc] = useState("");
@@ -27,35 +57,16 @@ export function AiLogoStep({ businessName, category = "emenu", onConfirm }: AiLo
     setIsGenerating(true);
     setError(null);
     setSelectedIdx(null);
-    const results: (string | null)[] = [null, null, null];
 
     try {
-      // Generate 3 logos in parallel
-      const promises = [0, 1, 2].map(async (i) => {
-        try {
-          const { data, error: fnError } = await supabase.functions.invoke("generate-logo", {
-            body: {
-              businessName: businessName || "My Restaurant",
-              color: selectedColor,
-              category,
-              description: customDesc || undefined,
-              variantIndex: i,
-            },
-          });
-          if (fnError) throw fnError;
-          return data?.imageUrl || null;
-        } catch (err) {
-          console.error(`Logo variant ${i} failed:`, err);
-          return null;
-        }
-      });
-
+      const promises = [0, 1, 2].map(i =>
+        generateSingleLogo(businessName || "My Restaurant", selectedColor, i, customDesc || undefined)
+      );
       const urls = await Promise.all(promises);
-      urls.forEach((url, i) => { results[i] = url; });
-      setLogos(results);
+      setLogos(urls);
       setHasGenerated(true);
 
-      if (results.every(r => r === null)) {
+      if (urls.every(r => r === null)) {
         setError("Logo generation failed. Please try again.");
       }
     } catch (err) {
@@ -64,14 +75,14 @@ export function AiLogoStep({ businessName, category = "emenu", onConfirm }: AiLo
     } finally {
       setIsGenerating(false);
     }
-  }, [businessName, selectedColor, category, customDesc]);
+  }, [businessName, selectedColor, customDesc]);
 
   // Auto-generate on first mount
-  useState(() => {
+  useEffect(() => {
     if (!hasGenerated) {
       generateLogos();
     }
-  });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleConfirm = useCallback(() => {
     if (selectedIdx !== null && logos[selectedIdx]) {
@@ -90,7 +101,7 @@ export function AiLogoStep({ businessName, category = "emenu", onConfirm }: AiLo
         <div className="grid grid-cols-3 gap-3">
           {logos.map((src, i) => (
             <button
-              key={`logo-${i}`}
+              key={`logo-${i}-${src?.slice(-8) || "empty"}`}
               onClick={() => src && setSelectedIdx(i)}
               disabled={!src}
               className={`relative rounded-xl border-2 p-2 bg-card transition-all aspect-square flex items-center justify-center overflow-hidden ${
@@ -116,9 +127,7 @@ export function AiLogoStep({ businessName, category = "emenu", onConfirm }: AiLo
         </div>
       )}
 
-      {error && (
-        <p className="text-xs text-destructive">{error}</p>
-      )}
+      {error && <p className="text-xs text-destructive">{error}</p>}
 
       {/* Color picker */}
       <div className="flex flex-col gap-1.5">
