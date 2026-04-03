@@ -507,6 +507,12 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     label: "Restaurant Classic",
     description: "Elegant restaurant menu: hero banner, category tabs, menu items with images, sticky action bar, hours & location",
     icon: "🍽️",
+    reference: {
+      source: "image",
+      label: "FlavorNest marketplace-style menu reference",
+      sectionOrder: ["header_dark", "hero_fullwidth", "menu_categories", "trust_badges", "story_block", "hours_contact", "footer"],
+      layoutPatterns: ["fullwidth_dark_hero", "2col_menu_grid", "trust_badges_row", "story_block_about"],
+    },
     patches: {
       header: { schema: {
         layout_variant: "nav_right",
