@@ -13,6 +13,9 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [editMode, setEditMode] = useState(false);
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  const [imagePickerOpen, setImagePickerOpen] = useState(false);
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
+  const [pendingImageSrc, setPendingImageSrc] = useState<string | undefined>(undefined);
 
   // Inject editable script into iframe
   const getEditableHtml = useCallback((baseHtml: string, editable: boolean) => {
