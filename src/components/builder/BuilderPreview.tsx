@@ -14,6 +14,7 @@ import { CanvasEditableText } from "./canvas/CanvasEditableText";
 import { CanvasImagePopover } from "./canvas/CanvasImagePopover";
 import { HeroImagePositioner } from "./canvas/HeroImagePositioner";
 import { EmenuPreview } from "./previews/EmenuPreview";
+import { ReservationPreview } from "./previews/ReservationPreview";
 
 interface CanvasCallbacks {
   sectionId: string;
@@ -1738,6 +1739,7 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   contact_section: ContactPreview,
   schedule: SchedulePreview,
   menu: EmenuPreview,
+  reservation: ReservationPreview,
   hours: HoursPreview,
   location: LocationPreview,
   footer: FooterPreview,

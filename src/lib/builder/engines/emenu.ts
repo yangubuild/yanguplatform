@@ -130,16 +130,19 @@ export const emenuEngine: BuilderEngine = {
     { key: "qr_menu", label: "QR Menu Card", sectionType: "qr", schema: { heading: "Scan to View Menu" } },
     { key: "offers_banner", label: "Deals & Discounts", sectionType: "offers", schema: { heading: "Today's Offers", items: [] } },
     { key: "reviews", label: "Customer Reviews", sectionType: "reviews", schema: { heading: "Reviews", items: [] } },
+    { key: "reservation_section", label: "Reservation Form", sectionType: "reservation", schema: { heading: "Book a Table", description: "Reserve your dining experience", reservation_form: { fields: [{ key: "name", label: "Name", type: "text" }, { key: "email", label: "Email", type: "email" }, { key: "phone", label: "Phone", type: "tel" }, { key: "guests", label: "Guests", type: "number" }, { key: "date", label: "Date", type: "date" }, { key: "time", label: "Time", type: "time" }], submit_label: "Make Reservation" } } },
   ],
   aiGenerationRules: {
-    allowedSectionTypes: ["hero", "menu", "featured", "hours", "contact", "offers", "reviews", "gallery", "qr"],
-    forbiddenSectionTypes: ["booking", "listings", "products", "cart", "checkout", "bio", "links", "affiliate", "member_signup", "programs", "events"],
+    allowedSectionTypes: ["hero", "menu", "featured", "hours", "contact", "offers", "reviews", "gallery", "qr", "reservation"],
+    forbiddenSectionTypes: ["listings", "products", "cart", "checkout", "bio", "links", "affiliate", "member_signup", "programs", "events"],
     generationHints: [
       "Generate sample menu structure with categories and items based on cuisine type",
       "Generate dish descriptions with appetizing language",
       "Suggest food images using AI food image generator",
       "Include opening hours section",
       "Never add booking calendar or property listings",
+      "For fine dining, hotel, or reservation-based restaurants, use reservation mode with booking form instead of cart/checkout",
+      "Detect user intent for reservations vs ordering — fine dining always uses reservation mode",
     ],
   },
 };
