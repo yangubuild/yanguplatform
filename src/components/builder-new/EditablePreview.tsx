@@ -1,6 +1,8 @@
 import { useRef, useEffect, useState, useCallback, forwardRef } from "react";
 import { Image, Trash2, Plus, Palette, ArrowUp, ArrowDown, Type } from "lucide-react";
 import { toast } from "sonner";
+import { EditorImagePickerDialog } from "./EditorImagePickerDialog";
+import { EditorColorPickerDialog } from "./EditorColorPickerDialog";
 
 interface EditablePreviewProps {
   html: string;
@@ -11,6 +13,9 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [editMode, setEditMode] = useState(false);
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  const [imagePickerOpen, setImagePickerOpen] = useState(false);
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
+  const [pendingImageSrc, setPendingImageSrc] = useState<string | undefined>(undefined);
 
   // Inject editable script into iframe
   const getEditableHtml = useCallback((baseHtml: string, editable: boolean) => {
@@ -75,7 +80,8 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
         setSelectedSection(e.data.idx?.toString() || null);
       }
       if (e.data?.type === 'image-click') {
-        handleReplaceImage(e.data.src);
+        setPendingImageSrc(e.data.src);
+        setImagePickerOpen(true);
       }
     };
     window.addEventListener('message', handleMessage);
@@ -92,19 +98,16 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
     if (doc) onHtmlChange(doc.documentElement.outerHTML);
   }, [getDoc, onHtmlChange]);
 
-  const handleReplaceImage = useCallback((currentSrc?: string) => {
-    const url = prompt("Paste the new image URL:", currentSrc || "");
-    if (!url) return;
+  const handleImageSelected = useCallback((url: string) => {
     const doc = getDoc();
     if (!doc) return;
-    if (currentSrc) {
-      const img = doc.querySelector(`img[src="${CSS.escape(currentSrc)}"]`) as HTMLImageElement | null;
+    if (pendingImageSrc) {
+      const img = doc.querySelector(`img[src="${CSS.escape(pendingImageSrc)}"]`) as HTMLImageElement | null;
       if (img) { img.src = url; pushHtmlUpdate(); toast.success("Image replaced!"); return; }
     }
-    // Replace the selected img
     const sel = doc.querySelector('.yangu-img-selected') as HTMLImageElement | null;
     if (sel) { sel.src = url; pushHtmlUpdate(); toast.success("Image replaced!"); } else { toast.info("Click an image first, then replace."); }
-  }, [getDoc, pushHtmlUpdate]);
+  }, [getDoc, pushHtmlUpdate, pendingImageSrc]);
 
   const handleAddSection = useCallback(() => {
     const doc = getDoc();
@@ -118,17 +121,13 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
     toast.success("Section added!");
   }, [getDoc, pushHtmlUpdate]);
 
-  const handleChangeStyle = useCallback(() => {
-    const color = prompt("Enter a new accent color (hex):", "#F97316");
-    if (!color) return;
+  const applyColorToPage = useCallback((color: string) => {
     const doc = getDoc();
     if (!doc) return;
-    // Replace accent color in all inline styles
     const allEls = doc.querySelectorAll("[style]");
     allEls.forEach(el => {
       const s = (el as HTMLElement).style;
       if (s.backgroundColor && (s.backgroundColor.includes("rgb") || s.backgroundColor.startsWith("#"))) {
-        // Only change accent-colored elements (buttons, badges)
         const tag = el.tagName;
         if (tag === "A" || tag === "BUTTON" || tag === "SPAN") {
           s.backgroundColor = color;
@@ -204,9 +203,9 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
         </div>
         <div className="flex items-center gap-0.5">
           <ToolButton icon={Type} label="Edit Text" active={editMode} onClick={() => setEditMode(!editMode)} />
-          <ToolButton icon={Image} label="Replace Image" onClick={() => handleReplaceImage()} />
+          <ToolButton icon={Image} label="Replace Image" onClick={() => { setPendingImageSrc(undefined); setImagePickerOpen(true); }} />
           <ToolButton icon={Plus} label="Add Section" onClick={handleAddSection} />
-          <ToolButton icon={Palette} label="Change Style" onClick={handleChangeStyle} />
+          <ToolButton icon={Palette} label="Change Style" onClick={() => setColorPickerOpen(true)} />
           <ToolButton icon={ArrowUp} label="Move Up" onClick={handleMoveUp} />
           <ToolButton icon={ArrowDown} label="Move Down" onClick={handleMoveDown} />
           <ToolButton icon={Trash2} label="Remove" onClick={handleRemove} />
@@ -226,6 +225,17 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
         className="flex-1 w-full bg-white border-0"
         title="Editable Website Preview"
         sandbox="allow-scripts allow-same-origin"
+      />
+
+      <EditorImagePickerDialog
+        open={imagePickerOpen}
+        onOpenChange={setImagePickerOpen}
+        onSelect={handleImageSelected}
+      />
+      <EditorColorPickerDialog
+        open={colorPickerOpen}
+        onOpenChange={setColorPickerOpen}
+        onSelect={applyColorToPage}
       />
     </div>
   );
