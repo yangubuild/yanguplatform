@@ -11,6 +11,7 @@ import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteG
 import type { StepOption } from "@/components/builder-new/hooks/useStepController";
 import type { ChatMessage, Selection } from "@/components/builder-new/types/builder.types";
 import yanguLogo from "@/assets/yangu-logo-full.png";
+import { supabase } from "@/integrations/supabase/client";
 
 // Natural delay between 800-1500ms for AI replies
 function naturalDelay(): Promise<void> {
@@ -155,9 +156,39 @@ export default function BuilderNewPage() {
       ctrl.handleLocationInput(text);
     } else {
       addMsg("user", text);
-      addDelayedMsg("I'll work on that refinement for you. (Refinement AI coming soon!)");
+      handleRefinement(text);
     }
   }, [addMsg, addDelayedMsg, ctrl]);
+
+  // ─── Refinement chat: grounded to current page state ────────
+  const handleRefinement = useCallback(async (text: string) => {
+    setIsThinking(true);
+    try {
+      const templateLabel = ctrl.selectedTemplateKey || "custom";
+      const sections = ctrl.selectedSections.join(", ") || "hero, menu, about";
+      const sysPrompt = `You are Ada, a website editor assistant. The user has a generated website draft based on the "${templateLabel}" emenu template. Current sections: ${sections}. Business: ${ctrl.businessName || "the user's business"}. Location: ${ctrl.businessLocation || "unspecified"}. The user wants refinements. Respond with clear, actionable suggestions. If they ask to change text, colors, or layout, describe exactly what to change. Keep responses short and helpful. Do NOT output JSON — respond in plain friendly text.`;
+
+      const { data } = await supabase.functions.invoke("together-chat", {
+        body: {
+          messages: [
+            { role: "system", content: sysPrompt },
+            ...messages.slice(-6).map(m => ({ role: m.role, content: m.content })),
+            { role: "user", content: text },
+          ],
+          model: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+          temperature: 0.7,
+          max_tokens: 400,
+        },
+      });
+
+      const reply = data?.content || "I'll apply that change. Use the toolbar buttons above the preview to make direct edits, or describe more changes here.";
+      setIsThinking(false);
+      addMsg("assistant", reply);
+    } catch {
+      setIsThinking(false);
+      addMsg("assistant", "I had trouble processing that. Try using the toolbar buttons to make edits directly, or describe the change again.");
+    }
+  }, [messages, ctrl, addMsg]);
 
   // Build selections list
   const selections: Selection[] = [];
