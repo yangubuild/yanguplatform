@@ -1737,7 +1737,7 @@ export const PREVIEW_MAP: Record<string, React.ComponentType<{ schema: Record<st
   contact: ContactPreview,
   contact_section: ContactPreview,
   schedule: SchedulePreview,
-  menu: MenuPreview,
+  menu: EmenuPreview,
   hours: HoursPreview,
   location: LocationPreview,
   footer: FooterPreview,
