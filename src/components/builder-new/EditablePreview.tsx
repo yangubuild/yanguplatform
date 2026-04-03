@@ -226,6 +226,17 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
         title="Editable Website Preview"
         sandbox="allow-scripts allow-same-origin"
       />
+
+      <EditorImagePickerDialog
+        open={imagePickerOpen}
+        onOpenChange={setImagePickerOpen}
+        onSelect={handleImageSelected}
+      />
+      <EditorColorPickerDialog
+        open={colorPickerOpen}
+        onOpenChange={setColorPickerOpen}
+        onSelect={applyColorToPage}
+      />
     </div>
   );
 }
