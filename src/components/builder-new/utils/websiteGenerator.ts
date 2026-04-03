@@ -313,6 +313,13 @@ function buildSectionHTML(section: SectionContent, isHero: boolean, theme: Style
 }
 
 function buildHTML(config: GeneratorConfig, theme: StyleTheme, layout: LayoutVariant, variantLabel: string): string {
+  // Apply user brand colors if provided (override theme accent)
+  if (config.userBrandColors && config.userBrandColors.length > 0) {
+    theme = { ...theme, accent: config.userBrandColors[0] };
+    if (config.userBrandColors.length > 1) {
+      theme.heroGradient = `linear-gradient(135deg, ${config.userBrandColors[0]} 0%, ${config.userBrandColors[1] || config.userBrandColors[0]} 100%)`;
+    }
+  }
   const domain = CATEGORY_CONFIGS[config.category]?.domain || ".site";
   const slug = (config.businessName || "my-site").toLowerCase().replace(/\s+/g, "-");
 
