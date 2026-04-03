@@ -259,9 +259,13 @@ export function useStepController() {
 
   const getNextStep = useCallback((step: BuilderStep): BuilderStep => {
     switch (step) {
-      case "greeting": return "scope";
+      case "greeting": return isFoodCategory ? "business_type" : "scope";
+      case "business_type": return "scope";
       case "scope": return "assets";
-      case "assets": return selectedAssets === "user_provided" || selectedAssets === "mix" ? "asset_upload" : "sections";
+      case "assets":
+        if (selectedAssets === "ai_generated") return "ai_logo";
+        return selectedAssets === "user_provided" || selectedAssets === "mix" ? "asset_upload" : "sections";
+      case "ai_logo": return "sections";
       case "asset_upload": return "sections";
       case "sections": return isFoodCategory ? "business_location" : "template_choice";
       case "business_location": return "delivery_apps";
