@@ -72,6 +72,12 @@ const SCOPE_OPTIONS: StepOption[] = [
   { id: "ordering", label: "Showcase + Ordering Links", value: "ordering_links", description: "Showcase with delivery app links" },
 ];
 
+const EMENU_BUSINESS_TYPE_OPTIONS: StepOption[] = [
+  { id: "simple_cafe", label: "Simple Food / Café", value: "simple_cafe", icon: "☕", description: "Café, bakery, juice bar, ice cream, dessert shop, small menu" },
+  { id: "bigger_menu", label: "Bigger Menu / Multi-Category", value: "bigger_menu", icon: "🍽️", description: "Restaurant with many categories, full-course meals, grill, takeaway" },
+  { id: "reservation", label: "Reservation / Dine-In Experience", value: "reservation", icon: "🥂", description: "Fine dining, hotel restaurant, lounge, book-a-table" },
+];
+
 const ASSETS_OPTIONS: StepOption[] = [
   { id: "ai_gen", label: "AI-Generated Assets", value: "ai_generated", description: "I'll create images & logo for you" },
   { id: "have_own", label: "I Have My Own", value: "user_provided", description: "I have my own logo and images" },
