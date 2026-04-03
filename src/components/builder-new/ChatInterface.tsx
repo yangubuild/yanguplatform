@@ -24,6 +24,9 @@ interface ChatInterfaceProps {
   userAssets?: UserAssets;
   onAssetsChange?: (assets: UserAssets) => void;
   onConfirmAssetUpload?: () => void;
+  // AI logo props
+  businessName?: string;
+  onConfirmAiLogo?: (logoUrl: string, color?: string) => void;
 }
 
 export function ChatInterface({
@@ -41,6 +44,8 @@ export function ChatInterface({
   userAssets,
   onAssetsChange,
   onConfirmAssetUpload,
+  businessName,
+  onConfirmAiLogo,
 }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -102,7 +107,7 @@ export function ChatInterface({
         ))}
 
         {/* Step options */}
-        {!isLoading && (stepConfig.options.length > 0 || stepConfig.renderAs === "upload") && (
+        {!isLoading && (stepConfig.options.length > 0 || stepConfig.renderAs === "upload" || stepConfig.renderAs === "ai_logo") && (
           <div className="flex flex-col items-start gap-2 pt-1">
             <StepRenderer
               config={stepConfig}
@@ -113,6 +118,8 @@ export function ChatInterface({
               userAssets={userAssets}
               onAssetsChange={onAssetsChange}
               onConfirmAssetUpload={onConfirmAssetUpload}
+              businessName={businessName}
+              onConfirmAiLogo={onConfirmAiLogo}
             />
           </div>
         )}

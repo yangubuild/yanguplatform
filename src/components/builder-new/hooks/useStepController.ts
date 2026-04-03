@@ -8,9 +8,11 @@ import type { MenuComplexity } from "@/lib/builder/emenu/types";
 
 export type BuilderStep =
   | "greeting"
+  | "business_type"
   | "scope"
   | "assets"
   | "asset_upload"
+  | "ai_logo"
   | "sections"
   | "business_location"
   | "delivery_apps"
@@ -34,7 +36,7 @@ export interface StepConfig {
   options: StepOption[];
   multiSelect?: boolean;
   allowFreeText?: boolean;
-  renderAs?: "chips" | "cards" | "carousel" | "upload" | "location_input";
+  renderAs?: "chips" | "cards" | "carousel" | "upload" | "location_input" | "ai_logo";
 }
 
 // ─── Category detection ────────────────────────────────────────────────
@@ -68,6 +70,12 @@ export function extractBusinessName(text: string): string {
 const SCOPE_OPTIONS: StepOption[] = [
   { id: "showcase", label: "Showcase Website", value: "showcase", description: "Beautiful landing page to present your brand" },
   { id: "ordering", label: "Showcase + Ordering Links", value: "ordering_links", description: "Showcase with delivery app links" },
+];
+
+const EMENU_BUSINESS_TYPE_OPTIONS: StepOption[] = [
+  { id: "simple_cafe", label: "Simple Food / Café", value: "simple_cafe", icon: "☕", description: "Café, bakery, juice bar, ice cream, dessert shop, small menu" },
+  { id: "bigger_menu", label: "Bigger Menu / Multi-Category", value: "bigger_menu", icon: "🍽️", description: "Restaurant with many categories, full-course meals, grill, takeaway" },
+  { id: "reservation", label: "Reservation / Dine-In Experience", value: "reservation", icon: "🥂", description: "Fine dining, hotel restaurant, lounge, book-a-table" },
 ];
 
 const ASSETS_OPTIONS: StepOption[] = [
@@ -251,9 +259,13 @@ export function useStepController() {
 
   const getNextStep = useCallback((step: BuilderStep): BuilderStep => {
     switch (step) {
-      case "greeting": return "scope";
+      case "greeting": return isFoodCategory ? "business_type" : "scope";
+      case "business_type": return "scope";
       case "scope": return "assets";
-      case "assets": return selectedAssets === "user_provided" || selectedAssets === "mix" ? "asset_upload" : "sections";
+      case "assets":
+        if (selectedAssets === "ai_generated") return "ai_logo";
+        return selectedAssets === "user_provided" || selectedAssets === "mix" ? "asset_upload" : "sections";
+      case "ai_logo": return "sections";
       case "asset_upload": return "sections";
       case "sections": return isFoodCategory ? "business_location" : "template_choice";
       case "business_location": return "delivery_apps";
@@ -274,6 +286,13 @@ export function useStepController() {
           options: [],
           allowFreeText: true,
         };
+      case "business_type":
+        return {
+          key: "business_type",
+          adaMessage: `Great, **${businessName}**! What type of food business is this?`,
+          options: EMENU_BUSINESS_TYPE_OPTIONS,
+          renderAs: "cards",
+        };
       case "scope":
         return {
           key: "scope",
@@ -287,6 +306,13 @@ export function useStepController() {
           adaMessage: "Do you have your own images and logo, or should I create them?",
           options: ASSETS_OPTIONS,
           renderAs: "cards",
+        };
+      case "ai_logo":
+        return {
+          key: "ai_logo",
+          adaMessage: `I'll generate 3 logo options for **${businessName}**. Pick one you like, or regenerate with a description.`,
+          options: [],
+          renderAs: "ai_logo",
         };
       case "asset_upload":
         return {
@@ -394,19 +420,29 @@ export function useStepController() {
     setCategory(detected);
     setBusinessName(name);
     setUserIdea(text);
-    classifyOnGreeting(text, detected);
-    setCurrentStep("scope");
-  }, [classifyOnGreeting]);
+    // For emenu, go to business_type step instead of scope
+    if (detected === "emenu") {
+      setCurrentStep("business_type");
+    } else {
+      setCurrentStep("scope");
+    }
+  }, []);
 
   const handleOptionSelect = useCallback((option: StepOption) => {
     switch (currentStep) {
+      case "business_type":
+        setMenuClassification(option.value as MenuComplexity);
+        setCurrentStep("scope");
+        break;
       case "scope":
         setSelectedScope(option.label);
         setCurrentStep("assets");
         break;
       case "assets":
         setSelectedAssets(option.value);
-        if (option.value === "user_provided" || option.value === "mix") {
+        if (option.value === "ai_generated") {
+          setCurrentStep("ai_logo");
+        } else if (option.value === "user_provided" || option.value === "mix") {
           setCurrentStep("asset_upload");
         } else {
           setCurrentStep("sections");
@@ -451,6 +487,15 @@ export function useStepController() {
   }, []);
 
   const confirmAssetUpload = useCallback(() => {
+    setCurrentStep("sections");
+  }, []);
+
+  const confirmAiLogo = useCallback((logoUrl: string, color?: string) => {
+    setUserUploadedAssets(prev => ({
+      ...prev,
+      logoUrl,
+      brandColors: color ? [color, ...prev.brandColors.filter(c => c !== color)] : prev.brandColors,
+    }));
     setCurrentStep("sections");
   }, []);
 
@@ -499,6 +544,7 @@ export function useStepController() {
     handleLocationInput,
     confirmMultiSelect,
     confirmAssetUpload,
+    confirmAiLogo,
     resetAll,
     inputAllowed,
     selectedScope,
