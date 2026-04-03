@@ -95,7 +95,7 @@ export function StepRenderer({
         <button
           onClick={onConfirmMulti}
           disabled={multiSelected.length === 0}
-          className="self-start px-5 py-2 text-[12px] font-semibold rounded-full bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-40"
+          className="self-start px-5 py-2 text-[12px] font-semibold rounded-full bg-accent text-accent-foreground hover:opacity-90 transition-opacity disabled:bg-muted disabled:text-muted-foreground disabled:opacity-60"
         >
           Done ✓
         </button>
