@@ -80,7 +80,8 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
         setSelectedSection(e.data.idx?.toString() || null);
       }
       if (e.data?.type === 'image-click') {
-        handleReplaceImage(e.data.src);
+        setPendingImageSrc(e.data.src);
+        setImagePickerOpen(true);
       }
     };
     window.addEventListener('message', handleMessage);
