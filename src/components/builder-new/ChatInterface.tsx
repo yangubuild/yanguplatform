@@ -24,6 +24,9 @@ interface ChatInterfaceProps {
   userAssets?: UserAssets;
   onAssetsChange?: (assets: UserAssets) => void;
   onConfirmAssetUpload?: () => void;
+  // AI logo props
+  businessName?: string;
+  onConfirmAiLogo?: (logoUrl: string, color?: string) => void;
 }
 
 export function ChatInterface({
