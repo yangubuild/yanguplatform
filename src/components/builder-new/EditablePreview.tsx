@@ -206,9 +206,9 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
         </div>
         <div className="flex items-center gap-0.5">
           <ToolButton icon={Type} label="Edit Text" active={editMode} onClick={() => setEditMode(!editMode)} />
-          <ToolButton icon={Image} label="Replace Image" onClick={() => handleReplaceImage()} />
+          <ToolButton icon={Image} label="Replace Image" onClick={() => { setPendingImageSrc(undefined); setImagePickerOpen(true); }} />
           <ToolButton icon={Plus} label="Add Section" onClick={handleAddSection} />
-          <ToolButton icon={Palette} label="Change Style" onClick={handleChangeStyle} />
+          <ToolButton icon={Palette} label="Change Style" onClick={() => setColorPickerOpen(true)} />
           <ToolButton icon={ArrowUp} label="Move Up" onClick={handleMoveUp} />
           <ToolButton icon={ArrowDown} label="Move Down" onClick={handleMoveDown} />
           <ToolButton icon={Trash2} label="Remove" onClick={handleRemove} />
