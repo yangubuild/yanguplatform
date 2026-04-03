@@ -121,23 +121,22 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
     toast.success("Section added!");
   }, [getDoc, pushHtmlUpdate]);
 
-  const handleChangeStyle = useCallback(() => {
-    const color = prompt("Enter a new accent color (hex):", "#F97316");
-    if (!color) return;
+  const applyColorToPage = useCallback((color: string) => {
     const doc = getDoc();
     if (!doc) return;
-    // Replace accent color in all inline styles
     const allEls = doc.querySelectorAll("[style]");
     allEls.forEach(el => {
       const s = (el as HTMLElement).style;
       if (s.backgroundColor && (s.backgroundColor.includes("rgb") || s.backgroundColor.startsWith("#"))) {
-        // Only change accent-colored elements (buttons, badges)
         const tag = el.tagName;
         if (tag === "A" || tag === "BUTTON" || tag === "SPAN") {
           s.backgroundColor = color;
         }
       }
     });
+    pushHtmlUpdate();
+    toast.success("Style updated!");
+  }, [getDoc, pushHtmlUpdate]);
     pushHtmlUpdate();
     toast.success("Style updated!");
   }, [getDoc, pushHtmlUpdate]);
