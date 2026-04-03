@@ -114,7 +114,7 @@ export const emenuEngine: BuilderEngine = {
   defaultSections: [
     { type: "header", schema: { logo_url: "", logo_position: "left", logo_size: "medium", show_name: true, name_next_to_logo: true }, core_slot: "header" },
     { type: "hero", schema: { headline: "", subheadline: "", logo: "", logo_position: "left" }, core_slot: "hero" },
-    { type: "menu", schema: { heading: "Menu", categories: [], layout_style: "grid", currency: "UGX", currency_symbol: "UGX" }, core_slot: "main_content" },
+    { type: "menu", schema: { heading: "Menu", categories: [], layout_style: "grid", currency: "UGX", currency_symbol: "UGX", show_images: true, show_badges: true, show_dietary: true, columns_desktop: 2, columns_mobile: 1, card_style: "rounded" }, core_slot: "main_content" },
     { type: "offer", schema: { heading: "Offers", description: "", items: [] }, core_slot: "offer" },
     { type: "footer", schema: { heading: "Footer", email: "", phone: "", address: "", hours: [], social: {} }, core_slot: "footer" },
   ],
