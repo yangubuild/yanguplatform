@@ -286,6 +286,13 @@ export function useStepController() {
           options: [],
           allowFreeText: true,
         };
+      case "business_type":
+        return {
+          key: "business_type",
+          adaMessage: `Great, **${businessName}**! What type of food business is this?`,
+          options: EMENU_BUSINESS_TYPE_OPTIONS,
+          renderAs: "cards",
+        };
       case "scope":
         return {
           key: "scope",
@@ -299,6 +306,13 @@ export function useStepController() {
           adaMessage: "Do you have your own images and logo, or should I create them?",
           options: ASSETS_OPTIONS,
           renderAs: "cards",
+        };
+      case "ai_logo":
+        return {
+          key: "ai_logo",
+          adaMessage: `I'll generate 3 logo options for **${businessName}**. Pick one you like, or regenerate with a description.`,
+          options: [],
+          renderAs: "ai_logo",
         };
       case "asset_upload":
         return {
