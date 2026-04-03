@@ -4,6 +4,7 @@
 
 import type { Category } from "../types/builder.types";
 import { CATEGORY_CONFIGS } from "../types/builder.types";
+import { getTemplate, type TemplatePreset } from "@/config/templateRegistry";
 
 export interface GeneratorConfig {
   category: Category;
@@ -374,8 +375,398 @@ function buildHTML(config: GeneratorConfig, theme: StyleTheme, layout: LayoutVar
 </html>`;
 }
 
+// ─── Emenu template-aware generation ────────────────────────────────────
+
+/**
+ * Build HTML from a real saved emenu template preset.
+ * This enforces structural fidelity to the chosen template.
+ */
+function buildEmenuTemplateHTML(config: GeneratorConfig, preset: TemplatePreset, variantIndex: number): string {
+  const heroSchema = (preset.patches?.hero?.schema || {}) as Record<string, any>;
+  const headerSchema = (preset.patches?.header?.schema || {}) as Record<string, any>;
+  const mainSchema = (preset.patches?.main_content?.schema || {}) as Record<string, any>;
+  const offerSchema = (preset.patches?.offer?.schema || {}) as Record<string, any>;
+  const footerSchema = (preset.patches?.footer?.schema || {}) as Record<string, any>;
+
+  // Theme from template
+  const isDark = heroSchema.background_style?.includes("dark") || heroSchema.text_color === "light";
+  const bgColor = heroSchema.background_color || (isDark ? "hsl(40 20% 8%)" : "hsl(0 0% 98%)");
+  const pageBg = isDark ? "#0F0F0F" : "#FAFAFA";
+  const pageText = isDark ? "#F5F5F5" : "#1A1A1A";
+  const cardBg = isDark ? "#1A1A1A" : "#FFFFFF";
+  const borderColor = isDark ? "#333" : "#E5E7EB";
+  const accentColor = config.userBrandColors?.[0] || (isDark ? "#D4A853" : "#F97316");
+  const accentText = isDark ? "#0F0F0F" : "#FFFFFF";
+  const fontHeading = headerSchema.background_style === "warm" || heroSchema.typography_style?.includes("serif") ? "'Georgia', serif" : "'Inter', sans-serif";
+
+  // Gradient
+  let heroGradient = isDark
+    ? `linear-gradient(135deg, ${bgColor} 0%, hsl(40 15% 15%) 100%)`
+    : `linear-gradient(135deg, ${bgColor} 0%, hsl(35 30% 92%) 100%)`;
+  if (config.userBrandColors && config.userBrandColors.length > 1) {
+    heroGradient = `linear-gradient(135deg, ${config.userBrandColors[0]} 0%, ${config.userBrandColors[1]} 100%)`;
+  }
+  // Slight variant shift
+  if (variantIndex === 1) heroGradient = heroGradient.replace("135deg", "160deg");
+  if (variantIndex === 2) heroGradient = heroGradient.replace("135deg", "100deg");
+
+  const businessName = config.businessName || "My Website";
+  const heroImg = getCategoryImage(config.category, "hero", variantIndex, config);
+  const menuImages = config.userImages?.filter(i => i.purpose === "menu").map(i => i.url) || [];
+
+  // Logo
+  const logoHtml = config.userLogoUrl
+    ? `<img src="${config.userLogoUrl}" alt="${businessName}" style="height:28px;width:auto;"/>`
+    : `<span style="font-weight:700;font-size:18px;color:${accentColor};">${businessName}</span>`;
+
+  // Nav items from template
+  const navItems = (headerSchema.nav_items as string[]) || ["Home", "Menu", "About"];
+  const navLinks = navItems.map(n => `<a href="#" style="text-decoration:none;font-size:13px;color:${isDark ? "#fff9" : pageText + "aa"};font-weight:500;">${n}</a>`).join("\n");
+  const navBg = isDark ? (headerSchema.background_color || "#0F0F0F") : (headerSchema.background_color || pageBg);
+
+  // CTA button in header
+  const headerCta = headerSchema.cta_button
+    ? `<a href="#" style="padding:8px 18px;border-radius:20px;background:${accentColor};color:${accentText};text-decoration:none;font-size:12px;font-weight:600;">${headerSchema.cta_button.text || "Contact"}</a>`
+    : "";
+
+  // Hero
+  const heroLayout = heroSchema.layout_variant || "split";
+  const headline = heroSchema.headline || businessName;
+  const subheadline = heroSchema.subheadline || config.userIdea || "";
+  const description = heroSchema.description || "";
+  const ctaText = heroSchema.cta_text || "Explore";
+  const heroTextColor = isDark ? "#fff" : pageText;
+
+  let heroHTML = "";
+  if (heroLayout === "split") {
+    heroHTML = `
+    <section style="min-height:80vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:100px 48px 80px;gap:48px;background:${heroGradient};color:${heroTextColor};">
+      <div>
+        ${subheadline ? `<p style="font-size:14px;text-transform:uppercase;letter-spacing:2px;opacity:0.7;margin-bottom:12px;">${subheadline}</p>` : ""}
+        <h1 style="font-family:${fontHeading};font-size:clamp(2.2rem,4.5vw,3.5rem);font-weight:800;margin-bottom:16px;line-height:1.1;">${headline}</h1>
+        ${description ? `<p style="font-size:1rem;opacity:0.8;margin-bottom:28px;line-height:1.7;">${description}</p>` : ""}
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <a href="#menu" style="display:inline-block;padding:14px 32px;border-radius:8px;background:${accentColor};color:${accentText};text-decoration:none;font-weight:600;font-size:14px;">${ctaText}</a>
+        </div>
+        ${heroSchema.social_proof ? `<div style="margin-top:20px;display:flex;align-items:center;gap:8px;opacity:0.7;"><span style="font-size:13px;">⭐ ${heroSchema.social_proof.rating || 4.5} on ${heroSchema.social_proof.platform || "Google"}</span></div>` : ""}
+      </div>
+      <div style="border-radius:16px;overflow:hidden;aspect-ratio:4/3;">
+        <img src="${heroImg}" alt="${headline}" style="width:100%;height:100%;object-fit:cover;"/>
+      </div>
+    </section>`;
+  } else {
+    heroHTML = `
+    <section style="min-height:80vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;background:${heroGradient};color:${heroTextColor};position:relative;">
+      <div style="position:absolute;inset:0;opacity:0.15;"><img src="${heroImg}" style="width:100%;height:100%;object-fit:cover;" alt=""/></div>
+      <div style="position:relative;z-index:1;max-width:680px;">
+        ${subheadline ? `<p style="font-size:14px;text-transform:uppercase;letter-spacing:2px;opacity:0.7;margin-bottom:12px;">${subheadline}</p>` : ""}
+        <h1 style="font-family:${fontHeading};font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:16px;line-height:1.1;">${headline}</h1>
+        ${description ? `<p style="font-size:1.05rem;opacity:0.85;margin-bottom:32px;line-height:1.7;">${description}</p>` : ""}
+        <a href="#menu" style="display:inline-block;padding:14px 32px;border-radius:8px;background:${accentColor};color:${accentText};text-decoration:none;font-weight:600;font-size:14px;">${ctaText}</a>
+      </div>
+    </section>`;
+  }
+
+  // Menu section from template items
+  const menuItems = (mainSchema.items as any[]) || [];
+  const menuHeading = mainSchema.heading || "Our Menu";
+  const menuDesc = mainSchema.description || "";
+  const cols = mainSchema.columns_desktop || mainSchema.grid?.columns_desktop || 3;
+  const cardStyle = mainSchema.cards?.card_style || "clean";
+  const itemCardBg = cardStyle === "dark_overlay" ? "rgba(0,0,0,0.6)" : cardBg;
+  const itemTextColor = cardStyle === "dark_overlay" ? "#fff" : pageText;
+
+  const menuItemsHTML = menuItems.map((item: any, idx: number) => {
+    const imgSrc = menuImages[idx % Math.max(menuImages.length, 1)] || getCategoryImage(config.category, "menu", idx, config);
+    const badge = item.badges?.[0] ? `<span style="position:absolute;top:8px;left:8px;padding:3px 10px;border-radius:12px;background:${accentColor};color:${accentText};font-size:10px;font-weight:600;text-transform:uppercase;">${item.badges[0]}</span>` : "";
+    return `<div style="background:${itemCardBg};border:1px solid ${borderColor};border-radius:12px;overflow:hidden;transition:transform 0.2s;position:relative;">
+      ${badge}
+      <img src="${imgSrc}" alt="${item.title}" style="width:100%;height:180px;object-fit:cover;"/>
+      <div style="padding:14px 16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-weight:600;font-size:14px;color:${itemTextColor};">${item.title}</span>
+          <span style="font-weight:700;font-size:14px;color:${accentColor};">${item.price || ""}</span>
+        </div>
+        ${item.description ? `<p style="font-size:12px;color:${itemTextColor}99;margin-top:4px;">${item.description}</p>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+
+  const menuHTML = menuItems.length > 0 ? `
+  <section id="menu" style="padding:72px 24px;background:${pageBg};">
+    <div style="max-width:1000px;margin:0 auto;text-align:center;">
+      <h2 style="font-family:${fontHeading};font-size:1.8rem;font-weight:700;margin-bottom:8px;color:${pageText};">${menuHeading}</h2>
+      ${menuDesc ? `<p style="font-size:0.95rem;color:${pageText}99;margin-bottom:32px;">${menuDesc}</p>` : ""}
+      <div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:20px;">
+        ${menuItemsHTML}
+      </div>
+    </div>
+  </section>` : "";
+
+  // Category showcase (if present in template)
+  const catShowcase = mainSchema.category_showcase;
+  let categoryHTML = "";
+  if (catShowcase?.enabled && catShowcase.items) {
+    const catCols = catShowcase.columns || 4;
+    categoryHTML = `
+    <section style="padding:60px 24px;background:${isDark ? "#141414" : "#F3F4F6"};">
+      <div style="max-width:1000px;margin:0 auto;text-align:center;">
+        <h2 style="font-family:${fontHeading};font-size:1.5rem;font-weight:700;margin-bottom:8px;color:${pageText};">${catShowcase.heading || "Categories"}</h2>
+        ${catShowcase.description ? `<p style="font-size:0.9rem;color:${pageText}99;margin-bottom:24px;">${catShowcase.description}</p>` : ""}
+        <div style="display:grid;grid-template-columns:repeat(${catCols},1fr);gap:16px;">
+          ${catShowcase.items.map((cat: any) => `
+            <div style="background:${cardBg};border:1px solid ${borderColor};border-radius:12px;padding:24px 16px;text-align:center;">
+              <span style="font-weight:600;font-size:14px;color:${pageText};">${cat.title}</span>
+              <br/><span style="font-size:12px;color:${pageText}88;">${cat.count || ""}</span>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </section>`;
+  }
+
+  // Offer / trust / about section
+  let offerHTML = "";
+  const offerHeading = offerSchema.heading || "";
+  const offerDesc = offerSchema.description || "";
+  const offerItems = (offerSchema.items as any[]) || [];
+  const stats = (offerSchema.stats as any[]) || [];
+  const promos = (offerSchema.promo_banners as any[]) || [];
+  const testimonials = offerSchema.testimonials as any;
+  const storyBlock = offerSchema.story_block as any;
+  const catering = offerSchema.catering as any;
+  const newsletter = offerSchema.newsletter as any;
+
+  // Promo banners
+  if (promos.length > 0) {
+    offerHTML += `
+    <section style="padding:48px 24px;background:${isDark ? "#141414" : "#FEF3C7"};">
+      <div style="max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(${Math.min(promos.length, 2)},1fr);gap:20px;">
+        ${promos.map((p: any) => `
+          <div style="background:${accentColor}18;border:1px solid ${accentColor}44;border-radius:12px;padding:28px 24px;">
+            <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:8px;color:${pageText};">${p.heading}</h3>
+            <p style="font-size:0.9rem;color:${pageText}99;margin-bottom:16px;">${p.description}</p>
+            ${p.cta_text ? `<a href="#" style="padding:10px 24px;border-radius:8px;background:${accentColor};color:${accentText};text-decoration:none;font-size:13px;font-weight:600;">${p.cta_text}</a>` : ""}
+          </div>
+        `).join("")}
+      </div>
+    </section>`;
+  }
+
+  // Trust badges / why choose us
+  if (offerItems.length > 0) {
+    offerHTML += `
+    <section style="padding:60px 24px;background:${pageBg};">
+      <div style="max-width:1000px;margin:0 auto;text-align:center;">
+        ${offerHeading ? `<h2 style="font-family:${fontHeading};font-size:1.5rem;font-weight:700;margin-bottom:8px;color:${pageText};">${offerHeading}</h2>` : ""}
+        ${offerDesc ? `<p style="font-size:0.9rem;color:${pageText}99;margin-bottom:28px;">${offerDesc}</p>` : ""}
+        <div style="display:grid;grid-template-columns:repeat(${Math.min(offerItems.length, 4)},1fr);gap:20px;">
+          ${offerItems.map((item: any) => `
+            <div style="background:${cardBg};border:1px solid ${borderColor};border-radius:12px;padding:24px 16px;text-align:center;">
+              <span style="font-size:1.5rem;">${item.icon === "chef-hat" ? "👨‍🍳" : item.icon === "shield" ? "🛡️" : item.icon === "headphones" ? "🎧" : item.icon === "tag" ? "🏷️" : "✅"}</span>
+              <h4 style="font-weight:600;font-size:14px;margin-top:8px;color:${pageText};">${item.title}</h4>
+              <p style="font-size:12px;color:${pageText}88;margin-top:4px;">${item.description}</p>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </section>`;
+  }
+
+  // Stats row
+  if (stats.length > 0) {
+    offerHTML += `
+    <section style="padding:48px 24px;background:${isDark ? "#1A1A1A" : "#F3F4F6"};">
+      <div style="max-width:900px;margin:0 auto;display:flex;justify-content:space-around;text-align:center;flex-wrap:wrap;gap:24px;">
+        ${stats.map((s: any) => `
+          <div>
+            <div style="font-size:2rem;font-weight:800;color:${accentColor};">${s.value}</div>
+            <div style="font-size:13px;color:${pageText}88;margin-top:4px;">${s.label}</div>
+          </div>
+        `).join("")}
+      </div>
+    </section>`;
+  }
+
+  // Story block
+  if (storyBlock?.enabled) {
+    offerHTML += `
+    <section style="padding:72px 24px;background:${pageBg};">
+      <div style="max-width:700px;margin:0 auto;text-align:center;">
+        ${storyBlock.eyebrow ? `<p style="font-size:12px;text-transform:uppercase;letter-spacing:2px;color:${accentColor};margin-bottom:8px;">${storyBlock.eyebrow}</p>` : ""}
+        <h2 style="font-family:${fontHeading};font-size:1.6rem;font-weight:700;margin-bottom:12px;color:${pageText};">${storyBlock.heading || ""}</h2>
+        <p style="font-size:0.95rem;color:${pageText}99;line-height:1.7;">${storyBlock.description || ""}</p>
+        ${storyBlock.cta_text ? `<a href="#" style="display:inline-block;margin-top:20px;padding:12px 28px;border-radius:8px;background:${accentColor};color:${accentText};text-decoration:none;font-weight:600;font-size:14px;">${storyBlock.cta_text}</a>` : ""}
+      </div>
+    </section>`;
+  }
+
+  // Catering section
+  if (catering?.enabled && catering.items) {
+    offerHTML += `
+    <section style="padding:60px 24px;background:${isDark ? "#141414" : "#F9FAFB"};">
+      <div style="max-width:900px;margin:0 auto;text-align:center;">
+        <h2 style="font-family:${fontHeading};font-size:1.5rem;font-weight:700;margin-bottom:8px;color:${pageText};">${catering.heading || "Catering"}</h2>
+        ${catering.description ? `<p style="font-size:0.9rem;color:${pageText}99;margin-bottom:24px;">${catering.description}</p>` : ""}
+        <div style="display:grid;grid-template-columns:repeat(${Math.min(catering.items.length, 3)},1fr);gap:20px;">
+          ${catering.items.map((c: any) => `
+            <div style="background:${cardBg};border:1px solid ${borderColor};border-radius:12px;padding:28px 16px;">
+              <h4 style="font-weight:600;font-size:15px;color:${pageText};">${c.title}</h4>
+              <span style="font-size:12px;color:${accentColor};font-weight:600;">${c.count || ""}</span>
+              ${c.description ? `<p style="font-size:12px;color:${pageText}88;margin-top:6px;">${c.description}</p>` : ""}
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </section>`;
+  }
+
+  // Testimonials
+  if (testimonials?.enabled && testimonials.items?.length > 0) {
+    offerHTML += `
+    <section style="padding:60px 24px;background:${pageBg};">
+      <div style="max-width:1000px;margin:0 auto;text-align:center;">
+        <h2 style="font-family:${fontHeading};font-size:1.5rem;font-weight:700;margin-bottom:8px;color:${pageText};">${testimonials.heading || "Reviews"}</h2>
+        ${testimonials.subheading ? `<p style="font-size:0.9rem;color:${accentColor};margin-bottom:24px;">${testimonials.subheading}</p>` : ""}
+        <div style="display:grid;grid-template-columns:repeat(${Math.min(testimonials.items.length, 3)},1fr);gap:20px;">
+          ${testimonials.items.slice(0, 3).map((t: any) => `
+            <div style="background:${cardBg};border:1px solid ${borderColor};border-radius:12px;padding:24px 20px;text-align:left;">
+              <p style="font-size:14px;color:${pageText};line-height:1.6;font-style:italic;">"${t.quote}"</p>
+              <div style="margin-top:12px;">
+                <span style="font-weight:600;font-size:13px;color:${pageText};">${t.name}</span>
+                ${t.role ? `<br/><span style="font-size:11px;color:${pageText}88;">${t.role}</span>` : ""}
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </section>`;
+  }
+
+  // Newsletter
+  if (newsletter?.enabled) {
+    offerHTML += `
+    <section style="padding:48px 24px;background:${isDark ? "#1A1A1A" : "#F3F4F6"};">
+      <div style="max-width:500px;margin:0 auto;text-align:center;">
+        <h3 style="font-size:1.2rem;font-weight:700;margin-bottom:12px;color:${pageText};">${newsletter.heading || "Subscribe"}</h3>
+        <div style="display:flex;gap:8px;">
+          <input type="email" placeholder="Your email" style="flex:1;padding:12px 16px;border-radius:8px;border:1px solid ${borderColor};background:${cardBg};color:${pageText};font-size:14px;"/>
+          <button style="padding:12px 24px;border-radius:8px;background:${accentColor};color:${accentText};border:none;font-weight:600;font-size:14px;cursor:pointer;">${newsletter.cta_text || "Subscribe"}</button>
+        </div>
+      </div>
+    </section>`;
+  }
+
+  // Delivery section (only the user-selected apps)
+  let deliveryHTML = "";
+  if (config.deliveryApps && config.deliveryApps.length > 0 && config.sections.includes("delivery")) {
+    const labels: Record<string, string> = { talabat: "Talabat", deliveroo: "Deliveroo", noon_food: "Noon Food", careem: "Careem", zomato: "Zomato", ubereats: "Uber Eats", self_delivery: "Self Delivery", pickup_only: "Pickup Only", hungerstation: "HungerStation", jahez: "Jahez", toyou: "ToYou", elmenus: "Elmenus", doordash: "DoorDash", grubhub: "Grubhub" };
+    deliveryHTML = `
+    <section style="padding:48px 24px;background:${isDark ? "#141414" : "#FEF3C7"};">
+      <div style="max-width:600px;margin:0 auto;text-align:center;">
+        <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:16px;color:${pageText};">Order Now</h2>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+          ${config.deliveryApps.map(app => `<a href="#" style="padding:12px 24px;border-radius:8px;background:${accentColor};color:${accentText};text-decoration:none;font-weight:600;font-size:14px;">${labels[app] || app}</a>`).join("")}
+        </div>
+      </div>
+    </section>`;
+  }
+
+  // Location section
+  let locationHTML = "";
+  if (config.sections.includes("location")) {
+    locationHTML = `
+    <section style="padding:60px 24px;background:${pageBg};">
+      <div style="max-width:700px;margin:0 auto;text-align:center;">
+        <h2 style="font-family:${fontHeading};font-size:1.4rem;font-weight:700;margin-bottom:12px;color:${pageText};">Find Us</h2>
+        <p style="font-size:0.95rem;color:${pageText}99;">📍 ${config.location || "Our Location"}<br/>🕐 Open Daily</p>
+      </div>
+    </section>`;
+  }
+
+  // About section
+  let aboutHTML = "";
+  if (config.sections.includes("about")) {
+    const aboutImg = getCategoryImage(config.category, "about", 0, config);
+    aboutHTML = `
+    <section style="padding:60px 24px;background:${isDark ? "#0F0F0F" : "#F9FAFB"};">
+      <div style="max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;">
+        <div>
+          <h2 style="font-family:${fontHeading};font-size:1.5rem;font-weight:700;margin-bottom:12px;color:${pageText};">About Us</h2>
+          <p style="font-size:0.95rem;color:${pageText}99;line-height:1.7;">${businessName} is dedicated to delivering the best experience with passion and quality.</p>
+        </div>
+        <div style="border-radius:12px;overflow:hidden;"><img src="${aboutImg}" alt="About" style="width:100%;height:280px;object-fit:cover;"/></div>
+      </div>
+    </section>`;
+  }
+
+  // Footer from template
+  const footerCols = (footerSchema.columns as any[]) || [];
+  const footerBg = footerSchema.background_color || (isDark ? "#0A0A0A" : pageBg);
+  const footerColsHTML = footerCols.map((col: any) => `
+    <div>
+      <h4 style="font-weight:600;font-size:13px;margin-bottom:8px;color:${pageText};">${col.title}</h4>
+      ${(col.links as string[]).map((l: string) => `<p style="font-size:12px;color:${pageText}88;margin-bottom:4px;">${l}</p>`).join("")}
+    </div>
+  `).join("");
+
+  const domain = CATEGORY_CONFIGS[config.category]?.domain || ".shop";
+  const slug = businessName.toLowerCase().replace(/\s+/g, "-");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>${businessName}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Georgia&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: ${pageBg}; color: ${pageText}; line-height: 1.6; }
+    img { max-width: 100%; }
+    @media (max-width: 768px) {
+      section[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+      section[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+      [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
+      [style*="grid-template-columns:repeat(3"] { grid-template-columns: repeat(1, 1fr) !important; }
+    }
+  </style>
+</head>
+<body>
+  <nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:${navBg}ee;backdrop-filter:blur(12px);border-bottom:1px solid ${borderColor};padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;">
+    <a href="#" style="text-decoration:none;display:flex;align-items:center;">${logoHtml}</a>
+    <div style="display:flex;gap:20px;align-items:center;">${navLinks}${headerCta}</div>
+  </nav>
+
+  ${heroHTML}
+  ${categoryHTML}
+  ${menuHTML}
+  ${deliveryHTML}
+  ${aboutHTML}
+  ${offerHTML}
+  ${locationHTML}
+
+  <footer style="padding:48px 24px;background:${footerBg};border-top:1px solid ${borderColor};">
+    <div style="max-width:900px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;">
+      ${footerColsHTML}
+    </div>
+    <p style="text-align:center;font-size:12px;color:${pageText}66;margin-top:32px;">${footerSchema.copyright || `${businessName} — All rights reserved.`}<br/>${slug}${domain}</p>
+  </footer>
+</body>
+</html>`;
+}
+
 /** Generate 3 truly different website HTML variants */
 export function generateWebsiteVariants(config: GeneratorConfig): string[] {
+  // If an emenu template key is selected, use template-aware generation
+  if (config.style && config.style.startsWith("emenu_")) {
+    const preset = getTemplate("emenu", config.style);
+    if (preset) {
+      return [0, 1, 2].map(i => buildEmenuTemplateHTML(config, preset, i));
+    }
+  }
+
   const themeKey = config.styleSpecific || config.style || "modern";
   const baseTheme = STYLE_THEMES[themeKey] || STYLE_THEMES[config.style] || STYLE_THEMES.modern;
   
