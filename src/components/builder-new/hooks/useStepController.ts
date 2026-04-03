@@ -3,6 +3,7 @@ import type { Category } from "../types/builder.types";
 import { CATEGORY_CONFIGS } from "../types/builder.types";
 import { EMENU_TEMPLATE_GROUPS } from "@/lib/builder/emenu/templateClassifier";
 import { classifyEmenu } from "@/lib/builder/emenu/templateFirstGeneration";
+import { getTemplate } from "@/config/templateRegistry";
 import type { MenuComplexity } from "@/lib/builder/emenu/types";
 
 export type BuilderStep =
