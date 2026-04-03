@@ -3,6 +3,12 @@
  *
  * Flow: classify → pool → pick 2 options → user chooses → generate with fidelity
  * Retry: if both rejected, serve next pair from pool (no repeats).
+ *
+ * LOCKED DESIGN RULE:
+ * - Published emenu output is MOBILE-FIRST (phones are the primary viewport).
+ * - The builder/editor workspace is DESKTOP-FIRST.
+ * - Generated templates must render correctly on 360–414px without manual fixes.
+ * - See EMENU_DESIGN_PRIORITIES in types.ts for enforcement constants.
  */
 
 import { classifyMenuComplexity, getTemplatesForComplexity, type ClassificationInput } from "./templateClassifier";

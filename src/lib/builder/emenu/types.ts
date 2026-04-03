@@ -102,6 +102,39 @@ export const MENU_CATEGORY_LABELS: Record<MenuComplexity, { label: string; descr
   },
 };
 
+// ─── MOBILE-FIRST PUBLISHED PAGE RULES ───
+// These rules are LOCKED and must be enforced by all emenu template generation.
+
+/**
+ * EMENU GENERATION DESIGN PRIORITIES (LOCKED)
+ *
+ * 1. PUBLISHED OUTPUT: Mobile-first, desktop-secondary.
+ *    - All generated emenu pages target phone screens as the primary viewport.
+ *    - Sections, cards, images, prices, badges, CTAs, category tabs/filters,
+ *      hero banners, hours blocks, and promo sections must render correctly
+ *      on 360–414px widths without manual fixing.
+ *    - Desktop is an upscaled adaptation, not the design target.
+ *
+ * 2. EDITOR WORKSPACE: Desktop-first, mobile-secondary.
+ *    - The builder editing UI targets desktop screens as the primary experience.
+ *
+ * 3. TEMPLATE EXECUTION RULES:
+ *    - Mobile section ordering must be intentional (not a collapsed desktop layout).
+ *    - Food cards: min 140px wide, images ≥ 120px, touch targets ≥ 44px.
+ *    - Category filters: horizontally scrollable, no wrapping/squishing.
+ *    - Hero sections: crop and stack correctly on portrait viewports.
+ *    - Info/hours/promo blocks: single-column stacking on small screens.
+ *    - Users must NOT need post-generation layout fixes for normal mobile usage.
+ */
+export const EMENU_DESIGN_PRIORITIES = {
+  publishedOutput: "mobile-first",
+  editorWorkspace: "desktop-first",
+  mobileMinCardWidth: 140,
+  mobileMinImageSize: 120,
+  mobileTouchTarget: 44,
+  mobileBreakpoint: 414,
+} as const;
+
 /** Reservation form schema for fine dining / hotel menus */
 export interface ReservationFormSchema {
   heading: string;
