@@ -159,20 +159,30 @@ interface SectionContent {
   images?: string[];
 }
 
-function getSectionContent(section: string, category: Category, businessName: string, location: string, userIdea: string): SectionContent | null {
+function getSectionContent(section: string, category: Category, businessName: string, location: string, userIdea: string, config?: GeneratorConfig): SectionContent | null {
   const name = businessName || "My Website";
   const loc = location || "Dubai, UAE";
   const desc = userIdea || `${name} in ${loc}`;
 
+  // Delivery items: use ONLY user-selected apps (never inject extras)
+  const deliveryItems = config?.deliveryApps && config.deliveryApps.length > 0
+    ? config.deliveryApps.map(app => {
+        const labels: Record<string, string> = { talabat: "Talabat", deliveroo: "Deliveroo", noon_food: "Noon Food", careem: "Careem", zomato: "Zomato", ubereats: "Uber Eats", self_delivery: "Self Delivery", pickup_only: "Pickup Only", hungerstation: "HungerStation", jahez: "Jahez", toyou: "ToYou", elmenus: "Elmenus", doordash: "DoorDash", grubhub: "Grubhub" };
+        return labels[app] || app;
+      })
+    : ["Order Online"];
+
+  const getImg = (sec: string, idx: number) => getCategoryImage(category, sec, idx, config);
+
   const sectionMap: Record<string, () => SectionContent> = {
-    hero: () => ({ key: "hero", title: name, subtitle: desc, images: [getCategoryImage(category, "hero", 0)] }),
-    menu: () => ({ key: "menu", title: "Our Menu", subtitle: "Explore our handcrafted dishes", items: ["Classic Burger — $12", "Crispy Fries — $5", "Fried Chicken — $10", "Fresh Salad — $8", "Milkshake — $6", "Combo Meal — $15"], images: CATEGORY_IMAGES[category]?.menu || [] }),
-    about: () => ({ key: "about", title: "About Us", subtitle: `${name} is dedicated to delivering the best experience with passion and quality.`, images: [getCategoryImage(category, "about", 0)] }),
+    hero: () => ({ key: "hero", title: name, subtitle: desc, images: [getImg("hero", 0)] }),
+    menu: () => ({ key: "menu", title: "Our Menu", subtitle: "Explore our handcrafted dishes", items: ["Classic Burger — $12", "Crispy Fries — $5", "Fried Chicken — $10", "Fresh Salad — $8", "Milkshake — $6", "Combo Meal — $15"], images: config?.userImages?.filter(i => i.purpose === "menu").map(i => i.url) || CATEGORY_IMAGES[category]?.menu || [] }),
+    about: () => ({ key: "about", title: "About Us", subtitle: `${name} is dedicated to delivering the best experience with passion and quality.`, images: [getImg("about", 0)] }),
     contact: () => ({ key: "contact", title: "Get in Touch", subtitle: `📧 hello@${name.toLowerCase().replace(/\s/g, "")}.com\n📍 ${loc}\n📞 +971 XX XXX XXXX` }),
     testimonials: () => ({ key: "testimonials", title: "What People Say", subtitle: "Reviews from our happy customers", items: ['"Absolutely amazing experience!" — Sarah K.', '"Best in town, hands down!" — Ahmed M.', '"Highly recommend to everyone." — Lisa R.'] }),
-    gallery: () => ({ key: "gallery", title: "Gallery", subtitle: "A glimpse of what we do", images: CATEGORY_IMAGES[category]?.gallery || CATEGORY_IMAGES[category]?.hero || [] }),
+    gallery: () => ({ key: "gallery", title: "Gallery", subtitle: "A glimpse of what we do", images: config?.userImages?.map(i => i.url) || CATEGORY_IMAGES[category]?.gallery || CATEGORY_IMAGES[category]?.hero || [] }),
     location: () => ({ key: "location", title: "Find Us", subtitle: `📍 ${loc}\n🕐 Open Daily: 10:00 AM – 11:00 PM` }),
-    delivery: () => ({ key: "delivery", title: "Order Now", subtitle: "Get your favorites delivered", items: ["Talabat", "Deliveroo", "Careem", "Noon Food"] }),
+    delivery: () => ({ key: "delivery", title: "Order Now", subtitle: "Get your favorites delivered", items: deliveryItems }),
     products: () => ({ key: "products", title: "Our Products", subtitle: "Browse our collection", items: ["Product A — $29", "Product B — $49", "Product C — $79", "Product D — $39"], images: CATEGORY_IMAGES[category]?.products || [] }),
     services: () => ({ key: "services", title: "Our Services", subtitle: "Expert solutions tailored for you", items: ["Consulting", "Strategy", "Implementation", "Support & Maintenance"], images: CATEGORY_IMAGES[category]?.services || [] }),
     results: () => ({ key: "results", title: "Our Results", subtitle: "Success stories from our clients" }),
