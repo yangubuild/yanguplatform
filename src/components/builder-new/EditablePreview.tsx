@@ -137,9 +137,6 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
     pushHtmlUpdate();
     toast.success("Style updated!");
   }, [getDoc, pushHtmlUpdate]);
-    pushHtmlUpdate();
-    toast.success("Style updated!");
-  }, [getDoc, pushHtmlUpdate]);
 
   const getSectionElements = useCallback(() => {
     const doc = getDoc();
