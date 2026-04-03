@@ -195,8 +195,6 @@ function getEmenuTemplateOptions(classification: MenuComplexity): StepOption[] {
   const group = EMENU_TEMPLATE_GROUPS.find(g => g.complexity === classification);
   if (!group) return [];
 
-  // Import template labels from registry — we build options from the keys
-  const { getTemplate } = require("@/config/templateRegistry");
   return group.templateKeys.map(key => {
     const preset = getTemplate("emenu", key);
     return {
