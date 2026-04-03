@@ -601,6 +601,12 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     label: "Modern Food Grid",
     description: "Photo-forward food grid: full-width hero, featured dishes grid, category sections, about & hours block",
     icon: "📸",
+    reference: {
+      source: "image",
+      label: "Modern food photography grid reference",
+      sectionOrder: ["header_split_nav", "hero_split", "featured_grid", "story_block", "social_gallery", "hours_location", "footer"],
+      layoutPatterns: ["split_hero_editorial", "3col_photo_grid", "story_with_gallery", "instagram_feed"],
+    },
     patches: {
       header: { schema: {
         layout_variant: "nav_split",
