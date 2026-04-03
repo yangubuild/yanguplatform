@@ -15,6 +15,10 @@ export interface GeneratorConfig {
   sections: string[];
   deliveryApps: string[];
   userIdea: string;
+  /** User-uploaded assets (override defaults when provided) */
+  userLogoUrl?: string;
+  userBrandColors?: string[];
+  userImages?: Array<{ url: string; purpose: string }>;
 }
 
 interface StyleTheme {
@@ -103,7 +107,17 @@ const CATEGORY_IMAGES: Record<string, Record<string, string[]>> = {
   },
 };
 
-function getCategoryImage(category: string, section: string, index: number): string {
+function getCategoryImage(category: string, section: string, index: number, config?: GeneratorConfig): string {
+  // Prioritize user-uploaded images when available
+  if (config?.userImages && config.userImages.length > 0) {
+    // Try to find purpose-matched images first
+    const purposeMap: Record<string, string[]> = { hero: ["page", "interior"], menu: ["menu"], about: ["team", "interior"], gallery: ["menu", "interior", "page", "other"] };
+    const purposes = purposeMap[section] || ["page", "other"];
+    const matched = config.userImages.filter(img => purposes.includes(img.purpose));
+    if (matched.length > 0) return matched[index % matched.length].url;
+    // Fallback: any user image
+    return config.userImages[index % config.userImages.length].url;
+  }
   const cat = CATEGORY_IMAGES[category] || CATEGORY_IMAGES.esite;
   const sectionImages = cat[section] || cat.hero || CATEGORY_IMAGES.esite.hero;
   return sectionImages[index % sectionImages.length];
@@ -145,20 +159,30 @@ interface SectionContent {
   images?: string[];
 }
 
-function getSectionContent(section: string, category: Category, businessName: string, location: string, userIdea: string): SectionContent | null {
+function getSectionContent(section: string, category: Category, businessName: string, location: string, userIdea: string, config?: GeneratorConfig): SectionContent | null {
   const name = businessName || "My Website";
   const loc = location || "Dubai, UAE";
   const desc = userIdea || `${name} in ${loc}`;
 
+  // Delivery items: use ONLY user-selected apps (never inject extras)
+  const deliveryItems = config?.deliveryApps && config.deliveryApps.length > 0
+    ? config.deliveryApps.map(app => {
+        const labels: Record<string, string> = { talabat: "Talabat", deliveroo: "Deliveroo", noon_food: "Noon Food", careem: "Careem", zomato: "Zomato", ubereats: "Uber Eats", self_delivery: "Self Delivery", pickup_only: "Pickup Only", hungerstation: "HungerStation", jahez: "Jahez", toyou: "ToYou", elmenus: "Elmenus", doordash: "DoorDash", grubhub: "Grubhub" };
+        return labels[app] || app;
+      })
+    : ["Order Online"];
+
+  const getImg = (sec: string, idx: number) => getCategoryImage(category, sec, idx, config);
+
   const sectionMap: Record<string, () => SectionContent> = {
-    hero: () => ({ key: "hero", title: name, subtitle: desc, images: [getCategoryImage(category, "hero", 0)] }),
-    menu: () => ({ key: "menu", title: "Our Menu", subtitle: "Explore our handcrafted dishes", items: ["Classic Burger — $12", "Crispy Fries — $5", "Fried Chicken — $10", "Fresh Salad — $8", "Milkshake — $6", "Combo Meal — $15"], images: CATEGORY_IMAGES[category]?.menu || [] }),
-    about: () => ({ key: "about", title: "About Us", subtitle: `${name} is dedicated to delivering the best experience with passion and quality.`, images: [getCategoryImage(category, "about", 0)] }),
+    hero: () => ({ key: "hero", title: name, subtitle: desc, images: [getImg("hero", 0)] }),
+    menu: () => ({ key: "menu", title: "Our Menu", subtitle: "Explore our handcrafted dishes", items: ["Classic Burger — $12", "Crispy Fries — $5", "Fried Chicken — $10", "Fresh Salad — $8", "Milkshake — $6", "Combo Meal — $15"], images: config?.userImages?.filter(i => i.purpose === "menu").map(i => i.url) || CATEGORY_IMAGES[category]?.menu || [] }),
+    about: () => ({ key: "about", title: "About Us", subtitle: `${name} is dedicated to delivering the best experience with passion and quality.`, images: [getImg("about", 0)] }),
     contact: () => ({ key: "contact", title: "Get in Touch", subtitle: `📧 hello@${name.toLowerCase().replace(/\s/g, "")}.com\n📍 ${loc}\n📞 +971 XX XXX XXXX` }),
     testimonials: () => ({ key: "testimonials", title: "What People Say", subtitle: "Reviews from our happy customers", items: ['"Absolutely amazing experience!" — Sarah K.', '"Best in town, hands down!" — Ahmed M.', '"Highly recommend to everyone." — Lisa R.'] }),
-    gallery: () => ({ key: "gallery", title: "Gallery", subtitle: "A glimpse of what we do", images: CATEGORY_IMAGES[category]?.gallery || CATEGORY_IMAGES[category]?.hero || [] }),
+    gallery: () => ({ key: "gallery", title: "Gallery", subtitle: "A glimpse of what we do", images: config?.userImages?.map(i => i.url) || CATEGORY_IMAGES[category]?.gallery || CATEGORY_IMAGES[category]?.hero || [] }),
     location: () => ({ key: "location", title: "Find Us", subtitle: `📍 ${loc}\n🕐 Open Daily: 10:00 AM – 11:00 PM` }),
-    delivery: () => ({ key: "delivery", title: "Order Now", subtitle: "Get your favorites delivered", items: ["Talabat", "Deliveroo", "Careem", "Noon Food"] }),
+    delivery: () => ({ key: "delivery", title: "Order Now", subtitle: "Get your favorites delivered", items: deliveryItems }),
     products: () => ({ key: "products", title: "Our Products", subtitle: "Browse our collection", items: ["Product A — $29", "Product B — $49", "Product C — $79", "Product D — $39"], images: CATEGORY_IMAGES[category]?.products || [] }),
     services: () => ({ key: "services", title: "Our Services", subtitle: "Expert solutions tailored for you", items: ["Consulting", "Strategy", "Implementation", "Support & Maintenance"], images: CATEGORY_IMAGES[category]?.services || [] }),
     results: () => ({ key: "results", title: "Our Results", subtitle: "Success stories from our clients" }),
@@ -289,6 +313,13 @@ function buildSectionHTML(section: SectionContent, isHero: boolean, theme: Style
 }
 
 function buildHTML(config: GeneratorConfig, theme: StyleTheme, layout: LayoutVariant, variantLabel: string): string {
+  // Apply user brand colors if provided (override theme accent)
+  if (config.userBrandColors && config.userBrandColors.length > 0) {
+    theme = { ...theme, accent: config.userBrandColors[0] };
+    if (config.userBrandColors.length > 1) {
+      theme.heroGradient = `linear-gradient(135deg, ${config.userBrandColors[0]} 0%, ${config.userBrandColors[1] || config.userBrandColors[0]} 100%)`;
+    }
+  }
   const domain = CATEGORY_CONFIGS[config.category]?.domain || ".site";
   const slug = (config.businessName || "my-site").toLowerCase().replace(/\s+/g, "-");
 
@@ -296,7 +327,7 @@ function buildHTML(config: GeneratorConfig, theme: StyleTheme, layout: LayoutVar
   const sectionsToRender = config.sections.length > 0 ? config.sections : ["hero"];
   
   const sectionContents = sectionsToRender
-    .map(s => getSectionContent(s, config.category, config.businessName, config.location, config.userIdea))
+    .map(s => getSectionContent(s, config.category, config.businessName, config.location, config.userIdea, config))
     .filter(Boolean) as SectionContent[];
 
   // Navigation
@@ -305,6 +336,10 @@ function buildHTML(config: GeneratorConfig, theme: StyleTheme, layout: LayoutVar
   const sectionsHTML = sectionContents.map((s, i) =>
     buildSectionHTML(s, i === 0, theme, layout, i, sectionContents[i + 1]?.key)
   ).join("\n");
+
+  const logoHtml = config.userLogoUrl
+    ? `<img src="${config.userLogoUrl}" alt="${config.businessName}" style="height:28px;width:auto;"/>`
+    : `<span style="font-weight:700;font-size:18px;color:${theme.accent};">${config.businessName || "My Site"}</span>`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -325,7 +360,7 @@ function buildHTML(config: GeneratorConfig, theme: StyleTheme, layout: LayoutVar
 </head>
 <body>
   <nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:${theme.bg}ee;backdrop-filter:blur(12px);border-bottom:1px solid ${theme.borderColor};padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;">
-    <a href="#" style="font-weight:700;font-size:18px;color:${theme.accent};text-decoration:none;">${config.businessName || "My Site"}</a>
+    <a href="#" style="text-decoration:none;display:flex;align-items:center;">${logoHtml}</a>
     <div style="display:flex;gap:20px;">${navLinks}</div>
   </nav>
 

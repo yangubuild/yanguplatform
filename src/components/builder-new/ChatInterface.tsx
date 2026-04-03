@@ -2,10 +2,11 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, Plus } from "lucide-react";
 import type { ChatMessage } from "./types/builder.types";
 import type { Selection } from "./types/builder.types";
-import type { StepConfig, StepOption, BuilderStep } from "./hooks/useStepController";
+import type { StepConfig, StepOption, BuilderStep, UserAssets } from "./hooks/useStepController";
 import { MessageBubble } from "./MessageBubble";
 import { BuilderPinnedNotice } from "./BuilderPinnedNotice";
 import { StepRenderer } from "./StepRenderer";
+import { YanguLoader } from "@/components/YanguLoader";
 
 interface ChatInterfaceProps {
   messages: ChatMessage[];
@@ -19,6 +20,10 @@ interface ChatInterfaceProps {
   currentStep: BuilderStep;
   builderMode?: "new" | "edit";
   selections: Selection[];
+  // Asset upload props
+  userAssets?: UserAssets;
+  onAssetsChange?: (assets: UserAssets) => void;
+  onConfirmAssetUpload?: () => void;
 }
 
 export function ChatInterface({
@@ -33,6 +38,9 @@ export function ChatInterface({
   currentStep,
   builderMode = "new",
   selections,
+  userAssets,
+  onAssetsChange,
+  onConfirmAssetUpload,
 }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -75,6 +83,8 @@ export function ChatInterface({
     ? "e.g. EZI FOOD, we sell burgers and fries in Dubai..."
     : currentStep === "refinement"
     ? "Describe what you'd like to change..."
+    : currentStep === "business_location"
+    ? "e.g. Dubai, UAE..."
     : "Click an option above to continue";
 
   return (
@@ -92,7 +102,7 @@ export function ChatInterface({
         ))}
 
         {/* Step options */}
-        {!isLoading && stepConfig.options.length > 0 && (
+        {!isLoading && (stepConfig.options.length > 0 || stepConfig.renderAs === "upload") && (
           <div className="flex flex-col items-start gap-2 pt-1">
             <StepRenderer
               config={stepConfig}
@@ -100,17 +110,16 @@ export function ChatInterface({
               onConfirmMulti={onConfirmMulti}
               multiSelected={multiSelected}
               currentStep={currentStep}
+              userAssets={userAssets}
+              onAssetsChange={onAssetsChange}
+              onConfirmAssetUpload={onConfirmAssetUpload}
             />
           </div>
         )}
 
         {isLoading && (
-          <div className="flex items-start gap-2">
-            <div className="flex gap-1.5 px-4 py-3">
-              <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "0ms" }} />
-              <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "150ms" }} />
-              <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "300ms" }} />
-            </div>
+          <div className="flex items-start gap-2 py-2">
+            <YanguLoader size={24} fullArea={false} />
           </div>
         )}
       </div>

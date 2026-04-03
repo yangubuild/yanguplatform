@@ -1,5 +1,7 @@
 import type { StepConfig, StepOption, BuilderStep } from "./hooks/useStepController";
+import type { UserAssets } from "./hooks/useStepController";
 import { StyleCarousel } from "./StyleCarousel";
+import { AssetUploadStep } from "./AssetUploadStep";
 import { Check } from "lucide-react";
 
 interface StepRendererProps {
@@ -8,9 +10,33 @@ interface StepRendererProps {
   onConfirmMulti?: () => void;
   multiSelected?: string[];
   currentStep: BuilderStep;
+  // Asset upload props
+  userAssets?: UserAssets;
+  onAssetsChange?: (assets: UserAssets) => void;
+  onConfirmAssetUpload?: () => void;
 }
 
-export function StepRenderer({ config, onSelect, onConfirmMulti, multiSelected = [], currentStep }: StepRendererProps) {
+export function StepRenderer({
+  config,
+  onSelect,
+  onConfirmMulti,
+  multiSelected = [],
+  currentStep,
+  userAssets,
+  onAssetsChange,
+  onConfirmAssetUpload,
+}: StepRendererProps) {
+  // Asset upload step
+  if (config.renderAs === "upload" && userAssets && onAssetsChange && onConfirmAssetUpload) {
+    return (
+      <AssetUploadStep
+        assets={userAssets}
+        onAssetsChange={onAssetsChange}
+        onConfirm={onConfirmAssetUpload}
+      />
+    );
+  }
+
   if (config.options.length === 0) return null;
 
   if (config.renderAs === "carousel") {
@@ -32,7 +58,7 @@ export function StepRenderer({ config, onSelect, onConfirmMulti, multiSelected =
             className="flex flex-col gap-0.5 px-3 py-2.5 rounded-xl border border-border bg-card hover:bg-accent/10 hover:border-primary/40 transition-all text-left group"
           >
             <span className="text-[13px] font-semibold text-foreground group-hover:text-primary transition-colors">
-              {opt.label}
+              {opt.icon ? `${opt.icon} ` : ""}{opt.label}
             </span>
             {opt.description && (
               <span className="text-[11px] text-muted-foreground leading-tight">{opt.description}</span>
