@@ -84,7 +84,44 @@ export interface EmenuMenuSchema {
 }
 
 /** Complexity classification for template selection */
-export type MenuComplexity = "simple" | "complex";
+export type MenuComplexity = "simple" | "complex" | "reservation";
+
+/** Reservation form schema for fine dining / hotel menus */
+export interface ReservationFormSchema {
+  heading: string;
+  description?: string;
+  fields: Array<{
+    key: string;
+    label: string;
+    type: "text" | "email" | "tel" | "number" | "date" | "time" | "select";
+    placeholder?: string;
+    options?: string[];
+    required?: boolean;
+  }>;
+  submit_label: string;
+}
+
+/** Testimonial item for reservation-style menus */
+export interface TestimonialItem {
+  quote: string;
+  author: string;
+  rating?: number;
+  avatar_url?: string;
+}
+
+/** Gallery item for restaurant ambiance/food */
+export interface GalleryItem {
+  image_url: string;
+  caption?: string;
+}
+
+/** About/story section */
+export interface RestaurantStory {
+  heading: string;
+  description: string;
+  image_url?: string;
+  established_year?: string;
+}
 
 /** Food category fallback images (used when no image is uploaded) */
 export const FOOD_CATEGORY_PLACEHOLDERS: Record<string, string> = {

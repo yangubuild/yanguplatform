@@ -1,6 +1,6 @@
 /**
  * Emenu Template Classifier
- * Determines menu complexity (simple vs complex) based on user input,
+ * Determines menu complexity (simple, complex, or reservation) based on user input,
  * then groups templates accordingly.
  */
 
@@ -15,9 +15,15 @@ const SIMPLE_BUSINESS_TYPES = new Set([
 
 /** Business types that typically have complex menus */
 const COMPLEX_BUSINESS_TYPES = new Set([
-  "restaurant", "fine_dining", "buffet", "catering",
+  "restaurant", "buffet", "catering",
   "bar_lounge", "grill", "fast_food", "delivery_kitchen",
   "takeaway", "pizza",
+]);
+
+/** Business types that typically use reservation mode */
+const RESERVATION_BUSINESS_TYPES = new Set([
+  "fine_dining", "hotel", "hotel_restaurant", "upscale",
+  "wine_bar", "tasting_room", "exclusive_dining",
 ]);
 
 /** Keywords in user input suggesting simple menus */
@@ -31,7 +37,15 @@ const SIMPLE_KEYWORDS = [
 const COMPLEX_KEYWORDS = [
   "restaurant", "full menu", "many items", "categories", "large menu",
   "delivery", "ordering", "dine in", "takeaway", "grill", "buffet",
-  "fine dining", "full service", "catering", "multiple sections",
+  "full service", "catering", "multiple sections",
+];
+
+/** Keywords suggesting reservation mode */
+const RESERVATION_KEYWORDS = [
+  "reservation", "book a table", "booking", "fine dining",
+  "hotel", "upscale", "exclusive", "tasting menu", "dine-in experience",
+  "elegant", "luxury dining", "michelin", "gourmet experience",
+  "wine pairing", "private dining", "chef's table",
 ];
 
 export interface ClassificationInput {
@@ -46,17 +60,19 @@ export interface ClassificationInput {
 }
 
 /**
- * Classify a menu as simple or complex based on available signals.
+ * Classify a menu as simple, complex, or reservation based on available signals.
  */
 export function classifyMenuComplexity(input: ClassificationInput): MenuComplexity {
   let simpleScore = 0;
   let complexScore = 0;
+  let reservationScore = 0;
 
   // 1. Business type signal (strongest)
   if (input.businessType) {
     const bt = input.businessType.toLowerCase().replace(/[\s/]+/g, "_");
     if (SIMPLE_BUSINESS_TYPES.has(bt)) simpleScore += 3;
     if (COMPLEX_BUSINESS_TYPES.has(bt)) complexScore += 3;
+    if (RESERVATION_BUSINESS_TYPES.has(bt)) reservationScore += 5; // Strong signal
   }
 
   // 2. Keyword scan on user idea
@@ -67,11 +83,19 @@ export function classifyMenuComplexity(input: ClassificationInput): MenuComplexi
   for (const kw of COMPLEX_KEYWORDS) {
     if (text.includes(kw)) complexScore += 1;
   }
+  for (const kw of RESERVATION_KEYWORDS) {
+    if (text.includes(kw)) reservationScore += 2; // Reservation keywords are strong
+  }
 
   // 3. Estimated item count
   if (input.estimatedItems !== undefined) {
     if (input.estimatedItems <= 15) simpleScore += 2;
     else if (input.estimatedItems > 30) complexScore += 2;
+  }
+
+  // Reservation wins if it has the highest score
+  if (reservationScore > simpleScore && reservationScore > complexScore) {
+    return "reservation";
   }
 
   // Default to complex if tied (more feature-rich)
@@ -92,6 +116,10 @@ export const EMENU_TEMPLATE_GROUPS: TemplateGroup[] = [
   {
     complexity: "complex",
     templateKeys: ["emenu_visual_a", "emenu_visual_b"],
+  },
+  {
+    complexity: "reservation",
+    templateKeys: ["emenu_gusto_reservation"],
   },
 ];
 
