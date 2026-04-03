@@ -8,9 +8,11 @@ import type { MenuComplexity } from "@/lib/builder/emenu/types";
 
 export type BuilderStep =
   | "greeting"
+  | "business_type"
   | "scope"
   | "assets"
   | "asset_upload"
+  | "ai_logo"
   | "sections"
   | "business_location"
   | "delivery_apps"
