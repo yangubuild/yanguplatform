@@ -334,6 +334,12 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     label: "Sweet Sips",
     description: "Playful café/juice bar: warm hero, popular items carousel, rewards CTA, seasonal specials",
     icon: "🧋",
+    reference: {
+      source: "image",
+      label: "Pastries & Ice Cream reference",
+      sectionOrder: ["header", "hero", "menu_grid", "rewards_cta", "seasonal_specials", "footer"],
+      layoutPatterns: ["split_hero", "3col_food_grid", "story_block_cta", "warm_gradient_bg"],
+    },
     patches: {
       header: { schema: {
         layout_variant: "nav_right",
