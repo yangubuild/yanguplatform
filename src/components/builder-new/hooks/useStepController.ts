@@ -36,7 +36,7 @@ export interface StepConfig {
   options: StepOption[];
   multiSelect?: boolean;
   allowFreeText?: boolean;
-  renderAs?: "chips" | "cards" | "carousel" | "upload" | "location_input";
+  renderAs?: "chips" | "cards" | "carousel" | "upload" | "location_input" | "ai_logo";
 }
 
 // ─── Category detection ────────────────────────────────────────────────
