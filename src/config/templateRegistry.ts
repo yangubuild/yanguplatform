@@ -2,10 +2,30 @@
 // Provides visual template presets per engine.
 // Each template defines schema patches for core slots (header, hero, main_content, offer, footer).
 // No DB changes required — applied client-side via patch merge.
+//
+// TEMPLATE REFERENCE RULE:
+// Every template must record its provenance via the `reference` field.
+// When generating from a saved template, the output must stay structurally
+// close to the saved source — only branding, colors, content, and images
+// are swapped per the user's business.
 
 export interface TemplateSlotPatch {
   /** Partial schema merged into the section's existing schema */
   schema: Record<string, unknown>;
+}
+
+/** Source provenance for a template — tracks where the design came from */
+export interface TemplateReference {
+  /** "link" = extracted from a live URL, "image" = from screenshot/upload, "mixed" = both */
+  source: "link" | "image" | "mixed" | "original";
+  /** The live URL used for structure extraction (if any) */
+  url?: string;
+  /** Short label for the reference design (e.g. "Gusto Framer template") */
+  label?: string;
+  /** Section ordering extracted from the reference */
+  sectionOrder: string[];
+  /** Key layout patterns preserved from the reference */
+  layoutPatterns: string[];
 }
 
 export interface TemplatePreset {
@@ -14,6 +34,8 @@ export interface TemplatePreset {
   description: string;
   /** Emoji or icon hint for UI card */
   icon: string;
+  /** Source provenance — where this template was derived from */
+  reference?: TemplateReference;
   /** Schema patches keyed by core_slot name */
   patches: Partial<Record<"header" | "hero" | "main_content" | "offer" | "footer" | "showcase", TemplateSlotPatch>>;
 }
@@ -312,6 +334,12 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     label: "Sweet Sips",
     description: "Playful café/juice bar: warm hero, popular items carousel, rewards CTA, seasonal specials",
     icon: "🧋",
+    reference: {
+      source: "image",
+      label: "Pastries & Ice Cream reference",
+      sectionOrder: ["header", "hero", "menu_grid", "rewards_cta", "seasonal_specials", "footer"],
+      layoutPatterns: ["split_hero", "3col_food_grid", "story_block_cta", "warm_gradient_bg"],
+    },
     patches: {
       header: { schema: {
         layout_variant: "nav_right",
@@ -390,6 +418,12 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     label: "Sunday Bite",
     description: "Clean bistro menu: bold hero, featured dishes, testimonials, opening hours & location",
     icon: "🍔",
+    reference: {
+      source: "image",
+      label: "Food & Restaurant Service Website reference",
+      sectionOrder: ["header", "hero", "menu_grid", "testimonials", "about_story", "hours_location", "footer"],
+      layoutPatterns: ["split_hero", "3col_food_cards", "trust_badges_testimonials", "story_block_about"],
+    },
     patches: {
       header: { schema: {
         layout_variant: "nav_right",
@@ -473,6 +507,12 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     label: "Restaurant Classic",
     description: "Elegant restaurant menu: hero banner, category tabs, menu items with images, sticky action bar, hours & location",
     icon: "🍽️",
+    reference: {
+      source: "image",
+      label: "FlavorNest marketplace-style menu reference",
+      sectionOrder: ["header_dark", "hero_fullwidth", "menu_categories", "trust_badges", "story_block", "hours_contact", "footer"],
+      layoutPatterns: ["fullwidth_dark_hero", "2col_menu_grid", "trust_badges_row", "story_block_about"],
+    },
     patches: {
       header: { schema: {
         layout_variant: "nav_right",
@@ -561,6 +601,12 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     label: "Modern Food Grid",
     description: "Photo-forward food grid: full-width hero, featured dishes grid, category sections, about & hours block",
     icon: "📸",
+    reference: {
+      source: "image",
+      label: "Modern food photography grid reference",
+      sectionOrder: ["header_split_nav", "hero_split", "featured_grid", "story_block", "social_gallery", "hours_location", "footer"],
+      layoutPatterns: ["split_hero_editorial", "3col_photo_grid", "story_with_gallery", "instagram_feed"],
+    },
     patches: {
       header: { schema: {
         layout_variant: "nav_split",
@@ -651,6 +697,13 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     label: "Gusto Reservation",
     description: "Elegant fine dining: dark cinematic hero, reservation form, menu display-only, restaurant gallery, testimonials, opening hours",
     icon: "🍷",
+    reference: {
+      source: "link",
+      url: "https://gusto-template.framer.website/",
+      label: "Gusto Framer fine dining template",
+      sectionOrder: ["header_dark", "hero_fullwidth_cinematic", "menu_display_only", "reservation_form", "gallery", "testimonials", "story_block", "hours", "footer_dark"],
+      layoutPatterns: ["cinematic_dark_hero", "serif_elegant_typography", "reservation_form_grid", "horizontal_menu_rows", "gallery_grid", "star_rating_testimonials"],
+    },
     patches: {
       header: { schema: {
         layout_variant: "nav_split",
@@ -1398,4 +1451,21 @@ export function getTemplate(engineKey: string, templateKey: string): TemplatePre
 /** Get all engine keys that have templates */
 export function getEngineKeysWithTemplates(): string[] {
   return Object.keys(TEMPLATE_REGISTRY);
+}
+
+/** Get the section ordering from a template's reference (for structural fidelity during generation) */
+export function getTemplateSectionOrder(engineKey: string, templateKey: string): string[] {
+  const t = getTemplate(engineKey, templateKey);
+  return t?.reference?.sectionOrder ?? [];
+}
+
+/** Get layout patterns from a template's reference */
+export function getTemplateLayoutPatterns(engineKey: string, templateKey: string): string[] {
+  const t = getTemplate(engineKey, templateKey);
+  return t?.reference?.layoutPatterns ?? [];
+}
+
+/** Find templates by reference source type */
+export function getTemplatesBySource(engineKey: string, source: "link" | "image" | "mixed" | "original"): TemplatePreset[] {
+  return getTemplatesForEngine(engineKey).filter((t) => t.reference?.source === source);
 }
