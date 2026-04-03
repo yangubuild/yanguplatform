@@ -87,7 +87,7 @@ export function ChatInterface({
   const placeholder = currentStep === "greeting"
     ? "e.g. EZI FOOD, we sell burgers and fries in Dubai..."
     : currentStep === "refinement"
-    ? "Describe what you'd like to change..."
+    ? "e.g. Change the hero image, update the menu layout, make colors darker..."
     : currentStep === "business_location"
     ? "e.g. Dubai, UAE..."
     : "Click an option above to continue";

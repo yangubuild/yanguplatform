@@ -34,7 +34,7 @@ export function StepRenderer({
 }: StepRendererProps) {
   // AI logo generation step
   if (config.renderAs === "ai_logo" && businessName && onConfirmAiLogo) {
-    return <AiLogoStep businessName={businessName} onConfirm={onConfirmAiLogo} />;
+    return <AiLogoStep businessName={businessName} category={config.key === "ai_logo" ? "emenu" : undefined} businessType={(config as any).businessType} onConfirm={onConfirmAiLogo} />;
   }
 
   // Asset upload step
