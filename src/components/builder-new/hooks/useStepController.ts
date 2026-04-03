@@ -384,11 +384,11 @@ export function useStepController() {
       case "refinement":
         return {
           key: "refinement",
-          adaMessage: "Your website is ready! Refine it using the tools or chat below.",
+          adaMessage: "Your website is ready! Use the toolbar to edit directly, or tell me what you'd like to change.",
           options: [
-            { id: "change_style", label: "Change Style", value: "change_style" },
-            { id: "change_sections", label: "Change Sections", value: "change_sections" },
-            { id: "regenerate", label: "Regenerate", value: "regenerate" },
+            { id: "change_style", label: "🎨 Change Style", value: "change_style" },
+            { id: "edit_sections", label: "📐 Edit Sections", value: "change_sections" },
+            { id: "regenerate", label: "🔄 Regenerate", value: "regenerate" },
           ],
           allowFreeText: true,
           renderAs: "chips",
