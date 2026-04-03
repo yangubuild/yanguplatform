@@ -13,6 +13,7 @@ import { CanvasHints } from "./canvas/CanvasHints";
 import { CanvasEditableText } from "./canvas/CanvasEditableText";
 import { CanvasImagePopover } from "./canvas/CanvasImagePopover";
 import { HeroImagePositioner } from "./canvas/HeroImagePositioner";
+import { EmenuPreview } from "./previews/EmenuPreview";
 
 interface CanvasCallbacks {
   sectionId: string;
