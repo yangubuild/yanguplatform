@@ -107,7 +107,17 @@ const CATEGORY_IMAGES: Record<string, Record<string, string[]>> = {
   },
 };
 
-function getCategoryImage(category: string, section: string, index: number): string {
+function getCategoryImage(category: string, section: string, index: number, config?: GeneratorConfig): string {
+  // Prioritize user-uploaded images when available
+  if (config?.userImages && config.userImages.length > 0) {
+    // Try to find purpose-matched images first
+    const purposeMap: Record<string, string[]> = { hero: ["page", "interior"], menu: ["menu"], about: ["team", "interior"], gallery: ["menu", "interior", "page", "other"] };
+    const purposes = purposeMap[section] || ["page", "other"];
+    const matched = config.userImages.filter(img => purposes.includes(img.purpose));
+    if (matched.length > 0) return matched[index % matched.length].url;
+    // Fallback: any user image
+    return config.userImages[index % config.userImages.length].url;
+  }
   const cat = CATEGORY_IMAGES[category] || CATEGORY_IMAGES.esite;
   const sectionImages = cat[section] || cat.hero || CATEGORY_IMAGES.esite.hero;
   return sectionImages[index % sectionImages.length];
