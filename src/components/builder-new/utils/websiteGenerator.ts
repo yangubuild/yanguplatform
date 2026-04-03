@@ -377,6 +377,212 @@ function buildHTML(config: GeneratorConfig, theme: StyleTheme, layout: LayoutVar
 
 // ─── Emenu template-aware generation ────────────────────────────────────
 
+interface ReservationThemeVars {
+  pageBg: string; pageText: string; cardBg: string; borderColor: string;
+  accentColor: string; accentText: string; fontHeading: string;
+  isDark: boolean; heroGradient: string; heroHTML: string;
+  logoHtml: string; navLinks: string; navBg: string; headerCta: string;
+  businessName: string; heroImg: string;
+}
+
+/**
+ * Build reservation-mode HTML (Gusto / fine dining).
+ * Completely different from standard emenu: no cart, reservation form,
+ * display-only menu rows, gallery, testimonials.
+ */
+function buildReservationHTML(
+  config: GeneratorConfig,
+  preset: TemplatePreset,
+  theme: ReservationThemeVars,
+  variantIndex: number
+): string {
+  const { pageBg, pageText, cardBg, borderColor, accentColor, accentText, fontHeading, isDark, heroHTML, logoHtml, navLinks, navBg, headerCta, businessName } = theme;
+
+  const mainSchema = (preset.patches?.main_content?.schema || {}) as Record<string, any>;
+  const offerSchema = (preset.patches?.offer?.schema || {}) as Record<string, any>;
+  const footerSchema = (preset.patches?.footer?.schema || {}) as Record<string, any>;
+
+  const domain = CATEGORY_CONFIGS[config.category]?.domain || ".shop";
+  const slug = businessName.toLowerCase().replace(/\s+/g, "-");
+
+  // ─── Display-Only Menu (horizontal rows, no cart) ───
+  const categories = (mainSchema.categories as any[]) || [];
+  const menuHeading = mainSchema.heading || "Menu";
+  const menuDesc = mainSchema.description || "";
+  const menuBg = isDark ? "#141414" : "#F9FAFB";
+
+  const menuSectionsHTML = categories.map((cat: any) => {
+    const catItems = (cat.items as any[]) || [];
+    const itemsHTML = catItems.map((item: any) => `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:16px 0;border-bottom:1px solid ${borderColor};">
+        <div style="flex:1;">
+          <span style="font-weight:600;font-size:15px;color:${pageText};">${item.name || item.title}</span>
+          ${item.description ? `<p style="font-size:13px;color:${pageText}88;margin-top:4px;line-height:1.5;">${item.description}</p>` : ""}
+          ${item.dietary_tags?.length ? `<div style="display:flex;gap:6px;margin-top:6px;">${item.dietary_tags.map((t: string) => `<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:${accentColor}22;color:${accentColor};">${t}</span>`).join("")}</div>` : ""}
+        </div>
+        <span style="font-weight:700;font-size:15px;color:${accentColor};white-space:nowrap;margin-left:24px;">${item.price}</span>
+      </div>
+    `).join("");
+    return `
+      <div style="margin-bottom:40px;">
+        <h3 style="font-family:${fontHeading};font-size:1.3rem;font-weight:700;color:${pageText};margin-bottom:16px;text-transform:uppercase;letter-spacing:1px;">${cat.name}</h3>
+        ${itemsHTML}
+      </div>
+    `;
+  }).join("");
+
+  const menuHTML = categories.length > 0 ? `
+  <section id="menu" style="padding:72px 24px;background:${menuBg};">
+    <div style="max-width:700px;margin:0 auto;">
+      <div style="text-align:center;margin-bottom:40px;">
+        <h2 style="font-family:${fontHeading};font-size:2rem;font-weight:700;color:${pageText};">${menuHeading}</h2>
+        ${menuDesc ? `<p style="font-size:0.95rem;color:${pageText}99;margin-top:8px;">${menuDesc}</p>` : ""}
+      </div>
+      ${menuSectionsHTML}
+    </div>
+  </section>` : "";
+
+  // ─── Reservation Form ───
+  const reservationForm = offerSchema.reservation_form;
+  const resHeading = offerSchema.heading || "Book a Table";
+  const resDesc = offerSchema.description || "";
+  let reservationHTML = "";
+  if (reservationForm) {
+    const fields = (reservationForm.fields as any[]) || [];
+    const fieldsHTML = fields.map((f: any) => `
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <label style="font-size:12px;font-weight:500;color:${pageText}88;text-transform:uppercase;letter-spacing:1px;">${f.label}</label>
+        <input type="${f.type || "text"}" placeholder="${f.placeholder || ""}" style="padding:14px 16px;border-radius:8px;border:1px solid ${borderColor};background:${cardBg};color:${pageText};font-size:14px;outline:none;"/>
+      </div>
+    `).join("");
+
+    reservationHTML = `
+    <section id="reservation" style="padding:80px 24px;background:${pageBg};">
+      <div style="max-width:600px;margin:0 auto;">
+        <div style="text-align:center;margin-bottom:32px;">
+          <h2 style="font-family:${fontHeading};font-size:2rem;font-weight:700;color:${pageText};">${resHeading}</h2>
+          ${resDesc ? `<p style="font-size:0.95rem;color:${pageText}99;margin-top:8px;line-height:1.7;">${resDesc}</p>` : ""}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          ${fieldsHTML}
+        </div>
+        <div style="text-align:center;margin-top:24px;">
+          <button style="padding:16px 40px;border-radius:8px;background:${accentColor};color:${accentText};border:none;font-weight:700;font-size:15px;cursor:pointer;letter-spacing:0.5px;">${reservationForm.submit_label || "Make Reservation"}</button>
+        </div>
+      </div>
+    </section>`;
+  }
+
+  // ─── Gallery ───
+  const gallery = offerSchema.gallery;
+  let galleryHTML = "";
+  if (gallery?.enabled) {
+    const galleryImages = config.userImages?.filter(i => ["interior", "menu", "page"].includes(i.purpose)).map(i => i.url) || [];
+    const fallbackGallery = [
+      getCategoryImage(config.category, "gallery", 0, config),
+      getCategoryImage(config.category, "gallery", 1, config),
+      getCategoryImage(config.category, "gallery", 2, config),
+      getCategoryImage(config.category, "hero", 1, config),
+    ];
+    const images = galleryImages.length >= 3 ? galleryImages : fallbackGallery;
+    galleryHTML = `
+    <section style="padding:60px 24px;background:${isDark ? "#0A0A0A" : "#F3F4F6"};">
+      <div style="max-width:1000px;margin:0 auto;">
+        ${gallery.heading ? `<h2 style="font-family:${fontHeading};font-size:1.5rem;font-weight:700;color:${pageText};text-align:center;margin-bottom:28px;">${gallery.heading}</h2>` : ""}
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+          ${images.slice(0, 4).map((img: string, i: number) => `
+            <div style="border-radius:12px;overflow:hidden;aspect-ratio:${i === 0 ? "16/10" : "4/3"};">
+              <img src="${img}" alt="Restaurant ${i + 1}" style="width:100%;height:100%;object-fit:cover;"/>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </section>`;
+  }
+
+  // ─── Testimonials ───
+  const testimonials = offerSchema.testimonials;
+  let testimonialsHTML = "";
+  if (testimonials?.enabled && testimonials.items?.length > 0) {
+    const t = testimonials.items[0];
+    testimonialsHTML = `
+    <section style="padding:80px 24px;background:${pageBg};">
+      <div style="max-width:700px;margin:0 auto;text-align:center;">
+        ${t.rating ? `<div style="font-size:1.2rem;color:${accentColor};margin-bottom:12px;">${"⭐".repeat(Math.round(t.rating))} <span style="font-size:14px;color:${pageText}88;">(${t.review_count || ""} reviews)</span></div>` : ""}
+        <h2 style="font-family:${fontHeading};font-size:1.8rem;font-weight:700;color:${pageText};margin-bottom:16px;font-style:italic;">"${t.quote}"</h2>
+        ${t.body ? `<p style="font-size:0.95rem;color:${pageText}99;line-height:1.7;">${t.body}</p>` : ""}
+        ${t.author ? `<p style="font-size:13px;color:${pageText}88;margin-top:16px;">— ${t.author}</p>` : ""}
+      </div>
+    </section>`;
+  }
+
+  // ─── Story Block ───
+  const storyBlock = offerSchema.story_block;
+  let storyHTML = "";
+  if (storyBlock?.enabled) {
+    storyHTML = `
+    <section style="padding:80px 24px;background:${isDark ? "#141414" : "#F9FAFB"};">
+      <div style="max-width:700px;margin:0 auto;text-align:center;">
+        ${storyBlock.eyebrow ? `<p style="font-size:12px;text-transform:uppercase;letter-spacing:2px;color:${accentColor};margin-bottom:8px;">${storyBlock.eyebrow}</p>` : ""}
+        <h2 style="font-family:${fontHeading};font-size:1.6rem;font-weight:700;margin-bottom:12px;color:${pageText};">${storyBlock.heading || ""}</h2>
+        <p style="font-size:0.95rem;color:${pageText}99;line-height:1.7;">${storyBlock.description || ""}</p>
+      </div>
+    </section>`;
+  }
+
+  // ─── Footer ───
+  const footerCols = (footerSchema.columns as any[]) || [];
+  const footerBg = footerSchema.background_color || (isDark ? "#0A0A0A" : pageBg);
+  const footerColsHTML = footerCols.map((col: any) => `
+    <div>
+      <h4 style="font-weight:600;font-size:13px;margin-bottom:8px;color:${pageText};">${col.title}</h4>
+      ${(col.links as string[]).map((l: string) => `<p style="font-size:12px;color:${pageText}88;margin-bottom:4px;">${l}</p>`).join("")}
+    </div>
+  `).join("");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>${businessName}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: ${pageBg}; color: ${pageText}; line-height: 1.6; }
+    img { max-width: 100%; }
+    @media (max-width: 768px) {
+      section[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+      section[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+      [style*="grid-template-columns:repeat(2"] { grid-template-columns: 1fr !important; }
+      [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+  </style>
+</head>
+<body>
+  <nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:${navBg}ee;backdrop-filter:blur(12px);border-bottom:1px solid ${borderColor};padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;">
+    <a href="#" style="text-decoration:none;display:flex;align-items:center;">${logoHtml}</a>
+    <div style="display:flex;gap:20px;align-items:center;">${navLinks}${headerCta}</div>
+  </nav>
+
+  ${heroHTML}
+  ${menuHTML}
+  ${reservationHTML}
+  ${galleryHTML}
+  ${testimonialsHTML}
+  ${storyHTML}
+
+  <footer style="padding:48px 24px;background:${footerBg};border-top:1px solid ${borderColor};">
+    <div style="max-width:900px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;">
+      ${footerColsHTML}
+    </div>
+    <p style="text-align:center;font-size:12px;color:${pageText}66;margin-top:32px;">${footerSchema.copyright || `${businessName} — All rights reserved.`}<br/>${slug}${domain}</p>
+  </footer>
+</body>
+</html>`;
+}
+
 /**
  * Build HTML from a real saved emenu template preset.
  * This enforces structural fidelity to the chosen template.
@@ -467,6 +673,17 @@ function buildEmenuTemplateHTML(config: GeneratorConfig, preset: TemplatePreset,
     </section>`;
   }
 
+  // ─── RESERVATION MODE: completely different layout (Gusto / fine dining) ───
+  const isReservationMode = mainSchema.reservation_mode === true || mainSchema.display_mode === "reservation_menu";
+
+  if (isReservationMode) {
+    return buildReservationHTML(config, preset, {
+      pageBg, pageText, cardBg, borderColor, accentColor, accentText, fontHeading,
+      isDark, heroGradient, heroHTML, logoHtml, navLinks, navBg, headerCta,
+      businessName, heroImg,
+    }, variantIndex);
+  }
+
   // Menu section from template items
   const menuItems = (mainSchema.items as any[]) || [];
   const menuHeading = mainSchema.heading || "Our Menu";
@@ -502,7 +719,6 @@ function buildEmenuTemplateHTML(config: GeneratorConfig, preset: TemplatePreset,
       </div>
     </div>
   </section>` : "";
-
   // Category showcase (if present in template)
   const catShowcase = mainSchema.category_showcase;
   let categoryHTML = "";

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Check, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { YanguLoader } from "@/components/YanguLoader";
 
 interface VariantPreviewCarouselProps {
   variants: string[];
@@ -20,10 +21,7 @@ export function VariantPreviewCarousel({ variants, onChoose, isGenerating }: Var
   if (isGenerating) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4">
-        <div className="relative w-14 h-14">
-          <Loader2 className="w-14 h-14 text-primary animate-spin" />
-        </div>
-        <p className="text-sm font-medium text-foreground">Generating your website variants...</p>
+        <YanguLoader size={48} fullArea={false} label="Generating your website variants..." />
         <p className="text-xs text-muted-foreground">Creating 3 unique designs based on your selections</p>
       </div>
     );
