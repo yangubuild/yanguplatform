@@ -20,6 +20,20 @@ import tropicalBurstImg from "@/assets/styles/tropical_burst.jpg";
 import candyPopImg from "@/assets/styles/candy_pop.jpg";
 import retroFunImg from "@/assets/styles/retro_fun.jpg";
 
+// Emenu template preview images (exact screenshots from saved templates)
+import emenuSweetSipsImg from "@/assets/styles/emenu_sweet_sips.png";
+import emenuSundayBiteImg from "@/assets/styles/emenu_sunday_bite.png";
+import emenuVisualAImg from "@/assets/styles/emenu_visual_a.png";
+import emenuVisualBImg from "@/assets/styles/emenu_visual_b.png";
+import emenuGustoReservationImg from "@/assets/styles/emenu_gusto_reservation.png";
+import emenuYumixBoldImg from "@/assets/styles/emenu_yumix_bold.png";
+import emenuYumixLiteImg from "@/assets/styles/emenu_yumix_lite.png";
+import emenuYumixPromoImg from "@/assets/styles/emenu_yumix_promo.png";
+import emenuYumixSocialImg from "@/assets/styles/emenu_yumix_social.png";
+import emenuYumixWarmImg from "@/assets/styles/emenu_yumix_warm.png";
+import emenuYumixCateringImg from "@/assets/styles/emenu_yumix_catering.png";
+import emenuYumixMinimalImg from "@/assets/styles/emenu_yumix_minimal.png";
+
 export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
   // Category-level
   bold: boldImg,
@@ -43,4 +57,17 @@ export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
   tropical_burst: tropicalBurstImg,
   candy_pop: candyPopImg,
   retro_fun: retroFunImg,
+  // Emenu templates — exact saved template previews
+  emenu_sweet_sips: emenuSweetSipsImg,
+  emenu_sunday_bite: emenuSundayBiteImg,
+  emenu_visual_a: emenuVisualAImg,
+  emenu_visual_b: emenuVisualBImg,
+  emenu_gusto_reservation: emenuGustoReservationImg,
+  emenu_yumix_bold: emenuYumixBoldImg,
+  emenu_yumix_lite: emenuYumixLiteImg,
+  emenu_yumix_promo: emenuYumixPromoImg,
+  emenu_yumix_social: emenuYumixSocialImg,
+  emenu_yumix_warm: emenuYumixWarmImg,
+  emenu_yumix_catering: emenuYumixCateringImg,
+  emenu_yumix_minimal: emenuYumixMinimalImg,
 };
