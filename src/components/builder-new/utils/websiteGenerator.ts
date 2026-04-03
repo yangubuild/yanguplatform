@@ -337,6 +337,10 @@ function buildHTML(config: GeneratorConfig, theme: StyleTheme, layout: LayoutVar
     buildSectionHTML(s, i === 0, theme, layout, i, sectionContents[i + 1]?.key)
   ).join("\n");
 
+  const logoHtml = config.userLogoUrl
+    ? `<img src="${config.userLogoUrl}" alt="${config.businessName}" style="height:28px;width:auto;"/>`
+    : `<span style="font-weight:700;font-size:18px;color:${theme.accent};">${config.businessName || "My Site"}</span>`;
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -356,7 +360,7 @@ function buildHTML(config: GeneratorConfig, theme: StyleTheme, layout: LayoutVar
 </head>
 <body>
   <nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:${theme.bg}ee;backdrop-filter:blur(12px);border-bottom:1px solid ${theme.borderColor};padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;">
-    <a href="#" style="font-weight:700;font-size:18px;color:${theme.accent};text-decoration:none;">${config.businessName || "My Site"}</a>
+    <a href="#" style="text-decoration:none;display:flex;align-items:center;">${logoHtml}</a>
     <div style="display:flex;gap:20px;">${navLinks}</div>
   </nav>
 
