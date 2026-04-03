@@ -244,6 +244,8 @@ export default function BuilderNewPage() {
             userAssets={ctrl.userUploadedAssets}
             onAssetsChange={ctrl.setUserUploadedAssets}
             onConfirmAssetUpload={handleConfirmAssetUpload}
+            businessName={ctrl.businessName}
+            onConfirmAiLogo={ctrl.confirmAiLogo}
           />
         </div>
 
