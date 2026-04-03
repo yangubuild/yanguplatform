@@ -544,6 +544,7 @@ export function useStepController() {
     handleLocationInput,
     confirmMultiSelect,
     confirmAssetUpload,
+    confirmAiLogo,
     resetAll,
     inputAllowed,
     selectedScope,
