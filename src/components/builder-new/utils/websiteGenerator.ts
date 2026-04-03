@@ -15,6 +15,10 @@ export interface GeneratorConfig {
   sections: string[];
   deliveryApps: string[];
   userIdea: string;
+  /** User-uploaded assets (override defaults when provided) */
+  userLogoUrl?: string;
+  userBrandColors?: string[];
+  userImages?: Array<{ url: string; purpose: string }>;
 }
 
 interface StyleTheme {
