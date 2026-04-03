@@ -418,6 +418,12 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     label: "Sunday Bite",
     description: "Clean bistro menu: bold hero, featured dishes, testimonials, opening hours & location",
     icon: "🍔",
+    reference: {
+      source: "image",
+      label: "Food & Restaurant Service Website reference",
+      sectionOrder: ["header", "hero", "menu_grid", "testimonials", "about_story", "hours_location", "footer"],
+      layoutPatterns: ["split_hero", "3col_food_cards", "trust_badges_testimonials", "story_block_about"],
+    },
     patches: {
       header: { schema: {
         layout_variant: "nav_right",
