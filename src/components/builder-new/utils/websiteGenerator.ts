@@ -320,7 +320,7 @@ function buildHTML(config: GeneratorConfig, theme: StyleTheme, layout: LayoutVar
   const sectionsToRender = config.sections.length > 0 ? config.sections : ["hero"];
   
   const sectionContents = sectionsToRender
-    .map(s => getSectionContent(s, config.category, config.businessName, config.location, config.userIdea))
+    .map(s => getSectionContent(s, config.category, config.businessName, config.location, config.userIdea, config))
     .filter(Boolean) as SectionContent[];
 
   // Navigation
