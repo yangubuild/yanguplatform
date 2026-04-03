@@ -6,6 +6,7 @@ import { YanguLoader } from "@/components/YanguLoader";
 interface AiLogoStepProps {
   businessName: string;
   category?: string;
+  businessType?: string;
   onConfirm: (logoUrl: string, color?: string) => void;
 }
 
@@ -15,36 +16,44 @@ const PRESET_COLORS = [
 ];
 
 const STYLE_VARIANTS = [
-  "modern minimalist logo with a clean food icon above the business name, professional and sleek",
-  "badge-style circular emblem logo with the business name integrated, vintage artisan café feel",
-  "bold typographic logo with a subtle utensil or food element, contemporary and eye-catching",
+  "modern minimalist with a clean icon above the business name",
+  "badge-style circular emblem with the name integrated, artisan feel",
+  "bold typographic with a subtle food element, contemporary and eye-catching",
 ];
 
 async function generateSingleLogo(
   businessName: string,
   color: string,
   variantIndex: number,
+  category: string,
+  businessType: string,
   description?: string
-): Promise<string | null> {
+): Promise<{ url: string | null; source: string }> {
   const style = STYLE_VARIANTS[variantIndex % STYLE_VARIANTS.length];
-  const colorHint = color ? `using ${color} as the primary brand color` : "using warm appetizing colors";
-  const descHint = description ? ` Style hint: ${description}.` : "";
-
-  const prompt = `Create a professional food/restaurant logo for "${businessName}". Design: ${style}. ${colorHint}. Clean white background, suitable for digital menu header. Include the text "${businessName}" clearly readable.${descHint} Real professional restaurant brand logo, not a placeholder.`;
+  const descHint = description ? ` Additional style hint: ${description}.` : "";
 
   try {
     const { data, error } = await supabase.functions.invoke("generate-logo", {
-      body: { prompt },
+      body: {
+        businessName,
+        category,
+        businessType,
+        color,
+        style: style + descHint,
+      },
     });
     if (error) throw error;
-    return data?.image_url || null;
+    return {
+      url: data?.image_url || null,
+      source: data?.source || "ai_generated",
+    };
   } catch (err) {
     console.error(`Logo variant ${variantIndex} failed:`, err);
-    return null;
+    return { url: null, source: "ai_generated" };
   }
 }
 
-export function AiLogoStep({ businessName, category = "emenu", onConfirm }: AiLogoStepProps) {
+export function AiLogoStep({ businessName, category = "emenu", businessType = "restaurant", onConfirm }: AiLogoStepProps) {
   const [selectedColor, setSelectedColor] = useState(PRESET_COLORS[0]);
   const [customDesc, setCustomDesc] = useState("");
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
@@ -60,9 +69,17 @@ export function AiLogoStep({ businessName, category = "emenu", onConfirm }: AiLo
 
     try {
       const promises = [0, 1, 2].map(i =>
-        generateSingleLogo(businessName || "My Restaurant", selectedColor, i, customDesc || undefined)
+        generateSingleLogo(
+          businessName || "My Restaurant",
+          selectedColor,
+          i,
+          category,
+          businessType,
+          customDesc || undefined
+        )
       );
-      const urls = await Promise.all(promises);
+      const results = await Promise.all(promises);
+      const urls = results.map(r => r.url);
       setLogos(urls);
       setHasGenerated(true);
 
@@ -75,7 +92,7 @@ export function AiLogoStep({ businessName, category = "emenu", onConfirm }: AiLo
     } finally {
       setIsGenerating(false);
     }
-  }, [businessName, selectedColor, customDesc]);
+  }, [businessName, selectedColor, customDesc, category, businessType]);
 
   // Auto-generate on first mount
   useEffect(() => {
