@@ -83,8 +83,24 @@ export interface EmenuMenuSchema {
   card_style: "rounded" | "flat" | "shadow";
 }
 
-/** Complexity classification for template selection */
-export type MenuComplexity = "simple" | "complex" | "reservation";
+/** Menu category classification for template selection */
+export type MenuComplexity = "simple_cafe" | "bigger_menu" | "reservation";
+
+/** User-friendly labels for each menu category */
+export const MENU_CATEGORY_LABELS: Record<MenuComplexity, { label: string; description: string }> = {
+  simple_cafe: {
+    label: "Simple Food / Café",
+    description: "Cafés, juice bars, bakeries, ice cream, dessert shops, and small restaurants with a focused menu.",
+  },
+  bigger_menu: {
+    label: "Bigger Menu / Multi-Category Food Business",
+    description: "Restaurants, grills, kitchens, and food businesses with many categories, sections, and browsing needs.",
+  },
+  reservation: {
+    label: "Reservation / Dine-In Experience",
+    description: "Fine dining, hotel restaurants, lounges, and venues that need table reservations instead of delivery ordering.",
+  },
+};
 
 /** Reservation form schema for fine dining / hotel menus */
 export interface ReservationFormSchema {
