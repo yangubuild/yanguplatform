@@ -5,6 +5,7 @@ import { BuilderAddSection } from "@/components/builder/BuilderAddSection";
 import { BuilderPreview } from "@/components/builder/BuilderPreview";
 import { BuilderPublishModal } from "@/components/builder/BuilderPublishModal";
 import { getEngineForSurfaceType } from "@/lib/builder/engineRegistry";
+import { getSellerMode } from "@/lib/builder/sellerModes";
 import { BuilderPageEditPanel } from "@/components/builder/BuilderPageEditPanel";
 import { Card } from "@/components/primitives";
 import { SECTION_TYPE_LABELS } from "@/config/builderSectionLabels";
@@ -18,10 +19,22 @@ import {
   Settings,
   ClipboardList,
   Sparkles,
-  FileText,
   Layout,
   Monitor,
   Smartphone,
+  UtensilsCrossed,
+  Star,
+  Clock,
+  Package,
+  Grid3X3,
+  Tag,
+  ListPlus,
+  Table,
+  FileQuestion,
+  Briefcase,
+  Users,
+  MessageSquareQuote,
+  X,
 } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import type { BuilderSurfaceType } from "@/types/builder";
@@ -41,7 +54,14 @@ import {
 } from "@/components/builder/MobileBuilderMode";
 
 type RightPanel = "none" | "page_edit" | "section" | "setup";
+type LeftMode = "tools" | "ada";
 type PreviewViewport = "desktop" | "mobile";
+
+/* Quick action icon resolver */
+const ICON_MAP: Record<string, React.ElementType> = {
+  UtensilsCrossed, Star, Clock, Package, Grid3X3, Tag,
+  ListPlus, Table, FileQuestion, Briefcase, Users, MessageSquareQuote,
+};
 
 export default function SellerEditor() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
@@ -51,6 +71,7 @@ export default function SellerEditor() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [rightPanel, setRightPanel] = useState<RightPanel>("page_edit");
+  const [leftMode, setLeftMode] = useState<LeftMode>("tools");
   const [showAiBanner, setShowAiBanner] = useState(false);
   const [liveSchemaOverride, setLiveSchemaOverride] = useState<{ sectionId: string; schema: Record<string, unknown> } | null>(null);
   const [livePageSettings, setLivePageSettings] = useState<import("@/config/builderCoreSections").PageEditSettings | null>(null);
@@ -66,7 +87,6 @@ export default function SellerEditor() {
   } | null>(null);
   const pendingNavRef = useRef<string | null>(null);
 
-  // Track unsaved changes
   const markDirty = useCallback(() => setHasUnsavedChanges(true), []);
   const markClean = useCallback(() => setHasUnsavedChanges(false), []);
 
@@ -95,7 +115,6 @@ export default function SellerEditor() {
     currentMainContentType,
   } = useBuilderEditor(surfaceId);
 
-  // Show AI banner on first load if surface was AI-generated
   useEffect(() => {
     if (editorState?.surface?.metadata) {
       const meta = editorState.surface.metadata as Record<string, unknown>;
@@ -107,41 +126,30 @@ export default function SellerEditor() {
     }
   }, [editorState?.surface?.id]);
 
-  // Warn before leaving with unsaved changes
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
+      if (hasUnsavedChanges) { e.preventDefault(); e.returnValue = ""; }
     };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, [hasUnsavedChanges]);
 
   const safeNavigate = useCallback((path: string) => {
-    if (hasUnsavedChanges) {
-      pendingNavRef.current = path;
-      setShowLeaveWarning(true);
-    } else {
-      navigate(path);
-    }
+    if (hasUnsavedChanges) { pendingNavRef.current = path; setShowLeaveWarning(true); }
+    else navigate(path);
   }, [hasUnsavedChanges, navigate]);
 
   const confirmLeave = useCallback(() => {
     setShowLeaveWarning(false);
     setHasUnsavedChanges(false);
-    if (pendingNavRef.current) {
-      navigate(pendingNavRef.current);
-      pendingNavRef.current = null;
-    }
+    if (pendingNavRef.current) { navigate(pendingNavRef.current); pendingNavRef.current = null; }
   }, [navigate]);
 
   // Loading
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <header className="h-14 border-b border-border flex items-center px-4 gap-4">
+        <header className="h-14 border-b border-border flex items-center px-4 gap-4" style={{ background: "#152A20" }}>
           <Skeleton className="h-8 w-8 rounded" />
           <Skeleton className="h-4 w-32" />
         </header>
@@ -184,25 +192,27 @@ export default function SellerEditor() {
   const aiSource = surfaceMeta.ai_source as string | undefined;
   const industry = (surfaceMeta.industry as string) || null;
 
-  // Engine-awareness: resolve the category engine for this seller surface
+  // Engine + Mode awareness
   const engine = getEngineForSurfaceType(surfaceType);
   const allowedSectionTypes = engine?.aiGenerationRules?.allowedSectionTypes;
-  const categoryLabel = engine?.label || "Seller";
+  const sellerMode = getSellerMode(surfaceType);
 
   const handleSelectSection = (id: string) => {
     setSelectedSectionId(id);
     setRightPanel("section");
-    // Scroll the preview to show the selected section
     requestAnimationFrame(() => {
       const el = document.querySelector(`[data-section-id="${id}"]`);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
     });
   };
 
   const handleUpdateAnswers = (updated: Record<string, unknown>) => {
     toast.success("Answers updated — content will reflect changes on next save.");
+  };
+
+  const handleQuickAction = (action: string) => {
+    // Quick actions trigger relevant add-section or panel behavior
+    toast.info(`Quick action: ${action} — coming soon`);
   };
 
   return (
@@ -215,24 +225,28 @@ export default function SellerEditor() {
             <span className="text-foreground font-medium">AI Setup Completed</span>
             <span className="text-muted-foreground">— review & edit anything.</span>
           </div>
-          <button onClick={() => setShowAiBanner(false)} className="text-muted-foreground hover:text-foreground text-xs">
-            Dismiss
-          </button>
+          <button onClick={() => setShowAiBanner(false)} className="text-muted-foreground hover:text-foreground text-xs">Dismiss</button>
         </div>
       )}
 
-      {/* Desktop notice for mobile users */}
       <MobileBuilderDesktopNotice />
 
-      {/* Top bar */}
-      <header className="sticky top-0 z-40 h-14 border-b border-border bg-background/80 backdrop-blur-sm flex items-center px-3 lg:px-4 gap-2 lg:gap-4">
+      {/* ═══ GLOBAL TOP NAV — dark green, locked ═══ */}
+      <header
+        className="sticky top-0 z-40 h-14 border-b border-white/10 flex items-center px-3 lg:px-4 gap-2 lg:gap-4"
+        style={{ background: "#152A20" }}
+      >
         <button
           onClick={() => safeNavigate("/dashboard")}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">
+          className="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors shrink-0">
           <ArrowLeft className="h-4 w-4" /> <span className="hidden sm:inline">Dashboard</span>
         </button>
-        <div className="h-6 w-px bg-border hidden sm:block" />
-        <h1 className="text-sm font-semibold truncate">{surfaceTitle}</h1>
+        <div className="h-6 w-px bg-white/20 hidden sm:block" />
+        <h1 className="text-sm font-semibold text-white truncate">{surfaceTitle}</h1>
+        {/* Category badge */}
+        <span className="hidden sm:inline-flex text-[10px] font-medium px-2 py-0.5 rounded-full bg-white/10 text-white/70">
+          {sellerMode.categoryBadge}
+        </span>
         <div className="hidden lg:block">
           <BuilderPagesDropdown
             pages={editorState.pages}
@@ -244,93 +258,159 @@ export default function SellerEditor() {
         </div>
         <div className="flex-1" />
 
-        {/* Viewport toggle — desktop only */}
-        <div className="hidden lg:flex items-center border border-border rounded-md overflow-hidden">
+        {/* Viewport toggle */}
+        <div className="hidden lg:flex items-center border border-white/20 rounded-md overflow-hidden">
           <button
             onClick={() => setPreviewViewport("desktop")}
             className={`flex items-center gap-1 px-2.5 py-1.5 text-xs transition-colors ${
-              previewViewport === "desktop" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+              previewViewport === "desktop" ? "bg-white/20 text-white" : "text-white/50 hover:text-white"
             }`}>
             <Monitor className="h-3.5 w-3.5" /> Desktop
           </button>
           <button
             onClick={() => setPreviewViewport("mobile")}
             className={`flex items-center gap-1 px-2.5 py-1.5 text-xs transition-colors ${
-              previewViewport === "mobile" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+              previewViewport === "mobile" ? "bg-white/20 text-white" : "text-white/50 hover:text-white"
             }`}>
             <Smartphone className="h-3.5 w-3.5" /> Mobile
           </button>
         </div>
 
-        {/* Desktop-only header buttons */}
-        <Button size="sm" variant="outline" className="gap-2 hidden lg:flex" onClick={() => toast.info("AI chat editor coming soon!")}>
-          <Sparkles className="h-4 w-4" /> Edit with Ada AI
+        {/* Ada AI toggle — switches left panel */}
+        <Button
+          size="sm"
+          variant={leftMode === "ada" ? "default" : "outline"}
+          className={`gap-2 hidden lg:flex border-white/20 ${
+            leftMode === "ada"
+              ? "bg-accent text-accent-foreground"
+              : "text-white/80 hover:text-white hover:bg-white/10"
+          }`}
+          onClick={() => setLeftMode(leftMode === "ada" ? "tools" : "ada")}
+        >
+          <Sparkles className="h-4 w-4" /> {leftMode === "ada" ? "Back to Editor" : "Edit with Ada AI"}
         </Button>
-        <Button size="sm" variant="outline" onClick={() => setSettingsOpen(true)} className="gap-2 hidden lg:flex">
+        <Button size="sm" variant="outline" onClick={() => setSettingsOpen(true)} className="gap-2 hidden lg:flex border-white/20 text-white/80 hover:text-white hover:bg-white/10">
           <Settings className="h-4 w-4" /> Settings
         </Button>
-        <Button size="sm" variant="outline" onClick={() => safeNavigate("/dashboard/my-business")} className="gap-2 hidden lg:flex">
+        <Button size="sm" variant="outline" onClick={() => safeNavigate("/dashboard/my-business")} className="gap-2 hidden lg:flex border-white/20 text-white/80 hover:text-white hover:bg-white/10">
           <ClipboardList className="h-4 w-4" /> View Orders
         </Button>
-        <Button size="sm" onClick={() => setPublishOpen(true)} className="gap-2 hidden lg:flex">
-          <Rocket className="h-4 w-4" /> Publish
+        <Button size="sm" onClick={() => setPublishOpen(true)} className="gap-2 hidden lg:flex" style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}>
+          <Rocket className="h-4 w-4 text-white" /> <span className="text-white">Publish</span>
         </Button>
       </header>
 
       <div className="flex flex-1 overflow-hidden" style={{ paddingBottom: isMobile ? 56 : 0 }}>
-        {/* Left panel: Sections — hidden on mobile */}
+        {/* ═══ LEFT PANEL — category-aware, switches between tools and Ada ═══ */}
         <aside className="w-72 border-r border-border flex-col bg-sidebar overflow-y-auto hidden lg:flex">
-          {/* Page Edit trigger */}
-          <button
-            onClick={() => {
-              setSelectedSectionId(null);
-              setRightPanel("page_edit");
-            }}
-            className={`m-3 mb-0 flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-all ${
-              rightPanel === "page_edit"
-                ? "ring-2 ring-primary border-primary bg-primary/5"
-                : "border-border hover:border-muted-foreground/30 bg-card"
-            }`}>
-            <Layout className="h-4 w-4 text-primary" />
-            <span className="text-sm font-semibold">Page Edit</span>
-          </button>
-
-          <div className="p-4 pb-1 border-b border-border mt-3">
-            <div className="flex items-center gap-2 mb-1">
-              <LayoutGrid className="h-4 w-4 text-muted-foreground" />
-              <h2 className="text-sm font-semibold">Sections</h2>
+          {leftMode === "ada" ? (
+            /* ── Ada AI Chat Panel ── */
+            <div className="flex flex-col h-full">
+              <div className="p-3 border-b border-border flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-accent" />
+                  <span className="text-sm font-semibold">Ada AI</span>
+                </div>
+                <button
+                  onClick={() => setLeftMode("tools")}
+                  className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="flex-1 flex items-center justify-center p-6">
+                <div className="text-center space-y-3">
+                  <Sparkles className="h-8 w-8 text-accent mx-auto" />
+                  <p className="text-sm font-medium">Ada AI Editor</p>
+                  <p className="text-xs text-muted-foreground">
+                    Describe changes to your {sellerMode.categoryBadge.toLowerCase()} and Ada will apply them.
+                  </p>
+                  <div className="mt-4 rounded-lg border border-border bg-muted/30 p-3">
+                    <p className="text-xs text-muted-foreground italic">Full Ada AI editing — coming soon</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">Core sections are fixed • Custom sections below</p>
-          </div>
-          <div className="flex-1 p-3">
-            <BuilderSectionList
-              sections={sections}
-              onReorder={reorderSections}
-              selectedId={selectedSectionId}
-              surfaceType={surfaceType}
-              onSelect={handleSelectSection}
-              onSwitchMainContent={switchMainContent}
-              currentMainContentType={currentMainContentType}
-              industry={industry}
-              onVariantChange={async (sectionId, displayMode) => {
-                const section = sections.find((s) => s.id === sectionId);
-                if (!section) return;
-                const newSchema = { ...section.schema, display_mode: displayMode };
-                await updateSectionSchema(sectionId, newSchema);
-              }}
-              onDelete={async (id) => {
-                const ok = await deleteSection(id);
-                if (ok && selectedSectionId === id) {
-                  setSelectedSectionId(null);
-                  setRightPanel("page_edit");
-                }
-                return ok;
-              }}
-            />
-          </div>
-          <div className="p-3 border-t border-border">
-            <BuilderAddSection onAdd={addSection} onAddWithSchema={addSectionWithSchema} isAdding={isAdding || isSwitching} surfaceType={surfaceType} allowedSectionTypes={allowedSectionTypes} />
-          </div>
+          ) : (
+            /* ── Category-specific Editor Tools ── */
+            <>
+              {/* Sidebar header with mode title */}
+              <div className="p-3 border-b border-border">
+                <div className="flex items-center gap-2 mb-1">
+                  <LayoutGrid className="h-4 w-4 text-primary" />
+                  <h2 className="text-sm font-semibold">{sellerMode.sidebarTitle}</h2>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="p-3 border-b border-border space-y-1.5">
+                <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-2">Quick Actions</p>
+                {sellerMode.quickActions.map((qa) => {
+                  const Icon = ICON_MAP[qa.icon] || Package;
+                  return (
+                    <button
+                      key={qa.action}
+                      onClick={() => handleQuickAction(qa.action)}
+                      className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-foreground hover:bg-accent/10 hover:text-accent transition-colors text-left"
+                    >
+                      <Icon className="h-4 w-4 text-muted-foreground" />
+                      {qa.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Page Edit trigger */}
+              <button
+                onClick={() => { setSelectedSectionId(null); setRightPanel("page_edit"); }}
+                className={`m-3 mb-0 flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-all ${
+                  rightPanel === "page_edit"
+                    ? "ring-2 ring-primary border-primary bg-primary/5"
+                    : "border-border hover:border-muted-foreground/30 bg-card"
+                }`}>
+                <Layout className="h-4 w-4 text-primary" />
+                <span className="text-sm font-semibold">Page Edit</span>
+              </button>
+
+              {/* Section list */}
+              <div className="p-4 pb-1 border-b border-border mt-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <LayoutGrid className="h-4 w-4 text-muted-foreground" />
+                  <h2 className="text-sm font-semibold">{sellerMode.sectionListTitle}</h2>
+                </div>
+                <p className="text-xs text-muted-foreground">{sellerMode.sectionListHint}</p>
+              </div>
+              <div className="flex-1 p-3">
+                <BuilderSectionList
+                  sections={sections}
+                  onReorder={reorderSections}
+                  selectedId={selectedSectionId}
+                  surfaceType={surfaceType}
+                  onSelect={handleSelectSection}
+                  onSwitchMainContent={switchMainContent}
+                  currentMainContentType={currentMainContentType}
+                  industry={industry}
+                  onVariantChange={async (sectionId, displayMode) => {
+                    const section = sections.find((s) => s.id === sectionId);
+                    if (!section) return;
+                    const newSchema = { ...section.schema, display_mode: displayMode };
+                    await updateSectionSchema(sectionId, newSchema);
+                  }}
+                  onDelete={async (id) => {
+                    const ok = await deleteSection(id);
+                    if (ok && selectedSectionId === id) {
+                      setSelectedSectionId(null);
+                      setRightPanel("page_edit");
+                    }
+                    return ok;
+                  }}
+                />
+              </div>
+              <div className="p-3 border-t border-border">
+                <BuilderAddSection onAdd={addSection} onAddWithSchema={addSectionWithSchema} isAdding={isAdding || isSwitching} surfaceType={surfaceType} allowedSectionTypes={allowedSectionTypes} />
+              </div>
+            </>
+          )}
         </aside>
 
         {/* Center: Preview */}
@@ -351,8 +431,6 @@ export default function SellerEditor() {
             onUpdateSectionField={async (sectionId, fieldPath, value) => {
               const section = sections.find((s) => s.id === sectionId);
               if (!section) return;
-
-              // Support nested dot-paths like "testimonials.items"
               const parts = fieldPath.split(".");
               let newSchema: Record<string, unknown>;
               if (parts.length === 1) {
@@ -371,7 +449,6 @@ export default function SellerEditor() {
                 }
                 cursor[parts[parts.length - 1]] = value;
               }
-
               await updateSectionSchema(sectionId, newSchema);
               markDirty();
             }}
@@ -445,7 +522,6 @@ export default function SellerEditor() {
                 return newSchema;
               };
 
-              // ── Optimistic preview: show image immediately ──
               const optimisticSchema = applyUrlToSchema({ ...section.schema } as Record<string, any>, url);
               setLiveSchemaOverride({ sectionId, schema: optimisticSchema });
 
@@ -459,25 +535,15 @@ export default function SellerEditor() {
                     setLiveSchemaOverride(null);
                     return;
                   }
-
                   const uploadBlob = await fetch(url).then((response) => response.blob());
                   const extension = uploadBlob.type.split("/")[1] || "png";
                   const safeFieldPath = fieldPath.replace(/[^a-zA-Z0-9.-]/g, "_");
                   const uploadPath = `${session.user.id}/${surfaceId}/${sectionId}-${safeFieldPath}-${Date.now()}.${extension}`;
-
                   const { error: uploadError } = await supabase.storage
                     .from("builder-media")
-                    .upload(uploadPath, uploadBlob, {
-                      contentType: uploadBlob.type || "image/png",
-                      upsert: false,
-                    });
-
+                    .upload(uploadPath, uploadBlob, { contentType: uploadBlob.type || "image/png", upsert: false });
                   if (uploadError) throw uploadError;
-
-                  const { data: publicData } = supabase.storage
-                    .from("builder-media")
-                    .getPublicUrl(uploadPath);
-
+                  const { data: publicData } = supabase.storage.from("builder-media").getPublicUrl(uploadPath);
                   resolvedUrl = publicData.publicUrl;
                 } catch (error) {
                   toast.error(error instanceof Error ? error.message : "Image upload failed");
@@ -486,19 +552,12 @@ export default function SellerEditor() {
                 }
               }
 
-              // Persist the uploaded image
               const finalSchema = applyUrlToSchema({ ...section.schema } as Record<string, any>, resolvedUrl);
               await updateSectionSchema(sectionId, finalSchema);
               setLiveSchemaOverride(null);
               markDirty();
 
-              // Offer crop dialog after successful upload
-              setCropState({
-                open: true,
-                imageSrc: resolvedUrl,
-                sectionId,
-                fieldPath,
-              });
+              setCropState({ open: true, imageSrc: resolvedUrl, sectionId, fieldPath });
             }}
           />
           </div>
@@ -508,24 +567,15 @@ export default function SellerEditor() {
         {!isMobile && rightPanel === "page_edit" && (
           <BuilderPageEditPanel
             settings={pageSettings}
-            onSave={async (s) => {
-              await savePageSettings(s);
-              setLivePageSettings(null);
-            }}
+            onSave={async (s) => { await savePageSettings(s); setLivePageSettings(null); }}
             onClose={() => setRightPanel("none")}
             isSaving={isSavingPageSettings}
             onLocalChange={setLivePageSettings}
             surfaceType={surfaceType}
             sections={sections}
-            onApplyTemplate={async (sectionId, schema) => {
-              await updateSectionSchema(sectionId, schema);
-            }}
-            onToggleVisible={async (sectionId) => {
-              await toggleSectionVisibility(sectionId, true);
-            }}
-            onCreateSection={async (sectionType, schema, coreSlot) => {
-              await addSectionWithSchema(sectionType, schema, { coreSlot });
-            }}
+            onApplyTemplate={async (sectionId, schema) => { await updateSectionSchema(sectionId, schema); }}
+            onToggleVisible={async (sectionId) => { await toggleSectionVisibility(sectionId, true); }}
+            onCreateSection={async (sectionType, schema, coreSlot) => { await addSectionWithSchema(sectionType, schema, { coreSlot }); }}
           />
         )}
         {!isMobile && rightPanel === "setup" && hasAiSetup && (
@@ -544,10 +594,7 @@ export default function SellerEditor() {
               key={sec.id}
               section={sec}
               onClose={() => { setSelectedSectionId(null); setRightPanel("page_edit"); setLiveSchemaOverride(null); }}
-              onSave={async (id, schema) => {
-                await updateSectionSchema(id, schema);
-                setLiveSchemaOverride(null);
-              }}
+              onSave={async (id, schema) => { await updateSectionSchema(id, schema); setLiveSchemaOverride(null); }}
               onToggleVisibility={toggleSectionVisibility}
               onLocalSchemaChange={(id, schema) => setLiveSchemaOverride({ sectionId: id, schema })}
               isSaving={isSavingSection}
@@ -564,45 +611,30 @@ export default function SellerEditor() {
           <MobileBuilderToolbar
             activePanel={mobilePanel}
             onOpenPanel={(panel) => {
-              if (panel === "publish") {
-                setPublishOpen(true);
-              } else if (panel === "settings") {
-                setSettingsOpen(true);
-              } else {
-                setMobilePanel(panel === mobilePanel ? "none" : panel);
-              }
+              if (panel === "publish") setPublishOpen(true);
+              else if (panel === "settings") setSettingsOpen(true);
+              else setMobilePanel(panel === mobilePanel ? "none" : panel);
             }}
           />
-
-          {/* Sections sheet */}
-          <MobileBuilderSheet
-            open={mobilePanel === "sections"}
-            onClose={() => setMobilePanel("none")}
-            title="Sections">
+          <MobileBuilderSheet open={mobilePanel === "sections"} onClose={() => setMobilePanel("none")} title={sellerMode.sectionListTitle}>
             <div className="p-3">
               <BuilderSectionList
                 sections={sections}
                 onReorder={reorderSections}
                 selectedId={selectedSectionId}
                 surfaceType={surfaceType}
-                onSelect={(id) => {
-                  handleSelectSection(id);
-                  setMobilePanel("editor");
-                }}
+                onSelect={(id) => { handleSelectSection(id); setMobilePanel("editor"); }}
                 onSwitchMainContent={switchMainContent}
                 currentMainContentType={currentMainContentType}
                 industry={industry}
                 onVariantChange={async (sectionId, displayMode) => {
                   const section = sections.find((s) => s.id === sectionId);
                   if (!section) return;
-                  const newSchema = { ...section.schema, display_mode: displayMode };
-                  await updateSectionSchema(sectionId, newSchema);
+                  await updateSectionSchema(sectionId, { ...section.schema, display_mode: displayMode });
                 }}
                 onDelete={async (id) => {
                   const ok = await deleteSection(id);
-                  if (ok && selectedSectionId === id) {
-                    setSelectedSectionId(null);
-                  }
+                  if (ok && selectedSectionId === id) setSelectedSectionId(null);
                   return ok;
                 }}
               />
@@ -611,8 +643,6 @@ export default function SellerEditor() {
               <BuilderAddSection onAdd={addSection} onAddWithSchema={addSectionWithSchema} isAdding={isAdding || isSwitching} surfaceType={surfaceType} allowedSectionTypes={allowedSectionTypes} />
             </div>
           </MobileBuilderSheet>
-
-          {/* Editor sheet */}
           <MobileBuilderSheet
             open={mobilePanel === "editor"}
             onClose={() => setMobilePanel("none")}
@@ -626,10 +656,7 @@ export default function SellerEditor() {
                     key={sec.id}
                     section={sec}
                     onClose={() => { setSelectedSectionId(null); setMobilePanel("none"); setLiveSchemaOverride(null); }}
-                    onSave={async (id, schema) => {
-                      await updateSectionSchema(id, schema);
-                      setLiveSchemaOverride(null);
-                    }}
+                    onSave={async (id, schema) => { await updateSectionSchema(id, schema); setLiveSchemaOverride(null); }}
                     onToggleVisibility={toggleSectionVisibility}
                     onLocalSchemaChange={(id, schema) => setLiveSchemaOverride({ sectionId: id, schema })}
                     isSaving={isSavingSection}
@@ -642,24 +669,15 @@ export default function SellerEditor() {
               <div className="[&>aside]:w-full [&>aside]:border-0">
                 <BuilderPageEditPanel
                   settings={pageSettings}
-                  onSave={async (s) => {
-                    await savePageSettings(s);
-                    setLivePageSettings(null);
-                  }}
+                  onSave={async (s) => { await savePageSettings(s); setLivePageSettings(null); }}
                   onClose={() => setMobilePanel("none")}
                   isSaving={isSavingPageSettings}
                   onLocalChange={setLivePageSettings}
                   surfaceType={surfaceType}
                   sections={sections}
-                  onApplyTemplate={async (sectionId, schema) => {
-                    await updateSectionSchema(sectionId, schema);
-                  }}
-                  onToggleVisible={async (sectionId) => {
-                    await toggleSectionVisibility(sectionId, true);
-                  }}
-                  onCreateSection={async (sectionType, schema, coreSlot) => {
-                    await addSectionWithSchema(sectionType, schema, { coreSlot });
-                  }}
+                  onApplyTemplate={async (sectionId, schema) => { await updateSectionSchema(sectionId, schema); }}
+                  onToggleVisible={async (sectionId) => { await toggleSectionVisibility(sectionId, true); }}
+                  onCreateSection={async (sectionType, schema, coreSlot) => { await addSectionWithSchema(sectionType, schema, { coreSlot }); }}
                 />
               </div>
             )}
@@ -667,7 +685,6 @@ export default function SellerEditor() {
         </>
       )}
 
-      {/* Publish Modal */}
       <BuilderPublishModal
         open={publishOpen}
         onOpenChange={setPublishOpen}
@@ -678,7 +695,6 @@ export default function SellerEditor() {
         pages={editorState.pages}
       />
 
-      {/* Settings Drawer */}
       <BuilderSettingsDrawer
         open={settingsOpen}
         onOpenChange={setSettingsOpen}
@@ -687,37 +703,28 @@ export default function SellerEditor() {
           title: editorState.surface.title || "",
           description: (editorState.surface as any).description || "",
           slug: editorState.surface.slug || "",
-          metadata: (editorState.surface as any).metadata || {} }}
+          metadata: (editorState.surface as any).metadata || {},
+        }}
         onSaved={() => refreshEditor()}
       />
 
-      {/* Leave Warning Dialog */}
       {showLeaveWarning && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="bg-background border border-border rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl space-y-4">
             <h3 className="text-lg font-semibold">Unpublished Changes</h3>
-            <p className="text-sm text-muted-foreground">
-              You have unpublished changes. If you leave now you may lose them. Publish or stay to continue editing.
-            </p>
+            <p className="text-sm text-muted-foreground">You have unpublished changes. If you leave now you may lose them.</p>
             <div className="flex gap-2 justify-end">
-              <Button variant="outline" size="sm" onClick={() => setShowLeaveWarning(false)}>
-                Stay
-              </Button>
-              <Button variant="destructive" size="sm" onClick={confirmLeave}>
-                Leave Anyway
-              </Button>
+              <Button variant="outline" size="sm" onClick={() => setShowLeaveWarning(false)}>Stay</Button>
+              <Button variant="destructive" size="sm" onClick={confirmLeave}>Leave Anyway</Button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Image Crop Dialog — offered after every canvas upload */}
       {cropState && (
         <ImageCropDialog
           open={cropState.open}
-          onOpenChange={(open) => {
-            if (!open) setCropState(null);
-          }}
+          onOpenChange={(open) => { if (!open) setCropState(null); }}
           imageSrc={cropState.imageSrc}
           onCropComplete={async (croppedUrl: string) => {
             const { sectionId, fieldPath } = cropState;
@@ -725,15 +732,10 @@ export default function SellerEditor() {
             if (!section) { setCropState(null); return; }
 
             let resolvedUrl = croppedUrl;
-
-            // Upload cropped data URL to storage
             if (croppedUrl.startsWith("data:")) {
               try {
                 const { data: { session } } = await supabase.auth.getSession();
-                if (!session?.user?.id || !surfaceId) {
-                  setCropState(null);
-                  return;
-                }
+                if (!session?.user?.id || !surfaceId) { setCropState(null); return; }
                 const blob = await fetch(croppedUrl).then((r) => r.blob());
                 const ext = blob.type.split("/")[1] || "jpeg";
                 const safeFp = fieldPath.replace(/[^a-zA-Z0-9.-]/g, "_");
@@ -749,7 +751,6 @@ export default function SellerEditor() {
               }
             }
 
-            // Apply cropped URL to schema
             const newSchema = { ...section.schema } as Record<string, any>;
             const setNested = (target: any, parts: string[], val: string) => {
               let cur = target;
