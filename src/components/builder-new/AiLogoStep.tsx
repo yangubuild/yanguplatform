@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { RefreshCw, Check, Palette } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { YanguLoader } from "@/components/YanguLoader";
+import { recolorLogoToDataUrl, saveRecoloredLogo } from "./utils/logoColor";
 
 interface AiLogoStepProps {
   businessName: string;
@@ -63,8 +64,10 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
   const [selectedColor, setSelectedColor] = useState(PRESET_COLORS[0]);
   const [customDesc, setCustomDesc] = useState("");
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
-  const [logos, setLogos] = useState<(string | null)[]>([null, null, null]);
+  const [sourceLogos, setSourceLogos] = useState<(string | null)[]>([null, null, null]);
+  const [displayLogos, setDisplayLogos] = useState<(string | null)[]>([null, null, null]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSavingSelection, setIsSavingSelection] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -88,10 +91,11 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
         ),
       );
       const urls = results.map((result) => result.url);
-      setLogos(urls);
+      setSourceLogos(urls);
+      setDisplayLogos(urls);
       setHasGenerated(true);
 
-      if (urls.every(r => r === null)) {
+      if (urls.every((result) => result === null)) {
         setError("Logo generation failed. Please try again.");
       }
     } catch (err) {
@@ -102,37 +106,89 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
     }
   }, [businessName, selectedColor, customDesc, category, businessType, menuType]);
 
-  // Auto-generate on first mount
   useEffect(() => {
     if (!hasGenerated) {
       generateLogos();
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleConfirm = useCallback(() => {
-    if (selectedIdx !== null && logos[selectedIdx]) {
-      onConfirm(logos[selectedIdx]!, selectedColor);
+  useEffect(() => {
+    let cancelled = false;
+
+    if (sourceLogos.every((logo) => !logo)) {
+      setDisplayLogos(sourceLogos);
+      return () => {
+        cancelled = true;
+      };
     }
-  }, [selectedIdx, logos, selectedColor, onConfirm]);
+
+    const applySelectedColor = async () => {
+      const recolored = await Promise.all(
+        sourceLogos.map(async (logoUrl) => {
+          if (!logoUrl) return null;
+
+          try {
+            return await recolorLogoToDataUrl(logoUrl, selectedColor);
+          } catch (recolorError) {
+            console.warn("Failed to recolor logo preview:", recolorError);
+            return logoUrl;
+          }
+        }),
+      );
+
+      if (!cancelled) {
+        setDisplayLogos(recolored);
+      }
+    };
+
+    void applySelectedColor();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sourceLogos, selectedColor]);
+
+  const handleConfirm = useCallback(async () => {
+    if (selectedIdx === null || !sourceLogos[selectedIdx]) return;
+
+    setIsSavingSelection(true);
+    setError(null);
+
+    try {
+      const savedLogo = await saveRecoloredLogo(sourceLogos[selectedIdx]!, selectedColor);
+      onConfirm(savedLogo.url, selectedColor);
+    } catch (saveError) {
+      console.error("Selected logo save error:", saveError);
+      const fallbackLogo = displayLogos[selectedIdx] || sourceLogos[selectedIdx];
+
+      if (fallbackLogo) {
+        onConfirm(fallbackLogo, selectedColor);
+        return;
+      }
+
+      setError("Could not apply your selected logo color. Please try again.");
+    } finally {
+      setIsSavingSelection(false);
+    }
+  }, [selectedIdx, sourceLogos, displayLogos, selectedColor, onConfirm]);
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-[88%]">
-      {/* Logo grid */}
       {isGenerating ? (
         <div className="flex flex-col items-center justify-center py-12 gap-3">
           <YanguLoader size={36} fullArea={false} label="Generating logos..." />
         </div>
       ) : (
         <div className="grid grid-cols-3 gap-3">
-          {logos.map((src, i) => (
+          {displayLogos.map((src, i) => (
             <button
               key={`logo-${i}-${src?.slice(-8) || "empty"}`}
-              onClick={() => src && setSelectedIdx(i)}
-              disabled={!src}
+              onClick={() => sourceLogos[i] && setSelectedIdx(i)}
+              disabled={!sourceLogos[i]}
               className={`relative rounded-xl border-2 p-2 bg-card transition-all aspect-square flex items-center justify-center overflow-hidden ${
                 selectedIdx === i
                   ? "border-primary ring-2 ring-primary/30"
-                  : src
+                  : sourceLogos[i]
                   ? "border-border hover:border-primary/40"
                   : "border-border opacity-40"
               }`}
@@ -154,13 +210,12 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
 
       {error && <p className="text-xs text-destructive">{error}</p>}
 
-      {/* Color picker */}
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Palette className="h-3.5 w-3.5" /> Logo Color
         </div>
         <div className="flex flex-wrap gap-2">
-          {PRESET_COLORS.map(c => (
+          {PRESET_COLORS.map((c) => (
             <button
               key={c}
               onClick={() => setSelectedColor(c)}
@@ -176,19 +231,18 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
             <input
               type="color"
               value={selectedColor}
-              onChange={e => setSelectedColor(e.target.value)}
+              onChange={(e) => setSelectedColor(e.target.value)}
               className="sr-only"
             />
           </label>
         </div>
       </div>
 
-      {/* Regenerate with description */}
       <div className="flex gap-2">
         <input
           type="text"
           value={customDesc}
-          onChange={e => setCustomDesc(e.target.value)}
+          onChange={(e) => setCustomDesc(e.target.value)}
           placeholder="Describe logo style (optional)"
           className="flex-1 px-3 py-2 text-xs rounded-lg bg-muted border border-border focus:border-primary/50 focus:outline-none"
         />
@@ -201,13 +255,12 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
         </button>
       </div>
 
-      {/* Confirm */}
       <button
-        onClick={handleConfirm}
-        disabled={selectedIdx === null || !logos[selectedIdx]}
+        onClick={() => void handleConfirm()}
+        disabled={selectedIdx === null || !sourceLogos[selectedIdx] || isSavingSelection}
         className="self-start px-6 py-2.5 text-sm font-semibold rounded-full bg-accent text-accent-foreground hover:opacity-90 transition-opacity disabled:bg-muted disabled:text-muted-foreground disabled:opacity-60"
       >
-        Use This Logo ✓
+        {isSavingSelection ? "Applying Logo..." : "Use This Logo ✓"}
       </button>
     </div>
   );
