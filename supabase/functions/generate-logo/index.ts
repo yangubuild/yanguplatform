@@ -14,7 +14,7 @@ function json(data: unknown, status = 200) {
   });
 }
 
-const IMAGE_MODEL = "google/gemini-2.5-flash-image";
+const IMAGE_MODEL = "google/gemini-3.1-flash-image-preview";
 const VALIDATOR_MODEL = "google/gemini-2.5-flash";
 const PLACEHOLDER_TEXT = [
   "lorem ipsum",
