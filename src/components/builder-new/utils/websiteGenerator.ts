@@ -339,7 +339,7 @@ function buildHTML(config: GeneratorConfig, theme: StyleTheme, layout: LayoutVar
   ).join("\n");
 
   const logoHtml = config.userLogoUrl
-    ? `<img src="${config.userLogoUrl}" alt="${config.businessName}" style="height:28px;width:auto;"/>`
+    ? `<img src="${config.userLogoUrl}" alt="${config.businessName}" style="height:28px;width:auto;background:transparent;"/>`
     : `<span style="font-weight:700;font-size:18px;color:${theme.text};letter-spacing:0.02em;">${config.businessName || "My Site"}</span>`;
 
   return `<!DOCTYPE html>
