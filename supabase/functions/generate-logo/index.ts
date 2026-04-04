@@ -51,6 +51,12 @@ type ValidationResult = {
   usesCoffeeVisual: boolean;
 };
 
+type ResolvedImageAsset = {
+  bytes: Uint8Array;
+  contentType: string;
+  extension: string;
+};
+
 function normalizeString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -137,6 +143,52 @@ function dedupe(items: string[]): string[] {
   return [...new Set(items.filter(Boolean))];
 }
 
+function getFileExtension(contentType: string): string {
+  switch (contentType) {
+    case "image/png":
+      return "png";
+    case "image/webp":
+      return "webp";
+    case "image/jpeg":
+      return "jpg";
+    case "image/gif":
+      return "gif";
+    default:
+      return "png";
+  }
+}
+
+async function resolveImageAsset(imageUrl: string): Promise<ResolvedImageAsset> {
+  const dataUrlMatch = imageUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/s);
+  if (dataUrlMatch) {
+    const contentType = dataUrlMatch[1].toLowerCase();
+    const base64Data = dataUrlMatch[2];
+    const binaryStr = atob(base64Data);
+    const bytes = new Uint8Array(binaryStr.length);
+    for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+
+    return {
+      bytes,
+      contentType,
+      extension: getFileExtension(contentType),
+    };
+  }
+
+  const response = await fetch(imageUrl);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch generated image: ${response.status}`);
+  }
+
+  const buffer = await response.arrayBuffer();
+  const contentType = response.headers.get("content-type")?.split(";")[0].trim().toLowerCase() || "image/png";
+
+  return {
+    bytes: new Uint8Array(buffer),
+    contentType,
+    extension: getFileExtension(contentType),
+  };
+}
+
 async function callGateway(lovableKey: string, payload: Record<string, unknown>) {
   const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
@@ -206,10 +258,11 @@ function buildPrompt(input: GenerateLogoInput, retryReasons: string[] = []): str
 }
 
 async function validateGeneratedLogo(lovableKey: string, imageUrl: string, input: GenerateLogoInput): Promise<ValidationResult> {
-  if (!imageUrl.startsWith("data:image/png;base64,")) {
+  const isImageUrl = imageUrl.startsWith("data:image/") || /^https?:\/\//.test(imageUrl);
+  if (!isImageUrl) {
     return {
       valid: false,
-      reasons: ["not_png_output"],
+      reasons: ["invalid_image_output"],
       detectedText: [],
       exactBusinessName: false,
       extraTextDetected: true,
@@ -355,22 +408,17 @@ serve(async (req) => {
 
     if (!imageUrl) return json({ ok: false, error: "Logo validation failed after auto-regeneration" }, 502);
 
-    const base64Data = imageUrl.split(",")[1];
-    if (!base64Data) return json({ ok: false, error: "Invalid image data" }, 502);
-
-    const binaryStr = atob(base64Data);
-    const bytes = new Uint8Array(binaryStr.length);
-    for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+    const imageAsset = await resolveImageAsset(imageUrl);
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const admin = createClient(supabaseUrl, serviceKey);
 
     const timestamp = Date.now();
-    const path = `${userId}/logos/${timestamp}-${crypto.randomUUID()}-ai-logo.png`;
+    const path = `${userId}/logos/${timestamp}-${crypto.randomUUID()}-ai-logo.${imageAsset.extension}`;
     const { error: uploadErr } = await admin.storage
       .from("builder-media")
-      .upload(path, bytes, { contentType: "image/png", upsert: false });
+      .upload(path, imageAsset.bytes, { contentType: imageAsset.contentType, upsert: false });
 
     if (uploadErr) {
       console.error("[generate-logo] Upload error:", uploadErr);
