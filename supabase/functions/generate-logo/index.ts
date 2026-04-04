@@ -14,7 +14,7 @@ function json(data: unknown, status = 200) {
   });
 }
 
-const IMAGE_MODEL = "google/gemini-2.5-flash-image";
+const IMAGE_MODEL = "google/gemini-3.1-flash-image-preview";
 const VALIDATOR_MODEL = "google/gemini-2.5-flash";
 const PLACEHOLDER_TEXT = [
   "lorem ipsum",
@@ -191,7 +191,7 @@ function buildPrompt(input: GenerateLogoInput, retryReasons: string[] = []): str
     : `Use ONLY this exact business name text: "${input.businessName}". Do NOT include any slogan or any extra text.`;
 
   return [
-    `Create a professional food-business logo for ${input.businessName}.`,
+    `Create a professional food-business logo for "${input.businessName}".`,
     exactTextRule,
     "Never generate placeholder text such as Lorem Ipsum, Your Logo Name, Put your slogan, sample text, or invented words.",
     `Business context: category=${input.category}; business_type=${input.businessType}; menu_type=${input.menuType || "not_provided"}.`,
@@ -200,7 +200,7 @@ function buildPrompt(input: GenerateLogoInput, retryReasons: string[] = []): str
     `Primary brand color: ${input.primaryColor}. Approved palette: ${input.palette.join(", ")}. Use the primary color prominently and only add black, white, or subtle gray as supporting neutrals. Do not introduce random unrelated colors.`,
     input.style ? `Requested style: ${input.style}.` : "Requested style: clean, balanced, readable, professional restaurant branding.",
     "Typography must be clean, readable, correctly spelled, and visually balanced.",
-    "The output must be a transparent PNG with alpha channel. No white background, no colored background, no boxed mockup scene.",
+    "CRITICAL BACKGROUND RULE: The logo MUST have a fully transparent background (alpha channel = 0). Do NOT render ANY background — no white, no gray, no colored, no gradient, no circle, no rectangle, no shape behind the logo. The logo elements (text + icon only) must float on pure transparency. Output as PNG with alpha transparency. Think of it as a sticker with no backing.",
     retryReasons.length ? `Previous attempt was rejected for: ${retryReasons.join(", ")}. Fix every issue.` : "",
   ].filter(Boolean).join(" ");
 }
