@@ -31,7 +31,7 @@ async function generateSingleLogo(
   businessType: string,
   menuType?: string,
   description?: string,
-): Promise<{ url: string | null; source: string }> {
+): Promise<{ url: string | null; source: string; error?: string }> {
   const style = STYLE_VARIANTS[variantIndex % STYLE_VARIANTS.length];
   const styleHint = description ? `${style}. Additional requested style: ${description}.` : style;
 
