@@ -49,6 +49,8 @@ async function generateSingleLogo(
     });
 
     if (error) throw error;
+    if (data?.code === "credits_exhausted") throw new Error("credits_exhausted");
+    if (!data?.ok) throw new Error(data?.error || "Generation failed");
 
     return {
       url: data?.image_url || data?.logo_url || null,
@@ -56,7 +58,7 @@ async function generateSingleLogo(
     };
   } catch (err) {
     console.error(`AI logo variant ${variantIndex} failed:`, err);
-    return { url: null, source: "ai_generated" };
+    return { url: null, source: "ai_generated", error: err instanceof Error ? err.message : "" };
   }
 }
 
