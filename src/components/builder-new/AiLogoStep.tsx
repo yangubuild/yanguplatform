@@ -92,13 +92,14 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
           ),
         ),
       );
-      const urls = results.map((result) => result.url);
+      const urls = results.map((r) => r.url);
       setSourceLogos(urls);
       setDisplayLogos(urls);
       setHasGenerated(true);
 
-      if (urls.every((result) => result === null)) {
-        setError("Logo generation failed. Please try again.");
+      if (urls.every((r) => r === null)) {
+        const hasCreditsErr = results.some((r: any) => r.error === "credits_exhausted");
+        setError(hasCreditsErr ? "AI credits are temporarily exhausted. Please try again later." : "Logo generation failed. Please try again.");
       }
     } catch (err) {
       console.error("Logo generation error:", err);
