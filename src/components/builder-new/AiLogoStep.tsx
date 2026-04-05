@@ -31,7 +31,7 @@ async function generateSingleLogo(
   businessType: string,
   menuType?: string,
   description?: string,
-): Promise<{ url: string | null; source: string }> {
+): Promise<{ url: string | null; source: string; error?: string }> {
   const style = STYLE_VARIANTS[variantIndex % STYLE_VARIANTS.length];
   const styleHint = description ? `${style}. Additional requested style: ${description}.` : style;
 
@@ -49,6 +49,8 @@ async function generateSingleLogo(
     });
 
     if (error) throw error;
+    if (data?.code === "credits_exhausted") throw new Error("credits_exhausted");
+    if (!data?.ok) throw new Error(data?.error || "Generation failed");
 
     return {
       url: data?.image_url || data?.logo_url || null,
@@ -56,7 +58,7 @@ async function generateSingleLogo(
     };
   } catch (err) {
     console.error(`AI logo variant ${variantIndex} failed:`, err);
-    return { url: null, source: "ai_generated" };
+    return { url: null, source: "ai_generated", error: err instanceof Error ? err.message : "" };
   }
 }
 
@@ -90,13 +92,14 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
           ),
         ),
       );
-      const urls = results.map((result) => result.url);
+      const urls = results.map((r) => r.url);
       setSourceLogos(urls);
       setDisplayLogos(urls);
       setHasGenerated(true);
 
-      if (urls.every((result) => result === null)) {
-        setError("Logo generation failed. Please try again.");
+      if (urls.every((r) => r === null)) {
+        const hasCreditsErr = results.some((r: any) => r.error === "credits_exhausted");
+        setError(hasCreditsErr ? "AI credits are temporarily exhausted. Please try again later." : "Logo generation failed. Please try again.");
       }
     } catch (err) {
       console.error("Logo generation error:", err);
