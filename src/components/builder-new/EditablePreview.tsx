@@ -9,6 +9,7 @@ interface EditablePreviewProps {
   html: string;
   onHtmlChange: (html: string) => void;
   onSelectionChange?: (selection: CanvasSelection) => void;
+  viewportMode?: "desktop" | "mobile";
 }
 
 export function EditablePreview({ html, onHtmlChange, onSelectionChange }: EditablePreviewProps) {
