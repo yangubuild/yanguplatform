@@ -214,7 +214,7 @@ export function renderPlateria(ctx: RenderContext): string {
 
   // Story
   const storyHTML = story.enabled ? `
-  <section style="padding:80px 32px;background:#0E0E0E;">
+  <section id="about" style="padding:80px 32px;background:#0E0E0E;">
     <div style="max-width:640px;margin:0 auto;text-align:center;">
       ${story.eyebrow ? `<p style="font-size:11px;text-transform:uppercase;letter-spacing:3px;color:${t.accent};margin-bottom:10px;">${story.eyebrow}</p>` : ""}
       <h2 style="font-family:${t.fontHeading};font-size:1.8rem;font-weight:700;margin-bottom:16px;color:${t.pageText};">${story.heading || ""}</h2>
@@ -224,7 +224,7 @@ export function renderPlateria(ctx: RenderContext): string {
 
   // Testimonials
   const testimonialsHTML = testimonials.enabled && testimonials.items?.length ? `
-  <section style="padding:72px 32px;background:${t.pageBg};">
+  <section id="reviews" style="padding:72px 32px;background:${t.pageBg};">
     <div style="max-width:1000px;margin:0 auto;text-align:center;">
       <h2 style="font-family:${t.fontHeading};font-size:1.6rem;font-weight:700;margin-bottom:32px;color:${t.pageText};">${testimonials.heading || "Reviews"}</h2>
       <div style="display:grid;grid-template-columns:repeat(${Math.min(testimonials.items.length, 3)},1fr);gap:20px;">
@@ -240,7 +240,7 @@ export function renderPlateria(ctx: RenderContext): string {
 
   // Footer
   const footerHTML = `
-  <footer style="padding:48px 32px;background:#050505;border-top:1px solid ${t.borderColor};">
+  <footer id="contact" style="padding:48px 32px;background:#050505;border-top:1px solid ${t.borderColor};">
     <div style="max-width:900px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:32px;">
       ${footerCols.map((col: any) => `<div><h4 style="font-weight:600;font-size:13px;margin-bottom:10px;color:${t.accent};">${col.title}</h4>${(col.links as string[]).map((l: string) => `<p style="font-size:12px;color:${t.pageText}66;margin-bottom:4px;">${l}</p>`).join("")}</div>`).join("")}
     </div>
@@ -252,7 +252,7 @@ export function renderPlateria(ctx: RenderContext): string {
 <nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:${t.pageBg}ee;backdrop-filter:blur(12px);border-bottom:1px solid ${t.borderColor};padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;">
   ${logo}
   <div style="display:flex;gap:24px;align-items:center;">
-    ${navItems.map(n => `<a href="#" style="text-decoration:none;font-size:13px;color:${t.pageText}99;font-weight:400;letter-spacing:0.03em;">${n}</a>`).join("")}
+    ${navItems.map(n => `<a href="${navHref(n)}" style="text-decoration:none;font-size:13px;color:${t.pageText}99;font-weight:400;letter-spacing:0.03em;">${n}</a>`).join("")}
   </div>
 </nav>
 ${heroHTML}${menuHTML}${storyHTML}${testimonialsHTML}${footerHTML}
