@@ -10,14 +10,28 @@ interface Props {
   engine: BuilderEngine;
   /** Called with collected answers when wizard/AI completes */
   onComplete: (answers: Record<string, unknown>) => Promise<unknown>;
+  /** If provided, overrides the default AI path behavior */
+  onAiPath?: () => void;
+  /** If provided, overrides the default manual path behavior */
+  onManualPath?: () => void;
 }
 
 /**
  * Unified entry screen for ALL builder categories.
  * Shows two paths: "Build with AI" and "Build Manually".
  */
-export function BuilderEntryScreen({ engine, onComplete }: Props) {
+export function BuilderEntryScreen({ engine, onComplete, onAiPath, onManualPath }: Props) {
   const [mode, setMode] = useState<"choice" | "ai" | "manual">("choice");
+
+  const handleAi = () => {
+    if (onAiPath) { onAiPath(); return; }
+    setMode("ai");
+  };
+
+  const handleManual = () => {
+    if (onManualPath) { onManualPath(); return; }
+    setMode("manual");
+  };
 
   if (mode === "manual") {
     return (
