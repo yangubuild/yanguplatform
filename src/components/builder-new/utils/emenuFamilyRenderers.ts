@@ -18,6 +18,16 @@ interface RenderContext {
 
 // ─── Shared Utilities ───
 
+/** Map a nav label to a section anchor id */
+function navHref(label: string): string {
+  const map: Record<string, string> = {
+    home: "#hero", menu: "#menu", about: "#about", contact: "#contact",
+    deals: "#deals", delivery: "#menu", reviews: "#reviews", gallery: "#gallery",
+    story: "#about", subscribe: "#newsletter", order: "#menu",
+  };
+  return map[label.toLowerCase().trim()] || `#${label.toLowerCase().replace(/\s+/g, "-")}`;
+}
+
 function getImageUrl(config: GeneratorConfig, section: string, index: number): string {
   if (config.userImages?.length) {
     const purposeMap: Record<string, string[]> = {
