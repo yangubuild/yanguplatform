@@ -2,8 +2,17 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { YanguLoader } from "@/components/YanguLoader";
 
+export interface VariantPreviewItem {
+  /** HTML string for iframe-based preview (internal templates) */
+  html?: string;
+  /** Static image URL for screenshot-based preview (reference templates) */
+  imageUrl?: string;
+  /** Display label */
+  label: string;
+}
+
 interface VariantPreviewCarouselProps {
-  variants: string[];
+  variants: VariantPreviewItem[];
   onChoose: (index: number) => void;
   isGenerating: boolean;
 }
@@ -22,12 +31,14 @@ export function VariantPreviewCarousel({ variants, onChoose, isGenerating }: Var
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4">
         <YanguLoader size={48} fullArea={false} label="Generating your website variants..." />
-        <p className="text-xs text-muted-foreground">Creating 3 unique designs based on your selections</p>
+        <p className="text-xs text-muted-foreground">Creating unique designs based on your selections</p>
       </div>
     );
   }
 
   if (variants.length === 0) return null;
+
+  const current = variants[activeIndex];
 
   return (
     <div className="flex flex-col h-full">
@@ -40,7 +51,7 @@ export function VariantPreviewCarousel({ variants, onChoose, isGenerating }: Var
             <span className="w-2.5 h-2.5 rounded-full bg-primary/60" />
           </div>
           <span className="text-xs text-muted-foreground">
-            Design {activeIndex + 1} of {variants.length}
+            {current?.label || `Design ${activeIndex + 1}`} — {activeIndex + 1} of {variants.length}
           </span>
         </div>
         <div className="flex items-center gap-1">
@@ -79,15 +90,34 @@ export function VariantPreviewCarousel({ variants, onChoose, isGenerating }: Var
           className="flex h-full transition-transform duration-500 ease-out"
           style={{ transform: `translateX(-${activeIndex * 100}%)` }}
         >
-          {variants.map((html, i) => (
+          {variants.map((item, i) => (
             <div key={i} className="w-full h-full shrink-0 flex items-center justify-center p-3">
               <div className="relative w-full h-full rounded-xl overflow-hidden border border-border shadow-xl bg-white">
-                <iframe
-                  srcDoc={html}
-                  className="w-full h-full border-0"
-                  title={`Variant ${i + 1}`}
-                  sandbox="allow-scripts allow-same-origin"
-                />
+                {item.imageUrl ? (
+                  /* Screenshot-based preview for reference templates */
+                  <div className="w-full h-full overflow-auto">
+                    <img
+                      src={item.imageUrl}
+                      alt={item.label}
+                      className="w-full h-auto object-cover object-top"
+                      loading={i === 0 ? "eager" : "lazy"}
+                    />
+                  </div>
+                ) : item.html ? (
+                  /* HTML iframe preview for internal templates */
+                  <iframe
+                    srcDoc={item.html}
+                    className="w-full h-full border-0"
+                    title={item.label}
+                    sandbox="allow-scripts allow-same-origin"
+                  />
+                ) : null}
+                {/* Label overlay */}
+                {item.imageUrl && (
+                  <div className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-background/80 backdrop-blur-sm border border-border text-xs font-medium text-foreground">
+                    {item.label} — Reference Preview
+                  </div>
+                )}
               </div>
             </div>
           ))}

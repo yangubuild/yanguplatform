@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-  ChevronRight, LayoutGrid, List, Image, Plus,
+  ChevronRight, LayoutGrid, List, Image, Plus, Trash2,
   GripVertical, Type, Phone, MapPin, Store
 } from "lucide-react";
 
@@ -73,6 +73,12 @@ export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEdit
                     >
                       <Plus className="h-3.5 w-3.5" /> Add Category
                     </button>
+                    <button
+                      onClick={() => onAction("delete_category")}
+                      className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-muted/60 hover:bg-muted text-sm text-destructive transition-colors"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" /> Delete Category
+                    </button>
                     <p className="text-[11px] text-muted-foreground">Drag to reorder. Click to rename.</p>
                   </>
                 )}
@@ -84,6 +90,12 @@ export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEdit
                       className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-muted/60 hover:bg-muted text-sm transition-colors"
                     >
                       <Image className="h-3.5 w-3.5" /> Upload Image
+                    </button>
+                    <button
+                      onClick={() => onAction("stock_image")}
+                      className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-muted/60 hover:bg-muted text-sm transition-colors"
+                    >
+                      <Image className="h-3.5 w-3.5" /> Stock Image (Pexels)
                     </button>
                     <button
                       onClick={() => onAction("ai_generate_image")}
