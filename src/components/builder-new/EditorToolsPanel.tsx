@@ -1,9 +1,14 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { ChevronRight, Sparkles } from "lucide-react";
+import { getEngine } from "@/lib/builder/engineRegistry";
+import { resolveEngineModules } from "@/lib/builder/engineResolver";
 import {
-  Type, Image, Palette, LayoutGrid, Plus, Trash2,
-  ArrowUp, ArrowDown, Sparkles, ChevronRight,
-  Eye, EyeOff, Move, Copy, Settings2
-} from "lucide-react";
+  resolveModules,
+  groupModules,
+  SHARED_LAYOUT_TOOLS,
+  SHARED_PAGE_TOOLS,
+  type EditorModule,
+} from "@/lib/builder/moduleRegistry";
 
 interface EditorToolsPanelProps {
   onToggleAdaChat: () => void;
@@ -12,34 +17,6 @@ interface EditorToolsPanelProps {
   businessName: string;
   category: string | null;
 }
-
-const TOOL_GROUPS = [
-  {
-    label: "Content",
-    tools: [
-      { id: "edit_text", icon: Type, label: "Edit Text", description: "Click any text in the preview to edit" },
-      { id: "replace_image", icon: Image, label: "Replace Image", description: "Click an image, then replace it" },
-      { id: "change_colors", icon: Palette, label: "Change Colors", description: "Update brand colors and accents" },
-    ],
-  },
-  {
-    label: "Layout",
-    tools: [
-      { id: "add_section", icon: Plus, label: "Add Section", description: "Insert a new content section" },
-      { id: "move_up", icon: ArrowUp, label: "Move Up", description: "Move selected section up" },
-      { id: "move_down", icon: ArrowDown, label: "Move Down", description: "Move selected section down" },
-      { id: "remove_section", icon: Trash2, label: "Remove Section", description: "Delete selected section" },
-    ],
-  },
-  {
-    label: "Page",
-    tools: [
-      { id: "toggle_grid", icon: LayoutGrid, label: "Grid / List", description: "Switch layout mode" },
-      { id: "duplicate_section", icon: Copy, label: "Duplicate", description: "Copy selected section" },
-      { id: "section_settings", icon: Settings2, label: "Section Settings", description: "Configure section options" },
-    ],
-  },
-];
 
 export function EditorToolsPanel({
   onToggleAdaChat,
@@ -50,15 +27,46 @@ export function EditorToolsPanel({
 }: EditorToolsPanelProps) {
   const [expandedGroup, setExpandedGroup] = useState<string | null>("Content");
 
+  // Resolve category-specific modules from engine config
+  const toolGroups = useMemo(() => {
+    const engine = category ? getEngine(category) : undefined;
+    const moduleKeys = engine ? resolveEngineModules(engine) : [];
+    const categoryModules = resolveModules(moduleKeys);
+    const grouped = groupModules(categoryModules);
+
+    // Build ordered groups: Content first, then others, then shared Layout + Page
+    const result: { label: string; tools: EditorModule[] }[] = [];
+
+    // Category-specific groups
+    const groupOrder = ["Content", "Commerce", "Community", "Social"];
+    for (const label of groupOrder) {
+      if (grouped[label]?.length) {
+        result.push({ label, tools: grouped[label] });
+      }
+    }
+
+    // Shared groups
+    result.push({ label: "Layout", tools: SHARED_LAYOUT_TOOLS });
+    result.push({ label: "Page", tools: SHARED_PAGE_TOOLS });
+
+    return result;
+  }, [category]);
+
+  const engineLabel = category
+    ? (getEngine(category)?.label || category)
+    : "Website";
+
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
       <div className="px-4 py-3 border-b border-border shrink-0">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-semibold text-foreground">Editor Tools</h3>
+            <h3 className="text-sm font-semibold text-foreground">
+              {engineLabel} Editor
+            </h3>
             <p className="text-[11px] text-muted-foreground mt-0.5">
-              {businessName || "Your Website"} • {category || "site"}
+              {businessName || "Your Website"}
             </p>
           </div>
           <button
@@ -80,12 +88,14 @@ export function EditorToolsPanel({
         </div>
       )}
 
-      {/* Tool groups */}
+      {/* Tool groups — driven by engine.editorModules */}
       <div className="flex-1 overflow-y-auto">
-        {TOOL_GROUPS.map((group) => (
+        {toolGroups.map((group) => (
           <div key={group.label} className="border-b border-border">
             <button
-              onClick={() => setExpandedGroup(expandedGroup === group.label ? null : group.label)}
+              onClick={() =>
+                setExpandedGroup(expandedGroup === group.label ? null : group.label)
+              }
               className="flex items-center justify-between w-full px-4 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:bg-muted/50 transition-colors"
             >
               {group.label}
@@ -107,8 +117,12 @@ export function EditorToolsPanel({
                       <tool.icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground">{tool.label}</p>
-                      <p className="text-[11px] text-muted-foreground leading-tight">{tool.description}</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {tool.label}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground leading-tight">
+                        {tool.description}
+                      </p>
                     </div>
                   </button>
                 ))}
@@ -121,7 +135,14 @@ export function EditorToolsPanel({
       {/* Quick tip */}
       <div className="px-4 py-3 border-t border-border shrink-0">
         <p className="text-[11px] text-muted-foreground leading-relaxed">
-          💡 Click elements in the preview to select them, then use tools above to edit. Or ask <button onClick={onToggleAdaChat} className="text-primary font-medium hover:underline">Ada AI</button> for help.
+          💡 Click elements in preview to edit directly. Or ask{" "}
+          <button
+            onClick={onToggleAdaChat}
+            className="text-primary font-medium hover:underline"
+          >
+            Ada AI
+          </button>{" "}
+          for help.
         </p>
       </div>
     </div>

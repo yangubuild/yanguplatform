@@ -13,6 +13,7 @@ import { useStepController } from "@/components/builder-new/hooks/useStepControl
 import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteGenerator";
 import type { StepOption } from "@/components/builder-new/hooks/useStepController";
 import type { ChatMessage, Selection } from "@/components/builder-new/types/builder.types";
+import { classifyUserIntent, getMismatchMessage } from "@/lib/builder/intentClassifier";
 import yanguLogo from "@/assets/yangu-logo-full.png";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -165,9 +166,30 @@ export default function BuilderNewPage() {
     ctrl.setGeneratedHtml(html);
   }, [ctrl]);
 
+  // Track if we've already warned about a mismatch for this session
+  const mismatchHandledRef = useRef(false);
+
   const handleFreeText = useCallback((text: string) => {
     if (ctrl.currentStep === "greeting") {
       addMsg("user", text);
+
+      // Run intent classification before proceeding
+      if (!mismatchHandledRef.current) {
+        const intent = classifyUserIntent(text, ctrl.category);
+        if (intent.isMismatch && intent.confidence > 0.3) {
+          mismatchHandledRef.current = true;
+          const msg = getMismatchMessage(ctrl.category!, intent.detectedCategory);
+          addDelayedMsg(msg).then(() => {
+            // Add switch/stay buttons as next step options
+            // The step controller will handle greeting input after user decides
+          });
+          // Store detected category for potential switch
+          (ctrl as any).__pendingSwitch = intent.detectedCategory;
+          (ctrl as any).__pendingText = text;
+          return; // Don't proceed yet — wait for user decision
+        }
+      }
+
       ctrl.handleGreetingInput(text);
     } else if (ctrl.currentStep === "business_location") {
       addMsg("user", text);
@@ -176,7 +198,7 @@ export default function BuilderNewPage() {
       addMsg("user", text);
       handleRefinement(text);
     }
-  }, [addMsg, ctrl]);
+  }, [addMsg, ctrl, addDelayedMsg]);
 
   const handleRefinement = useCallback(async (text: string) => {
     setIsThinking(true);

@@ -2,6 +2,7 @@ import type { BuilderEngine } from "../types";
 
 export const estoreEngine: BuilderEngine = {
   key: "estore",
+  extends: "eshop",
   surfaceType: "store_listing",
   label: "Estore",
   description: "Create a store listing for wholesale, trading, or bulk business.",

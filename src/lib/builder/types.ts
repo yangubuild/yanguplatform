@@ -74,6 +74,8 @@ export interface AiGenerationRules {
 export interface BuilderEngine {
   /** Unique key: emenu, esite, eshop, estore, influencer, community */
   key: string;
+  /** Parent engine key for capability pack inheritance (e.g. estore extends eshop) */
+  extends?: string;
   /** Surface type stored in builder_surfaces */
   surfaceType: string;
   /** Display label */
