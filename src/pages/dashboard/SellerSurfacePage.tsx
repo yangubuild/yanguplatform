@@ -153,12 +153,10 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
   // Emenu wizard state (for backward-compat manual flow)
   const [emenuWizardOpen, setEmenuWizardOpen] = useState(false);
 
-  // For emenu: redirect to the new builder chat flow
-  useEffect(() => {
-    if (engineKey === "emenu") {
-      navigate(`/builder/new?category=emenu`, { replace: true });
-    }
-  }, [engineKey, navigate]);
+  // Emenu "Build with AI" → navigate to new builder chat flow
+  const handleEmenuAi = useCallback(() => {
+    navigate(`/builder/new?category=emenu`, { replace: false });
+  }, [navigate]);
 
   /** Handle wizard/AI completion — build seed sections and navigate to editor */
   const handleComplete = useCallback(async (answers: Record<string, unknown>) => {
