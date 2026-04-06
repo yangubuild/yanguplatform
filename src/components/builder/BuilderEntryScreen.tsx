@@ -63,7 +63,7 @@ export function BuilderEntryScreen({ engine, onComplete, onAiPath, onManualPath 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card
           className="p-5 sm:p-6 space-y-3 border-2 border-primary/30 hover:border-primary/60 transition-colors cursor-pointer"
-          onClick={() => setMode("ai")}>
+          onClick={handleAi}>
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
             <h3 className="font-semibold text-foreground">Build with AI</h3>
@@ -71,14 +71,14 @@ export function BuilderEntryScreen({ engine, onComplete, onAiPath, onManualPath 
           <p className="text-sm text-muted-foreground">
             Import from a social profile or let AI help you set up quickly.
           </p>
-          <Button size="sm" className="w-full gap-2" onClick={(e) => { e.stopPropagation(); setMode("ai"); }}>
+          <Button size="sm" className="w-full gap-2" onClick={(e) => { e.stopPropagation(); handleAi(); }}>
             <Sparkles className="h-4 w-4" /> Start with AI
           </Button>
         </Card>
 
         <Card
           className="p-5 sm:p-6 space-y-3 hover:border-primary/30 transition-colors cursor-pointer"
-          onClick={() => setMode("manual")}>
+          onClick={handleManual}>
           <div className="flex items-center gap-2">
             <Wrench className="h-5 w-5 text-muted-foreground" />
             <h3 className="font-semibold text-foreground">Build Manually</h3>
@@ -86,7 +86,7 @@ export function BuilderEntryScreen({ engine, onComplete, onAiPath, onManualPath 
           <p className="text-sm text-muted-foreground">
             Answer a few questions step by step and configure everything yourself in the editor.
           </p>
-          <Button size="sm" variant="outline" className="w-full gap-2" onClick={(e) => { e.stopPropagation(); setMode("manual"); }}>
+          <Button size="sm" variant="outline" className="w-full gap-2" onClick={(e) => { e.stopPropagation(); handleManual(); }}>
             <Wrench className="h-4 w-4" /> Start Wizard
           </Button>
         </Card>
