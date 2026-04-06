@@ -686,7 +686,6 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     description: "Clean bistro menu: bold hero, featured dishes, testimonials, opening hours & location",
     icon: "🍔",
     is_active: false,
-    icon: "🍔",
     reference: {
       source: "image",
       label: "Food & Restaurant Service Website reference",
@@ -778,7 +777,6 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     icon: "🍽️",
     is_active: true,
     template_family: "visual_a",
-    icon: "🍽️",
     reference: {
       source: "image",
       label: "FlavorNest marketplace-style menu reference",
@@ -874,7 +872,6 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     description: "Photo-forward food grid: full-width hero, featured dishes grid, category sections, about & hours block",
     icon: "📸",
     is_active: false,
-    icon: "📸",
     reference: {
       source: "image",
       label: "Modern food photography grid reference",
@@ -1107,7 +1104,6 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     description: "Bold dark food brand: cinematic hero with discount badge, 4-col category cards, promo banners, 6-item featured grid, stats row, testimonials carousel, newsletter",
     icon: "🔥",
     is_active: false,
-    icon: "🍔",
     reference: {
       source: "link",
       url: "https://yumix.framer.website/",
@@ -1256,7 +1252,6 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     description: "Streamlined food menu: dark hero, category cards, featured dishes grid, about block, footer",
     icon: "✨",
     is_active: false,
-    icon: "🍟",
     reference: {
       source: "link",
       url: "https://yumix.framer.website/",
@@ -1340,7 +1335,6 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     description: "Promo-heavy food menu: hero with discount, dual deal banners, featured items, catering section, newsletter CTA",
     icon: "🎉",
     is_active: false,
-    icon: "🏷️",
     reference: {
       source: "link",
       url: "https://yumix.framer.website/",
@@ -1429,7 +1423,6 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     description: "Social-proof food menu: hero with rating, featured dishes, stats row, large testimonials section, about story",
     icon: "💬",
     is_active: false,
-    icon: "⭐",
     reference: {
       source: "link",
       url: "https://yumix.framer.website/",
@@ -1527,7 +1520,6 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     description: "Warm-toned food menu: cream hero, category showcase, featured grid, about story, testimonials, footer",
     icon: "🌅",
     is_active: false,
-    icon: "🌮",
     reference: {
       source: "link",
       url: "https://yumix.framer.website/",
@@ -1624,7 +1616,6 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     description: "Catering-focused food menu: hero, menu highlights, event packages (social, corporate, wedding), testimonials, contact",
     icon: "🎪",
     is_active: false,
-    icon: "🎉",
     reference: {
       source: "link",
       url: "https://yumix.framer.website/",
@@ -1723,7 +1714,6 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     description: "Minimal dark food menu: clean hero, 3-item featured grid, single about block, compact footer",
     icon: "◼️",
     is_active: false,
-    icon: "🍜",
     reference: {
       source: "link",
       url: "https://yumix.framer.website/",
