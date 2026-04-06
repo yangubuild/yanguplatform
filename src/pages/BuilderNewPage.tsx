@@ -332,13 +332,21 @@ export default function BuilderNewPage() {
 
         {/* Right panel */}
         <div className="w-[260px] shrink-0 hidden md:block overflow-hidden">
-          <SelectionPanel
-            selections={selections}
-            category={ctrl.category}
-            generatedHtml={ctrl.generatedHtml}
-            isGenerating={ctrl.isGenerating}
-            onGenerate={handleGenerate}
-          />
+          {isEditMode && ctrl.category === "emenu" ? (
+            <EmenuEditorPanel
+              businessName={ctrl.businessName}
+              category={ctrl.category}
+              onAction={handleEditorAction}
+            />
+          ) : (
+            <SelectionPanel
+              selections={selections}
+              category={ctrl.category}
+              generatedHtml={ctrl.generatedHtml}
+              isGenerating={ctrl.isGenerating}
+              onGenerate={handleGenerate}
+            />
+          )}
         </div>
       </div>
     </div>
