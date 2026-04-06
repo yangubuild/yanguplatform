@@ -12,7 +12,7 @@ interface EditablePreviewProps {
   viewportMode?: "desktop" | "mobile";
 }
 
-export function EditablePreview({ html, onHtmlChange, onSelectionChange }: EditablePreviewProps) {
+export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewportMode = "desktop" }: EditablePreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [imagePickerOpen, setImagePickerOpen] = useState(false);
