@@ -7,6 +7,10 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const IMAGE_MODEL = "google/gemini-3.1-flash-image-preview";
+
+type LogoRequestBody = Record<string, unknown>;
+
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -14,7 +18,9 @@ function json(data: unknown, status = 200) {
   });
 }
 
-const IMAGE_MODEL = "google/gemini-3.1-flash-image-preview";
+function errorJson(error: string, status = 200, code = "unknown_error") {
+  return json({ ok: false, error, code }, status);
+}
 
 function normalizeString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
@@ -58,6 +64,35 @@ function getFileExtension(contentType: string): string {
   return "png";
 }
 
+async function parseRequestBody(req: Request): Promise<LogoRequestBody> {
+  const rawBody = await req.text();
+  if (!rawBody.trim()) throw new Error("Request body is required");
+
+  const parsed = JSON.parse(rawBody);
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("Request body must be a JSON object");
+  }
+
+  return parsed as LogoRequestBody;
+}
+
+function extractGeneratedImageUrl(aiData: any): string | null {
+  const b64Image = typeof aiData?.data?.[0]?.b64_json === "string"
+    ? `data:image/png;base64,${aiData.data[0].b64_json}`
+    : null;
+
+  const candidates = [
+    aiData?.choices?.[0]?.message?.images?.[0]?.image_url?.url,
+    aiData?.choices?.[0]?.message?.images?.[0]?.image_url,
+    aiData?.choices?.[0]?.message?.image_url?.url,
+    aiData?.choices?.[0]?.message?.image_url,
+    aiData?.data?.[0]?.url,
+    b64Image,
+  ];
+
+  return candidates.find((value) => typeof value === "string" && value.trim().length > 0) ?? null;
+}
+
 async function resolveImageAsset(imageUrl: string): Promise<{ bytes: Uint8Array; contentType: string; extension: string }> {
   const dataUrlMatch = imageUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/s);
   if (dataUrlMatch) {
@@ -71,27 +106,67 @@ async function resolveImageAsset(imageUrl: string): Promise<{ bytes: Uint8Array;
 
   const response = await fetch(imageUrl);
   if (!response.ok) throw new Error(`Failed to fetch image: ${response.status}`);
+
   const buffer = await response.arrayBuffer();
   const contentType = response.headers.get("content-type")?.split(";")[0].trim().toLowerCase() || "image/png";
+  if (!contentType.startsWith("image/")) throw new Error(`Invalid generated image content type: ${contentType}`);
+
   return { bytes: new Uint8Array(buffer), contentType, extension: getFileExtension(contentType) };
 }
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  const requestId = crypto.randomUUID();
+
+  if (req.method !== "POST") {
+    return errorJson("Method not allowed", 405, "method_not_allowed");
+  }
+
   try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+    if (!supabaseUrl || !anonKey || !serviceRoleKey) {
+      console.error(`[generate-logo][${requestId}] Missing backend config`, {
+        hasSupabaseUrl: Boolean(supabaseUrl),
+        hasAnonKey: Boolean(anonKey),
+        hasServiceRoleKey: Boolean(serviceRoleKey),
+      });
+      return errorJson("Server configuration error", 500, "missing_backend_config");
+    }
+
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) return json({ ok: false, error: "Auth required" }, 401);
+    if (!authHeader?.startsWith("Bearer ")) {
+      return errorJson("Auth required", 401, "auth_required");
+    }
 
-    const userClient = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } }
-    );
-    const { data: { user }, error: authErr } = await userClient.auth.getUser();
-    if (authErr || !user) return json({ ok: false, error: "Auth required" }, 401);
+    const userClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const {
+      data: { user },
+      error: authErr,
+    } = await userClient.auth.getUser();
 
-    const body = await req.json();
+    if (authErr || !user) {
+      console.error(`[generate-logo][${requestId}] Auth failed:`, authErr);
+      return errorJson("Auth required", 401, "auth_required");
+    }
+
+    let body: LogoRequestBody;
+    try {
+      body = await parseRequestBody(req);
+    } catch (parseError) {
+      console.error(`[generate-logo][${requestId}] Request parse failed:`, parseError);
+      return errorJson(
+        parseError instanceof Error ? parseError.message : "Invalid request payload",
+        400,
+        "invalid_request_payload",
+      );
+    }
+
     const businessName = normalizeString(body.businessName) || normalizeString(body.business_name) || "My Restaurant";
     const slogan = normalizeString(body.slogan) || normalizeString(body.tagline) || "";
     const category = normalizeString(body.category) || "restaurant";
@@ -100,7 +175,7 @@ serve(async (req) => {
     const style = normalizeString(body.style) || "clean professional food brand logo";
 
     const palette = uniqueColors(
-      [normalizeColor(body.color), ...(Array.isArray(body.palette) ? body.palette.map(normalizeColor) : [])].filter(Boolean) as string[]
+      [normalizeColor(body.color), ...(Array.isArray(body.palette) ? body.palette.map(normalizeColor) : [])].filter(Boolean) as string[],
     );
     const primaryColor = palette[0] || "#b5622a";
 
@@ -125,67 +200,98 @@ serve(async (req) => {
     ].join(" ");
 
     const lovableKey = Deno.env.get("LOVABLE_API_KEY");
-    if (!lovableKey) return json({ ok: false, error: "AI not configured" }, 500);
+    if (!lovableKey) {
+      console.error(`[generate-logo][${requestId}] Missing LOVABLE_API_KEY`);
+      return errorJson("AI not configured", 500, "missing_ai_config");
+    }
 
-    // Single attempt — no expensive validation loop
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${lovableKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: IMAGE_MODEL,
-        temperature: 0.3,
-        messages: [{ role: "user", content: prompt }],
-        modalities: ["image", "text"],
-      }),
-    });
+    let aiResponse: Response;
+    try {
+      aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${lovableKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: IMAGE_MODEL,
+          temperature: 0.3,
+          messages: [{ role: "user", content: prompt }],
+          modalities: ["image", "text"],
+        }),
+      });
+    } catch (providerError) {
+      console.error(`[generate-logo][${requestId}] AI request failed:`, providerError);
+      return errorJson("AI generation failed", 200, "provider_request_failed");
+    }
 
     if (!aiResponse.ok) {
-      const errText = await aiResponse.text();
-      console.error(`[generate-logo] AI error ${aiResponse.status}:`, errText);
+      const errText = await aiResponse.text().catch(() => "");
+      console.error(`[generate-logo][${requestId}] AI error ${aiResponse.status}:`, errText);
+
       if (aiResponse.status === 402) {
-        return json({ ok: false, error: "AI credits exhausted. Please try again later.", code: "credits_exhausted" }, 402);
+        return errorJson("AI credits exhausted. Please try again later.", 200, "credits_exhausted");
       }
-      return json({ ok: false, error: "AI generation failed" }, 502);
+
+      return errorJson("AI generation failed", 200, "provider_error");
     }
 
-    const aiData = await aiResponse.json();
-    const imageUrl = aiData?.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    let aiData: any;
+    try {
+      aiData = await aiResponse.json();
+    } catch (responseParseError) {
+      console.error(`[generate-logo][${requestId}] AI response parse failed:`, responseParseError);
+      return errorJson("AI returned an invalid response", 200, "invalid_provider_response");
+    }
 
+    const imageUrl = extractGeneratedImageUrl(aiData);
     if (!imageUrl) {
-      console.error("[generate-logo] No image in AI response");
-      return json({ ok: false, error: "No image generated" }, 502);
+      console.error(`[generate-logo][${requestId}] No image in AI response:`, aiData);
+      return errorJson("No image generated", 200, "missing_image_url");
     }
 
-    // Upload to storage
-    const asset = await resolveImageAsset(imageUrl);
-    const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-    const path = `${user.id}/logos/${Date.now()}-${crypto.randomUUID()}-ai-logo.${asset.extension}`;
-
-    const { error: uploadErr } = await admin.storage
-      .from("builder-media")
-      .upload(path, asset.bytes, { contentType: asset.contentType, upsert: false });
-
-    if (uploadErr) {
-      console.error("[generate-logo] Upload error:", uploadErr);
-      return json({ ok: false, error: "Upload failed" }, 500);
+    let asset: { bytes: Uint8Array; contentType: string; extension: string };
+    try {
+      asset = await resolveImageAsset(imageUrl);
+    } catch (assetError) {
+      console.error(`[generate-logo][${requestId}] Generated image processing failed:`, assetError);
+      return errorJson("Generated image could not be processed", 200, "invalid_generated_image");
     }
 
-    const { data: publicData } = admin.storage.from("builder-media").getPublicUrl(path);
+    try {
+      const admin = createClient(supabaseUrl, serviceRoleKey);
+      const path = `${user.id}/logos/${Date.now()}-${crypto.randomUUID()}-ai-logo.${asset.extension}`;
 
-    return json({
-      ok: true,
-      image_url: publicData.publicUrl,
-      logo_url: publicData.publicUrl,
-      source: "ai_generated",
-      storage_path: path,
-      business_name: businessName,
-      category,
-    });
+      const { error: uploadErr } = await admin.storage
+        .from("builder-media")
+        .upload(path, asset.bytes, { contentType: asset.contentType, upsert: false });
+
+      if (uploadErr) {
+        console.error(`[generate-logo][${requestId}] Upload error:`, uploadErr);
+        return errorJson("Upload failed", 200, "storage_upload_failed");
+      }
+
+      const { data: publicData } = admin.storage.from("builder-media").getPublicUrl(path);
+      if (!publicData?.publicUrl) {
+        console.error(`[generate-logo][${requestId}] Public URL missing for storage path:`, path);
+        return errorJson("Upload failed", 200, "missing_public_url");
+      }
+
+      return json({
+        ok: true,
+        image_url: publicData.publicUrl,
+        logo_url: publicData.publicUrl,
+        source: "ai_generated",
+        storage_path: path,
+        business_name: businessName,
+        category,
+      });
+    } catch (storageError) {
+      console.error(`[generate-logo][${requestId}] Storage step failed:`, storageError);
+      return errorJson("Upload failed", 200, "storage_upload_failed");
+    }
   } catch (e) {
-    console.error("[generate-logo] error:", e);
-    return json({ ok: false, error: e instanceof Error ? e.message : "Unknown error" }, 500);
+    console.error(`[generate-logo][${requestId}] Unhandled error:`, e);
+    return errorJson(e instanceof Error ? e.message : "Unknown error", 500, "unexpected_error");
   }
 });
