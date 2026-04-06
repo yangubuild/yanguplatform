@@ -30,10 +30,12 @@ import {
   Search,
   ExternalLink,
   Expand,
+  FolderOpen,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { consumeAiImageCredit } from "@/lib/aiCredits";
+import { MediaLibraryTab } from "./media/MediaLibraryTab";
 
 export interface MediaValue {
   type: "none" | "image" | "video";
@@ -154,10 +156,10 @@ function MediaSourceTabs({
   const showAiTab = mediaType === "image";
 
   return (
-    <Tabs defaultValue="url" className="w-full">
+    <Tabs defaultValue="library" className="w-full">
       <TabsList className="w-full h-8">
-        <TabsTrigger value="url" className="text-xs gap-1 flex-1">
-          <Link className="h-3 w-3" /> URL
+        <TabsTrigger value="library" className="text-xs gap-1 flex-1">
+          <FolderOpen className="h-3 w-3" /> Library
         </TabsTrigger>
         <TabsTrigger value="upload" className="text-xs gap-1 flex-1">
           <Upload className="h-3 w-3" /> Upload
@@ -170,8 +172,23 @@ function MediaSourceTabs({
             <Sparkles className="h-3 w-3" /> AI
           </TabsTrigger>
         )}
+        <TabsTrigger value="url" className="text-xs gap-1 flex-1">
+          <Link className="h-3 w-3" /> URL
+        </TabsTrigger>
       </TabsList>
 
+      <TabsContent value="library" className="mt-2">
+        <MediaLibraryTab
+          onSelect={(url, source) => {
+            onChange({
+              ...value,
+              source,
+              url,
+            });
+            toast.success("Selected from library");
+          }}
+        />
+      </TabsContent>
       <TabsContent value="url" className="mt-2 space-y-1.5">
         <UrlTab mediaType={mediaType} value={value} onChange={onChange} />
       </TabsContent>
