@@ -315,14 +315,6 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
 
   // For emenu: show entry screen with AI → chat, Manual → wizard
   if (engineKey === "emenu") {
-    if (emenuWizardOpen) {
-      return (
-        <div className="min-h-screen bg-background">
-          <EmenuWizard onComplete={handleEmenuWizardComplete} onBack={() => setEmenuWizardOpen(false)} />
-        </div>
-      );
-    }
-
     return (
       <div className="min-h-screen bg-background">
         <BuilderEntryScreen
@@ -331,8 +323,14 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
           onAiPath={handleEmenuAi}
           onManualPath={() => setEmenuWizardOpen(true)}
         />
+        <EmenuWizard
+          open={emenuWizardOpen}
+          onOpenChange={setEmenuWizardOpen}
+          onComplete={handleEmenuWizardComplete}
+        />
       </div>
     );
+  }
   }
 
   return <div className="min-h-screen bg-background"><BuilderEntryScreen engine={engine} onComplete={handleComplete} /></div>;
