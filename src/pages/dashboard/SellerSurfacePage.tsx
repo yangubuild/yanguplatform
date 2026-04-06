@@ -1,13 +1,14 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { useBuilderSurfaceInit } from "@/hooks/useBuilderSurfaceInit";
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { getEngine } from "@/lib/builder/engineRegistry";
 import { BuilderEntryScreen } from "@/components/builder/BuilderEntryScreen";
 import { EmenuWizard, type WizardData } from "@/components/builder/EmenuWizard";
 import { useState } from "react";
 import { mergeIntoDefault } from "@/lib/builderDefaults";
+import BuilderNewPage from "@/pages/BuilderNewPage";
 
 /** Map legacy seller keys → engine keys */
 const SELLER_KEY_MAP: Record<string, string> = {
@@ -147,16 +148,20 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
   const { user } = useAuth();
   const { initAndNavigate } = useBuilderSurfaceInit();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const engineKey = SELLER_KEY_MAP[sellerKey] || sellerKey;
   const engine = getEngine(engineKey);
+  const mode = searchParams.get("mode");
 
   // Emenu wizard state (for backward-compat manual flow)
   const [emenuWizardOpen, setEmenuWizardOpen] = useState(false);
 
-  // Emenu "Build with AI" → navigate to new builder chat flow
+  // Emenu "Build with AI" → stay inside Seller route and open shared AI chat flow
   const handleEmenuAi = useCallback(() => {
-    navigate(`/builder/new?category=emenu`, { replace: false });
-  }, [navigate]);
+    const next = new URLSearchParams(searchParams);
+    next.set("mode", "ai");
+    setSearchParams(next, { replace: false });
+  }, [searchParams, setSearchParams]);
 
   /** Handle wizard/AI completion — build seed sections and navigate to editor */
   const handleComplete = useCallback(async (answers: Record<string, unknown>) => {
@@ -313,8 +318,12 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     );
   }
 
-  // For emenu: show entry screen with AI → chat, Manual → wizard
+  // For emenu: keep the entry page first, then open AI chat within the Seller shell
   if (engineKey === "emenu") {
+    if (mode === "ai") {
+      return <BuilderNewPage embedded initialCategory="emenu" />;
+    }
+
     return (
       <div className="min-h-screen bg-background">
         <BuilderEntryScreen
