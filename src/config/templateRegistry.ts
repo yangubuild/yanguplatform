@@ -685,6 +685,8 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     label: "Sunday Bite",
     description: "Clean bistro menu: bold hero, featured dishes, testimonials, opening hours & location",
     icon: "🍔",
+    is_active: false,
+    icon: "🍔",
     reference: {
       source: "image",
       label: "Food & Restaurant Service Website reference",
@@ -773,6 +775,9 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     key: "emenu_visual_a",
     label: "Restaurant Classic",
     description: "Elegant restaurant menu: hero banner, category tabs, menu items with images, sticky action bar, hours & location",
+    icon: "🍽️",
+    is_active: true,
+    template_family: "visual_a",
     icon: "🍽️",
     reference: {
       source: "image",
@@ -867,6 +872,8 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     key: "emenu_visual_b",
     label: "Modern Food Grid",
     description: "Photo-forward food grid: full-width hero, featured dishes grid, category sections, about & hours block",
+    icon: "📸",
+    is_active: false,
     icon: "📸",
     reference: {
       source: "image",
@@ -1098,6 +1105,8 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     key: "emenu_yumix_bold",
     label: "Yumix Bold",
     description: "Bold dark food brand: cinematic hero with discount badge, 4-col category cards, promo banners, 6-item featured grid, stats row, testimonials carousel, newsletter",
+    icon: "🔥",
+    is_active: false,
     icon: "🍔",
     reference: {
       source: "link",
@@ -1245,6 +1254,8 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     key: "emenu_yumix_lite",
     label: "Yumix Lite",
     description: "Streamlined food menu: dark hero, category cards, featured dishes grid, about block, footer",
+    icon: "✨",
+    is_active: false,
     icon: "🍟",
     reference: {
       source: "link",
@@ -1327,6 +1338,8 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     key: "emenu_yumix_promo",
     label: "Yumix Promo",
     description: "Promo-heavy food menu: hero with discount, dual deal banners, featured items, catering section, newsletter CTA",
+    icon: "🎉",
+    is_active: false,
     icon: "🏷️",
     reference: {
       source: "link",
@@ -1414,6 +1427,8 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     key: "emenu_yumix_social",
     label: "Yumix Social",
     description: "Social-proof food menu: hero with rating, featured dishes, stats row, large testimonials section, about story",
+    icon: "💬",
+    is_active: false,
     icon: "⭐",
     reference: {
       source: "link",
@@ -1510,6 +1525,8 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     key: "emenu_yumix_warm",
     label: "Yumix Warm",
     description: "Warm-toned food menu: cream hero, category showcase, featured grid, about story, testimonials, footer",
+    icon: "🌅",
+    is_active: false,
     icon: "🌮",
     reference: {
       source: "link",
@@ -1605,6 +1622,8 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     key: "emenu_yumix_catering",
     label: "Yumix Catering",
     description: "Catering-focused food menu: hero, menu highlights, event packages (social, corporate, wedding), testimonials, contact",
+    icon: "🎪",
+    is_active: false,
     icon: "🎉",
     reference: {
       source: "link",
@@ -1702,6 +1721,8 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
     key: "emenu_yumix_minimal",
     label: "Yumix Minimal",
     description: "Minimal dark food menu: clean hero, 3-item featured grid, single about block, compact footer",
+    icon: "◼️",
+    is_active: false,
     icon: "🍜",
     reference: {
       source: "link",
