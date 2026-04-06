@@ -360,10 +360,12 @@ function StockTab({
   mediaType,
   value,
   onChange,
+  surfaceId,
 }: {
   mediaType: "image" | "video";
   value: MediaValue;
   onChange: (v: MediaValue) => void;
+  surfaceId: string;
 }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<StockResult[]>([]);
