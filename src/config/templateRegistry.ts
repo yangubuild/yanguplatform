@@ -2,6 +2,12 @@
 // Provides visual template presets per engine.
 // Each template defines schema patches for core slots (header, hero, main_content, offer, footer).
 // No DB changes required — applied client-side via patch merge.
+
+import {
+  PLATERIA_MENU_ITEMS, PLATERIA_TESTIMONIALS,
+  YUMIX_MENU_ITEMS, YUMIX_CATEGORY_ITEMS, YUMIX_PROMO_BANNERS, YUMIX_STATS, YUMIX_TESTIMONIALS,
+  ZOOOM_MENU_ITEMS, ZOOOM_CATEGORY_ITEMS, ZOOOM_TESTIMONIALS,
+} from "@/config/emenuDemoContent";
 //
 // TEMPLATE REFERENCE RULE:
 // Every template must record its provenance via the `reference` field.
