@@ -266,28 +266,18 @@ export default function BuilderNewPage() {
         const btnSel = doc.querySelector('.yangu-btn-selected') as HTMLElement | null;
         if (btnSel && payload?.color) {
           btnSel.style.backgroundColor = payload.color;
-          // Set text color based on brightness
-          const c = payload.color;
-          const isLight = c === "#ffffff" || c === "#d4a853";
+          const isLight = payload.color === "#ffffff" || payload.color === "#d4a853";
           btnSel.style.color = isLight ? "#1a1a1a" : "#ffffff";
           pushUpdate(doc, iframe);
-          toast.success("Button color updated");
-        } else {
-          toast.info("Click a button in the preview first");
-        }
+        } else { toast.info("Click a button in the preview first"); }
         break;
       }
 
       case "set_button_shape": {
         if (!doc) break;
         const btnShape = doc.querySelector('.yangu-btn-selected') as HTMLElement | null;
-        if (btnShape && payload?.radius) {
-          btnShape.style.borderRadius = payload.radius;
-          pushUpdate(doc, iframe);
-          toast.success("Button shape updated");
-        } else {
-          toast.info("Click a button in the preview first");
-        }
+        if (btnShape && payload?.radius) { btnShape.style.borderRadius = payload.radius; pushUpdate(doc, iframe); }
+        else { toast.info("Click a button in the preview first"); }
         break;
       }
 
@@ -298,10 +288,7 @@ export default function BuilderNewPage() {
           btnSize.style.padding = payload.padding;
           if (payload.fontSize) btnSize.style.fontSize = payload.fontSize;
           pushUpdate(doc, iframe);
-          toast.success("Button size updated");
-        } else {
-          toast.info("Click a button in the preview first");
-        }
+        } else { toast.info("Click a button in the preview first"); }
         break;
       }
 
@@ -310,15 +297,48 @@ export default function BuilderNewPage() {
         const btnAlign = doc.querySelector('.yangu-btn-selected') as HTMLElement | null;
         if (btnAlign && payload?.align) {
           const parent = btnAlign.parentElement;
-          if (parent) {
-            parent.style.display = "flex";
-            parent.style.justifyContent = payload.align;
-          }
+          if (parent) { parent.style.display = "flex"; parent.style.justifyContent = payload.align; }
           pushUpdate(doc, iframe);
-          toast.success("Button alignment updated");
-        } else {
-          toast.info("Click a button in the preview first");
-        }
+        } else { toast.info("Click a button in the preview first"); }
+        break;
+      }
+
+      // Text style actions
+      case "set_text_style": {
+        if (!doc) break;
+        const textEl = doc.querySelector('.yangu-el-selected') as HTMLElement | null;
+        if (textEl && payload) {
+          Object.entries(payload).forEach(([k, v]) => { (textEl.style as any)[k] = v; });
+          pushUpdate(doc, iframe);
+        } else { toast.info("Click a text element in the preview first"); }
+        break;
+      }
+
+      // Section style actions
+      case "set_section_style": {
+        if (!doc) break;
+        const secEl = doc.querySelector('.section-selected') as HTMLElement | null;
+        if (secEl && payload) {
+          Object.entries(payload).forEach(([k, v]) => { (secEl.style as any)[k] = v; });
+          pushUpdate(doc, iframe);
+        } else { toast.info("Click a section in the preview first"); }
+        break;
+      }
+
+      case "set_section_bg_image": {
+        // Open image picker, then apply as background
+        iframe?.contentWindow?.postMessage({ type: "open-image-picker" }, "*");
+        break;
+      }
+
+      // Image style actions
+      case "set_image_style": {
+        if (!doc) break;
+        const imgEl = doc.querySelector('.yangu-img-selected') as HTMLElement | null;
+        if (imgEl && payload) {
+          Object.entries(payload).forEach(([k, v]) => { (imgEl.style as any)[k] = v; });
+          pushUpdate(doc, iframe);
+        } else { toast.info("Click an image in the preview first"); }
         break;
       }
 
