@@ -10,6 +10,8 @@ import { EditablePreview } from "@/components/builder-new/EditablePreview";
 import { BuilderEditorTopBar } from "@/components/builder-new/BuilderEditorTopBar";
 import { EditorToolsPanel } from "@/components/builder-new/EditorToolsPanel";
 import { EmenuEditorPanel } from "@/components/builder-new/EmenuEditorPanel";
+import { BuilderSettingsDialog } from "@/components/builder-new/BuilderSettingsDialog";
+import { BuilderPublishDialog } from "@/components/builder-new/BuilderPublishDialog";
 import { useStepController } from "@/components/builder-new/hooks/useStepController";
 import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteGenerator";
 import type { StepOption } from "@/components/builder-new/hooks/useStepController";
@@ -17,14 +19,15 @@ import type { ChatMessage, Selection } from "@/components/builder-new/types/buil
 import { classifyUserIntent, getMismatchMessage } from "@/lib/builder/intentClassifier";
 import yanguLogo from "@/assets/yangu-logo-full.png";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 function naturalDelay(): Promise<void> {
   const ms = 800 + Math.random() * 700;
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-/** Left panel mode: "chat" = onboarding/Ada chat, "tools" = editor tools */
 type LeftPanelMode = "chat" | "tools";
+type ViewportMode = "desktop" | "mobile";
 
 export default function BuilderNewPage() {
   const navigate = useNavigate();
@@ -33,18 +36,18 @@ export default function BuilderNewPage() {
   const greetedRef = useRef(false);
   const [isThinking, setIsThinking] = useState(false);
 
-  // Multi-variant state
   const [variants, setVariants] = useState<VariantPreviewItem[]>([]);
   const [chosenVariant, setChosenVariant] = useState<string | null>(null);
   const [isChoosingVariant, setIsChoosingVariant] = useState(false);
 
-  // Left panel mode: defaults to "chat" during onboarding, auto-switches to "tools" after generation
   const [leftPanelMode, setLeftPanelMode] = useState<LeftPanelMode>("chat");
-
-  // Track selected section from EditablePreview
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
-  // Canvas selection sync (Phase III)
   const [canvasSelection, setCanvasSelection] = useState<CanvasSelection | null>(null);
+
+  // Top bar state
+  const [viewportMode, setViewportMode] = useState<ViewportMode>("desktop");
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [publishOpen, setPublishOpen] = useState(false);
 
   const handleCanvasSelection = useCallback((sel: CanvasSelection) => {
     setCanvasSelection(sel);
@@ -66,7 +69,6 @@ export default function BuilderNewPage() {
     addMsg("assistant", content);
   }, [addMsg]);
 
-  // Show Ada's first message
   useEffect(() => {
     if (greetedRef.current) return;
     greetedRef.current = true;
@@ -75,7 +77,6 @@ export default function BuilderNewPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // When step changes, add Ada's message with delay
   const prevStepRef = useRef(ctrl.currentStep);
   useEffect(() => {
     if (ctrl.currentStep === prevStepRef.current) return;
@@ -87,9 +88,7 @@ export default function BuilderNewPage() {
     }
 
     const config = ctrl.getStepConfig();
-    if (config.adaMessage) {
-      addDelayedMsg(config.adaMessage);
-    }
+    if (config.adaMessage) addDelayedMsg(config.adaMessage);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ctrl.currentStep]);
 
@@ -100,11 +99,8 @@ export default function BuilderNewPage() {
 
   const handleConfirmMulti = useCallback(() => {
     const step = ctrl.currentStep;
-    if (step === "sections") {
-      addMsg("user", `Selected: ${ctrl.selectedSections.join(", ")}`);
-    } else if (step === "delivery_apps") {
-      addMsg("user", `Selected: ${ctrl.selectedDeliveryApps.join(", ")}`);
-    }
+    if (step === "sections") addMsg("user", `Selected: ${ctrl.selectedSections.join(", ")}`);
+    else if (step === "delivery_apps") addMsg("user", `Selected: ${ctrl.selectedDeliveryApps.join(", ")}`);
     ctrl.confirmMultiSelect();
   }, [addMsg, ctrl]);
 
@@ -160,10 +156,8 @@ export default function BuilderNewPage() {
   const handleChooseVariant = useCallback((index: number) => {
     const selected = variants[index];
     const selectedHtml = selected.html || "<html><body><p>Generation failed</p></body></html>";
-
     setChosenVariant(selectedHtml);
     ctrl.setGeneratedHtml(selectedHtml);
-
     setIsChoosingVariant(false);
     ctrl.setCurrentStep("refinement");
     addMsg("user", `Selected ${selected.label || `Design ${index + 1}`}`);
@@ -176,30 +170,22 @@ export default function BuilderNewPage() {
     ctrl.setGeneratedHtml(html);
   }, [ctrl]);
 
-  // Track if we've already warned about a mismatch for this session
   const mismatchHandledRef = useRef(false);
 
   const handleFreeText = useCallback((text: string) => {
     if (ctrl.currentStep === "greeting") {
       addMsg("user", text);
-
-      // Run intent classification before proceeding
       if (!mismatchHandledRef.current) {
         const intent = classifyUserIntent(text, ctrl.category);
         if (intent.isMismatch && intent.confidence > 0.3) {
           mismatchHandledRef.current = true;
           const msg = getMismatchMessage(ctrl.category!, intent.detectedCategory);
-          addDelayedMsg(msg).then(() => {
-            // Add switch/stay buttons as next step options
-            // The step controller will handle greeting input after user decides
-          });
-          // Store detected category for potential switch
+          addDelayedMsg(msg);
           (ctrl as any).__pendingSwitch = intent.detectedCategory;
           (ctrl as any).__pendingText = text;
-          return; // Don't proceed yet — wait for user decision
+          return;
         }
       }
-
       ctrl.handleGreetingInput(text);
     } else if (ctrl.currentStep === "business_location") {
       addMsg("user", text);
@@ -239,40 +225,157 @@ export default function BuilderNewPage() {
     }
   }, [messages, ctrl, addMsg]);
 
-  // Handle editor tool actions from EditorToolsPanel
-  const handleEditorAction = useCallback((action: string) => {
-    // These actions are forwarded to the EditablePreview via postMessage or direct calls
-    const iframe = document.querySelector<HTMLIFrameElement>('iframe[title="Editable Website Preview"]');
-    if (!iframe?.contentWindow) return;
+  // ─── Editor action handler (left + right panel actions) ───
+  const getIframe = useCallback(() => document.querySelector<HTMLIFrameElement>('iframe[title="Editable Website Preview"]'), []);
+
+  const handleEditorAction = useCallback((action: string, payload?: any) => {
+    const iframe = getIframe();
+    const doc = iframe?.contentDocument;
 
     switch (action) {
-      case "edit_text":
-        // Toggle edit mode in the preview
-        iframe.contentWindow.postMessage({ type: "toggle-edit-mode" }, "*");
-        break;
-      case "replace_image":
-        iframe.contentWindow.postMessage({ type: "open-image-picker" }, "*");
-        break;
+      // Layout actions → forwarded to iframe
       case "add_section":
       case "move_up":
       case "move_down":
       case "remove_section":
       case "duplicate_section":
-        iframe.contentWindow.postMessage({ type: "toolbar-action", action }, "*");
+        iframe?.contentWindow?.postMessage({ type: "toolbar-action", action }, "*");
         break;
+
+      case "edit_text":
+        iframe?.contentWindow?.postMessage({ type: "toggle-edit-mode" }, "*");
+        break;
+
+      case "replace_image":
+      case "upload_image":
+      case "stock_image":
+      case "ai_generate_image":
+        iframe?.contentWindow?.postMessage({ type: "open-image-picker" }, "*");
+        break;
+
       case "change_colors":
-        // Open color picker dialog — handled by EditablePreview
-        iframe.contentWindow.postMessage({ type: "open-color-picker" }, "*");
+        iframe?.contentWindow?.postMessage({ type: "open-color-picker" }, "*");
         break;
+
+      // Right panel: layout mode/columns
+      case "set_layout": {
+        if (!doc) break;
+        const menuGrid = doc.querySelector('[class*="menu-grid"], [class*="menu-items"], [style*="grid"]');
+        if (menuGrid && payload?.mode === "list") {
+          (menuGrid as HTMLElement).style.display = "flex";
+          (menuGrid as HTMLElement).style.flexDirection = "column";
+          (menuGrid as HTMLElement).style.gap = "16px";
+          pushUpdate(doc, iframe);
+          toast.success("Switched to list layout");
+        } else if (menuGrid && payload?.mode === "grid") {
+          (menuGrid as HTMLElement).style.display = "grid";
+          (menuGrid as HTMLElement).style.gridTemplateColumns = "repeat(2, 1fr)";
+          (menuGrid as HTMLElement).style.gap = "24px";
+          pushUpdate(doc, iframe);
+          toast.success("Switched to grid layout");
+        }
+        break;
+      }
+
+      case "set_columns": {
+        if (!doc) break;
+        const grid = doc.querySelector('[style*="grid"]');
+        if (grid && payload?.columns) {
+          (grid as HTMLElement).style.gridTemplateColumns = `repeat(${payload.columns}, 1fr)`;
+          pushUpdate(doc, iframe);
+          toast.success(`Set to ${payload.columns} columns`);
+        }
+        break;
+      }
+
+      // Right panel: business info
+      case "edit_business_name": {
+        if (!doc) break;
+        const h1 = doc.querySelector("h1");
+        if (h1) {
+          h1.setAttribute("contenteditable", "true");
+          h1.focus();
+          toast.info("Click the heading in preview to edit");
+        }
+        break;
+      }
+
+      case "edit_phone":
+      case "edit_address":
+      case "edit_logo":
+        toast.info("Click the element in the preview to edit it directly");
+        break;
+
+      // Menu items
+      case "add_menu_item": {
+        if (!doc) break;
+        const menuContainer = doc.querySelector('[class*="menu-grid"], [class*="menu-items"], section:nth-of-type(2) [style*="grid"]');
+        if (menuContainer) {
+          const card = doc.createElement("div");
+          card.className = "menu-item";
+          card.style.cssText = "border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);";
+          card.innerHTML = `
+            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop" style="width:100%;height:180px;object-fit:cover;" />
+            <div style="padding:16px;">
+              <h3 contenteditable="true" style="font-size:1.1rem;font-weight:600;margin-bottom:4px;">New Item</h3>
+              <p contenteditable="true" style="font-size:0.85rem;opacity:0.7;margin-bottom:8px;">Click to add description</p>
+              <span contenteditable="true" style="font-weight:700;font-size:1rem;">$0.00</span>
+            </div>`;
+          menuContainer.appendChild(card);
+          pushUpdate(doc, iframe);
+          toast.success("Menu item added! Click to edit it.");
+        } else {
+          toast.info("Scroll to the menu section first");
+        }
+        break;
+      }
+
+      case "add_category":
+        toast.info("Categories will be added in a future update");
+        break;
+      case "delete_category":
+        toast.info("Category management coming soon");
+        break;
+
+      // Commerce
+      case "order_settings":
+        toast.info("Order settings will be available after publishing");
+        break;
+
+      // Social
+      case "social_links":
+        toast.info("Click social icons in the footer to edit links");
+        break;
+
+      // Page-level
+      case "page_settings":
+        setSettingsOpen(true);
+        break;
+      case "seo_meta":
+        setSettingsOpen(true);
+        break;
+
       default:
+        toast.info(`${action} — coming soon`);
         break;
     }
-  }, []);
+  }, [getIframe]);
 
-  // Toggle between editor tools and Ada chat
+  const pushUpdate = (doc: Document, iframe: HTMLIFrameElement | null) => {
+    if (doc && iframe) {
+      const html = doc.documentElement.outerHTML;
+      setChosenVariant(html);
+      ctrl.setGeneratedHtml(html);
+    }
+  };
+
   const handleToggleAdaChat = useCallback(() => {
     setLeftPanelMode(prev => prev === "chat" ? "tools" : "chat");
   }, []);
+
+  const handleBusinessNameChange = useCallback((name: string) => {
+    ctrl.setBusinessName?.(name);
+  }, [ctrl]);
 
   // Build selections list
   const selections: Selection[] = [];
@@ -284,15 +387,12 @@ export default function BuilderNewPage() {
   if (ctrl.selectedTemplateKey) selections.push({ type: "template", label: ctrl.selectedTemplateKey, value: ctrl.selectedTemplateKey, timestamp: Date.now() });
   if (ctrl.businessLocation) selections.push({ type: "location", label: ctrl.businessLocation, value: ctrl.businessLocation, timestamp: Date.now() });
 
-  // Determine center panel state
   const showVariantCarousel = isChoosingVariant && (variants.length > 0 || ctrl.isGenerating);
   const showEditablePreview = !!chosenVariant && !isChoosingVariant;
   const showCenterPanel = showVariantCarousel || showEditablePreview;
   const isEditMode = showEditablePreview;
 
   const isLoadingState = ctrl.isGenerating || isThinking;
-
-  // In edit mode, show EditorToolsPanel by default; chat is toggled via Ada button
   const showEditorTools = isEditMode && leftPanelMode === "tools";
   const showChat = !isEditMode || leftPanelMode === "chat";
 
@@ -304,6 +404,10 @@ export default function BuilderNewPage() {
           category={ctrl.category}
           onToggleAdaChat={handleToggleAdaChat}
           isAdaChatOpen={leftPanelMode === "chat"}
+          viewportMode={viewportMode}
+          onViewportChange={setViewportMode}
+          onPublish={() => setPublishOpen(true)}
+          onOpenSettings={() => setSettingsOpen(true)}
         />
       ) : (
         <header className="flex items-center gap-3 px-4 py-2.5 border-b border-border shrink-0">
@@ -316,7 +420,7 @@ export default function BuilderNewPage() {
       )}
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Left panel: Editor Tools (default in edit mode) or Chat (default in onboarding / toggled in edit mode) */}
+        {/* Left panel */}
         <div className={`${showCenterPanel ? "w-[360px]" : "flex-1"} min-w-0 border-r border-border shrink-0 transition-all overflow-visible`}>
           {showEditorTools ? (
             <EditorToolsPanel
@@ -353,7 +457,7 @@ export default function BuilderNewPage() {
           )}
         </div>
 
-        {/* Center panel — variant carousel or editable preview */}
+        {/* Center panel */}
         {showVariantCarousel && (
           <div className="flex-1 min-w-0 border-r border-border">
             <VariantPreviewCarousel
@@ -370,6 +474,7 @@ export default function BuilderNewPage() {
               html={chosenVariant!}
               onHtmlChange={handleHtmlChange}
               onSelectionChange={handleCanvasSelection}
+              viewportMode={viewportMode}
             />
           </div>
         )}
@@ -393,6 +498,21 @@ export default function BuilderNewPage() {
           )}
         </div>
       </div>
+
+      {/* Dialogs */}
+      <BuilderSettingsDialog
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        businessName={ctrl.businessName}
+        onBusinessNameChange={handleBusinessNameChange}
+        category={ctrl.category}
+      />
+      <BuilderPublishDialog
+        open={publishOpen}
+        onOpenChange={setPublishOpen}
+        businessName={ctrl.businessName}
+        category={ctrl.category}
+      />
     </div>
   );
 }

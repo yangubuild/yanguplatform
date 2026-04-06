@@ -1,4 +1,4 @@
-import { ArrowLeft, Monitor, Smartphone, Sparkles, Settings, ShoppingBag, Globe, MessageSquare, Wrench } from "lucide-react";
+import { ArrowLeft, Monitor, Smartphone, Sparkles, Settings, ShoppingBag, Globe, Wrench } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Category } from "./types/builder.types";
 import { CATEGORY_CONFIGS } from "./types/builder.types";
@@ -8,9 +8,22 @@ interface BuilderEditorTopBarProps {
   category: Category | null;
   onToggleAdaChat?: () => void;
   isAdaChatOpen?: boolean;
+  viewportMode?: "desktop" | "mobile";
+  onViewportChange?: (mode: "desktop" | "mobile") => void;
+  onPublish?: () => void;
+  onOpenSettings?: () => void;
 }
 
-export function BuilderEditorTopBar({ businessName, category, onToggleAdaChat, isAdaChatOpen }: BuilderEditorTopBarProps) {
+export function BuilderEditorTopBar({
+  businessName,
+  category,
+  onToggleAdaChat,
+  isAdaChatOpen,
+  viewportMode = "desktop",
+  onViewportChange,
+  onPublish,
+  onOpenSettings,
+}: BuilderEditorTopBarProps) {
   const navigate = useNavigate();
   const catLabel = category ? CATEGORY_CONFIGS[category]?.label : "Website";
   const catDomain = category ? CATEGORY_CONFIGS[category]?.domain : ".site";
@@ -31,8 +44,19 @@ export function BuilderEditorTopBar({ businessName, category, onToggleAdaChat, i
         <span className="text-[11px] text-background/50">{catLabel} ({catDomain})</span>
       </div>
       <div className="flex items-center gap-1">
-        <TopBarButton icon={Monitor} label="Desktop" />
-        <TopBarButton icon={Smartphone} label="Mobile" />
+        {/* Desktop / Mobile toggles */}
+        <TopBarButton
+          icon={Monitor}
+          label="Desktop"
+          highlight={viewportMode === "desktop"}
+          onClick={() => onViewportChange?.("desktop")}
+        />
+        <TopBarButton
+          icon={Smartphone}
+          label="Mobile"
+          highlight={viewportMode === "mobile"}
+          onClick={() => onViewportChange?.("mobile")}
+        />
         <span className="w-px h-5 bg-background/20 mx-1" />
 
         {/* Ada AI / Editor Tools toggle */}
@@ -60,9 +84,12 @@ export function BuilderEditorTopBar({ businessName, category, onToggleAdaChat, i
           </button>
         )}
 
-        <TopBarButton icon={Settings} label="Settings" />
+        <TopBarButton icon={Settings} label="Settings" onClick={onOpenSettings} />
         {showOrders && <TopBarButton icon={ShoppingBag} label="View Orders" />}
-        <button className="ml-2 px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-1.5">
+        <button
+          onClick={onPublish}
+          className="ml-2 px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-1.5"
+        >
           <Globe className="h-3.5 w-3.5" />
           Publish
         </button>
@@ -71,9 +98,10 @@ export function BuilderEditorTopBar({ businessName, category, onToggleAdaChat, i
   );
 }
 
-function TopBarButton({ icon: Icon, label, highlight }: { icon: any; label: string; highlight?: boolean }) {
+function TopBarButton({ icon: Icon, label, highlight, onClick }: { icon: any; label: string; highlight?: boolean; onClick?: () => void }) {
   return (
     <button
+      onClick={onClick}
       title={label}
       className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
         highlight

@@ -9,9 +9,10 @@ interface EditablePreviewProps {
   html: string;
   onHtmlChange: (html: string) => void;
   onSelectionChange?: (selection: CanvasSelection) => void;
+  viewportMode?: "desktop" | "mobile";
 }
 
-export function EditablePreview({ html, onHtmlChange, onSelectionChange }: EditablePreviewProps) {
+export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewportMode = "desktop" }: EditablePreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [imagePickerOpen, setImagePickerOpen] = useState(false);
@@ -296,13 +297,19 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange }: Edita
       </div>
 
       {/* Preview iframe */}
-      <iframe
-        ref={iframeRef}
-        srcDoc={processedHtml}
-        className="flex-1 w-full bg-white border-0"
-        title="Editable Website Preview"
-        sandbox="allow-scripts allow-same-origin"
-      />
+      <div className="flex-1 w-full flex items-start justify-center overflow-auto bg-muted/30">
+        <iframe
+          ref={iframeRef}
+          srcDoc={processedHtml}
+          className={`bg-white border-0 transition-all duration-300 ${
+            viewportMode === "mobile"
+              ? "w-[390px] h-full shadow-2xl rounded-xl border border-border mx-auto"
+              : "w-full h-full"
+          }`}
+          title="Editable Website Preview"
+          sandbox="allow-scripts allow-same-origin"
+        />
+      </div>
 
       <EditorImagePickerDialog
         open={imagePickerOpen}
