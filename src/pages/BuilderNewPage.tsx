@@ -560,24 +560,17 @@ export default function BuilderNewPage() {
         {/* Right panel — context-aware */}
         <div className="w-[260px] shrink-0 hidden md:block overflow-hidden">
           {isEditMode && canvasSelection?.kind === "button" ? (
-            <ButtonEditorPanel
-              onAction={handleEditorAction}
-              preview={canvasSelection.preview}
-            />
+            <ButtonEditorPanel onAction={handleEditorAction} preview={canvasSelection.preview} />
+          ) : isEditMode && canvasSelection?.kind === "text" ? (
+            <TextEditorPanel onAction={handleEditorAction} preview={canvasSelection.preview} />
+          ) : isEditMode && canvasSelection?.kind === "section" ? (
+            <SectionEditorPanel onAction={handleEditorAction} preview={canvasSelection.preview} sectionIndex={canvasSelection.sectionIndex} />
+          ) : isEditMode && canvasSelection?.kind === "image" ? (
+            <ImageEditorPanel onAction={handleEditorAction} preview={canvasSelection.preview} />
           ) : isEditMode && ctrl.category === "emenu" ? (
-            <EmenuEditorPanel
-              businessName={ctrl.businessName}
-              category={ctrl.category}
-              onAction={handleEditorAction}
-            />
+            <EmenuEditorPanel businessName={ctrl.businessName} category={ctrl.category} onAction={handleEditorAction} />
           ) : (
-            <SelectionPanel
-              selections={selections}
-              category={ctrl.category}
-              generatedHtml={ctrl.generatedHtml}
-              isGenerating={ctrl.isGenerating}
-              onGenerate={handleGenerate}
-            />
+            <SelectionPanel selections={selections} category={ctrl.category} generatedHtml={ctrl.generatedHtml} isGenerating={ctrl.isGenerating} onGenerate={handleGenerate} />
           )}
         </div>
       </div>
