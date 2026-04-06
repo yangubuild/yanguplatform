@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import { FunctionsHttpError } from "@supabase/supabase-js";
 import { RefreshCw, Check, Palette } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { YanguLoader } from "@/components/YanguLoader";
@@ -12,6 +13,13 @@ interface AiLogoStepProps {
   onConfirm: (logoUrl: string, color?: string) => void;
 }
 
+interface LogoGenerationResult {
+  url: string | null;
+  source: string;
+  error?: string;
+  code?: string;
+}
+
 const PRESET_COLORS = [
   "#b5622a", "#e74c3c", "#2ecc71", "#3498db", "#9b59b6",
   "#1abc9c", "#f39c12", "#e67e22", "#34495e", "#d35400",
@@ -23,6 +31,47 @@ const STYLE_VARIANTS = [
   "modern typographic food brand mark with a subtle culinary symbol",
 ];
 
+async function parseFunctionError(error: unknown): Promise<{ message: string; code?: string }> {
+  if (error instanceof FunctionsHttpError) {
+    const response = (error as { context?: Response }).context;
+
+    if (response && typeof response.clone === "function") {
+      try {
+        const payload = await response.clone().json();
+        return {
+          message: payload?.error || payload?.message || error.message,
+          code: payload?.code,
+        };
+      } catch {
+        try {
+          const text = await response.text();
+          if (text) {
+            try {
+              const payload = JSON.parse(text);
+              return {
+                message: payload?.error || payload?.message || error.message,
+                code: payload?.code,
+              };
+            } catch {
+              return { message: text };
+            }
+          }
+        } catch {
+          return { message: error.message };
+        }
+      }
+    }
+
+    return { message: error.message };
+  }
+
+  if (error instanceof Error) {
+    return { message: error.message };
+  }
+
+  return { message: "Logo generation failed. Please try again." };
+}
+
 async function generateSingleLogo(
   businessName: string,
   color: string,
@@ -31,7 +80,7 @@ async function generateSingleLogo(
   businessType: string,
   menuType?: string,
   description?: string,
-): Promise<{ url: string | null; source: string; error?: string }> {
+): Promise<LogoGenerationResult> {
   const style = STYLE_VARIANTS[variantIndex % STYLE_VARIANTS.length];
   const styleHint = description ? `${style}. Additional requested style: ${description}.` : style;
 
@@ -48,17 +97,39 @@ async function generateSingleLogo(
       },
     });
 
-    if (error) throw error;
-    if (data?.code === "credits_exhausted") throw new Error("credits_exhausted");
-    if (!data?.ok) throw new Error(data?.error || "Generation failed");
+    if (error) {
+      const parsedError = await parseFunctionError(error);
+      console.error(`AI logo variant ${variantIndex} failed:`, parsedError);
+      return { url: null, source: "ai_generated", error: parsedError.message, code: parsedError.code };
+    }
+
+    if (!data?.ok) {
+      return {
+        url: null,
+        source: data?.source || "ai_generated",
+        error: data?.error || "Logo generation failed. Please try again.",
+        code: data?.code,
+      };
+    }
+
+    const url = data?.image_url || data?.logo_url || null;
+    if (!url) {
+      return {
+        url: null,
+        source: data?.source || "ai_generated",
+        error: "No logo image was returned.",
+        code: "missing_image_url",
+      };
+    }
 
     return {
-      url: data?.image_url || data?.logo_url || null,
+      url,
       source: data?.source || "ai_generated",
     };
   } catch (err) {
-    console.error(`AI logo variant ${variantIndex} failed:`, err);
-    return { url: null, source: "ai_generated", error: err instanceof Error ? err.message : "" };
+    const parsedError = await parseFunctionError(err);
+    console.error(`AI logo variant ${variantIndex} failed:`, parsedError);
+    return { url: null, source: "ai_generated", error: parsedError.message, code: parsedError.code };
   }
 }
 
@@ -92,14 +163,25 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
           ),
         ),
       );
-      const urls = results.map((r) => r.url);
+
+      const urls = results.map((result) => result.url);
+      const successCount = urls.filter(Boolean).length;
+
       setSourceLogos(urls);
       setDisplayLogos(urls);
       setHasGenerated(true);
 
-      if (urls.every((r) => r === null)) {
-        const hasCreditsErr = results.some((r: any) => r.error === "credits_exhausted");
-        setError(hasCreditsErr ? "AI credits are temporarily exhausted. Please try again later." : "Logo generation failed. Please try again.");
+      if (successCount === 0) {
+        const firstError = results.find((result) => result.error);
+        if (firstError?.code === "credits_exhausted") {
+          setError("AI logo generation is temporarily unavailable because AI credits are exhausted. Please try again later.");
+        } else if (firstError?.code === "auth_required") {
+          setError("Please sign in again and retry logo generation.");
+        } else {
+          setError(firstError?.error || "Logo generation failed. Please try again.");
+        }
+      } else if (successCount < results.length) {
+        setError("Some logo options could not be generated. You can retry or continue with the available ones.");
       }
     } catch (err) {
       console.error("Logo generation error:", err);
@@ -111,9 +193,9 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
 
   useEffect(() => {
     if (!hasGenerated) {
-      generateLogos();
+      void generateLogos();
     }
-  }, []);
+  }, [generateLogos, hasGenerated]);
 
   useEffect(() => {
     let cancelled = false;
@@ -211,7 +293,7 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
         </div>
       )}
 
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && <p className="text-xs text-destructive" role="alert">{error}</p>}
 
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -250,7 +332,7 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
           className="flex-1 px-3 py-2 text-xs rounded-lg bg-muted border border-border focus:border-primary/50 focus:outline-none"
         />
         <button
-          onClick={generateLogos}
+          onClick={() => void generateLogos()}
           disabled={isGenerating}
           className="flex items-center gap-1.5 px-3 py-2 text-xs rounded-lg border border-border hover:bg-muted transition-colors disabled:opacity-50"
         >
