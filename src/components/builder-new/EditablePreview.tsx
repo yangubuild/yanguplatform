@@ -11,7 +11,7 @@ interface EditablePreviewProps {
 
 export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [editMode, setEditMode] = useState(false);
+  // Phase II: text editing is always on — no toggle needed
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [imagePickerOpen, setImagePickerOpen] = useState(false);
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
