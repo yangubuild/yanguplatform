@@ -1,4 +1,5 @@
 import { useEffect, useCallback, useRef, useState } from "react";
+import type { CanvasSelection } from "@/lib/builder/selectionTypes";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { ChatInterface } from "@/components/builder-new/ChatInterface";
@@ -42,6 +43,15 @@ export default function BuilderNewPage() {
 
   // Track selected section from EditablePreview
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  // Canvas selection sync (Phase III)
+  const [canvasSelection, setCanvasSelection] = useState<CanvasSelection | null>(null);
+
+  const handleCanvasSelection = useCallback((sel: CanvasSelection) => {
+    setCanvasSelection(sel);
+    if (sel.sectionIndex !== undefined) {
+      setSelectedSection(sel.sectionIndex.toString());
+    }
+  }, []);
 
   const addMsg = useCallback((role: "user" | "assistant", content: string) => {
     const msg: ChatMessage = { id: crypto.randomUUID(), role, content, timestamp: Date.now() };
@@ -315,6 +325,7 @@ export default function BuilderNewPage() {
               selectedSection={selectedSection}
               businessName={ctrl.businessName}
               category={ctrl.category}
+              canvasSelection={canvasSelection}
             />
           ) : (
             <ChatInterface
@@ -358,6 +369,7 @@ export default function BuilderNewPage() {
             <EditablePreview
               html={chosenVariant!}
               onHtmlChange={handleHtmlChange}
+              onSelectionChange={handleCanvasSelection}
             />
           </div>
         )}

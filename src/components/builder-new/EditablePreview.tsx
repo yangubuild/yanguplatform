@@ -3,25 +3,22 @@ import { Image, Trash2, Plus, Palette, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
 import { EditorImagePickerDialog } from "./EditorImagePickerDialog";
 import { EditorColorPickerDialog } from "./EditorColorPickerDialog";
+import type { CanvasSelection } from "@/lib/builder/selectionTypes";
 
 interface EditablePreviewProps {
   html: string;
   onHtmlChange: (html: string) => void;
+  onSelectionChange?: (selection: CanvasSelection) => void;
 }
 
-export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
+export function EditablePreview({ html, onHtmlChange, onSelectionChange }: EditablePreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  // Phase II: text editing is always on — no toggle needed
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [imagePickerOpen, setImagePickerOpen] = useState(false);
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const [pendingImageSrc, setPendingImageSrc] = useState<string | undefined>(undefined);
 
-  // Inject editable script into iframe
-  const getEditableHtml = useCallback((baseHtml: string, editable: boolean) => {
-    if (!editable) return baseHtml;
-    
-    // Inject contenteditable + click handlers + section selection
+  const getEditableHtml = useCallback((baseHtml: string) => {
     const editScript = `
       <style>
         [contenteditable]:hover { outline: 2px solid #22c55e44; outline-offset: 2px; cursor: text; }
@@ -31,9 +28,50 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
         .section-selected { outline: 2px solid #22c55e !important; outline-offset: -2px; border-radius: 8px; }
         img:hover { outline: 2px solid #3b82f644; cursor: pointer; }
         .yangu-img-selected { outline: 2px solid #3b82f6 !important; }
+        .yangu-el-selected { outline: 2px solid #a855f7 !important; outline-offset: 2px; }
+        button:hover, a[class*="btn"]:hover, a[class*="cta"]:hover { outline: 2px solid #f59e0b44; outline-offset: 2px; }
+        .yangu-btn-selected { outline: 2px solid #f59e0b !important; outline-offset: 2px; }
       </style>
       <script>
         document.addEventListener('DOMContentLoaded', function() {
+          // Classify element for selection sync
+          function classifyEl(el) {
+            var t = el.tagName.toUpperCase();
+            var cl = Array.from(el.classList || []);
+            if (t === 'BUTTON' || (t === 'A' && cl.some(function(c) { return c.includes('btn') || c.includes('button') || c.includes('cta'); }))) return 'button';
+            if (t === 'IMG') return 'image';
+            if (['H1','H2','H3','H4','H5','H6','P','SPAN','LI','LABEL'].indexOf(t) !== -1) return 'text';
+            if (t === 'A') return 'button';
+            if (['SECTION','FOOTER','NAV','HEADER'].indexOf(t) !== -1) return 'section';
+            if (t === 'DIV' && cl.some(function(c) { return c.includes('card') || c.includes('item') || c.includes('product') || c.includes('menu-item'); })) return 'card';
+            return 'page';
+          }
+
+          function getPreview(el, kind) {
+            if (kind === 'image') return el.src || '';
+            if (kind === 'text' || kind === 'button') return (el.textContent || '').trim().substring(0, 60);
+            if (kind === 'section') return el.id || el.querySelector('h1,h2,h3')?.textContent?.trim()?.substring(0,40) || '';
+            return '';
+          }
+
+          function findSectionIndex(el) {
+            var sections = document.querySelectorAll('section, footer, nav, header');
+            var node = el;
+            while (node && node !== document.body) {
+              for (var i = 0; i < sections.length; i++) {
+                if (sections[i] === node) return i;
+              }
+              node = node.parentElement;
+            }
+            return -1;
+          }
+
+          function clearAllHighlights() {
+            document.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected').forEach(function(s) {
+              s.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected');
+            });
+          }
+
           // Make text elements editable
           document.querySelectorAll('h1,h2,h3,h4,p,span,a,li,button').forEach(function(el) {
             if (el.children.length === 0 || el.tagName === 'A' || el.tagName === 'BUTTON') {
@@ -43,31 +81,77 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
               });
             }
           });
-          // Section click for selection
+
+          // Section hover/selection
           document.querySelectorAll('section, footer, nav').forEach(function(el, idx) {
             el.classList.add('section-hover');
             el.dataset.sectionIdx = idx;
-            el.addEventListener('click', function(e) {
-              document.querySelectorAll('.section-selected').forEach(function(s) { s.classList.remove('section-selected'); });
-              el.classList.add('section-selected');
-              window.parent.postMessage({ type: 'section-select', idx: idx, tag: el.tagName }, '*');
-            });
           });
+
           // Image click
           document.querySelectorAll('img').forEach(function(el) {
             el.addEventListener('click', function(e) {
               e.preventDefault();
               e.stopPropagation();
-              document.querySelectorAll('.yangu-img-selected').forEach(function(s) { s.classList.remove('yangu-img-selected'); });
+              clearAllHighlights();
               el.classList.add('yangu-img-selected');
+              var si = findSectionIndex(el);
+              window.parent.postMessage({ type: 'canvas-select', kind: 'image', tag: 'IMG', preview: el.src || '', sectionIndex: si }, '*');
               window.parent.postMessage({ type: 'image-click', src: el.src }, '*');
             });
           });
-        }
-        );
+
+          // Global click handler for selection sync
+          document.addEventListener('click', function(e) {
+            var el = e.target;
+            if (!el || el.tagName === 'HTML' || el.tagName === 'BODY') {
+              clearAllHighlights();
+              window.parent.postMessage({ type: 'canvas-select', kind: 'page', tag: 'BODY', preview: '', sectionIndex: -1 }, '*');
+              return;
+            }
+            // Skip if img (handled above)
+            if (el.tagName === 'IMG') return;
+
+            var kind = classifyEl(el);
+            var si = findSectionIndex(el);
+
+            clearAllHighlights();
+
+            // Apply highlight based on kind
+            if (kind === 'section') {
+              el.classList.add('section-selected');
+            } else if (kind === 'button') {
+              el.classList.add('yangu-btn-selected');
+            } else if (kind === 'text') {
+              el.classList.add('yangu-el-selected');
+            } else if (kind === 'card') {
+              el.classList.add('yangu-el-selected');
+            }
+
+            // Also select parent section
+            if (kind !== 'section' && si >= 0) {
+              var sections = document.querySelectorAll('section, footer, nav');
+              if (sections[si]) sections[si].classList.add('section-selected');
+            }
+
+            window.parent.postMessage({
+              type: 'canvas-select',
+              kind: kind,
+              tag: el.tagName,
+              preview: getPreview(el, kind),
+              sectionIndex: si,
+              sectionId: si >= 0 ? (document.querySelectorAll('section, footer, nav')[si]?.id || '') : ''
+            }, '*');
+
+            // Legacy section-select for backward compat
+            if (si >= 0) {
+              window.parent.postMessage({ type: 'section-select', idx: si, tag: el.tagName }, '*');
+            }
+          }, true);
+        });
       </script>
     `;
-    
+
     return baseHtml.replace('</head>', editScript + '</head>');
   }, []);
 
@@ -83,11 +167,19 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
         setPendingImageSrc(e.data.src);
         setImagePickerOpen(true);
       }
+      if (e.data?.type === 'canvas-select' && onSelectionChange) {
+        onSelectionChange({
+          kind: e.data.kind,
+          tag: e.data.tag,
+          preview: e.data.preview,
+          sectionIndex: e.data.sectionIndex >= 0 ? e.data.sectionIndex : undefined,
+          sectionId: e.data.sectionId || undefined,
+        });
+      }
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onHtmlChange, html]);
+  }, [onHtmlChange, onSelectionChange]);
 
   // ─── Toolbar actions ──────────────────────────────────────────
 
@@ -138,26 +230,18 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
     toast.success("Style updated!");
   }, [getDoc, pushHtmlUpdate]);
 
-  const getSectionElements = useCallback(() => {
-    const doc = getDoc();
-    if (!doc) return [];
-    return Array.from(doc.querySelectorAll("section"));
-  }, [getDoc]);
-
   const handleMoveUp = useCallback(() => {
     if (!selectedSection) { toast.info("Click a section first."); return; }
-    const sections = getSectionElements();
-    const idx = parseInt(selectedSection);
-    // Find the actual section element
     const doc = getDoc();
     if (!doc) return;
     const allSections = Array.from(doc.querySelectorAll("section, footer, nav"));
+    const idx = parseInt(selectedSection);
     const el = allSections[idx];
     if (!el || !el.previousElementSibling || el.previousElementSibling.tagName === "NAV") { toast.info("Can't move further up."); return; }
     el.parentElement?.insertBefore(el, el.previousElementSibling);
     pushHtmlUpdate();
     toast.success("Section moved up!");
-  }, [selectedSection, getSectionElements, getDoc, pushHtmlUpdate]);
+  }, [selectedSection, getDoc, pushHtmlUpdate]);
 
   const handleMoveDown = useCallback(() => {
     if (!selectedSection) { toast.info("Click a section first."); return; }
@@ -187,7 +271,7 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
     toast.success("Section removed!");
   }, [selectedSection, getDoc, pushHtmlUpdate]);
 
-  const processedHtml = getEditableHtml(html, true);
+  const processedHtml = getEditableHtml(html);
 
   return (
     <div className="flex flex-col h-full">
@@ -202,7 +286,6 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
           <span className="text-xs text-muted-foreground font-medium">Your Website Draft</span>
         </div>
         <div className="flex items-center gap-0.5">
-          {/* Phase II: Edit Text toggle removed — text is always directly editable */}
           <ToolButton icon={Image} label="Replace Image" onClick={() => { setPendingImageSrc(undefined); setImagePickerOpen(true); }} />
           <ToolButton icon={Plus} label="Add Section" onClick={handleAddSection} />
           <ToolButton icon={Palette} label="Change Style" onClick={() => setColorPickerOpen(true)} />
@@ -211,8 +294,6 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
           <ToolButton icon={Trash2} label="Remove" onClick={handleRemove} />
         </div>
       </div>
-
-      {/* Phase II: edit-mode banner removed — always-on editing */}
 
       {/* Preview iframe */}
       <iframe

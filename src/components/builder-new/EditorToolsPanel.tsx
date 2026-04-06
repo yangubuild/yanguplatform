@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { ChevronRight, Sparkles } from "lucide-react";
+import { ChevronRight, Sparkles, Type, Image as ImageIcon, MousePointer, LayoutGrid, Square, Columns } from "lucide-react";
 import { getEngine } from "@/lib/builder/engineRegistry";
 import { resolveEngineModules } from "@/lib/builder/engineResolver";
 import {
@@ -9,6 +9,7 @@ import {
   SHARED_PAGE_TOOLS,
   type EditorModule,
 } from "@/lib/builder/moduleRegistry";
+import type { CanvasSelection, SelectionKind } from "@/lib/builder/selectionTypes";
 
 interface EditorToolsPanelProps {
   onToggleAdaChat: () => void;
@@ -16,7 +17,18 @@ interface EditorToolsPanelProps {
   selectedSection: string | null;
   businessName: string;
   category: string | null;
+  canvasSelection?: CanvasSelection | null;
 }
+
+const SELECTION_LABELS: Record<SelectionKind, { label: string; icon: typeof Type; color: string }> = {
+  page: { label: "Page", icon: LayoutGrid, color: "text-muted-foreground" },
+  section: { label: "Section", icon: Columns, color: "text-primary" },
+  text: { label: "Text", icon: Type, color: "text-green-500" },
+  image: { label: "Image", icon: ImageIcon, color: "text-blue-500" },
+  button: { label: "Button", icon: MousePointer, color: "text-amber-500" },
+  card: { label: "Card / Item", icon: Square, color: "text-violet-500" },
+  background: { label: "Background", icon: LayoutGrid, color: "text-muted-foreground" },
+};
 
 export function EditorToolsPanel({
   onToggleAdaChat,
@@ -24,6 +36,7 @@ export function EditorToolsPanel({
   selectedSection,
   businessName,
   category,
+  canvasSelection,
 }: EditorToolsPanelProps) {
   const [expandedGroup, setExpandedGroup] = useState<string | null>("Content");
 
@@ -34,27 +47,23 @@ export function EditorToolsPanel({
     const categoryModules = resolveModules(moduleKeys);
     const grouped = groupModules(categoryModules);
 
-    // Build ordered groups: Content first, then others, then shared Layout + Page
     const result: { label: string; tools: EditorModule[] }[] = [];
-
-    // Category-specific groups
     const groupOrder = ["Content", "Commerce", "Community", "Social"];
     for (const label of groupOrder) {
       if (grouped[label]?.length) {
         result.push({ label, tools: grouped[label] });
       }
     }
-
-    // Shared groups
     result.push({ label: "Layout", tools: SHARED_LAYOUT_TOOLS });
     result.push({ label: "Page", tools: SHARED_PAGE_TOOLS });
-
     return result;
   }, [category]);
 
   const engineLabel = category
     ? (getEngine(category)?.label || category)
     : "Website";
+
+  const selInfo = canvasSelection ? SELECTION_LABELS[canvasSelection.kind] : null;
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -79,8 +88,37 @@ export function EditorToolsPanel({
         </div>
       </div>
 
-      {/* Selected section indicator */}
-      {selectedSection && (
+      {/* Selection context indicator */}
+      {canvasSelection && selInfo && (
+        <div className="px-4 py-2.5 bg-muted/30 border-b border-border">
+          <div className="flex items-center gap-2">
+            <selInfo.icon className={`h-3.5 w-3.5 ${selInfo.color}`} />
+            <div className="flex-1 min-w-0">
+              <p className={`text-xs font-semibold ${selInfo.color}`}>
+                {selInfo.label} selected
+                {canvasSelection.sectionIndex !== undefined && (
+                  <span className="text-muted-foreground font-normal ml-1">
+                    • Section {canvasSelection.sectionIndex + 1}
+                  </span>
+                )}
+              </p>
+              {canvasSelection.preview && (
+                <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                  {canvasSelection.kind === "image"
+                    ? "Image element"
+                    : canvasSelection.preview}
+                </p>
+              )}
+            </div>
+            <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">
+              {canvasSelection.tag}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Fallback: legacy section indicator when no canvas selection */}
+      {!canvasSelection && selectedSection && (
         <div className="px-4 py-2 bg-primary/5 border-b border-primary/20">
           <p className="text-[11px] text-primary font-medium">
             Section #{parseInt(selectedSection) + 1} selected
@@ -135,7 +173,7 @@ export function EditorToolsPanel({
       {/* Quick tip */}
       <div className="px-4 py-3 border-t border-border shrink-0">
         <p className="text-[11px] text-muted-foreground leading-relaxed">
-          💡 Click elements in preview to edit directly. Or ask{" "}
+          💡 Click elements in preview to select them. Or ask{" "}
           <button
             onClick={onToggleAdaChat}
             className="text-primary font-medium hover:underline"
