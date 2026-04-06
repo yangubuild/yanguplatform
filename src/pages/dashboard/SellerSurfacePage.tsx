@@ -331,7 +331,6 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
       </div>
     );
   }
-  }
 
   return <div className="min-h-screen bg-background"><BuilderEntryScreen engine={engine} onComplete={handleComplete} /></div>;
 }
