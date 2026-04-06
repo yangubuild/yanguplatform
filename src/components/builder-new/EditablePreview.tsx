@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, useCallback, forwardRef } from "react";
-import { Image, Trash2, Plus, Palette, ArrowUp, ArrowDown, Type } from "lucide-react";
+import { Image, Trash2, Plus, Palette, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
 import { EditorImagePickerDialog } from "./EditorImagePickerDialog";
 import { EditorColorPickerDialog } from "./EditorColorPickerDialog";
@@ -11,7 +11,7 @@ interface EditablePreviewProps {
 
 export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [editMode, setEditMode] = useState(false);
+  // Phase II: text editing is always on — no toggle needed
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [imagePickerOpen, setImagePickerOpen] = useState(false);
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
@@ -187,7 +187,7 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
     toast.success("Section removed!");
   }, [selectedSection, getDoc, pushHtmlUpdate]);
 
-  const processedHtml = getEditableHtml(html, editMode);
+  const processedHtml = getEditableHtml(html, true);
 
   return (
     <div className="flex flex-col h-full">
@@ -202,7 +202,7 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
           <span className="text-xs text-muted-foreground font-medium">Your Website Draft</span>
         </div>
         <div className="flex items-center gap-0.5">
-          <ToolButton icon={Type} label="Edit Text" active={editMode} onClick={() => setEditMode(!editMode)} />
+          {/* Phase II: Edit Text toggle removed — text is always directly editable */}
           <ToolButton icon={Image} label="Replace Image" onClick={() => { setPendingImageSrc(undefined); setImagePickerOpen(true); }} />
           <ToolButton icon={Plus} label="Add Section" onClick={handleAddSection} />
           <ToolButton icon={Palette} label="Change Style" onClick={() => setColorPickerOpen(true)} />
@@ -212,11 +212,7 @@ export function EditablePreview({ html, onHtmlChange }: EditablePreviewProps) {
         </div>
       </div>
 
-      {editMode && (
-        <div className="px-3 py-1.5 bg-primary/5 border-b border-primary/20 text-[11px] text-primary">
-          Click any text to edit it directly. Changes save automatically.
-        </div>
-      )}
+      {/* Phase II: edit-mode banner removed — always-on editing */}
 
       {/* Preview iframe */}
       <iframe
