@@ -1,6 +1,7 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useBuilderSurfaceInit } from "@/hooks/useBuilderSurfaceInit";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { getEngine } from "@/lib/builder/engineRegistry";
 import { BuilderEntryScreen } from "@/components/builder/BuilderEntryScreen";
@@ -87,16 +88,14 @@ function ensureCoreSections(
   const contactIdx = sections.findIndex((s) => s.type === "contact");
   const footerIdx = sections.findIndex((s) => s.type === "footer");
   
-  if (contactIdx>= 0 && footerIdx>= 0) {
-    // Merge contact fields into footer and remove standalone contact
+  if (contactIdx >= 0 && footerIdx >= 0) {
     const contactSchema = sections[contactIdx].schema;
     const footerSchema = sections[footerIdx].schema;
     if (!footerSchema.email && contactSchema.email) footerSchema.email = contactSchema.email;
     if (!footerSchema.phone && contactSchema.phone) footerSchema.phone = contactSchema.phone;
     if (!footerSchema.address && contactSchema.address) footerSchema.address = contactSchema.address;
     sections.splice(contactIdx, 1);
-  } else if (contactIdx>= 0 && footerIdx < 0) {
-    // No footer but contact exists — convert contact to footer
+  } else if (contactIdx >= 0 && footerIdx < 0) {
     const contact = sections[contactIdx];
     sections[contactIdx] = {
       type: "footer",
@@ -141,17 +140,25 @@ function ensureCoreSections(
 
 /**
  * Unified seller entry page.
- * For emenu, the "Build Manually" path still opens the existing EmenuWizard (identical questions).
+ * For emenu, redirects to the new builder chat flow (/builder/new?category=emenu).
  * For other categories, it uses the generic BuilderManualWizard via BuilderEntryScreen.
  */
 export default function SellerSurfacePage({ sellerKey }: Props) {
   const { user } = useAuth();
   const { initAndNavigate } = useBuilderSurfaceInit();
+  const navigate = useNavigate();
   const engineKey = SELLER_KEY_MAP[sellerKey] || sellerKey;
   const engine = getEngine(engineKey);
 
   // Emenu wizard state (for backward-compat manual flow)
   const [emenuWizardOpen, setEmenuWizardOpen] = useState(false);
+
+  // For emenu: redirect to the new builder chat flow
+  useEffect(() => {
+    if (engineKey === "emenu") {
+      navigate(`/builder/new?category=emenu`, { replace: true });
+    }
+  }, [engineKey, navigate]);
 
   /** Handle wizard/AI completion — build seed sections and navigate to editor */
   const handleComplete = useCallback(async (answers: Record<string, unknown>) => {
@@ -161,7 +168,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     const slug = String(answers.slug || businessName.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40));
 
     const aiSeedSections = toAiSeedSections(answers._ai_sections);
-    const seedSections = aiSeedSections.length> 0
+    const seedSections = aiSeedSections.length > 0
       ? ensureCoreSections(aiSeedSections, businessName, answers)
       : engine.defaultSections.map((s) => {
           const schema = mergeIntoDefault(s.type, s.schema);
@@ -190,7 +197,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     const metadata: Record<string, unknown> = {};
     const primaryColor = String(answers.primary_color || "#2563eb");
     metadata.brand = { primary_color: primaryColor };
-    if (photos.length> 0) metadata.photos = photos;
+    if (photos.length > 0) metadata.photos = photos;
     metadata.industry = String(answers.industry || "");
     
     // Store structured business data for future use (no secrets, just public info)
@@ -275,7 +282,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
       { type: "footer", schema: { heading: "Footer", email: wd.contact_email || "", phone: wd.contact_phone || "", address: wd.location || "", hours: [], social: {} }, core_slot: "footer" },
     ];
 
-    if (Object.keys(socialLinks).length> 0) {
+    if (Object.keys(socialLinks).length > 0) {
       seedSections.push({ type: "social", schema: { handles: socialLinks } });
     }
 
@@ -308,16 +315,11 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     );
   }
 
-  // For emenu, we use a custom entry that still opens the existing EmenuWizard for manual path
+  // For emenu, we redirect (useEffect above). Show loading while redirect happens.
   if (engineKey === "emenu") {
     return (
-      <div className="min-h-screen bg-background">
-        <BuilderEntryScreen engine={engine} onComplete={handleComplete} />
-        <EmenuWizard
-          open={emenuWizardOpen}
-          onOpenChange={setEmenuWizardOpen}
-          onComplete={handleEmenuWizardComplete}
-        />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground text-sm">Loading menu builder...</p>
       </div>
     );
   }

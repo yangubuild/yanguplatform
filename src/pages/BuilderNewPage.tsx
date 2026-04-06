@@ -1,7 +1,6 @@
 import { useEffect, useCallback, useRef, useState } from "react";
 import type { CanvasSelection } from "@/lib/builder/selectionTypes";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ChatInterface } from "@/components/builder-new/ChatInterface";
 import { SelectionPanel } from "@/components/builder-new/SelectionPanel";
 import { VariantPreviewCarousel } from "@/components/builder-new/VariantPreviewCarousel";
@@ -21,7 +20,10 @@ import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteG
 import type { StepOption } from "@/components/builder-new/hooks/useStepController";
 import type { ChatMessage, Selection } from "@/components/builder-new/types/builder.types";
 import { classifyUserIntent, getMismatchMessage } from "@/lib/builder/intentClassifier";
-import yanguLogo from "@/assets/yangu-logo-full.png";
+import { useBuilderSurfaceInit } from "@/hooks/useBuilderSurfaceInit";
+import { useAuth } from "@/hooks/useAuth";
+import { getEngine } from "@/lib/builder/engineRegistry";
+import { mergeIntoDefault } from "@/lib/builderDefaults";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -35,10 +37,14 @@ type ViewportMode = "desktop" | "mobile";
 
 export default function BuilderNewPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const urlCategory = searchParams.get("category");
   const ctrl = useStepController();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const greetedRef = useRef(false);
   const [isThinking, setIsThinking] = useState(false);
+  const { user } = useAuth();
+  const { initAndNavigate, isInitializing } = useBuilderSurfaceInit();
 
   const [variants, setVariants] = useState<VariantPreviewItem[]>([]);
   const [chosenVariant, setChosenVariant] = useState<string | null>(null);
@@ -52,6 +58,18 @@ export default function BuilderNewPage() {
   const [viewportMode, setViewportMode] = useState<ViewportMode>("desktop");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [publishOpen, setPublishOpen] = useState(false);
+
+  // Set initial category from URL param
+  const categorySetRef = useRef(false);
+  useEffect(() => {
+    if (urlCategory && !categorySetRef.current) {
+      categorySetRef.current = true;
+      if (["emenu", "eshop", "estore", "esite", "community", "influencer"].includes(urlCategory)) {
+        ctrl.setCategory(urlCategory as any);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlCategory]);
 
   const handleCanvasSelection = useCallback((sel: CanvasSelection) => {
     setCanvasSelection(sel);
@@ -157,9 +175,96 @@ export default function BuilderNewPage() {
     }, 2500);
   }, [ctrl, addMsg]);
 
-  const handleChooseVariant = useCallback((index: number) => {
+  /**
+   * When a variant is chosen:
+   * - For emenu: create a real surface and navigate to SellerEditor (old editor with real publish)
+   * - For other categories: stay in BuilderNewPage edit mode (existing behavior)
+   */
+  const handleChooseVariant = useCallback(async (index: number) => {
     const selected = variants[index];
     const selectedHtml = selected.html || "<html><body><p>Generation failed</p></body></html>";
+    const cat = ctrl.category;
+
+    // For emenu: create real surface and hand off to SellerEditor
+    if (cat === "emenu" && user?.id) {
+      const engine = getEngine("emenu");
+      if (!engine) {
+        toast.error("Emenu engine not found");
+        return;
+      }
+
+      addMsg("user", `Selected ${selected.label || `Design ${index + 1}`}`);
+      addMsg("assistant", "Creating your menu... Hang tight!");
+
+      const businessName = ctrl.businessName || "My Restaurant";
+      const slug = businessName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+
+      // Build seed sections from engine defaults with user data
+      const seedSections = engine.defaultSections.map((s) => {
+        const schema = mergeIntoDefault(s.type, s.schema);
+        if (s.type === "hero") {
+          schema.headline = businessName;
+          if (ctrl.businessLocation) schema.subheadline = ctrl.businessLocation;
+        }
+        if (s.type === "menu") {
+          // Bootstrap with sample categories and items so editor isn't empty
+          schema.categories = [
+            {
+              name: "Starters",
+              items: [
+                { name: "House Salad", price: 8, description: "Fresh mixed greens", image_url: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop" },
+                { name: "Soup of the Day", price: 6, description: "Ask your server", image_url: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop" },
+              ],
+            },
+            {
+              name: "Main Course",
+              items: [
+                { name: "Grilled Chicken", price: 15, description: "Served with vegetables", image_url: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=400&h=300&fit=crop" },
+                { name: "Pasta Primavera", price: 12, description: "Seasonal vegetables", image_url: "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&h=300&fit=crop" },
+              ],
+            },
+            {
+              name: "Desserts",
+              items: [
+                { name: "Chocolate Cake", price: 7, description: "Rich and decadent", image_url: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=300&fit=crop" },
+              ],
+            },
+          ];
+        }
+        if (s.type === "footer") {
+          schema.phone = "";
+          schema.address = ctrl.businessLocation || "";
+        }
+        return { type: s.type, schema, core_slot: s.core_slot };
+      });
+
+      const metadata: Record<string, unknown> = {
+        brand: { primary_color: "#b5622a" },
+        industry: "restaurant",
+        business: {
+          name: businessName,
+          location: ctrl.businessLocation || "",
+        },
+        builder_new_template: ctrl.selectedTemplateKey || "default",
+        builder_new_html: selectedHtml,
+      };
+
+      try {
+        await initAndNavigate({
+          surfaceType: "emenu",
+          slug,
+          title: businessName,
+          seedSections,
+          metadata,
+        });
+        // Navigation happens inside initAndNavigate — it will go to /builder/:surfaceId → SellerEditor
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Failed to create menu surface");
+      }
+      return;
+    }
+
+    // Default behavior for non-emenu categories: stay in BuilderNewPage edit mode
     setChosenVariant(selectedHtml);
     ctrl.setGeneratedHtml(selectedHtml);
     setIsChoosingVariant(false);
@@ -167,7 +272,7 @@ export default function BuilderNewPage() {
     addMsg("user", `Selected ${selected.label || `Design ${index + 1}`}`);
     addMsg("assistant", "Your website draft is ready! Use the editor tools on the left to make changes, or switch to Ada AI for help.");
     setLeftPanelMode("tools");
-  }, [variants, ctrl, addMsg]);
+  }, [variants, ctrl, addMsg, user, initAndNavigate]);
 
   const handleHtmlChange = useCallback((html: string) => {
     setChosenVariant(html);
@@ -326,7 +431,6 @@ export default function BuilderNewPage() {
       }
 
       case "set_section_bg_image": {
-        // Open image picker, then apply as background
         iframe?.contentWindow?.postMessage({ type: "open-image-picker" }, "*");
         break;
       }
@@ -470,13 +574,14 @@ export default function BuilderNewPage() {
   const showCenterPanel = showVariantCarousel || showEditablePreview;
   const isEditMode = showEditablePreview;
 
-  const isLoadingState = ctrl.isGenerating || isThinking;
+  const isLoadingState = ctrl.isGenerating || isThinking || isInitializing;
   const showEditorTools = isEditMode && leftPanelMode === "tools";
   const showChat = !isEditMode || leftPanelMode === "chat";
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      {isEditMode ? (
+      {/* Only show editor top bar when in edit mode (non-emenu only, emenu redirects to SellerEditor) */}
+      {isEditMode && (
         <BuilderEditorTopBar
           businessName={ctrl.businessName}
           category={ctrl.category}
@@ -487,15 +592,8 @@ export default function BuilderNewPage() {
           onPublish={() => setPublishOpen(true)}
           onOpenSettings={() => setSettingsOpen(true)}
         />
-      ) : (
-        <header className="flex items-center gap-3 px-4 py-2.5 border-b border-border shrink-0">
-          <button onClick={() => navigate(-1)} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
-            <ArrowLeft className="h-4 w-4 text-foreground" />
-          </button>
-          <img src={yanguLogo} alt="Yangu" className="h-5 w-auto opacity-70" />
-          <span className="text-sm font-medium text-foreground">Website Builder</span>
-        </header>
       )}
+      {/* No local header during chat phase — uses the global navbar */}
 
       <div className="flex-1 flex overflow-hidden">
         {/* Left panel */}
@@ -575,7 +673,7 @@ export default function BuilderNewPage() {
         </div>
       </div>
 
-      {/* Dialogs */}
+      {/* Dialogs — only for non-emenu categories (emenu uses SellerEditor's real publish) */}
       <BuilderSettingsDialog
         open={settingsOpen}
         onOpenChange={setSettingsOpen}
