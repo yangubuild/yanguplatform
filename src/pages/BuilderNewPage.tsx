@@ -581,7 +581,7 @@ export default function BuilderNewPage() {
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      {/* Only show editor top bar when in edit mode (non-emenu only, emenu redirects to SellerEditor) */}
+      {/* Edit mode: show builder top bar */}
       {isEditMode && (
         <BuilderEditorTopBar
           businessName={ctrl.businessName}
@@ -594,7 +594,10 @@ export default function BuilderNewPage() {
           onOpenSettings={() => setSettingsOpen(true)}
         />
       )}
-      {/* No local header during chat phase — uses the global navbar */}
+      {/* Chat/onboarding phase: show global dashboard navbar */}
+      {!isEditMode && (
+        <NavDashHeader onMenuToggle={() => {}} />
+      )}
 
       <div className="flex-1 flex overflow-hidden">
         {/* Left panel */}
