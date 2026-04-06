@@ -17,10 +17,10 @@ export function StyleCarousel({ options, onSelect }: StyleCarouselProps) {
             <button
               key={opt.id}
               onClick={() => onSelect(opt)}
-              className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card hover:border-primary/50 hover:bg-accent/10 transition-all w-[180px] shrink-0 group overflow-hidden"
+              className="flex flex-col items-center gap-2 rounded-2xl bg-card hover:bg-accent/10 transition-all w-[180px] shrink-0 group overflow-hidden"
             >
-              {/* Image preview */}
-              <div className="w-full h-[110px] overflow-hidden bg-muted">
+              {/* Image preview — flush to edges, no border */}
+              <div className="w-full h-[110px] overflow-hidden rounded-t-2xl">
                 {previewSrc ? (
                   <img
                     src={previewSrc}
