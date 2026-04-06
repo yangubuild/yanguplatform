@@ -270,7 +270,7 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
               key={`logo-${i}-${src?.slice(-8) || "empty"}`}
               onClick={() => sourceLogos[i] && setSelectedIdx(i)}
               disabled={!sourceLogos[i]}
-              className={`relative rounded-xl border-2 p-2 bg-card transition-all aspect-square flex items-center justify-center overflow-hidden ${
+              className={`relative rounded-xl border-2 p-2 bg-card transition-all aspect-square flex items-center justify-center ${
                 selectedIdx === i
                   ? "border-primary ring-2 ring-primary/30"
                   : sourceLogos[i]
@@ -279,7 +279,7 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
               }`}
             >
               {src ? (
-                <img src={src} alt={`Logo option ${i + 1}`} className="w-full h-full object-contain rounded-lg" />
+                <img src={src} alt={`Logo option ${i + 1}`} className="w-full h-full object-contain rounded-lg overflow-hidden" />
               ) : (
                 <span className="text-xs text-muted-foreground">Failed</span>
               )}
