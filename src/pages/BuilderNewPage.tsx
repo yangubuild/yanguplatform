@@ -43,7 +43,7 @@ export default function BuilderNewPage() {
   const [isThinking, setIsThinking] = useState(false);
 
   // Multi-variant state
-  const [variants, setVariants] = useState<string[]>([]);
+  const [variants, setVariants] = useState<VariantPreviewItem[]>([]);
   const [chosenVariant, setChosenVariant] = useState<string | null>(null);
   const [isChoosingVariant, setIsChoosingVariant] = useState(false);
 
