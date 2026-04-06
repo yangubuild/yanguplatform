@@ -1939,6 +1939,50 @@ export type Database = {
           },
         ]
       }
+      builder_media_assets: {
+        Row: {
+          asset_type: string
+          created_at: string
+          file_name: string
+          id: string
+          public_url: string
+          source_type: string
+          storage_path: string
+          surface_id: string | null
+          user_id: string
+        }
+        Insert: {
+          asset_type?: string
+          created_at?: string
+          file_name: string
+          id?: string
+          public_url: string
+          source_type?: string
+          storage_path: string
+          surface_id?: string | null
+          user_id: string
+        }
+        Update: {
+          asset_type?: string
+          created_at?: string
+          file_name?: string
+          id?: string
+          public_url?: string
+          source_type?: string
+          storage_path?: string
+          surface_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "builder_media_assets_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: false
+            referencedRelation: "builder_surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       builder_pages: {
         Row: {
           created_at: string

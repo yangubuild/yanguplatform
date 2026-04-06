@@ -179,6 +179,7 @@ function MediaSourceTabs({
 
       <TabsContent value="library" className="mt-2">
         <MediaLibraryTab
+          surfaceId={surfaceId}
           onSelect={(url, source) => {
             onChange({
               ...value,
@@ -196,7 +197,7 @@ function MediaSourceTabs({
         <UploadTab mediaType={mediaType} value={value} onChange={onChange} surfaceId={surfaceId} />
       </TabsContent>
       <TabsContent value="stock" className="mt-2">
-        <StockTab mediaType={mediaType} value={value} onChange={onChange} />
+        <StockTab mediaType={mediaType} value={value} onChange={onChange} surfaceId={surfaceId} />
       </TabsContent>
       {showAiTab && (
         <TabsContent value="ai" className="mt-2">
@@ -288,6 +289,17 @@ function UploadTab({
 
       setProgress(100);
 
+      // Register asset in tracking table
+      await supabase.from("builder_media_assets").insert({
+        user_id: userId,
+        surface_id: surfaceId,
+        storage_path: path,
+        file_name: file.name,
+        public_url: publicData.publicUrl,
+        asset_type: mediaType === "video" ? "video" : "image",
+        source_type: "upload",
+      });
+
       onChange({
         ...value,
         source: "upload",
@@ -348,10 +360,12 @@ function StockTab({
   mediaType,
   value,
   onChange,
+  surfaceId,
 }: {
   mediaType: "image" | "video";
   value: MediaValue;
   onChange: (v: MediaValue) => void;
+  surfaceId: string;
 }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<StockResult[]>([]);
@@ -398,7 +412,7 @@ function StockTab({
           {results.map((r) => (
             <button
               key={r.id}
-              onClick={() => {
+              onClick={async () => {
                 onChange({
                   ...value,
                   source: "stock",
@@ -407,6 +421,19 @@ function StockTab({
                   assetId: r.id,
                 });
                 toast.success(`Photo by ${r.author}`);
+                // Register in tracking table
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                  await supabase.from("builder_media_assets").insert({
+                    user_id: session.user.id,
+                    surface_id: surfaceId,
+                    storage_path: `stock/pexels-${r.id}`,
+                    file_name: `pexels-${r.id}.jpg`,
+                    public_url: r.fullUrl,
+                    asset_type: "image",
+                    source_type: "stock",
+                  });
+                }
               }}
               className="relative group rounded overflow-hidden border border-border hover:ring-2 hover:ring-primary">
               <img src={r.thumbUrl} alt={r.author} className="w-full h-16 object-cover" />
@@ -504,6 +531,19 @@ function AiImageTab({
         console.error("AI image response:", data);
         throw new Error("Could not extract image from response");
       }
+
+      // Register AI-generated image in tracking table
+      const userId = session.user.id;
+      const fileName = `ai-${Date.now()}.png`;
+      await supabase.from("builder_media_assets").insert({
+        user_id: userId,
+        surface_id: surfaceId,
+        storage_path: imageUrl.includes("builder-media") ? imageUrl.split("builder-media/")[1] || fileName : `ai/${fileName}`,
+        file_name: fileName,
+        public_url: imageUrl,
+        asset_type: "image",
+        source_type: "ai",
+      });
 
       onChange({
         ...value,
