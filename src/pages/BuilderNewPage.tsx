@@ -10,6 +10,7 @@ import { EditablePreview } from "@/components/builder-new/EditablePreview";
 import { BuilderEditorTopBar } from "@/components/builder-new/BuilderEditorTopBar";
 import { EditorToolsPanel } from "@/components/builder-new/EditorToolsPanel";
 import { EmenuEditorPanel } from "@/components/builder-new/EmenuEditorPanel";
+import { ButtonEditorPanel } from "@/components/builder-new/ButtonEditorPanel";
 import { BuilderSettingsDialog } from "@/components/builder-new/BuilderSettingsDialog";
 import { BuilderPublishDialog } from "@/components/builder-new/BuilderPublishDialog";
 import { useStepController } from "@/components/builder-new/hooks/useStepController";
