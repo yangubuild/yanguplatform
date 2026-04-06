@@ -313,11 +313,24 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     );
   }
 
-  // For emenu, we redirect (useEffect above). Show loading while redirect happens.
+  // For emenu: show entry screen with AI → chat, Manual → wizard
   if (engineKey === "emenu") {
+    if (emenuWizardOpen) {
+      return (
+        <div className="min-h-screen bg-background">
+          <EmenuWizard onComplete={handleEmenuWizardComplete} onBack={() => setEmenuWizardOpen(false)} />
+        </div>
+      );
+    }
+
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground text-sm">Loading menu builder...</p>
+      <div className="min-h-screen bg-background">
+        <BuilderEntryScreen
+          engine={engine}
+          onComplete={handleComplete}
+          onAiPath={handleEmenuAi}
+          onManualPath={() => setEmenuWizardOpen(true)}
+        />
       </div>
     );
   }
