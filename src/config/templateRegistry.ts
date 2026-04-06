@@ -2,6 +2,12 @@
 // Provides visual template presets per engine.
 // Each template defines schema patches for core slots (header, hero, main_content, offer, footer).
 // No DB changes required — applied client-side via patch merge.
+
+import {
+  PLATERIA_MENU_ITEMS, PLATERIA_TESTIMONIALS,
+  YUMIX_MENU_ITEMS, YUMIX_CATEGORY_ITEMS, YUMIX_PROMO_BANNERS, YUMIX_STATS, YUMIX_TESTIMONIALS,
+  ZOOOM_MENU_ITEMS, ZOOOM_CATEGORY_ITEMS, ZOOOM_TESTIMONIALS,
+} from "@/config/emenuDemoContent";
 //
 // TEMPLATE REFERENCE RULE:
 // Every template must record its provenance via the `reference` field.
@@ -395,16 +401,29 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
         cards: { style: "image_top", image_ratio: "square", show_price: true, show_title: true, show_cta: false, card_style: "clean", hover_effect: "lift" },
         grid: { columns_desktop: 3, columns_mobile: 2, gap: "md" },
         spacing: "comfortable",
-        items: [],
+        items: PLATERIA_MENU_ITEMS,
       } },
       offer: { schema: {
         layout_variant: "story_block",
         display_mode: "story_block",
         heading: "Our Story",
-        description: "A passion for great food, served with love since day one.",
+        description: "A passion for great food, served with love since day one. From humble beginnings to a celebrated kitchen, we craft every plate with care, sourcing the finest ingredients from local farms and trusted purveyors.",
         cta_text: "Learn More",
         spacing: "spacious",
         background_style: "dark",
+        story_block: {
+          enabled: true,
+          eyebrow: "EST. 2018",
+          heading: "Our Story",
+          description: "A passion for great food, served with love since day one. From humble beginnings to a celebrated kitchen, we craft every plate with care.",
+          cta_text: "Learn More",
+        },
+        testimonials: {
+          enabled: true,
+          heading: "What Our Guests Say",
+          subheading: "Hear from our community",
+          items: PLATERIA_TESTIMONIALS,
+        },
       } },
       footer: { schema: {
         layout_variant: "multi_column",
@@ -479,7 +498,14 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
         cards: { style: "image_top", image_ratio: "landscape", show_price: true, show_title: true, show_cta: true, card_style: "rounded", hover_effect: "lift", badge_enabled: true },
         grid: { columns_desktop: 3, columns_mobile: 2, gap: "lg" },
         spacing: "comfortable",
-        items: [],
+        items: YUMIX_MENU_ITEMS,
+        category_showcase: {
+          enabled: true,
+          heading: "Browse Categories",
+          description: "Find what you're craving",
+          columns: 4,
+          items: YUMIX_CATEGORY_ITEMS,
+        },
       } },
       offer: { schema: {
         layout_variant: "trust_badges",
@@ -491,10 +517,18 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
           { title: "Fresh Ingredients", description: "Locally sourced daily", icon: "leaf" },
           { title: "Best Prices", description: "Unbeatable value", icon: "tag" },
         ],
+        promo_banners: YUMIX_PROMO_BANNERS,
+        stats: YUMIX_STATS,
         testimonials: {
           enabled: true,
           heading: "What People Say",
-          items: [],
+          subheading: "Trusted by thousands",
+          items: YUMIX_TESTIMONIALS,
+        },
+        newsletter: {
+          enabled: true,
+          heading: "Get Exclusive Deals",
+          cta_text: "Subscribe",
         },
       } },
       footer: { schema: {
@@ -557,7 +591,7 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
       } },
       main_content: { schema: {
         display_mode: "grid",
-        heading: "Browse Categories",
+        heading: "Browse Our Menu",
         description: "Find exactly what you're craving",
         show_images: true,
         show_badges: true,
@@ -570,15 +604,35 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
         cards: { style: "image_top", image_ratio: "square", show_price: true, show_title: true, show_cta: true, card_style: "clean", hover_effect: "lift" },
         grid: { columns_desktop: 4, columns_mobile: 2, gap: "md" },
         spacing: "comfortable",
-        items: [],
+        items: ZOOOM_MENU_ITEMS,
+        category_showcase: {
+          enabled: true,
+          heading: "Categories",
+          description: "Quick browse by type",
+          columns: 4,
+          items: ZOOOM_CATEGORY_ITEMS,
+        },
       } },
       offer: { schema: {
         layout_variant: "story_block",
         display_mode: "story_block",
         heading: "About Us",
-        description: "We believe great food brings people together.",
+        description: "We believe great food brings people together. Fresh, healthy, and always made with care — that's the Zooom promise.",
         cta_text: "Learn More",
         spacing: "comfortable",
+        story_block: {
+          enabled: true,
+          eyebrow: "OUR MISSION",
+          heading: "Fresh Food, Fast Delivery",
+          description: "We partner with local farms and producers to bring you the freshest ingredients, prepared with love and delivered to your door.",
+          cta_text: "Learn More",
+        },
+        testimonials: {
+          enabled: true,
+          heading: "What Our Customers Say",
+          subheading: "Real reviews from real people",
+          items: ZOOOM_TESTIMONIALS,
+        },
       } },
       footer: { schema: {
         layout_variant: "multi_column",
