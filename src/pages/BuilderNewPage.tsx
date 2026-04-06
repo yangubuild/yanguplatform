@@ -234,7 +234,6 @@ export default function BuilderNewPage() {
     const doc = iframe?.contentDocument;
 
     switch (action) {
-      // Layout actions → forwarded to iframe
       case "add_section":
       case "move_up":
       case "move_down":
@@ -257,6 +256,68 @@ export default function BuilderNewPage() {
       case "change_colors":
         iframe?.contentWindow?.postMessage({ type: "open-color-picker" }, "*");
         break;
+
+      // Button editor actions
+      case "set_button_color": {
+        if (!doc) break;
+        const btnSel = doc.querySelector('.yangu-btn-selected') as HTMLElement | null;
+        if (btnSel && payload?.color) {
+          btnSel.style.backgroundColor = payload.color;
+          // Set text color based on brightness
+          const c = payload.color;
+          const isLight = c === "#ffffff" || c === "#d4a853";
+          btnSel.style.color = isLight ? "#1a1a1a" : "#ffffff";
+          pushUpdate(doc, iframe);
+          toast.success("Button color updated");
+        } else {
+          toast.info("Click a button in the preview first");
+        }
+        break;
+      }
+
+      case "set_button_shape": {
+        if (!doc) break;
+        const btnShape = doc.querySelector('.yangu-btn-selected') as HTMLElement | null;
+        if (btnShape && payload?.radius) {
+          btnShape.style.borderRadius = payload.radius;
+          pushUpdate(doc, iframe);
+          toast.success("Button shape updated");
+        } else {
+          toast.info("Click a button in the preview first");
+        }
+        break;
+      }
+
+      case "set_button_size": {
+        if (!doc) break;
+        const btnSize = doc.querySelector('.yangu-btn-selected') as HTMLElement | null;
+        if (btnSize && payload?.padding) {
+          btnSize.style.padding = payload.padding;
+          if (payload.fontSize) btnSize.style.fontSize = payload.fontSize;
+          pushUpdate(doc, iframe);
+          toast.success("Button size updated");
+        } else {
+          toast.info("Click a button in the preview first");
+        }
+        break;
+      }
+
+      case "set_button_align": {
+        if (!doc) break;
+        const btnAlign = doc.querySelector('.yangu-btn-selected') as HTMLElement | null;
+        if (btnAlign && payload?.align) {
+          const parent = btnAlign.parentElement;
+          if (parent) {
+            parent.style.display = "flex";
+            parent.style.justifyContent = payload.align;
+          }
+          pushUpdate(doc, iframe);
+          toast.success("Button alignment updated");
+        } else {
+          toast.info("Click a button in the preview first");
+        }
+        break;
+      }
 
       // Right panel: layout mode/columns
       case "set_layout": {
@@ -289,7 +350,6 @@ export default function BuilderNewPage() {
         break;
       }
 
-      // Right panel: business info
       case "edit_business_name": {
         if (!doc) break;
         const h1 = doc.querySelector("h1");
@@ -307,7 +367,6 @@ export default function BuilderNewPage() {
         toast.info("Click the element in the preview to edit it directly");
         break;
 
-      // Menu items
       case "add_menu_item": {
         if (!doc) break;
         const menuContainer = doc.querySelector('[class*="menu-grid"], [class*="menu-items"], section:nth-of-type(2) [style*="grid"]');
@@ -338,20 +397,15 @@ export default function BuilderNewPage() {
         toast.info("Category management coming soon");
         break;
 
-      // Commerce
       case "order_settings":
         toast.info("Order settings will be available after publishing");
         break;
 
-      // Social
       case "social_links":
         toast.info("Click social icons in the footer to edit links");
         break;
 
-      // Page-level
       case "page_settings":
-        setSettingsOpen(true);
-        break;
       case "seo_meta":
         setSettingsOpen(true);
         break;
@@ -480,9 +534,14 @@ export default function BuilderNewPage() {
           </div>
         )}
 
-        {/* Right panel */}
+        {/* Right panel — context-aware */}
         <div className="w-[260px] shrink-0 hidden md:block overflow-hidden">
-          {isEditMode && ctrl.category === "emenu" ? (
+          {isEditMode && canvasSelection?.kind === "button" ? (
+            <ButtonEditorPanel
+              onAction={handleEditorAction}
+              preview={canvasSelection.preview}
+            />
+          ) : isEditMode && ctrl.category === "emenu" ? (
             <EmenuEditorPanel
               businessName={ctrl.businessName}
               category={ctrl.category}
