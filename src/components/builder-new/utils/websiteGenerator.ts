@@ -5,6 +5,7 @@
 import type { Category } from "../types/builder.types";
 import { CATEGORY_CONFIGS } from "../types/builder.types";
 import { getTemplate, type TemplatePreset } from "@/config/templateRegistry";
+import { renderPlateria, renderYumix, renderZooom, renderVisualA } from "./emenuFamilyRenderers";
 
 export interface GeneratorConfig {
   category: Category;
