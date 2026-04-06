@@ -114,16 +114,24 @@ export interface TemplateGroup {
   templateKeys: string[];
 }
 
+/** The 4 active non-reservation templates (locked) */
+const NON_RESERVATION_TEMPLATE_KEYS = [
+  "emenu_plateria",
+  "emenu_yumix",
+  "emenu_zooom",
+  "emenu_visual_a",
+];
+
 export const EMENU_TEMPLATE_GROUPS: TemplateGroup[] = [
   {
     complexity: "simple_cafe",
     label: "Simple Food / Café",
-    templateKeys: ["emenu_sweet_sips", "emenu_sunday_bite", "emenu_yumix_lite", "emenu_yumix_minimal"],
+    templateKeys: NON_RESERVATION_TEMPLATE_KEYS,
   },
   {
     complexity: "bigger_menu",
     label: "Bigger Menu / Multi-Category",
-    templateKeys: ["emenu_visual_a", "emenu_visual_b", "emenu_yumix_bold", "emenu_yumix_promo", "emenu_yumix_social", "emenu_yumix_warm", "emenu_yumix_catering"],
+    templateKeys: NON_RESERVATION_TEMPLATE_KEYS,
   },
   {
     complexity: "reservation",
@@ -137,5 +145,5 @@ export const EMENU_TEMPLATE_GROUPS: TemplateGroup[] = [
  */
 export function getTemplatesForComplexity(complexity: MenuComplexity): string[] {
   const group = EMENU_TEMPLATE_GROUPS.find((g) => g.complexity === complexity);
-  return group?.templateKeys ?? ["emenu_visual_a", "emenu_visual_b"];
+  return group?.templateKeys ?? NON_RESERVATION_TEMPLATE_KEYS;
 }
