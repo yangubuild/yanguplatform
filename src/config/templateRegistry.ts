@@ -34,6 +34,12 @@ export interface TemplatePreset {
   description: string;
   /** Emoji or icon hint for UI card */
   icon: string;
+  /** Whether this template is available for selection. Defaults to true if omitted. */
+  is_active?: boolean;
+  /** Locked template family identifier — generation must not drift away from this */
+  template_family?: string;
+  /** Live preview URL for iframe/screenshot-based preview (reference sites) */
+  preview_url?: string;
   /** Source provenance — where this template was derived from */
   reference?: TemplateReference;
   /** Schema patches keyed by core_slot name */
