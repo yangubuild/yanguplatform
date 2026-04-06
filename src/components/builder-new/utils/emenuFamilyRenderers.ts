@@ -18,6 +18,16 @@ interface RenderContext {
 
 // ─── Shared Utilities ───
 
+/** Map a nav label to a section anchor id */
+function navHref(label: string): string {
+  const map: Record<string, string> = {
+    home: "#hero", menu: "#menu", about: "#about", contact: "#contact",
+    deals: "#deals", delivery: "#menu", reviews: "#reviews", gallery: "#gallery",
+    story: "#about", subscribe: "#newsletter", order: "#menu",
+  };
+  return map[label.toLowerCase().trim()] || `#${label.toLowerCase().replace(/\s+/g, "-")}`;
+}
+
 function getImageUrl(config: GeneratorConfig, section: string, index: number): string {
   if (config.userImages?.length) {
     const purposeMap: Record<string, string[]> = {
@@ -140,7 +150,7 @@ export function renderPlateria(ctx: RenderContext): string {
   let heroHTML = "";
   if (t.heroLayout === "split") {
     heroHTML = `
-    <section style="min-height:85vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:100px 48px 80px;gap:56px;background:linear-gradient(135deg, ${t.pageBg} 0%, #1A1510 100%);">
+    <section id="hero" style="min-height:85vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:100px 48px 80px;gap:56px;background:linear-gradient(135deg, ${t.pageBg} 0%, #1A1510 100%);">
       <div>
         ${subheadline ? `<p style="font-size:13px;text-transform:uppercase;letter-spacing:3px;color:${t.accent};margin-bottom:16px;font-weight:500;">${subheadline}</p>` : ""}
         <h1 style="font-family:${t.fontHeading};font-size:clamp(2.5rem,5vw,3.8rem);font-weight:700;margin-bottom:20px;line-height:1.08;color:${t.pageText};">${headline}</h1>
@@ -165,7 +175,7 @@ export function renderPlateria(ctx: RenderContext): string {
     </section>`;
   } else {
     heroHTML = `
-    <section style="min-height:85vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;background:radial-gradient(ellipse at center, #1A1510 0%, ${t.pageBg} 70%);">
+    <section id="hero" style="min-height:85vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;background:radial-gradient(ellipse at center, #1A1510 0%, ${t.pageBg} 70%);">
       <div style="width:180px;height:180px;border-radius:50%;overflow:hidden;margin-bottom:32px;border:3px solid ${t.accent}33;">
         <img src="${heroImg}" alt="${headline}" style="width:100%;height:100%;object-fit:cover;"/>
       </div>
@@ -204,7 +214,7 @@ export function renderPlateria(ctx: RenderContext): string {
 
   // Story
   const storyHTML = story.enabled ? `
-  <section style="padding:80px 32px;background:#0E0E0E;">
+  <section id="about" style="padding:80px 32px;background:#0E0E0E;">
     <div style="max-width:640px;margin:0 auto;text-align:center;">
       ${story.eyebrow ? `<p style="font-size:11px;text-transform:uppercase;letter-spacing:3px;color:${t.accent};margin-bottom:10px;">${story.eyebrow}</p>` : ""}
       <h2 style="font-family:${t.fontHeading};font-size:1.8rem;font-weight:700;margin-bottom:16px;color:${t.pageText};">${story.heading || ""}</h2>
@@ -214,7 +224,7 @@ export function renderPlateria(ctx: RenderContext): string {
 
   // Testimonials
   const testimonialsHTML = testimonials.enabled && testimonials.items?.length ? `
-  <section style="padding:72px 32px;background:${t.pageBg};">
+  <section id="reviews" style="padding:72px 32px;background:${t.pageBg};">
     <div style="max-width:1000px;margin:0 auto;text-align:center;">
       <h2 style="font-family:${t.fontHeading};font-size:1.6rem;font-weight:700;margin-bottom:32px;color:${t.pageText};">${testimonials.heading || "Reviews"}</h2>
       <div style="display:grid;grid-template-columns:repeat(${Math.min(testimonials.items.length, 3)},1fr);gap:20px;">
@@ -230,7 +240,7 @@ export function renderPlateria(ctx: RenderContext): string {
 
   // Footer
   const footerHTML = `
-  <footer style="padding:48px 32px;background:#050505;border-top:1px solid ${t.borderColor};">
+  <footer id="contact" style="padding:48px 32px;background:#050505;border-top:1px solid ${t.borderColor};">
     <div style="max-width:900px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:32px;">
       ${footerCols.map((col: any) => `<div><h4 style="font-weight:600;font-size:13px;margin-bottom:10px;color:${t.accent};">${col.title}</h4>${(col.links as string[]).map((l: string) => `<p style="font-size:12px;color:${t.pageText}66;margin-bottom:4px;">${l}</p>`).join("")}</div>`).join("")}
     </div>
@@ -242,7 +252,7 @@ export function renderPlateria(ctx: RenderContext): string {
 <nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:${t.pageBg}ee;backdrop-filter:blur(12px);border-bottom:1px solid ${t.borderColor};padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;">
   ${logo}
   <div style="display:flex;gap:24px;align-items:center;">
-    ${navItems.map(n => `<a href="#" style="text-decoration:none;font-size:13px;color:${t.pageText}99;font-weight:400;letter-spacing:0.03em;">${n}</a>`).join("")}
+    ${navItems.map(n => `<a href="${navHref(n)}" style="text-decoration:none;font-size:13px;color:${t.pageText}99;font-weight:400;letter-spacing:0.03em;">${n}</a>`).join("")}
   </div>
 </nav>
 ${heroHTML}${menuHTML}${storyHTML}${testimonialsHTML}${footerHTML}
@@ -309,7 +319,7 @@ export function renderYumix(ctx: RenderContext): string {
   let heroHTML = "";
   if (t.heroLayout === "split") {
     heroHTML = `
-    <section style="min-height:85vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:100px 48px 80px;gap:48px;background:linear-gradient(135deg, ${t.pageBg} 0%, #1A1408 100%);">
+    <section id="hero" style="min-height:85vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:100px 48px 80px;gap:48px;background:linear-gradient(135deg, ${t.pageBg} 0%, #1A1408 100%);">
       <div>
         ${badge ? `<span style="display:inline-block;padding:6px 16px;border-radius:20px;background:${t.accent};color:${t.accentText};font-size:12px;font-weight:700;margin-bottom:16px;">${badge.text || "30% OFF"}</span>` : ""}
         ${subheadline ? `<p style="font-size:13px;text-transform:uppercase;letter-spacing:2px;color:${t.pageText}77;margin-bottom:10px;">${subheadline}</p>` : ""}
@@ -324,7 +334,7 @@ export function renderYumix(ctx: RenderContext): string {
     </section>`;
   } else if (t.heroLayout === "fullwidth") {
     heroHTML = `
-    <section style="min-height:90vh;position:relative;display:flex;align-items:center;justify-content:center;text-align:center;">
+    <section id="hero" style="min-height:90vh;position:relative;display:flex;align-items:center;justify-content:center;text-align:center;">
       <div style="position:absolute;inset:0;"><img src="${heroImg}" style="width:100%;height:100%;object-fit:cover;" alt=""/></div>
       <div style="position:absolute;inset:0;background:linear-gradient(180deg, ${t.pageBg}cc 0%, ${t.pageBg}ee 100%);"></div>
       <div style="position:relative;z-index:1;max-width:600px;padding:24px;">
@@ -332,13 +342,13 @@ export function renderYumix(ctx: RenderContext): string {
         <h1 style="font-family:${t.fontHeading};font-size:clamp(2.6rem,6vw,4rem);font-weight:800;margin-bottom:20px;line-height:1.06;color:#FFFFFF;">${headline}</h1>
         <div style="display:flex;gap:12px;justify-content:center;">
           <a href="#menu" style="${btnStyle}">${ctaText}</a>
-          <a href="#" style="${btnOutline}">Explore</a>
+          <a href="#about" style="${btnOutline}">Explore</a>
         </div>
       </div>
     </section>`;
   } else {
     heroHTML = `
-    <section style="min-height:85vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;background:${t.pageBg};">
+    <section id="hero" style="min-height:85vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;background:${t.pageBg};">
       ${badge ? `<span style="display:inline-block;padding:8px 20px;border-radius:${t.buttonRadius};background:${t.accent};color:${t.accentText};font-size:13px;font-weight:700;margin-bottom:20px;">${badge.text || "30% OFF"}</span>` : ""}
       ${subheadline ? `<p style="font-size:13px;text-transform:uppercase;letter-spacing:2px;color:${t.accent};margin-bottom:10px;">${subheadline}</p>` : ""}
       <h1 style="font-family:${t.fontHeading};font-size:clamp(2.4rem,5vw,3.6rem);font-weight:800;margin-bottom:24px;line-height:1.06;color:${t.pageText};max-width:600px;">${headline}</h1>
@@ -355,7 +365,7 @@ export function renderYumix(ctx: RenderContext): string {
 
   // Category cards
   const catHTML = catShowcase?.enabled && catShowcase.items?.length ? `
-  <section style="padding:64px 28px;background:#141210;">
+  <section id="categories" style="padding:64px 28px;background:#141210;">
     <div style="max-width:1000px;margin:0 auto;text-align:center;">
       <h2 style="font-family:${t.fontHeading};font-size:1.5rem;font-weight:700;margin-bottom:28px;color:${t.pageText};">${catShowcase.heading || "Categories"}</h2>
       <div style="display:grid;grid-template-columns:repeat(${catShowcase.columns || 4},1fr);gap:16px;">
@@ -398,7 +408,7 @@ export function renderYumix(ctx: RenderContext): string {
 
   // Promos
   const promoHTML = promos.length ? `
-  <section style="padding:48px 28px;background:#141210;">
+  <section id="deals" style="padding:48px 28px;background:#141210;">
     <div style="max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(${Math.min(promos.length, 2)},1fr);gap:20px;">
       ${promos.map((p: any) => `
         <div style="background:${t.accent}15;border:1px solid ${t.accent}33;border-radius:${cardRadius};padding:32px 24px;">
@@ -412,7 +422,7 @@ export function renderYumix(ctx: RenderContext): string {
 
   // Stats
   const statsHTML = stats.length ? `
-  <section style="padding:48px 28px;background:${t.pageBg};">
+  <section id="stats" style="padding:48px 28px;background:${t.pageBg};">
     <div style="max-width:900px;margin:0 auto;display:flex;justify-content:space-around;text-align:center;flex-wrap:wrap;gap:24px;">
       ${stats.map((st: any) => `
         <div>
@@ -425,7 +435,7 @@ export function renderYumix(ctx: RenderContext): string {
 
   // Testimonials
   const testimonialsHTML = testimonials.enabled && testimonials.items?.length ? `
-  <section style="padding:64px 28px;background:#0D0B08;">
+  <section id="reviews" style="padding:64px 28px;background:#0D0B08;">
     <div style="max-width:1000px;margin:0 auto;text-align:center;">
       <h2 style="font-family:${t.fontHeading};font-size:1.5rem;font-weight:700;margin-bottom:28px;color:${t.pageText};">${testimonials.heading || "Reviews"}</h2>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
@@ -441,7 +451,7 @@ export function renderYumix(ctx: RenderContext): string {
 
   // Newsletter
   const newsletterHTML = newsletter.enabled ? `
-  <section style="padding:52px 28px;background:#141210;">
+  <section id="newsletter" style="padding:52px 28px;background:#141210;">
     <div style="max-width:460px;margin:0 auto;text-align:center;">
       <h3 style="font-family:${t.fontHeading};font-size:1.2rem;font-weight:700;margin-bottom:14px;color:${t.pageText};">${newsletter.heading || "Subscribe"}</h3>
       <div style="display:flex;gap:8px;">
@@ -453,7 +463,7 @@ export function renderYumix(ctx: RenderContext): string {
 
   // Footer
   const footerHTML = `
-  <footer style="padding:48px 28px;background:#080705;border-top:1px solid ${t.borderColor};">
+  <footer id="contact" style="padding:48px 28px;background:#080705;border-top:1px solid ${t.borderColor};">
     <div style="max-width:900px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:28px;">
       ${footerCols.map((col: any) => `<div><h4 style="font-weight:600;font-size:13px;margin-bottom:10px;color:${t.accent};">${col.title}</h4>${(col.links as string[]).map((l: string) => `<p style="font-size:12px;color:${t.pageText}55;margin-bottom:4px;">${l}</p>`).join("")}</div>`).join("")}
     </div>
@@ -465,8 +475,8 @@ export function renderYumix(ctx: RenderContext): string {
 <nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:${t.pageBg}ee;backdrop-filter:blur(12px);border-bottom:1px solid ${t.borderColor};padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:54px;">
   ${logo}
   <div style="display:flex;gap:20px;align-items:center;">
-    ${navItems.map(n => `<a href="#" style="text-decoration:none;font-size:13px;color:${t.pageText}88;font-weight:500;">${n}</a>`).join("")}
-    <a href="#" style="padding:8px 20px;border-radius:${t.buttonRadius};background:${t.accent};color:${t.accentText};text-decoration:none;font-size:12px;font-weight:600;">Order</a>
+    ${navItems.map(n => `<a href="${navHref(n)}" style="text-decoration:none;font-size:13px;color:${t.pageText}88;font-weight:500;">${n}</a>`).join("")}
+    <a href="#menu" style="padding:8px 20px;border-radius:${t.buttonRadius};background:${t.accent};color:${t.accentText};text-decoration:none;font-size:12px;font-weight:600;">Order</a>
   </div>
 </nav>
 ${heroHTML}${catHTML}${menuHTML}${promoHTML}${statsHTML}${testimonialsHTML}${newsletterHTML}${footerHTML}
@@ -532,13 +542,13 @@ export function renderZooom(ctx: RenderContext): string {
   if (t.heroLayout === "split") {
     const imgShape = variantIndex === 2 ? "border-radius:12px;" : "border-radius:24px;";
     heroHTML = `
-    <section style="min-height:80vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:100px 48px 80px;gap:48px;background:${t.pageBg};">
+    <section id="hero" style="min-height:80vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:100px 48px 80px;gap:48px;background:${t.pageBg};">
       <div>
         ${subheadline ? `<p style="font-size:13px;color:${t.accent};font-weight:600;margin-bottom:10px;">${subheadline}</p>` : ""}
         <h1 style="font-family:${t.fontHeading};font-size:clamp(2.4rem,5vw,3.4rem);font-weight:800;margin-bottom:20px;line-height:1.08;color:${t.pageText};">${headline}</h1>
         <div style="display:flex;gap:12px;">
           <a href="#menu" style="${btnStyle}">${ctaText}</a>
-          <a href="#" style="${btnOutline}">Learn More</a>
+          <a href="#about" style="${btnOutline}">Learn More</a>
         </div>
       </div>
       <div style="${imgShape}overflow:hidden;aspect-ratio:1/1;box-shadow:0 20px 60px rgba(0,0,0,0.08);">
@@ -547,12 +557,12 @@ export function renderZooom(ctx: RenderContext): string {
     </section>`;
   } else {
     heroHTML = `
-    <section style="min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 60px;background:${t.pageBg};">
+    <section id="hero" style="min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 60px;background:${t.pageBg};">
       ${subheadline ? `<p style="font-size:13px;color:${t.accent};font-weight:600;margin-bottom:10px;">${subheadline}</p>` : ""}
       <h1 style="font-family:${t.fontHeading};font-size:clamp(2.4rem,5vw,3.4rem);font-weight:800;margin-bottom:20px;line-height:1.08;color:${t.pageText};max-width:640px;">${headline}</h1>
       <div style="display:flex;gap:12px;margin-bottom:40px;">
         <a href="#menu" style="${btnStyle}">${ctaText}</a>
-        <a href="#" style="${btnOutline}">Explore</a>
+        <a href="#about" style="${btnOutline}">Explore</a>
       </div>
       <div style="border-radius:${cardRadius};overflow:hidden;width:80%;max-width:700px;aspect-ratio:16/9;box-shadow:0 20px 60px rgba(0,0,0,0.1);">
         <img src="${heroImg}" alt="${headline}" style="width:100%;height:100%;object-fit:cover;"/>
@@ -562,7 +572,7 @@ export function renderZooom(ctx: RenderContext): string {
 
   // Categories
   const catHTML = catShowcase?.enabled && catShowcase.items?.length ? `
-  <section style="padding:48px 28px;background:${softBg};">
+  <section id="categories" style="padding:48px 28px;background:${softBg};">
     <div style="max-width:1000px;margin:0 auto;text-align:center;">
       <h2 style="font-family:${t.fontHeading};font-size:1.3rem;font-weight:700;margin-bottom:24px;color:${t.pageText};">${catShowcase.heading || "Categories"}</h2>
       <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
@@ -604,7 +614,7 @@ export function renderZooom(ctx: RenderContext): string {
 
   // Story
   const storyHTML = story.enabled ? `
-  <section style="padding:72px 28px;background:${softBg};">
+  <section id="about" style="padding:72px 28px;background:${softBg};">
     <div style="max-width:620px;margin:0 auto;text-align:center;">
       ${story.eyebrow ? `<p style="font-size:11px;text-transform:uppercase;letter-spacing:2px;color:${t.accent};margin-bottom:8px;font-weight:600;">${story.eyebrow}</p>` : ""}
       <h2 style="font-family:${t.fontHeading};font-size:1.6rem;font-weight:700;margin-bottom:14px;color:${t.pageText};">${story.heading || ""}</h2>
@@ -614,7 +624,7 @@ export function renderZooom(ctx: RenderContext): string {
 
   // Testimonials
   const testimonialsHTML = testimonials.enabled && testimonials.items?.length ? `
-  <section style="padding:64px 28px;background:${t.pageBg};">
+  <section id="reviews" style="padding:64px 28px;background:${t.pageBg};">
     <div style="max-width:1000px;margin:0 auto;text-align:center;">
       <h2 style="font-family:${t.fontHeading};font-size:1.4rem;font-weight:700;margin-bottom:28px;color:${t.pageText};">${testimonials.heading || "Reviews"}</h2>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
@@ -630,7 +640,7 @@ export function renderZooom(ctx: RenderContext): string {
 
   // Footer
   const footerHTML = `
-  <footer style="padding:48px 28px;background:${softBg};border-top:1px solid ${t.borderColor};">
+  <footer id="contact" style="padding:48px 28px;background:${softBg};border-top:1px solid ${t.borderColor};">
     <div style="max-width:900px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:28px;">
       ${footerCols.map((col: any) => `<div><h4 style="font-weight:600;font-size:13px;margin-bottom:10px;color:${t.pageText};">${col.title}</h4>${(col.links as string[]).map((l: string) => `<p style="font-size:12px;color:${t.pageText}77;margin-bottom:4px;">${l}</p>`).join("")}</div>`).join("")}
     </div>
@@ -642,8 +652,8 @@ export function renderZooom(ctx: RenderContext): string {
 <nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:${t.pageBg}ee;backdrop-filter:blur(12px);border-bottom:1px solid ${t.borderColor};padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:54px;">
   ${logo}
   <div style="display:flex;gap:20px;align-items:center;">
-    ${navItems.map(n => `<a href="#" style="text-decoration:none;font-size:13px;color:${t.pageText}88;font-weight:500;">${n}</a>`).join("")}
-    <a href="#" style="padding:8px 20px;border-radius:${t.buttonRadius};background:${t.accent};color:${t.accentText};text-decoration:none;font-size:12px;font-weight:600;">Order</a>
+    ${navItems.map(n => `<a href="${navHref(n)}" style="text-decoration:none;font-size:13px;color:${t.pageText}88;font-weight:500;">${n}</a>`).join("")}
+    <a href="#menu" style="padding:8px 20px;border-radius:${t.buttonRadius};background:${t.accent};color:${t.accentText};text-decoration:none;font-size:12px;font-weight:600;">Order</a>
   </div>
 </nav>
 ${heroHTML}${catHTML}${menuHTML}${storyHTML}${testimonialsHTML}${footerHTML}
@@ -706,7 +716,7 @@ export function renderVisualA(ctx: RenderContext): string {
   let heroHTML = "";
   if (t.heroLayout === "fullwidth") {
     heroHTML = `
-    <section style="min-height:85vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden;">
+    <section id="hero" style="min-height:85vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden;">
       <div style="position:absolute;inset:0;"><img src="${heroImg}" style="width:100%;height:100%;object-fit:cover;" alt=""/></div>
       <div style="position:absolute;inset:0;background:rgba(0,0,0,0.55);"></div>
       <div style="position:relative;z-index:1;max-width:640px;">
@@ -717,7 +727,7 @@ export function renderVisualA(ctx: RenderContext): string {
     </section>`;
   } else {
     heroHTML = `
-    <section style="min-height:85vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:100px 48px 80px;gap:48px;background:${t.pageBg};">
+    <section id="hero" style="min-height:85vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:100px 48px 80px;gap:48px;background:${t.pageBg};">
       <div>
         ${subheadline ? `<p style="font-size:13px;color:${t.accent};font-weight:500;margin-bottom:12px;">${subheadline}</p>` : ""}
         <h1 style="font-family:${t.fontHeading};font-size:clamp(2.4rem,5vw,3.6rem);font-weight:700;margin-bottom:20px;line-height:1.08;color:${t.pageText};">${headline}</h1>
@@ -767,7 +777,7 @@ export function renderVisualA(ctx: RenderContext): string {
 
   // Trust badges
   const trustHTML = offerItems.length ? `
-  <section style="padding:60px 32px;background:${isDark ? "#141210" : "#F5F0EB"};">
+  <section id="about" style="padding:60px 32px;background:${isDark ? "#141210" : "#F5F0EB"};">
     <div style="max-width:900px;margin:0 auto;text-align:center;">
       <h2 style="font-family:${t.fontHeading};font-size:1.4rem;font-weight:700;margin-bottom:28px;color:${t.pageText};">${offerS.heading || "Why Dine With Us"}</h2>
       <div style="display:grid;grid-template-columns:repeat(${Math.min(offerItems.length, 4)},1fr);gap:20px;">
@@ -808,7 +818,7 @@ export function renderVisualA(ctx: RenderContext): string {
 <nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:${t.pageBg}${isDark ? "dd" : "ee"};backdrop-filter:blur(12px);border-bottom:1px solid ${t.borderColor};padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;">
   ${logo}
   <div style="display:flex;gap:24px;align-items:center;">
-    ${navItems.map(n => `<a href="#" style="text-decoration:none;font-size:13px;color:${t.pageText}88;font-weight:400;">${n}</a>`).join("")}
+    ${navItems.map(n => `<a href="${navHref(n)}" style="text-decoration:none;font-size:13px;color:${t.pageText}88;font-weight:400;">${n}</a>`).join("")}
   </div>
 </nav>
 ${heroHTML}${menuHTML}${trustHTML}${storyHTML}${footerHTML}
