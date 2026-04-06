@@ -289,6 +289,17 @@ function UploadTab({
 
       setProgress(100);
 
+      // Register asset in tracking table
+      await supabase.from("builder_media_assets").insert({
+        user_id: userId,
+        surface_id: surfaceId,
+        storage_path: path,
+        file_name: file.name,
+        public_url: publicData.publicUrl,
+        asset_type: mediaType === "video" ? "video" : "image",
+        source_type: "upload",
+      });
+
       onChange({
         ...value,
         source: "upload",
