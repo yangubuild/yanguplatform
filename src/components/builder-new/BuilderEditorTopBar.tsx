@@ -1,4 +1,4 @@
-import { ArrowLeft, Monitor, Smartphone, Sparkles, Settings, ShoppingBag, Globe } from "lucide-react";
+import { ArrowLeft, Monitor, Smartphone, Sparkles, Settings, ShoppingBag, Globe, MessageSquare, Wrench } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Category } from "./types/builder.types";
 import { CATEGORY_CONFIGS } from "./types/builder.types";
@@ -6,9 +6,11 @@ import { CATEGORY_CONFIGS } from "./types/builder.types";
 interface BuilderEditorTopBarProps {
   businessName: string;
   category: Category | null;
+  onToggleAdaChat?: () => void;
+  isAdaChatOpen?: boolean;
 }
 
-export function BuilderEditorTopBar({ businessName, category }: BuilderEditorTopBarProps) {
+export function BuilderEditorTopBar({ businessName, category, onToggleAdaChat, isAdaChatOpen }: BuilderEditorTopBarProps) {
   const navigate = useNavigate();
   const catLabel = category ? CATEGORY_CONFIGS[category]?.label : "Website";
   const catDomain = category ? CATEGORY_CONFIGS[category]?.domain : ".site";
@@ -32,7 +34,32 @@ export function BuilderEditorTopBar({ businessName, category }: BuilderEditorTop
         <TopBarButton icon={Monitor} label="Desktop" />
         <TopBarButton icon={Smartphone} label="Mobile" />
         <span className="w-px h-5 bg-background/20 mx-1" />
-        <TopBarButton icon={Sparkles} label="Edit with Ada AI" highlight />
+
+        {/* Ada AI / Editor Tools toggle */}
+        {onToggleAdaChat && (
+          <button
+            onClick={onToggleAdaChat}
+            title={isAdaChatOpen ? "Switch to Editor Tools" : "Open Ada AI Chat"}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              isAdaChatOpen
+                ? "bg-primary/20 text-primary hover:bg-primary/30"
+                : "text-background/70 hover:text-background hover:bg-background/10"
+            }`}
+          >
+            {isAdaChatOpen ? (
+              <>
+                <Wrench className="h-3.5 w-3.5" />
+                <span className="hidden lg:inline">Editor Tools</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-3.5 w-3.5" />
+                <span className="hidden lg:inline">Ada AI</span>
+              </>
+            )}
+          </button>
+        )}
+
         <TopBarButton icon={Settings} label="Settings" />
         {showOrders && <TopBarButton icon={ShoppingBag} label="View Orders" />}
         <button className="ml-2 px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-1.5">
