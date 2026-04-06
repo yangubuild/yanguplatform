@@ -7,6 +7,7 @@ import { VariantPreviewCarousel } from "@/components/builder-new/VariantPreviewC
 import { EditablePreview } from "@/components/builder-new/EditablePreview";
 import { BuilderEditorTopBar } from "@/components/builder-new/BuilderEditorTopBar";
 import { EditorToolsPanel } from "@/components/builder-new/EditorToolsPanel";
+import { EmenuEditorPanel } from "@/components/builder-new/EmenuEditorPanel";
 import { useStepController } from "@/components/builder-new/hooks/useStepController";
 import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteGenerator";
 import type { StepOption } from "@/components/builder-new/hooks/useStepController";
@@ -332,13 +333,21 @@ export default function BuilderNewPage() {
 
         {/* Right panel */}
         <div className="w-[260px] shrink-0 hidden md:block overflow-hidden">
-          <SelectionPanel
-            selections={selections}
-            category={ctrl.category}
-            generatedHtml={ctrl.generatedHtml}
-            isGenerating={ctrl.isGenerating}
-            onGenerate={handleGenerate}
-          />
+          {isEditMode && ctrl.category === "emenu" ? (
+            <EmenuEditorPanel
+              businessName={ctrl.businessName}
+              category={ctrl.category}
+              onAction={handleEditorAction}
+            />
+          ) : (
+            <SelectionPanel
+              selections={selections}
+              category={ctrl.category}
+              generatedHtml={ctrl.generatedHtml}
+              isGenerating={ctrl.isGenerating}
+              onGenerate={handleGenerate}
+            />
+          )}
         </div>
       </div>
     </div>
