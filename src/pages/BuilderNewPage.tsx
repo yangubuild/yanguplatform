@@ -43,6 +43,15 @@ export default function BuilderNewPage() {
 
   // Track selected section from EditablePreview
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  // Canvas selection sync (Phase III)
+  const [canvasSelection, setCanvasSelection] = useState<CanvasSelection | null>(null);
+
+  const handleCanvasSelection = useCallback((sel: CanvasSelection) => {
+    setCanvasSelection(sel);
+    if (sel.sectionIndex !== undefined) {
+      setSelectedSection(sel.sectionIndex.toString());
+    }
+  }, []);
 
   const addMsg = useCallback((role: "user" | "assistant", content: string) => {
     const msg: ChatMessage = { id: crypto.randomUUID(), role, content, timestamp: Date.now() };
