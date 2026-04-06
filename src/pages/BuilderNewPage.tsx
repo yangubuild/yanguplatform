@@ -13,6 +13,7 @@ import { useStepController } from "@/components/builder-new/hooks/useStepControl
 import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteGenerator";
 import type { StepOption } from "@/components/builder-new/hooks/useStepController";
 import type { ChatMessage, Selection } from "@/components/builder-new/types/builder.types";
+import { classifyUserIntent, getMismatchMessage } from "@/lib/builder/intentClassifier";
 import yanguLogo from "@/assets/yangu-logo-full.png";
 import { supabase } from "@/integrations/supabase/client";
 
