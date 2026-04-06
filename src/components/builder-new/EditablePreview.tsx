@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, useCallback, forwardRef } from "react";
-import { Image, Trash2, Plus, Palette, ArrowUp, ArrowDown, Type } from "lucide-react";
+import { Image, Trash2, Plus, Palette, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
 import { EditorImagePickerDialog } from "./EditorImagePickerDialog";
 import { EditorColorPickerDialog } from "./EditorColorPickerDialog";
