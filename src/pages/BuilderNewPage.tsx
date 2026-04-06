@@ -2,7 +2,6 @@ import { useEffect, useCallback, useRef, useState } from "react";
 import type { CanvasSelection } from "@/lib/builder/selectionTypes";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ChatInterface } from "@/components/builder-new/ChatInterface";
-import { NavDashHeader } from "@/components/mass/navigation/NavDashHeader";
 import { SelectionPanel } from "@/components/builder-new/SelectionPanel";
 import { VariantPreviewCarousel } from "@/components/builder-new/VariantPreviewCarousel";
 import type { VariantPreviewItem } from "@/components/builder-new/VariantPreviewCarousel";
@@ -36,10 +35,16 @@ function naturalDelay(): Promise<void> {
 type LeftPanelMode = "chat" | "tools";
 type ViewportMode = "desktop" | "mobile";
 
-export default function BuilderNewPage() {
+interface BuilderNewPageProps {
+  embedded?: boolean;
+  initialCategory?: string | null;
+}
+
+export default function BuilderNewPage({ embedded = false, initialCategory = null }: BuilderNewPageProps) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const urlCategory = searchParams.get("category");
+  const resolvedCategory = initialCategory ?? urlCategory;
   const ctrl = useStepController();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const greetedRef = useRef(false);
@@ -63,14 +68,14 @@ export default function BuilderNewPage() {
   // Set initial category from URL param
   const categorySetRef = useRef(false);
   useEffect(() => {
-    if (urlCategory && !categorySetRef.current) {
+    if (resolvedCategory && !categorySetRef.current) {
       categorySetRef.current = true;
-      if (["emenu", "eshop", "estore", "esite", "community", "influencer"].includes(urlCategory)) {
-        ctrl.setCategory(urlCategory as any);
+      if (["emenu", "eshop", "estore", "esite", "community", "influencer"].includes(resolvedCategory)) {
+        ctrl.setCategory(resolvedCategory as any);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [urlCategory]);
+  }, [resolvedCategory]);
 
   const handleCanvasSelection = useCallback((sel: CanvasSelection) => {
     setCanvasSelection(sel);
@@ -580,8 +585,8 @@ export default function BuilderNewPage() {
   const showChat = !isEditMode || leftPanelMode === "chat";
 
   return (
-    <div className="h-screen flex flex-col bg-background">
-      {/* Edit mode: show builder top bar */}
+    <div className={`${embedded ? "h-[calc(100vh-64px)]" : "h-screen"} flex flex-col bg-background`}>
+      {/* Only show the builder top bar during in-page edit mode */}
       {isEditMode && (
         <BuilderEditorTopBar
           businessName={ctrl.businessName}
@@ -593,10 +598,6 @@ export default function BuilderNewPage() {
           onPublish={() => setPublishOpen(true)}
           onOpenSettings={() => setSettingsOpen(true)}
         />
-      )}
-      {/* Chat/onboarding phase: show global dashboard navbar */}
-      {!isEditMode && (
-        <NavDashHeader onMenuToggle={() => {}} />
       )}
 
       <div className="flex-1 flex overflow-hidden">
