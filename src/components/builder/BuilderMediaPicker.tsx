@@ -179,6 +179,7 @@ function MediaSourceTabs({
 
       <TabsContent value="library" className="mt-2">
         <MediaLibraryTab
+          surfaceId={surfaceId}
           onSelect={(url, source) => {
             onChange({
               ...value,
