@@ -6,6 +6,7 @@ import { SelectionPanel } from "@/components/builder-new/SelectionPanel";
 import { VariantPreviewCarousel } from "@/components/builder-new/VariantPreviewCarousel";
 import { EditablePreview } from "@/components/builder-new/EditablePreview";
 import { BuilderEditorTopBar } from "@/components/builder-new/BuilderEditorTopBar";
+import { EditorToolsPanel } from "@/components/builder-new/EditorToolsPanel";
 import { useStepController } from "@/components/builder-new/hooks/useStepController";
 import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteGenerator";
 import type { StepOption } from "@/components/builder-new/hooks/useStepController";
@@ -13,11 +14,13 @@ import type { ChatMessage, Selection } from "@/components/builder-new/types/buil
 import yanguLogo from "@/assets/yangu-logo-full.png";
 import { supabase } from "@/integrations/supabase/client";
 
-// Natural delay between 800-1500ms for AI replies
 function naturalDelay(): Promise<void> {
   const ms = 800 + Math.random() * 700;
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+/** Left panel mode: "chat" = onboarding/Ada chat, "tools" = editor tools */
+type LeftPanelMode = "chat" | "tools";
 
 export default function BuilderNewPage() {
   const navigate = useNavigate();
@@ -31,13 +34,18 @@ export default function BuilderNewPage() {
   const [chosenVariant, setChosenVariant] = useState<string | null>(null);
   const [isChoosingVariant, setIsChoosingVariant] = useState(false);
 
+  // Left panel mode: defaults to "chat" during onboarding, auto-switches to "tools" after generation
+  const [leftPanelMode, setLeftPanelMode] = useState<LeftPanelMode>("chat");
+
+  // Track selected section from EditablePreview
+  const [selectedSection, setSelectedSection] = useState<string | null>(null);
+
   const addMsg = useCallback((role: "user" | "assistant", content: string) => {
     const msg: ChatMessage = { id: crypto.randomUUID(), role, content, timestamp: Date.now() };
     setMessages(prev => [...prev, msg]);
     return msg;
   }, []);
 
-  // Delayed assistant message
   const addDelayedMsg = useCallback(async (content: string) => {
     setIsThinking(true);
     await naturalDelay();
@@ -116,10 +124,8 @@ export default function BuilderNewPage() {
       style: ctrl.selectedTemplateKey || "modern",
       styleSpecific: "",
       sections: ctrl.selectedSections,
-      // Only use the delivery apps the user selected — no extras
       deliveryApps: ctrl.selectedDeliveryApps,
       userIdea: ctrl.userIdea || "",
-      // Pass user assets for prioritization
       userLogoUrl: userUploadedAssets.logoUrl,
       userBrandColors: userUploadedAssets.brandColors,
       userImages: userUploadedAssets.images,
@@ -139,7 +145,9 @@ export default function BuilderNewPage() {
     ctrl.setGeneratedHtml(selected);
     ctrl.setCurrentStep("refinement");
     addMsg("user", `Selected Design ${index + 1}`);
-    addMsg("assistant", "Your website draft is ready! Use the toolbar to edit text, replace images, or describe changes in the chat.");
+    addMsg("assistant", "Your website draft is ready! Use the editor tools on the left to make changes, or switch to Ada AI for help.");
+    // AUTO-SWITCH: left panel transitions from chat to editor tools
+    setLeftPanelMode("tools");
   }, [variants, ctrl, addMsg]);
 
   const handleHtmlChange = useCallback((html: string) => {
@@ -158,9 +166,8 @@ export default function BuilderNewPage() {
       addMsg("user", text);
       handleRefinement(text);
     }
-  }, [addMsg, addDelayedMsg, ctrl]);
+  }, [addMsg, ctrl]);
 
-  // ─── Refinement chat: grounded to current page state ────────
   const handleRefinement = useCallback(async (text: string) => {
     setIsThinking(true);
     try {
@@ -181,14 +188,49 @@ export default function BuilderNewPage() {
         },
       });
 
-      const reply = data?.content || "I'll apply that change. Use the toolbar buttons above the preview to make direct edits, or describe more changes here.";
+      const reply = data?.content || "I'll apply that change. Use the editor tools to make direct edits, or describe more changes here.";
       setIsThinking(false);
       addMsg("assistant", reply);
     } catch {
       setIsThinking(false);
-      addMsg("assistant", "I had trouble processing that. Try using the toolbar buttons to make edits directly, or describe the change again.");
+      addMsg("assistant", "I had trouble processing that. Try using the editor tools to make edits directly, or describe the change again.");
     }
   }, [messages, ctrl, addMsg]);
+
+  // Handle editor tool actions from EditorToolsPanel
+  const handleEditorAction = useCallback((action: string) => {
+    // These actions are forwarded to the EditablePreview via postMessage or direct calls
+    const iframe = document.querySelector<HTMLIFrameElement>('iframe[title="Editable Website Preview"]');
+    if (!iframe?.contentWindow) return;
+
+    switch (action) {
+      case "edit_text":
+        // Toggle edit mode in the preview
+        iframe.contentWindow.postMessage({ type: "toggle-edit-mode" }, "*");
+        break;
+      case "replace_image":
+        iframe.contentWindow.postMessage({ type: "open-image-picker" }, "*");
+        break;
+      case "add_section":
+      case "move_up":
+      case "move_down":
+      case "remove_section":
+      case "duplicate_section":
+        iframe.contentWindow.postMessage({ type: "toolbar-action", action }, "*");
+        break;
+      case "change_colors":
+        // Open color picker dialog — handled by EditablePreview
+        iframe.contentWindow.postMessage({ type: "open-color-picker" }, "*");
+        break;
+      default:
+        break;
+    }
+  }, []);
+
+  // Toggle between editor tools and Ada chat
+  const handleToggleAdaChat = useCallback(() => {
+    setLeftPanelMode(prev => prev === "chat" ? "tools" : "chat");
+  }, []);
 
   // Build selections list
   const selections: Selection[] = [];
@@ -208,10 +250,19 @@ export default function BuilderNewPage() {
 
   const isLoadingState = ctrl.isGenerating || isThinking;
 
+  // In edit mode, show EditorToolsPanel by default; chat is toggled via Ada button
+  const showEditorTools = isEditMode && leftPanelMode === "tools";
+  const showChat = !isEditMode || leftPanelMode === "chat";
+
   return (
     <div className="h-screen flex flex-col bg-background">
       {isEditMode ? (
-        <BuilderEditorTopBar businessName={ctrl.businessName} category={ctrl.category} />
+        <BuilderEditorTopBar
+          businessName={ctrl.businessName}
+          category={ctrl.category}
+          onToggleAdaChat={handleToggleAdaChat}
+          isAdaChatOpen={leftPanelMode === "chat"}
+        />
       ) : (
         <header className="flex items-center gap-3 px-4 py-2.5 border-b border-border shrink-0">
           <button onClick={() => navigate(-1)} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
@@ -223,30 +274,40 @@ export default function BuilderNewPage() {
       )}
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Chat panel */}
+        {/* Left panel: Editor Tools (default in edit mode) or Chat (default in onboarding / toggled in edit mode) */}
         <div className={`${showCenterPanel ? "w-[360px]" : "flex-1"} min-w-0 border-r border-border shrink-0 transition-all overflow-visible`}>
-          <ChatInterface
-            messages={messages}
-            isLoading={isLoadingState}
-            onSend={handleFreeText}
-            stepConfig={ctrl.getStepConfig()}
-            onOptionSelect={handleOptionSelect}
-            onConfirmMulti={handleConfirmMulti}
-            multiSelected={
-              ctrl.currentStep === "sections" ? ctrl.selectedSections :
-              ctrl.currentStep === "delivery_apps" ? ctrl.selectedDeliveryApps :
-              []
-            }
-            inputAllowed={ctrl.inputAllowed}
-            currentStep={ctrl.currentStep}
-            builderMode={isEditMode ? "edit" : "new"}
-            selections={selections}
-            userAssets={ctrl.userUploadedAssets}
-            onAssetsChange={ctrl.setUserUploadedAssets}
-            onConfirmAssetUpload={handleConfirmAssetUpload}
-            businessName={ctrl.businessName}
-            onConfirmAiLogo={ctrl.confirmAiLogo}
-          />
+          {showEditorTools ? (
+            <EditorToolsPanel
+              onToggleAdaChat={handleToggleAdaChat}
+              onAction={handleEditorAction}
+              selectedSection={selectedSection}
+              businessName={ctrl.businessName}
+              category={ctrl.category}
+            />
+          ) : (
+            <ChatInterface
+              messages={messages}
+              isLoading={isLoadingState}
+              onSend={handleFreeText}
+              stepConfig={ctrl.getStepConfig()}
+              onOptionSelect={handleOptionSelect}
+              onConfirmMulti={handleConfirmMulti}
+              multiSelected={
+                ctrl.currentStep === "sections" ? ctrl.selectedSections :
+                ctrl.currentStep === "delivery_apps" ? ctrl.selectedDeliveryApps :
+                []
+              }
+              inputAllowed={ctrl.inputAllowed}
+              currentStep={ctrl.currentStep}
+              builderMode={isEditMode ? "edit" : "new"}
+              selections={selections}
+              userAssets={ctrl.userUploadedAssets}
+              onAssetsChange={ctrl.setUserUploadedAssets}
+              onConfirmAssetUpload={handleConfirmAssetUpload}
+              businessName={ctrl.businessName}
+              onConfirmAiLogo={ctrl.confirmAiLogo}
+            />
+          )}
         </div>
 
         {/* Center panel — variant carousel or editable preview */}
@@ -269,7 +330,7 @@ export default function BuilderNewPage() {
           </div>
         )}
 
-        {/* Selections panel */}
+        {/* Right panel */}
         <div className="w-[260px] shrink-0 hidden md:block overflow-hidden">
           <SelectionPanel
             selections={selections}
