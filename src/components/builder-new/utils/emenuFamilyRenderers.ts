@@ -334,7 +334,7 @@ export function renderYumix(ctx: RenderContext): string {
     </section>`;
   } else if (t.heroLayout === "fullwidth") {
     heroHTML = `
-    <section style="min-height:90vh;position:relative;display:flex;align-items:center;justify-content:center;text-align:center;">
+    <section id="hero" style="min-height:90vh;position:relative;display:flex;align-items:center;justify-content:center;text-align:center;">
       <div style="position:absolute;inset:0;"><img src="${heroImg}" style="width:100%;height:100%;object-fit:cover;" alt=""/></div>
       <div style="position:absolute;inset:0;background:linear-gradient(180deg, ${t.pageBg}cc 0%, ${t.pageBg}ee 100%);"></div>
       <div style="position:relative;z-index:1;max-width:600px;padding:24px;">
@@ -365,7 +365,7 @@ export function renderYumix(ctx: RenderContext): string {
 
   // Category cards
   const catHTML = catShowcase?.enabled && catShowcase.items?.length ? `
-  <section style="padding:64px 28px;background:#141210;">
+  <section id="categories" style="padding:64px 28px;background:#141210;">
     <div style="max-width:1000px;margin:0 auto;text-align:center;">
       <h2 style="font-family:${t.fontHeading};font-size:1.5rem;font-weight:700;margin-bottom:28px;color:${t.pageText};">${catShowcase.heading || "Categories"}</h2>
       <div style="display:grid;grid-template-columns:repeat(${catShowcase.columns || 4},1fr);gap:16px;">
@@ -408,7 +408,7 @@ export function renderYumix(ctx: RenderContext): string {
 
   // Promos
   const promoHTML = promos.length ? `
-  <section style="padding:48px 28px;background:#141210;">
+  <section id="deals" style="padding:48px 28px;background:#141210;">
     <div style="max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(${Math.min(promos.length, 2)},1fr);gap:20px;">
       ${promos.map((p: any) => `
         <div style="background:${t.accent}15;border:1px solid ${t.accent}33;border-radius:${cardRadius};padding:32px 24px;">
@@ -422,7 +422,7 @@ export function renderYumix(ctx: RenderContext): string {
 
   // Stats
   const statsHTML = stats.length ? `
-  <section style="padding:48px 28px;background:${t.pageBg};">
+  <section id="stats" style="padding:48px 28px;background:${t.pageBg};">
     <div style="max-width:900px;margin:0 auto;display:flex;justify-content:space-around;text-align:center;flex-wrap:wrap;gap:24px;">
       ${stats.map((st: any) => `
         <div>
@@ -435,7 +435,7 @@ export function renderYumix(ctx: RenderContext): string {
 
   // Testimonials
   const testimonialsHTML = testimonials.enabled && testimonials.items?.length ? `
-  <section style="padding:64px 28px;background:#0D0B08;">
+  <section id="reviews" style="padding:64px 28px;background:#0D0B08;">
     <div style="max-width:1000px;margin:0 auto;text-align:center;">
       <h2 style="font-family:${t.fontHeading};font-size:1.5rem;font-weight:700;margin-bottom:28px;color:${t.pageText};">${testimonials.heading || "Reviews"}</h2>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
