@@ -2,6 +2,7 @@ import { useEffect, useCallback, useRef, useState } from "react";
 import type { CanvasSelection } from "@/lib/builder/selectionTypes";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ChatInterface } from "@/components/builder-new/ChatInterface";
+import { NavDashHeader } from "@/components/mass/navigation/NavDashHeader";
 import { SelectionPanel } from "@/components/builder-new/SelectionPanel";
 import { VariantPreviewCarousel } from "@/components/builder-new/VariantPreviewCarousel";
 import type { VariantPreviewItem } from "@/components/builder-new/VariantPreviewCarousel";
