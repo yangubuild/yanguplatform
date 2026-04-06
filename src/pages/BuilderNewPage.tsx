@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { ChatInterface } from "@/components/builder-new/ChatInterface";
 import { SelectionPanel } from "@/components/builder-new/SelectionPanel";
 import { VariantPreviewCarousel } from "@/components/builder-new/VariantPreviewCarousel";
+import type { VariantPreviewItem } from "@/components/builder-new/VariantPreviewCarousel";
 import { EditablePreview } from "@/components/builder-new/EditablePreview";
 import { BuilderEditorTopBar } from "@/components/builder-new/BuilderEditorTopBar";
 import { EditorToolsPanel } from "@/components/builder-new/EditorToolsPanel";
@@ -12,6 +13,17 @@ import { useStepController } from "@/components/builder-new/hooks/useStepControl
 import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteGenerator";
 import type { StepOption } from "@/components/builder-new/hooks/useStepController";
 import type { ChatMessage, Selection } from "@/components/builder-new/types/builder.types";
+import emenuPlateriaImg from "@/assets/styles/emenu_plateria.jpg";
+import emenuYumixImg from "@/assets/styles/emenu_yumix.jpg";
+import emenuZooomImg from "@/assets/styles/emenu_zooom.jpg";
+
+/** Reference template keys that use static screenshot previews */
+const REFERENCE_TEMPLATE_KEYS = ["emenu_plateria", "emenu_yumix", "emenu_zooom"];
+const REFERENCE_PREVIEWS: Record<string, { imageUrl: string; label: string }> = {
+  emenu_plateria: { imageUrl: emenuPlateriaImg, label: "Plateria" },
+  emenu_yumix: { imageUrl: emenuYumixImg, label: "Yumix" },
+  emenu_zooom: { imageUrl: emenuZooomImg, label: "Zooom" },
+};
 import yanguLogo from "@/assets/yangu-logo-full.png";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -31,7 +43,7 @@ export default function BuilderNewPage() {
   const [isThinking, setIsThinking] = useState(false);
 
   // Multi-variant state
-  const [variants, setVariants] = useState<string[]>([]);
+  const [variants, setVariants] = useState<VariantPreviewItem[]>([]);
   const [chosenVariant, setChosenVariant] = useState<string | null>(null);
   const [isChoosingVariant, setIsChoosingVariant] = useState(false);
 
@@ -115,39 +127,91 @@ export default function BuilderNewPage() {
     addMsg("assistant", "⚡ Generating 3 unique designs based on your selections...");
 
     const cat = ctrl.category || "esite";
+    const templateKey = ctrl.selectedTemplateKey || "modern";
     const { userUploadedAssets } = ctrl;
 
-    const htmlVariants = generateWebsiteVariants({
-      category: cat,
-      businessName: ctrl.businessName || "My Website",
-      location: ctrl.businessLocation || "Dubai, UAE",
-      scope: ctrl.selectedScope || "showcase",
-      style: ctrl.selectedTemplateKey || "modern",
-      styleSpecific: "",
-      sections: ctrl.selectedSections,
-      deliveryApps: ctrl.selectedDeliveryApps,
-      userIdea: ctrl.userIdea || "",
-      userLogoUrl: userUploadedAssets.logoUrl,
-      userBrandColors: userUploadedAssets.brandColors,
-      userImages: userUploadedAssets.images,
-    });
+    // For the top 3 reference templates, show static screenshot previews
+    const isReferenceTemplate = REFERENCE_TEMPLATE_KEYS.includes(templateKey);
 
-    setTimeout(() => {
-      setVariants(htmlVariants);
-      ctrl.setIsGenerating(false);
-      addMsg("assistant", "Here are 3 design variants! Browse through them and click **Choose this design** on the one you like best.");
-    }, 2500);
+    if (isReferenceTemplate) {
+      // Show screenshot-based previews for the 3 reference templates
+      const items: VariantPreviewItem[] = REFERENCE_TEMPLATE_KEYS.map((key) => ({
+        imageUrl: REFERENCE_PREVIEWS[key].imageUrl,
+        label: REFERENCE_PREVIEWS[key].label,
+      }));
+
+      setTimeout(() => {
+        setVariants(items);
+        ctrl.setIsGenerating(false);
+        addMsg("assistant", "Here are 3 reference designs! Browse through them and click **Choose this design** on the one you like best. Your branding will be applied after selection.");
+      }, 2500);
+    } else {
+      // For internal templates (emenu_visual_a, esite, etc.), generate HTML variants
+      const htmlVariants = generateWebsiteVariants({
+        category: cat,
+        businessName: ctrl.businessName || "My Website",
+        location: ctrl.businessLocation || "Dubai, UAE",
+        scope: ctrl.selectedScope || "showcase",
+        style: templateKey,
+        styleSpecific: "",
+        sections: ctrl.selectedSections,
+        deliveryApps: ctrl.selectedDeliveryApps,
+        userIdea: ctrl.userIdea || "",
+        userLogoUrl: userUploadedAssets.logoUrl,
+        userBrandColors: userUploadedAssets.brandColors,
+        userImages: userUploadedAssets.images,
+      });
+
+      const items: VariantPreviewItem[] = htmlVariants.map((html, i) => ({
+        html,
+        label: `Design ${i + 1}`,
+      }));
+
+      setTimeout(() => {
+        setVariants(items);
+        ctrl.setIsGenerating(false);
+        addMsg("assistant", "Here are 3 design variants! Browse through them and click **Choose this design** on the one you like best.");
+      }, 2500);
+    }
   }, [ctrl, addMsg]);
 
   const handleChooseVariant = useCallback((index: number) => {
     const selected = variants[index];
-    setChosenVariant(selected);
+    const templateKey = ctrl.selectedTemplateKey || "modern";
+    const isReferenceTemplate = REFERENCE_TEMPLATE_KEYS.includes(templateKey);
+
+    if (isReferenceTemplate && !selected.html) {
+      // For reference templates, generate the customized HTML now
+      const { userUploadedAssets } = ctrl;
+      const referenceKey = REFERENCE_TEMPLATE_KEYS[index] || templateKey;
+
+      const htmlVariants = generateWebsiteVariants({
+        category: ctrl.category || "emenu",
+        businessName: ctrl.businessName || "My Website",
+        location: ctrl.businessLocation || "Dubai, UAE",
+        scope: ctrl.selectedScope || "showcase",
+        style: referenceKey,
+        styleSpecific: "",
+        sections: ctrl.selectedSections,
+        deliveryApps: ctrl.selectedDeliveryApps,
+        userIdea: ctrl.userIdea || "",
+        userLogoUrl: userUploadedAssets.logoUrl,
+        userBrandColors: userUploadedAssets.brandColors,
+        userImages: userUploadedAssets.images,
+      });
+
+      const generatedHtml = htmlVariants[0] || "<html><body><p>Generation failed</p></body></html>";
+      setChosenVariant(generatedHtml);
+      ctrl.setGeneratedHtml(generatedHtml);
+    } else {
+      setChosenVariant(selected.html || "");
+      ctrl.setGeneratedHtml(selected.html || "");
+    }
+
     setIsChoosingVariant(false);
-    ctrl.setGeneratedHtml(selected);
     ctrl.setCurrentStep("refinement");
-    addMsg("user", `Selected Design ${index + 1}`);
+    addMsg("user", `Selected ${selected.label || `Design ${index + 1}`}`);
     addMsg("assistant", "Your website draft is ready! Use the editor tools on the left to make changes, or switch to Ada AI for help.");
-    // AUTO-SWITCH: left panel transitions from chat to editor tools
     setLeftPanelMode("tools");
   }, [variants, ctrl, addMsg]);
 
