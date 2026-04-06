@@ -325,6 +325,7 @@ export default function BuilderNewPage() {
               selectedSection={selectedSection}
               businessName={ctrl.businessName}
               category={ctrl.category}
+              canvasSelection={canvasSelection}
             />
           ) : (
             <ChatInterface
