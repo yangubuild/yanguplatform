@@ -1,90 +1,160 @@
 
-# YANGU Builder — Category Routing & Seller Editor Plan
+# Audit: Shared Editor Engine + Category Capability Packs + AI Intent Routing
 
-## A. Routing Plan
+---
 
-**Current:** `/builder/:surfaceId` → `BuilderEditor` (generic, same for all)
+## 1. CURRENT STATE AUDIT
 
-**New:** `/builder/:surfaceId` → `BuilderEditorRouter` (thin wrapper that reads `surface_type` and branches)
+### ✅ What already exists correctly
 
-| surface_type | Routes to | Status |
+| Component | Status | Notes |
 |---|---|---|
-| `emenu` | `SellerEditor` | ✅ Full (this phase) |
-| `eshop` | `SellerEditor` | ✅ Full (this phase) |
-| `estore` | `SellerEditor` | ✅ Full (this phase) |
-| `quick_site` (esite) | `SellerEditor` | ✅ Full (this phase) |
-| `live_bio` | `InfluencerEditorPlaceholder` | 🔲 Stub only |
-| `community_group` | `CommunityEditorPlaceholder` | 🔲 Stub only |
+| `BuilderEngine` type | ✅ Exists | Each category has `key`, `editorModules`, `templates`, `aiGenerationRules` |
+| 6 engine configs | ✅ Exists | `emenu`, `eshop`, `estore`, `esite`, `influencer`, `community` — all in `src/lib/builder/engines/` |
+| Engine registry | ✅ Exists | `engineRegistry.ts` with `getEngine()`, `getEngineForSurfaceType()` |
+| `editorModules` per category | ✅ Defined | Each engine declares its module list |
+| `industryModules` for esite | ✅ Defined | e.g. `real_estate: ["listings"]`, `hospitality: ["booking"]` |
+| `BuilderEditorRouter` | ✅ Exists | Routes by `surface_type` → Seller / Influencer / Community editors |
+| `SellerMode` config | ✅ Exists | Drives sidebar labels per seller subtype |
 
-**Implementation:** `BuilderEditorRouter.tsx` fetches `surface_type` from `builder_surfaces`, then renders the correct editor component. Loading/error states handled here once.
+### ❌ What is MISSING
 
----
+| Gap | Impact |
+|---|---|
+| **No AI intent classification** | Builder silently builds whatever user describes inside whatever category they started in — no mismatch detection |
+| **No category switch flow** | No mechanism to warn user and offer category switch mid-onboarding |
+| **`editorModules` not wired to UI** | The module arrays exist in engine configs but are NOT consumed by the actual editor panels — editor shows same controls for all |
+| **No capability pack abstraction** | Modules are flat string arrays, not structured feature packs with UI components, permissions, and dependencies |
+| **No cross-category feature sharing** | e.g. Estore should inherit eshop features + add wholesale — currently these are independent flat lists |
+| **Community/Influencer editors are placeholders** | Only stubs exist |
 
-## B. Seller Editor Plan
+### ⚠️ Partially correct
 
-**Rename:** Current `BuilderEditor.tsx` (777 lines) → becomes `SellerEditor.tsx`
-
-**Category-awareness via engine lookup:**
-- On mount, resolve `surface_type` → engine key (using existing `getEngineForSurfaceType`)
-- Engine provides: `editorModules`, `templates`, `aiGenerationRules`
-- These drive which panels, section tools, and add-section options appear
-
-**What changes per seller subtype:**
-
-| Feature | emenu | eshop | estore | esite |
-|---|---|---|---|---|
-| Add Section list | menu, hero, location, delivery | products, hero, cart, order | catalog, hero, inquiry | services, hero, contact, booking |
-| Module panels | Menu editor | Product manager | Catalog manager | Service editor |
-| Preview hint | Food-themed | Commerce-themed | Industrial/catalog | Professional/service |
-
-**How:** The existing `BuilderAddSection` and section type labels will filter based on `engine.templates` and `engine.aiGenerationRules.allowedSectionTypes`. No new components needed — just pass the engine config down.
+| Component | Issue |
+|---|---|
+| Emenu editor tools | Editor has emenu-specific controls (menu items, categories) but they're hardcoded in `EditorToolsPanel`, not driven by `engine.editorModules` |
+| Template system | Only emenu has real templates; other categories have schema stubs only |
 
 ---
 
-## C. File Structure Plan
+## 2. CAPABILITY PACK ARCHITECTURE (Proposed)
 
-### Shared (NO changes):
-- `src/components/builder-new/*` (entry, wizard, AI onboarding, chat)
-- `src/lib/builder/engines/*` (all 6 engine configs)
-- `src/lib/builder/engineRegistry.ts`
-- `src/hooks/useBuilderEditor.ts`
-- `src/hooks/useBuilderSurfaceInit.ts`
-- `src/components/builder/*` (BuilderPreview, BuilderSectionList, etc.)
+### Definition
 
-### New files:
+A **Capability Pack** is the set of feature modules a category exposes in the editor. It maps `editorModules` strings to actual UI panel components and backend features.
+
 ```
-src/pages/BuilderEditorRouter.tsx      ← thin router (reads surface_type, branches)
-src/pages/SellerEditor.tsx             ← renamed from BuilderEditor.tsx + engine-aware
-src/pages/InfluencerEditorPlaceholder.tsx  ← stub
-src/pages/CommunityEditorPlaceholder.tsx  ← stub
+Category → Engine Config → editorModules[] → Capability Pack → UI Panels
 ```
 
-### Modified files:
-```
-src/App.tsx                            ← /builder/:surfaceId → BuilderEditorRouter
-src/components/builder/BuilderAddSection.tsx  ← filter by engine.allowedSectionTypes
-```
+### Pack contents per category
+
+| Category | Core Modules | Extended Modules (future) |
+|---|---|---|
+| **Emenu** | menu_items, menu_categories, hours, order_settings, contact, social, food_image_ai | reservation (conditional), delivery_apps |
+| **Eshop** | products, collections, cart, checkout, discount_rules, promos, review_settings, contact | shipping, tax, inventory |
+| **Estore** | *inherits eshop* + catalog, bulk_pricing, quote_request, supplier_info, large_inventory | multi-seller, dealer, marketplace |
+| **Esite** | services, team, testimonials, contact, faq, blog + *industry modules* (bookings, listings, calendar) | Zoom/Meet integrations, appointment scheduling |
+| **Community** | member_signup, events, programs, resources, private_posts, directory, messaging | courses, ebooks, merch, bookings |
+| **Influencer** | bio, links, media, affiliate, live_product_pins, tips, contact | sponsorships, analytics |
+
+### Shared editor core (unchanged across all)
+
+- Direct in-canvas text editing
+- Side panel logic
+- Media library
+- Page/section/element controls
+- One-page scroll-first behavior
+- Selection sync
+- Context styling (Phase IV)
 
 ---
 
-## D. Placeholder Plan
+## 3. AI INTENT ROUTING (Proposed)
 
-**InfluencerEditorPlaceholder:**
-- Full-screen card with back-to-dashboard button
-- Shows surface title + "Influencer bio editor coming soon"
-- No functionality
+### Flow
 
-**CommunityEditorPlaceholder:**
-- Same pattern — "Community editor coming soon"
-- No functionality
+```
+User enters builder with category X
+  → User describes their business
+  → AI classifies intent keywords
+  → Compare classified category vs selected category
+  → If match: proceed normally
+  → If mismatch: show warning + offer switch
+```
 
-Both receive `surfaceId` from URL params so they're ready for future wiring.
+### Classification logic
+
+Use keyword matching from existing `CATEGORY_CONFIGS.keywords` + extended keyword sets:
+
+| Detected keywords | Maps to |
+|---|---|
+| restaurant, cafe, menu, food, delivery | emenu |
+| shop, retail, fashion, products, clothing | eshop |
+| wholesale, bulk, supplier, agriculture, marketplace, dealer | estore |
+| booking, hotel, consultant, agency, law, medical, portfolio, real estate | esite |
+| course, community, training, ebook, membership, group | community |
+| creator, influencer, streamer, content, vlogger | influencer |
+
+### Mismatch response
+
+```
+"It looks like you're describing a [detected type] business. 
+You started in [current category]. 
+
+Would you like to:
+→ Switch to [detected category] (recommended)
+→ Stay in [current category]
+→ Go back to dashboard"
+```
+
+### Where to implement
+
+- In the onboarding AI chat flow (`useBuilderChat` or equivalent)
+- After user's first business description message
+- Before template selection begins
 
 ---
 
-## Execution Order
-1. Create `BuilderEditorRouter.tsx` (fetches surface_type, branches)
-2. Copy `BuilderEditor.tsx` → `SellerEditor.tsx`, add engine-awareness
-3. Create two placeholder editors
-4. Update `App.tsx` route to use router
-5. Wire `BuilderAddSection` to respect engine config
+## 4. IMPLEMENTATION PLAN (Phased)
+
+### Phase A — Wire `editorModules` to editor UI
+- Make `EditorToolsPanel` read `engine.editorModules` and only render matching tool sections
+- Create a module→component registry (map strings like `"menu_items"` to actual panel components)
+- Current emenu tools become the first registered module components
+- **No new features added, just proper wiring**
+
+### Phase B — AI Intent Classification
+- Add `classifyUserIntent(text: string): Category` utility using keyword matching from engine configs
+- Wire into onboarding chat flow after first user message
+- Add mismatch warning UI with switch/stay/back options
+- If switch accepted: update `surface_type` in DB, reload correct engine
+
+### Phase C — Capability Pack Inheritance
+- Define pack inheritance (estore extends eshop modules)
+- Add `extends?: string` to `BuilderEngine` type
+- Merge parent + child modules at runtime
+
+### Phase D — Module Component Registry (per category)
+- Register placeholder panels for non-emenu modules (products, services, etc.)
+- Each module panel follows same shared component interface
+- Renders based on active engine's `editorModules`
+
+---
+
+## 5. WHAT THIS DOES NOT TOUCH
+
+- ❌ Builder shell design
+- ❌ Reservation flow
+- ❌ Template system / registry
+- ❌ Seller → Emenu wiring
+- ❌ Eshop implementation
+- ❌ Checkout/cart systems
+
+---
+
+## 6. RECOMMENDED EXECUTION ORDER
+
+1. **Phase A** first — makes the architecture honest (editor actually respects engine config)
+2. **Phase B** next — prevents wrong-category builds
+3. **Phase C + D** later — enables real multi-category editing
