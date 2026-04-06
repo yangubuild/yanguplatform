@@ -30,10 +30,12 @@ import {
   Search,
   ExternalLink,
   Expand,
+  FolderOpen,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { consumeAiImageCredit } from "@/lib/aiCredits";
+import { MediaLibraryTab } from "./media/MediaLibraryTab";
 
 export interface MediaValue {
   type: "none" | "image" | "video";
