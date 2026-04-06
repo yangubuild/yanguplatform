@@ -369,6 +369,7 @@ export default function BuilderNewPage() {
             <EditablePreview
               html={chosenVariant!}
               onHtmlChange={handleHtmlChange}
+              onSelectionChange={handleCanvasSelection}
             />
           </div>
         )}
