@@ -7,6 +7,7 @@ import { VariantPreviewCarousel } from "@/components/builder-new/VariantPreviewC
 import { EditablePreview } from "@/components/builder-new/EditablePreview";
 import { BuilderEditorTopBar } from "@/components/builder-new/BuilderEditorTopBar";
 import { EditorToolsPanel } from "@/components/builder-new/EditorToolsPanel";
+import { EmenuEditorPanel } from "@/components/builder-new/EmenuEditorPanel";
 import { useStepController } from "@/components/builder-new/hooks/useStepController";
 import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteGenerator";
 import type { StepOption } from "@/components/builder-new/hooks/useStepController";
