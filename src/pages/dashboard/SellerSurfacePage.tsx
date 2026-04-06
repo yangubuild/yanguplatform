@@ -153,12 +153,10 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
   // Emenu wizard state (for backward-compat manual flow)
   const [emenuWizardOpen, setEmenuWizardOpen] = useState(false);
 
-  // For emenu: redirect to the new builder chat flow
-  useEffect(() => {
-    if (engineKey === "emenu") {
-      navigate(`/builder/new?category=emenu`, { replace: true });
-    }
-  }, [engineKey, navigate]);
+  // Emenu "Build with AI" → navigate to new builder chat flow
+  const handleEmenuAi = useCallback(() => {
+    navigate(`/builder/new?category=emenu`, { replace: false });
+  }, [navigate]);
 
   /** Handle wizard/AI completion — build seed sections and navigate to editor */
   const handleComplete = useCallback(async (answers: Record<string, unknown>) => {
@@ -315,11 +313,21 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     );
   }
 
-  // For emenu, we redirect (useEffect above). Show loading while redirect happens.
+  // For emenu: show entry screen with AI → chat, Manual → wizard
   if (engineKey === "emenu") {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground text-sm">Loading menu builder...</p>
+      <div className="min-h-screen bg-background">
+        <BuilderEntryScreen
+          engine={engine}
+          onComplete={handleComplete}
+          onAiPath={handleEmenuAi}
+          onManualPath={() => setEmenuWizardOpen(true)}
+        />
+        <EmenuWizard
+          open={emenuWizardOpen}
+          onOpenChange={setEmenuWizardOpen}
+          onComplete={handleEmenuWizardComplete}
+        />
       </div>
     );
   }
