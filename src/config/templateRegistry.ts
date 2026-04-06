@@ -2399,14 +2399,36 @@ export function mergeTemplateSchema(
 
 // ─── Public API ───
 
-/** Get all templates for a given engine key */
+/** Get all active templates for a given engine key (filters out is_active === false) */
 export function getTemplatesForEngine(engineKey: string): TemplatePreset[] {
+  const all = TEMPLATE_REGISTRY[engineKey]?.templates ?? [];
+  return all.filter((t) => t.is_active !== false);
+}
+
+/** Get ALL templates including inactive (for internal lookups) */
+export function getAllTemplatesForEngine(engineKey: string): TemplatePreset[] {
   return TEMPLATE_REGISTRY[engineKey]?.templates ?? [];
 }
 
-/** Get a specific template by engine key + template key */
+/** Get a specific template by engine key + template key (searches all, including inactive) */
 export function getTemplate(engineKey: string, templateKey: string): TemplatePreset | undefined {
-  return getTemplatesForEngine(engineKey).find((t) => t.key === templateKey);
+  return getAllTemplatesForEngine(engineKey).find((t) => t.key === templateKey);
+}
+
+/**
+ * Template integrity guard: validates that a generated output matches the selected template family.
+ * Returns true if the template_key belongs to the expected family, false if it drifted.
+ */
+export function validateTemplateFamily(engineKey: string, selectedKey: string, outputKey: string): boolean {
+  const selected = getTemplate(engineKey, selectedKey);
+  const output = getTemplate(engineKey, outputKey);
+  if (!selected || !output) return selectedKey === outputKey;
+  // If template_family is set, both must match
+  if (selected.template_family && output.template_family) {
+    return selected.template_family === output.template_family;
+  }
+  // Fallback: keys must match exactly
+  return selectedKey === outputKey;
 }
 
 /** Get all engine keys that have templates */
