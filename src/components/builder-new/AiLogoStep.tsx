@@ -279,7 +279,7 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
               }`}
             >
               {src ? (
-                <img src={src} alt={`Logo option ${i + 1}`} className="w-full h-full object-contain rounded-lg" />
+                <img src={src} alt={`Logo option ${i + 1}`} className="w-full h-full object-contain rounded-lg overflow-hidden" />
               ) : (
                 <span className="text-xs text-muted-foreground">Failed</span>
               )}
