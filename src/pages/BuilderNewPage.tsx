@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { ChatInterface } from "@/components/builder-new/ChatInterface";
 import { SelectionPanel } from "@/components/builder-new/SelectionPanel";
 import { VariantPreviewCarousel } from "@/components/builder-new/VariantPreviewCarousel";
+import type { VariantPreviewItem } from "@/components/builder-new/VariantPreviewCarousel";
 import { EditablePreview } from "@/components/builder-new/EditablePreview";
 import { BuilderEditorTopBar } from "@/components/builder-new/BuilderEditorTopBar";
 import { EditorToolsPanel } from "@/components/builder-new/EditorToolsPanel";
@@ -12,6 +13,17 @@ import { useStepController } from "@/components/builder-new/hooks/useStepControl
 import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteGenerator";
 import type { StepOption } from "@/components/builder-new/hooks/useStepController";
 import type { ChatMessage, Selection } from "@/components/builder-new/types/builder.types";
+import emenuPlateriaImg from "@/assets/styles/emenu_plateria.jpg";
+import emenuYumixImg from "@/assets/styles/emenu_yumix.jpg";
+import emenuZooomImg from "@/assets/styles/emenu_zooom.jpg";
+
+/** Reference template keys that use static screenshot previews */
+const REFERENCE_TEMPLATE_KEYS = ["emenu_plateria", "emenu_yumix", "emenu_zooom"];
+const REFERENCE_PREVIEWS: Record<string, { imageUrl: string; label: string }> = {
+  emenu_plateria: { imageUrl: emenuPlateriaImg, label: "Plateria" },
+  emenu_yumix: { imageUrl: emenuYumixImg, label: "Yumix" },
+  emenu_zooom: { imageUrl: emenuZooomImg, label: "Zooom" },
+};
 import yanguLogo from "@/assets/yangu-logo-full.png";
 import { supabase } from "@/integrations/supabase/client";
 
