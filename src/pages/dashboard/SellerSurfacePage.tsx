@@ -7,6 +7,7 @@ import { getEngine } from "@/lib/builder/engineRegistry";
 import { BuilderEntryScreen } from "@/components/builder/BuilderEntryScreen";
 import { EmenuWizard, type WizardData } from "@/components/builder/EmenuWizard";
 import { useState } from "react";
+import { mergeIntoDefault } from "@/lib/builderDefaults";
 import BuilderNewPage from "@/pages/BuilderNewPage";
 
 /** Map legacy seller keys → engine keys */
