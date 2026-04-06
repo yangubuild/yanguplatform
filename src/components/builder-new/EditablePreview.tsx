@@ -297,13 +297,19 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
       </div>
 
       {/* Preview iframe */}
-      <iframe
-        ref={iframeRef}
-        srcDoc={processedHtml}
-        className="flex-1 w-full bg-white border-0"
-        title="Editable Website Preview"
-        sandbox="allow-scripts allow-same-origin"
-      />
+      <div className="flex-1 w-full flex items-start justify-center overflow-auto bg-muted/30">
+        <iframe
+          ref={iframeRef}
+          srcDoc={processedHtml}
+          className={`bg-white border-0 transition-all duration-300 ${
+            viewportMode === "mobile"
+              ? "w-[390px] h-full shadow-2xl rounded-xl border border-border mx-auto"
+              : "w-full h-full"
+          }`}
+          title="Editable Website Preview"
+          sandbox="allow-scripts allow-same-origin"
+        />
+      </div>
 
       <EditorImagePickerDialog
         open={imagePickerOpen}
