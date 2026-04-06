@@ -586,83 +586,54 @@ function buildReservationHTML(
 
 /**
  * Build HTML from a real saved emenu template preset.
- * This enforces structural fidelity to the chosen template.
+ * Dispatches to template-family-specific renderers for structural fidelity.
  */
 function buildEmenuTemplateHTML(config: GeneratorConfig, preset: TemplatePreset, variantIndex: number): string {
-  const heroSchema = (preset.patches?.hero?.schema || {}) as Record<string, any>;
-  const headerSchema = (preset.patches?.header?.schema || {}) as Record<string, any>;
   const mainSchema = (preset.patches?.main_content?.schema || {}) as Record<string, any>;
-  const offerSchema = (preset.patches?.offer?.schema || {}) as Record<string, any>;
-  const footerSchema = (preset.patches?.footer?.schema || {}) as Record<string, any>;
 
-  // Theme from template
-  const isDark = heroSchema.background_style?.includes("dark") || heroSchema.text_color === "light";
-  const bgColor = heroSchema.background_color || (isDark ? "hsl(40 20% 8%)" : "hsl(0 0% 98%)");
-  const pageBg = isDark ? "#0F0F0F" : "#FAFAFA";
-  const pageText = isDark ? "#F5F5F5" : "#1A1A1A";
-  const cardBg = isDark ? "#1A1A1A" : "#FFFFFF";
-  const borderColor = isDark ? "#333" : "#E5E7EB";
-  const accentColor = config.userBrandColors?.[0] || (isDark ? "#D4A853" : "#F97316");
-  const accentText = isDark ? "#0F0F0F" : "#FFFFFF";
-  const fontHeading = headerSchema.background_style === "warm" || heroSchema.typography_style?.includes("serif") ? "'Georgia', serif" : "'Inter', sans-serif";
+  // ─── RESERVATION MODE: completely different layout (Gusto / fine dining) ───
+  // DO NOT TOUCH — reservation flow remains isolated
+  const isReservationMode = mainSchema.reservation_mode === true || mainSchema.display_mode === "reservation_menu";
 
-  // Gradient
-  let heroGradient = isDark
-    ? `linear-gradient(135deg, ${bgColor} 0%, hsl(40 15% 15%) 100%)`
-    : `linear-gradient(135deg, ${bgColor} 0%, hsl(35 30% 92%) 100%)`;
-  if (config.userBrandColors && config.userBrandColors.length > 1) {
-    heroGradient = `linear-gradient(135deg, ${config.userBrandColors[0]} 0%, ${config.userBrandColors[1]} 100%)`;
-  }
-  // Slight variant shift
-  if (variantIndex === 1) heroGradient = heroGradient.replace("135deg", "160deg");
-  if (variantIndex === 2) heroGradient = heroGradient.replace("135deg", "100deg");
+  if (isReservationMode) {
+    // Extract shared values needed by reservation renderer
+    const heroSchema = (preset.patches?.hero?.schema || {}) as Record<string, any>;
+    const headerSchema = (preset.patches?.header?.schema || {}) as Record<string, any>;
+    const isDark = heroSchema.background_style?.includes("dark") || heroSchema.text_color === "light";
+    const bgColor = heroSchema.background_color || (isDark ? "hsl(40 20% 8%)" : "hsl(0 0% 98%)");
+    const pageBg = isDark ? "#0F0F0F" : "#FAFAFA";
+    const pageText = isDark ? "#F5F5F5" : "#1A1A1A";
+    const cardBg = isDark ? "#1A1A1A" : "#FFFFFF";
+    const borderColor = isDark ? "#333" : "#E5E7EB";
+    const accentColor = config.userBrandColors?.[0] || (isDark ? "#D4A853" : "#F97316");
+    const accentText = isDark ? "#0F0F0F" : "#FFFFFF";
+    const fontHeading = headerSchema.background_style === "warm" || heroSchema.typography_style?.includes("serif") ? "'Georgia', serif" : "'Inter', sans-serif";
+    let heroGradient = isDark
+      ? `linear-gradient(135deg, ${bgColor} 0%, hsl(40 15% 15%) 100%)`
+      : `linear-gradient(135deg, ${bgColor} 0%, hsl(35 30% 92%) 100%)`;
+    if (config.userBrandColors && config.userBrandColors.length > 1) {
+      heroGradient = `linear-gradient(135deg, ${config.userBrandColors[0]} 0%, ${config.userBrandColors[1]} 100%)`;
+    }
 
-  const businessName = config.businessName || "My Website";
-  const heroImg = getCategoryImage(config.category, "hero", variantIndex, config);
-  const menuImages = config.userImages?.filter(i => i.purpose === "menu").map(i => i.url) || [];
+    const businessName = config.businessName || "My Website";
+    const heroImg = getCategoryImage(config.category, "hero", variantIndex, config);
+    const logoHtml = config.userLogoUrl
+      ? `<img src="${config.userLogoUrl}" alt="${businessName}" style="height:28px;width:auto;background:transparent;"/>`
+      : `<span style="font-weight:700;font-size:18px;color:${pageText};letter-spacing:0.02em;">${businessName}</span>`;
+    const navItems = (headerSchema.nav_items as string[]) || ["Home", "Menu", "About"];
+    const navLinks = navItems.map(n => `<a href="#" style="text-decoration:none;font-size:13px;color:${isDark ? "#fff9" : pageText + "aa"};font-weight:500;">${n}</a>`).join("\n");
+    const navBg = isDark ? (headerSchema.background_color || "#0F0F0F") : (headerSchema.background_color || pageBg);
+    const headerCta = headerSchema.cta_button
+      ? `<a href="#" style="padding:8px 18px;border-radius:20px;background:${accentColor};color:${accentText};text-decoration:none;font-size:12px;font-weight:600;">${headerSchema.cta_button.text || "Contact"}</a>`
+      : "";
 
-  // Logo
-  const logoHtml = config.userLogoUrl
-    ? `<img src="${config.userLogoUrl}" alt="${businessName}" style="height:28px;width:auto;background:transparent;"/>`
-    : `<span style="font-weight:700;font-size:18px;color:${pageText};letter-spacing:0.02em;">${businessName}</span>`;
-
-  // Nav items from template
-  const navItems = (headerSchema.nav_items as string[]) || ["Home", "Menu", "About"];
-  const navLinks = navItems.map(n => `<a href="#" style="text-decoration:none;font-size:13px;color:${isDark ? "#fff9" : pageText + "aa"};font-weight:500;">${n}</a>`).join("\n");
-  const navBg = isDark ? (headerSchema.background_color || "#0F0F0F") : (headerSchema.background_color || pageBg);
-
-  // CTA button in header
-  const headerCta = headerSchema.cta_button
-    ? `<a href="#" style="padding:8px 18px;border-radius:20px;background:${accentColor};color:${accentText};text-decoration:none;font-size:12px;font-weight:600;">${headerSchema.cta_button.text || "Contact"}</a>`
-    : "";
-
-  // Hero
-  const heroLayout = heroSchema.layout_variant || "split";
-  const headline = heroSchema.headline || businessName;
-  const subheadline = heroSchema.subheadline || config.userIdea || "";
-  const description = heroSchema.description || "";
-  const ctaText = heroSchema.cta_text || "Explore";
-  const heroTextColor = isDark ? "#fff" : pageText;
-
-  let heroHTML = "";
-  if (heroLayout === "split") {
-    heroHTML = `
-    <section style="min-height:80vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:100px 48px 80px;gap:48px;background:${heroGradient};color:${heroTextColor};">
-      <div>
-        ${subheadline ? `<p style="font-size:14px;text-transform:uppercase;letter-spacing:2px;opacity:0.7;margin-bottom:12px;">${subheadline}</p>` : ""}
-        <h1 style="font-family:${fontHeading};font-size:clamp(2.2rem,4.5vw,3.5rem);font-weight:800;margin-bottom:16px;line-height:1.1;">${headline}</h1>
-        ${description ? `<p style="font-size:1rem;opacity:0.8;margin-bottom:28px;line-height:1.7;">${description}</p>` : ""}
-        <div style="display:flex;gap:12px;flex-wrap:wrap;">
-          <a href="#menu" style="display:inline-block;padding:14px 32px;border-radius:8px;background:${accentColor};color:${accentText};text-decoration:none;font-weight:600;font-size:14px;">${ctaText}</a>
-        </div>
-        ${heroSchema.social_proof ? `<div style="margin-top:20px;display:flex;align-items:center;gap:8px;opacity:0.7;"><span style="font-size:13px;">⭐ ${heroSchema.social_proof.rating || 4.5} on ${heroSchema.social_proof.platform || "Google"}</span></div>` : ""}
-      </div>
-      <div style="border-radius:16px;overflow:hidden;aspect-ratio:4/3;">
-        <img src="${heroImg}" alt="${headline}" style="width:100%;height:100%;object-fit:cover;"/>
-      </div>
-    </section>`;
-  } else {
-    heroHTML = `
+    // Build hero HTML for reservation
+    const headline = heroSchema.headline || businessName;
+    const subheadline = heroSchema.subheadline || config.userIdea || "";
+    const description = heroSchema.description || "";
+    const ctaText = heroSchema.cta_text || "Explore";
+    const heroTextColor = isDark ? "#fff" : pageText;
+    const heroHTML = `
     <section style="min-height:80vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;background:${heroGradient};color:${heroTextColor};position:relative;">
       <div style="position:absolute;inset:0;opacity:0.15;"><img src="${heroImg}" style="width:100%;height:100%;object-fit:cover;" alt=""/></div>
       <div style="position:relative;z-index:1;max-width:680px;">
@@ -672,18 +643,33 @@ function buildEmenuTemplateHTML(config: GeneratorConfig, preset: TemplatePreset,
         <a href="#menu" style="display:inline-block;padding:14px 32px;border-radius:8px;background:${accentColor};color:${accentText};text-decoration:none;font-weight:600;font-size:14px;">${ctaText}</a>
       </div>
     </section>`;
-  }
 
-  // ─── RESERVATION MODE: completely different layout (Gusto / fine dining) ───
-  const isReservationMode = mainSchema.reservation_mode === true || mainSchema.display_mode === "reservation_menu";
-
-  if (isReservationMode) {
     return buildReservationHTML(config, preset, {
       pageBg, pageText, cardBg, borderColor, accentColor, accentText, fontHeading,
       isDark, heroGradient, heroHTML, logoHtml, navLinks, navBg, headerCta,
       businessName, heroImg,
     }, variantIndex);
   }
+
+  // ─── NON-RESERVATION: dispatch to family-specific renderer ───
+  const family = preset.template_family || preset.key;
+  const ctx = { config, preset, variantIndex };
+
+  switch (family) {
+    case "plateria":
+      return renderPlateria(ctx);
+    case "yumix":
+      return renderYumix(ctx);
+    case "zooom":
+      return renderZooom(ctx);
+    case "visual_a":
+      return renderVisualA(ctx);
+    default:
+      // Fallback for any unknown family — use Plateria as safe default
+      console.warn(`Unknown emenu template family "${family}", falling back to plateria renderer`);
+      return renderPlateria(ctx);
+  }
+
 
   // Menu section from template items
   const menuItems = (mainSchema.items as any[]) || [];
