@@ -41,6 +41,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -118,6 +120,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user, fetchProfile]);
 
+  const restoreSessionWithRetry = useCallback(async () => {
+    const attempt = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      return session;
+    };
+
+    const firstSession = await attempt();
+    if (firstSession?.user) return firstSession;
+
+    await wait(250);
+    return attempt();
+  }, []);
+
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -133,7 +149,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // and avoid creating new user/session object references that would
         // cascade re-renders through guards and shells.
         if (event === "TOKEN_REFRESHED") {
-          setSession(currentSession);
+          if (currentSession?.user) {
+            setSession(currentSession);
+            setUser(currentSession.user);
+          }
+          return;
+        }
+
+        if (event === "SIGNED_OUT") {
+          setSession(null);
+          setUser(null);
+          setProfile(null);
+          setIsLoading(false);
           return;
         }
 
@@ -149,14 +176,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setIsLoading(false);
           }, 0);
         } else {
-          setProfile(null);
-          setIsLoading(false);
+          setTimeout(async () => {
+            try {
+              const recoveredSession = await restoreSessionWithRetry();
+
+              if (recoveredSession?.user) {
+                setSession(recoveredSession);
+                setUser(recoveredSession.user);
+                const profileData = await fetchProfile(recoveredSession.user.id);
+                setProfile(profileData);
+                tryAcceptInvite(recoveredSession.user.id);
+              } else {
+                setSession(null);
+                setUser(null);
+                setProfile(null);
+              }
+            } catch (err) {
+              console.error("Failed to recover auth session after auth state change:", err);
+              setSession(null);
+              setUser(null);
+              setProfile(null);
+            } finally {
+              setIsLoading(false);
+            }
+          }, 0);
         }
       }
     );
 
     // Check initial session — this is the SINGLE SOURCE OF TRUTH for boot
-    supabase.auth.getSession()
+    restoreSessionWithRetry()
       .then(({ data: { session: initialSession } }) => {
         setSession(initialSession);
         setUser(initialSession?.user ?? null);
@@ -181,7 +230,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
     return () => subscription.unsubscribe();
-  }, [fetchProfile, tryAcceptInvite]);
+  }, [fetchProfile, restoreSessionWithRetry, tryAcceptInvite]);
 
   const signOut = async () => {
     // Clear routing context on logout
