@@ -38,6 +38,7 @@ type ViewportMode = "desktop" | "mobile";
 interface BuilderNewPageProps {
   embedded?: boolean;
   initialCategory?: string | null;
+  onBack?: () => void;
 }
 
 export default function BuilderNewPage({ embedded = false, initialCategory = null }: BuilderNewPageProps) {
