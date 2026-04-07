@@ -127,7 +127,7 @@ export function VariantPreviewCarousel({ variants, onChoose, isGenerating }: Var
         <p className="text-xs text-muted-foreground">Browse designs to compare</p>
         <button
           onClick={() => onChoose(activeIndex)}
-          className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity"
+          className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity"
         >
           <Check className="h-4 w-4" />
           Choose this design
