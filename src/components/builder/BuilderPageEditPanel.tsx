@@ -56,7 +56,7 @@ export function BuilderPageEditPanel({ settings, onSave, onClose, isSaving, onLo
   };
 
   return (
-    <aside className="w-80 border-l border-border flex flex-col bg-sidebar overflow-y-auto">
+    <aside className="w-80 border-l border-border flex flex-col bg-sidebar overflow-y-auto overflow-x-hidden">
       <div className="p-4 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Layout className="h-4 w-4 text-primary" />
