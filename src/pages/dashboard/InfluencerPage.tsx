@@ -67,7 +67,7 @@ export default function InfluencerPage() {
   }, []);
 
   if (mode === "ai") {
-    return <BuilderNewPage embedded initialCategory="influencer" />;
+    return <BuilderNewPage embedded initialCategory="influencer" onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }} />;
   }
 
   return (
