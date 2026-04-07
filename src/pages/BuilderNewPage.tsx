@@ -672,7 +672,7 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
         </div>
       </div>
 
-      {/* Dialogs — only for non-emenu categories (emenu uses SellerEditor's real publish) */}
+      {/* Dialogs — for non-emenu categories (emenu uses EmenuNewEditor's old publish) */}
       <BuilderSettingsDialog
         open={settingsOpen}
         onOpenChange={setSettingsOpen}
