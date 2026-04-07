@@ -1,19 +1,22 @@
 import { useCallback } from "react";
 import { useBuilderSurfaceInit } from "@/hooks/useBuilderSurfaceInit";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { getEngine } from "@/lib/builder/engineRegistry";
 import { BuilderEntryScreen } from "@/components/builder/BuilderEntryScreen";
+import BuilderNewPage from "@/pages/BuilderNewPage";
 
 /**
  * Influencer entry page.
- * Now shows the unified BuilderEntryScreen with "Build with AI" / "Build Manually"
- * instead of auto-redirecting.
+ * Uses the shared start flow: "Build with AI" / "Build with Chat".
  */
 export default function InfluencerPage() {
   const { user } = useAuth();
   const { initAndNavigate } = useBuilderSurfaceInit();
+  const [searchParams, setSearchParams] = useSearchParams();
   const engine = getEngine("influencer")!;
+  const mode = searchParams.get("mode");
 
   const handleComplete = useCallback(async (answers: Record<string, unknown>) => {
     if (!user?.id) { toast.error("You must be logged in"); return; }
@@ -27,7 +30,6 @@ export default function InfluencerPage() {
       return { type: s.type, schema, core_slot: s.core_slot };
     });
 
-    // Build links from answers
     const linkItems: { label: string; url: string }[] = [];
     const linkKeys = ["link_instagram", "link_tiktok", "link_youtube", "link_twitter", "link_facebook", "link_website"];
     const linkLabels = ["Instagram", "TikTok", "YouTube", "Twitter / X", "Facebook", "Website"];
@@ -35,9 +37,8 @@ export default function InfluencerPage() {
       if (answers[key]) linkItems.push({ label: linkLabels[i], url: String(answers[key]) });
     });
 
-    // Inject links into the links section
     const linksSection = seedSections.find((s) => s.type === "links");
-    if (linksSection && linkItems.length> 0) {
+    if (linksSection && linkItems.length > 0) {
       linksSection.schema.items = linkItems;
     }
 
@@ -55,5 +56,28 @@ export default function InfluencerPage() {
     });
   }, [user, engine, initAndNavigate]);
 
-  return <div className="min-h-screen bg-background"><BuilderEntryScreen engine={engine} onComplete={handleComplete} /></div>;
+  const handleChatPath = useCallback(() => {
+    const next = new URLSearchParams(searchParams);
+    next.set("mode", "ai");
+    setSearchParams(next, { replace: false });
+  }, [searchParams, setSearchParams]);
+
+  const handleAiImportSource = useCallback((source: string) => {
+    toast.info(`${source} import coming soon`);
+  }, []);
+
+  if (mode === "ai") {
+    return <BuilderNewPage embedded initialCategory="influencer" />;
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <BuilderEntryScreen
+        engine={engine}
+        onComplete={handleComplete}
+        onChatPath={handleChatPath}
+        onAiImportSource={handleAiImportSource}
+      />
+    </div>
+  );
 }

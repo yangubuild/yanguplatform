@@ -1,55 +1,62 @@
-import { useState } from "react";
-import { Sparkles, Wrench } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Sparkles, MessageSquare, ArrowLeft } from "lucide-react";
 import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
 import type { BuilderEngine } from "@/lib/builder/types";
-import { BuilderManualWizard } from "./BuilderManualWizard";
-import { BuilderAiOnboarding } from "./BuilderAiOnboarding";
+import { AiImportSourcePicker, type ImportSource } from "./AiImportSourcePicker";
 
 interface Props {
   engine: BuilderEngine;
   /** Called with collected answers when wizard/AI completes */
   onComplete: (answers: Record<string, unknown>) => Promise<unknown>;
-  /** If provided, overrides the default AI path behavior */
-  onAiPath?: () => void;
-  /** If provided, overrides the default manual path behavior */
-  onManualPath?: () => void;
+  /** Called when user wants to enter the AI chat flow (Build with Chat or "Add info manually") */
+  onChatPath?: () => void;
+  /** Called when user selects a social import source (not "manual") */
+  onAiImportSource?: (source: ImportSource) => void;
 }
 
 /**
  * Unified entry screen for ALL builder categories.
- * Shows two paths: "Build with AI" and "Build Manually".
+ * Shows two paths: "Build with AI" and "Build with Chat".
+ * "Build with AI" opens a 5-option social import screen.
+ * "Add info manually" from the AI screen routes to the chat flow.
  */
-export function BuilderEntryScreen({ engine, onComplete, onAiPath, onManualPath }: Props) {
-  const [mode, setMode] = useState<"choice" | "ai" | "manual">("choice");
+export function BuilderEntryScreen({ engine, onComplete, onChatPath, onAiImportSource }: Props) {
+  const [mode, setMode] = useState<"choice" | "ai_import">("choice");
 
   const handleAi = () => {
-    if (onAiPath) { onAiPath(); return; }
-    setMode("ai");
+    setMode("ai_import");
   };
 
-  const handleManual = () => {
-    if (onManualPath) { onManualPath(); return; }
-    setMode("manual");
+  const handleChat = () => {
+    onChatPath?.();
   };
 
-  if (mode === "manual") {
-    return (
-      <BuilderManualWizard
-        engine={engine}
-        onComplete={onComplete}
-        onBack={() => setMode("choice")}
-      />
-    );
-  }
+  const handleImportSourceSelect = useCallback((source: ImportSource) => {
+    if (source === "manual") {
+      // "Add info manually" → routes to the chat flow
+      onChatPath?.();
+    } else {
+      // Social import source → delegate to parent
+      onAiImportSource?.(source);
+    }
+  }, [onChatPath, onAiImportSource]);
 
-  if (mode === "ai") {
+  if (mode === "ai_import") {
     return (
-      <BuilderAiOnboarding
-        engine={engine}
-        onComplete={onComplete}
-        onBack={() => setMode("choice")}
-      />
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <button
+          onClick={() => setMode("choice")}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </button>
+        <AiImportSourcePicker
+          onSelect={handleImportSourceSelect}
+          categoryLabel={engine.label.toLowerCase()}
+        />
+      </div>
     );
   }
 
@@ -78,16 +85,16 @@ export function BuilderEntryScreen({ engine, onComplete, onAiPath, onManualPath 
 
         <Card
           className="p-5 sm:p-6 space-y-3 hover:border-primary/30 transition-colors cursor-pointer"
-          onClick={handleManual}>
+          onClick={handleChat}>
           <div className="flex items-center gap-2">
-            <Wrench className="h-5 w-5 text-muted-foreground" />
-            <h3 className="font-semibold text-foreground">Build Manually</h3>
+            <MessageSquare className="h-5 w-5 text-muted-foreground" />
+            <h3 className="font-semibold text-foreground">Build with Chat</h3>
           </div>
           <p className="text-sm text-muted-foreground">
-            Answer a few questions step by step and configure everything yourself in the editor.
+            Chat with AI to describe your business, content, and style, and let it guide you step by step into your build.
           </p>
-          <Button size="sm" variant="outline" className="w-full gap-2" onClick={(e) => { e.stopPropagation(); handleManual(); }}>
-            <Wrench className="h-4 w-4" /> Start Wizard
+          <Button size="sm" variant="outline" className="w-full gap-2" onClick={(e) => { e.stopPropagation(); handleChat(); }}>
+            <MessageSquare className="h-4 w-4" /> Start Chat
           </Button>
         </Card>
       </div>

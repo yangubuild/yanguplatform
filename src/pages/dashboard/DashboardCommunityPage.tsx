@@ -1,25 +1,28 @@
 import { useState, useCallback } from "react";
 import { useBuilderSurfaceInit } from "@/hooks/useBuilderSurfaceInit";
 import { useAuth } from "@/hooks/useAuth";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { getEngine } from "@/lib/builder/engineRegistry";
 import { BuilderEntryScreen } from "@/components/builder/BuilderEntryScreen";
-import { Loader2, Users, Store } from "lucide-react";
+import { Store, Users } from "lucide-react";
 import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
+import BuilderNewPage from "@/pages/BuilderNewPage";
 
 /**
  * Community page: lets user choose between creating a listing or a community group,
- * then shows the engine-driven entry screen for the chosen flow.
+ * then shows the engine-driven entry screen with the shared start flow.
  */
 export default function DashboardCommunityPage() {
   const { user } = useAuth();
   const { initAndNavigate } = useBuilderSurfaceInit();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedFlow, setSelectedFlow] = useState<"community" | "listing" | null>(null);
+  const mode = searchParams.get("mode");
 
   const communityEngine = getEngine("community")!;
 
-  // Community group flow
   const handleCommunityComplete = useCallback(async (answers: Record<string, unknown>) => {
     if (!user?.id) { toast.error("You must be logged in"); return; }
 
@@ -50,7 +53,6 @@ export default function DashboardCommunityPage() {
     });
   }, [user, communityEngine, initAndNavigate]);
 
-  // Listing flow (simpler — uses the same esite-like pattern)
   const handleListingCreate = useCallback(async () => {
     if (!user?.id) { toast.error("You must be logged in"); return; }
     await initAndNavigate({
@@ -67,17 +69,36 @@ export default function DashboardCommunityPage() {
     });
   }, [user, initAndNavigate]);
 
+  const handleChatPath = useCallback(() => {
+    const next = new URLSearchParams(searchParams);
+    next.set("mode", "ai");
+    setSearchParams(next, { replace: false });
+  }, [searchParams, setSearchParams]);
+
+  const handleAiImportSource = useCallback((source: string) => {
+    toast.info(`${source} import coming soon`);
+  }, []);
+
+  // Chat flow embedded
+  if (mode === "ai" && selectedFlow === "community") {
+    return <BuilderNewPage embedded initialCategory="community" />;
+  }
+
   if (selectedFlow === "community") {
     return (
       <div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="ml-4 mt-4 gap-2"
-          onClick={() => setSelectedFlow(null)}>
+        <button
+          onClick={() => setSelectedFlow(null)}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground ml-4 mt-4 transition-colors"
+        >
           ← Back
-        </Button>
-        <BuilderEntryScreen engine={communityEngine} onComplete={handleCommunityComplete} />
+        </button>
+        <BuilderEntryScreen
+          engine={communityEngine}
+          onComplete={handleCommunityComplete}
+          onChatPath={handleChatPath}
+          onAiImportSource={handleAiImportSource}
+        />
       </div>
     );
   }
