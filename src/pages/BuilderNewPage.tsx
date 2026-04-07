@@ -279,6 +279,28 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
             if (!schema.address) schema.address = ctrl.businessLocation;
           }
 
+          // For menu sections: convert flat template items → categories format for EmenuPreview
+          if (sectionType === "menu" && Array.isArray(schema.items) && !schema.categories) {
+            const flatItems = schema.items as Array<Record<string, unknown>>;
+            schema.categories = [{
+              name: (schema.heading as string) || "Menu",
+              items: flatItems.map((item) => ({
+                name: (item.title || item.name || "Item") as string,
+                price: typeof item.price === "number" ? item.price : parseFloat(String(item.price || "0").replace(/[^0-9.]/g, "")) || 0,
+                description: (item.description as string) || "",
+                image_url: (item.image_url as string) || "",
+                badges: (item.badges as string[]) || [],
+                dietary_tags: (item.dietary_tags as string[]) || [],
+                is_available: true,
+              })),
+            }];
+          }
+
+          // Store template family in menu section schema so EmenuPreview can style per family
+          if (sectionType === "menu" && templatePreset?.template_family) {
+            schema.template_family = templatePreset.template_family;
+          }
+
           return { type: sectionType, schema, core_slot: slot };
         }).filter((s): s is NonNullable<typeof s> => s !== null);
       } else {
