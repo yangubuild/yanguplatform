@@ -153,15 +153,17 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
   const engine = getEngine(engineKey);
   const mode = searchParams.get("mode");
 
-  // Emenu wizard state (for backward-compat manual flow)
-  const [emenuWizardOpen, setEmenuWizardOpen] = useState(false);
-
-  // Emenu "Build with AI" → stay inside Seller route and open shared AI chat flow
-  const handleEmenuAi = useCallback(() => {
+  // Shared chat path handler — opens AI chat flow embedded in the dashboard shell
+  const handleChatPath = useCallback(() => {
     const next = new URLSearchParams(searchParams);
     next.set("mode", "ai");
     setSearchParams(next, { replace: false });
   }, [searchParams, setSearchParams]);
+
+  // AI import source handler (social imports — not "manual")
+  const handleAiImportSource = useCallback((source: string) => {
+    toast.info(`${source} import coming soon`);
+  }, []);
 
   /** Handle wizard/AI completion — build seed sections and navigate to editor */
   const handleComplete = useCallback(async (answers: Record<string, unknown>) => {
