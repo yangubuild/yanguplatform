@@ -248,7 +248,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
 
   // If mode=ai, show the embedded chat flow within the dashboard shell
   if (mode === "ai") {
-    return <BuilderNewPage embedded initialCategory={engineKey} />;
+    return <BuilderNewPage embedded initialCategory={engineKey} onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }} />;
   }
 
   return (
