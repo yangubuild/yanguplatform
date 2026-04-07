@@ -206,7 +206,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Check initial session — this is the SINGLE SOURCE OF TRUTH for boot
     restoreSessionWithRetry()
-      .then(({ data: { session: initialSession } }) => {
+      .then((initialSession) => {
         setSession(initialSession);
         setUser(initialSession?.user ?? null);
 
