@@ -41,7 +41,7 @@ interface BuilderNewPageProps {
   onBack?: () => void;
 }
 
-export default function BuilderNewPage({ embedded = false, initialCategory = null }: BuilderNewPageProps) {
+export default function BuilderNewPage({ embedded = false, initialCategory = null, onBack }: BuilderNewPageProps) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const urlCategory = searchParams.get("category");
