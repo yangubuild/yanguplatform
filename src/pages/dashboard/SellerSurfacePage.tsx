@@ -241,6 +241,13 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
   }, [user, engine, initAndNavigate]);
 
   if (!engine) {
+    return (
+      <div className="max-w-lg mx-auto py-12 text-center">
+        <p className="text-muted-foreground">Unknown builder category: {sellerKey}</p>
+      </div>
+    );
+  }
+
   // If mode=ai, show the embedded chat flow within the dashboard shell
   if (mode === "ai") {
     return <BuilderNewPage embedded initialCategory={engineKey} />;
