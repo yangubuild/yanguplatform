@@ -25,6 +25,7 @@ import { useBuilderSurfaceInit } from "@/hooks/useBuilderSurfaceInit";
 import { useAuth } from "@/hooks/useAuth";
 import { getEngine } from "@/lib/builder/engineRegistry";
 import { mergeIntoDefault } from "@/lib/builderDefaults";
+import { getTemplate } from "@/config/templateRegistry";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
