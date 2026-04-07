@@ -81,7 +81,7 @@ export default function DashboardCommunityPage() {
 
   // Chat flow embedded
   if (mode === "ai" && selectedFlow === "community") {
-    return <BuilderNewPage embedded initialCategory="community" />;
+    return <BuilderNewPage embedded initialCategory="community" onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }} />;
   }
 
   if (selectedFlow === "community") {

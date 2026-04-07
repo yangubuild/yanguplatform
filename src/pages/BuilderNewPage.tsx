@@ -1,4 +1,5 @@
 import { useEffect, useCallback, useRef, useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import type { CanvasSelection } from "@/lib/builder/selectionTypes";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ChatInterface } from "@/components/builder-new/ChatInterface";
@@ -38,9 +39,10 @@ type ViewportMode = "desktop" | "mobile";
 interface BuilderNewPageProps {
   embedded?: boolean;
   initialCategory?: string | null;
+  onBack?: () => void;
 }
 
-export default function BuilderNewPage({ embedded = false, initialCategory = null }: BuilderNewPageProps) {
+export default function BuilderNewPage({ embedded = false, initialCategory = null, onBack }: BuilderNewPageProps) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const urlCategory = searchParams.get("category");
@@ -586,6 +588,18 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
 
   return (
     <div className={`${embedded ? "h-[calc(100vh-64px)]" : "h-screen"} flex flex-col bg-background`}>
+      {/* Chat phase: show a back bar */}
+      {!isEditMode && onBack && (
+        <div className="shrink-0 border-b border-border px-4 py-2">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </button>
+        </div>
+      )}
       {/* Only show the builder top bar during in-page edit mode */}
       {isEditMode && (
         <BuilderEditorTopBar
