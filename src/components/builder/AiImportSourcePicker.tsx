@@ -40,7 +40,7 @@ const SOURCES: {
   {
     key: "manual",
     label: "Add info manually",
-    subtitle: "…and build via prompts",
+    subtitle: "Describe your business in a guided chat",
   },
 ];
 
