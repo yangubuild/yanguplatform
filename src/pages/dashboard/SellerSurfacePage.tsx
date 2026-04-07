@@ -262,6 +262,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
           engine={engine}
           onComplete={handleComplete}
           onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }}
+          onChatPath={handleChatPath}
         />
       </div>
     );

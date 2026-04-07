@@ -94,6 +94,7 @@ export default function DashboardCommunityPage() {
           engine={communityEngine}
           onComplete={handleCommunityComplete}
           onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }}
+          onChatPath={handleChatPath}
         />
       </div>
     );
