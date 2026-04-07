@@ -47,8 +47,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const inviteCheckedRef = useRef(false);
-  // Track whether initial session has been handled to prevent double fetch
-  const initialSessionHandledRef = useRef(false);
   // Track in-flight profile fetch to deduplicate
   const profileFetchRef = useRef<Promise<Profile | null> | null>(null);
 
@@ -124,8 +122,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
-        // If the initial getSession already handled this exact session, skip
-        if (initialSessionHandledRef.current && (event === "INITIAL_SESSION")) {
+        // Let the explicit getSession() boot below be the source of truth.
+        // INITIAL_SESSION can briefly be null during refresh, which would
+        // otherwise incorrectly bounce users to login before storage restores.
+        if (event === "INITIAL_SESSION") {
           return;
         }
 
@@ -156,24 +156,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     // Check initial session — this is the SINGLE SOURCE OF TRUTH for boot
-    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
-      initialSessionHandledRef.current = true;
-      setSession(initialSession);
-      setUser(initialSession?.user ?? null);
+    supabase.auth.getSession()
+      .then(({ data: { session: initialSession } }) => {
+        setSession(initialSession);
+        setUser(initialSession?.user ?? null);
 
-      if (initialSession?.user) {
-        fetchProfile(initialSession.user.id).then((profileData) => {
-          setProfile(profileData);
-          tryAcceptInvite(initialSession.user.id);
+        if (initialSession?.user) {
+          fetchProfile(initialSession.user.id).then((profileData) => {
+            setProfile(profileData);
+            tryAcceptInvite(initialSession.user.id);
+            setIsLoading(false);
+          });
+        } else {
+          setProfile(null);
           setIsLoading(false);
-        });
-      } else {
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to restore auth session:", err);
+        setSession(null);
+        setUser(null);
+        setProfile(null);
         setIsLoading(false);
-      }
-    });
+      });
 
     return () => subscription.unsubscribe();
-  }, [fetchProfile]);
+  }, [fetchProfile, tryAcceptInvite]);
 
   const signOut = async () => {
     // Clear routing context on logout
