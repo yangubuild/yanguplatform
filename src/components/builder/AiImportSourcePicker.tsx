@@ -2,7 +2,7 @@
  * AI Import Source Picker — Logo tile grid for choosing import source.
  */
 
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, PenLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type ImportSource = "google_business" | "facebook" | "instagram" | "tiktok" | "manual";
@@ -53,48 +53,49 @@ export function AiImportSourcePicker({ onSelect, categoryLabel }: Props) {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-foreground">How would you like to create your {categoryLabel}?</h2>
+        <h2 className="text-xl font-bold text-foreground">Import your business info</h2>
         <p className="text-sm text-muted-foreground mt-2">
-          Build your site automatically by importing your business info from these
-          social platforms, or create a site from scratch via prompting:
+          We'll auto-generate your {categoryLabel} from your existing profile — just pick a source:
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         {SOURCES.map((source) => (
           <button
             key={source.key}
             onClick={() => onSelect(source.key)}
             className={cn(
-              "group relative flex min-h-[116px] items-center justify-center rounded-xl border border-border/70 bg-[hsl(0_0%_100%)] p-5 text-left transition-all",
-              "hover:border-border hover:shadow-md active:shadow-sm",
-              source.key === "manual" && "col-span-1"
+              "group relative flex min-h-[100px] items-center rounded-xl border border-border/60 bg-card p-5 text-left transition-all",
+              "hover:border-primary/40 hover:shadow-lg active:shadow-sm",
+              source.key === "manual" && "col-span-2"
             )}>
-            <div className="flex w-full flex-col items-center justify-center gap-2 text-center">
+            <div className="flex w-full items-center gap-4">
               {source.logo ? (
-                <img
-                  src={source.logo}
-                  alt={source.label}
-                  className="h-9 max-w-[190px] object-contain contrast-110"
-                />
-              ) : (
-                <div className="flex flex-col items-center gap-1">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-primary" />
-                    <span className="text-sm font-semibold text-[hsl(222_47%_11%)]">{source.label}</span>
+                <>
+                  <img
+                    src={source.logo}
+                    alt={source.label}
+                    className="h-10 w-10 object-contain shrink-0"
+                  />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-sm font-semibold text-foreground">{source.label}</span>
+                    <span className="text-xs text-muted-foreground">{source.subtitle}</span>
                   </div>
-                  <span className="text-xs text-[hsl(215_16%_47%)]">{source.subtitle}</span>
-                </div>
+                </>
+              ) : (
+                <>
+                  <PenLine className="h-8 w-8 text-muted-foreground shrink-0" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-sm font-semibold text-foreground">{source.label}</span>
+                    <span className="text-xs text-muted-foreground">{source.subtitle}</span>
+                  </div>
+                </>
               )}
             </div>
-            {source.key === "manual" && (
-              <ArrowRight className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(215_16%_47%)] transition-colors group-hover:text-[hsl(222_47%_11%)]" />
-            )}
+            <ArrowRight className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-hover:text-foreground" />
           </button>
         ))}
       </div>
-
-      <p className="text-xs text-muted-foreground">Start for free, no credit card required.</p>
     </div>
   );
 }
