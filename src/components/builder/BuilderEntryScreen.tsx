@@ -1,9 +1,7 @@
-import { useState, useCallback } from "react";
-import { Sparkles, MessageSquare, ArrowLeft } from "lucide-react";
+import { Sparkles, MessageSquare } from "lucide-react";
 import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
 import type { BuilderEngine } from "@/lib/builder/types";
-import { AiImportSourcePicker, type ImportSource } from "./AiImportSourcePicker";
 
 interface Props {
   engine: BuilderEngine;
@@ -11,54 +9,22 @@ interface Props {
   onComplete: (answers: Record<string, unknown>) => Promise<unknown>;
   /** Called when user wants to enter the AI chat flow (Build with Chat or "Add info manually") */
   onChatPath?: () => void;
-  /** Called when user selects a social import source (not "manual") */
-  onAiImportSource?: (source: ImportSource) => void;
+  /** Called when user clicks Build with AI */
+  onAiPath?: () => void;
 }
 
 /**
  * Unified entry screen for ALL builder categories.
  * Shows two paths: "Build with AI" and "Build with Chat".
- * "Build with AI" opens a 5-option social import screen.
- * "Add info manually" from the AI screen routes to the chat flow.
  */
-export function BuilderEntryScreen({ engine, onComplete, onChatPath, onAiImportSource }: Props) {
-  const [mode, setMode] = useState<"choice" | "ai_import">("choice");
-
-  const handleAi = () => {
-    setMode("ai_import");
-  };
-
+export function BuilderEntryScreen({ engine, onComplete, onChatPath, onAiPath }: Props) {
   const handleChat = () => {
     onChatPath?.();
   };
 
-  const handleImportSourceSelect = useCallback((source: ImportSource) => {
-    if (source === "manual") {
-      // "Add info manually" → routes to the chat flow
-      onChatPath?.();
-    } else {
-      // Social import source → delegate to parent
-      onAiImportSource?.(source);
-    }
-  }, [onChatPath, onAiImportSource]);
-
-  if (mode === "ai_import") {
-    return (
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <button
-          onClick={() => setMode("choice")}
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </button>
-        <AiImportSourcePicker
-          onSelect={handleImportSourceSelect}
-          categoryLabel={engine.label.toLowerCase()}
-        />
-      </div>
-    );
-  }
+  const handleAi = () => {
+    onAiPath?.();
+  };
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6 sm:space-y-8">
@@ -91,7 +57,7 @@ export function BuilderEntryScreen({ engine, onComplete, onChatPath, onAiImportS
             <h3 className="font-semibold text-foreground">Build with Chat</h3>
           </div>
           <p className="text-sm text-muted-foreground">
-            Chat with AI to describe your business, content, and style, and let it guide you step by step into your build.
+            Chat with AI to describe your business, content, design, and style.
           </p>
           <Button size="sm" variant="outline" className="w-full gap-2" onClick={(e) => { e.stopPropagation(); handleChat(); }}>
             <MessageSquare className="h-4 w-4" /> Start Chat
