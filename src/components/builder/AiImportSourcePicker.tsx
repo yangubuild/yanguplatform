@@ -2,8 +2,12 @@
  * AI Import Source Picker — Logo tile grid for choosing import source.
  */
 
-import { ArrowRight, Sparkles, PenLine } from "lucide-react";
+import { ArrowRight, PenLine } from "lucide-react";
 import { cn } from "@/lib/utils";
+import googleBusinessIcon from "@/assets/builder/google-business.png";
+import tiktokIcon from "@/assets/builder/tiktok.png";
+import instagramIcon from "@/assets/builder/instagram.png";
+import facebookIcon from "@/assets/builder/facebook.png";
 
 export type ImportSource = "google_business" | "facebook" | "instagram" | "tiktok" | "manual";
 
@@ -17,25 +21,25 @@ const SOURCES: {
     key: "google_business",
     label: "Google Business Profile",
     subtitle: "Import from your Google Business listing",
-    logo: "/assets/builder/google-business.png",
+    logo: googleBusinessIcon,
   },
   {
     key: "tiktok",
     label: "TikTok",
     subtitle: "Import from your TikTok profile",
-    logo: "/assets/builder/tiktok.png",
+    logo: tiktokIcon,
   },
   {
     key: "instagram",
     label: "Instagram",
     subtitle: "Import from your Instagram profile",
-    logo: "/assets/builder/instagram.png",
+    logo: instagramIcon,
   },
   {
     key: "facebook",
     label: "Facebook",
     subtitle: "Import from your Facebook page",
-    logo: "/assets/builder/facebook.png",
+    logo: facebookIcon,
   },
   {
     key: "manual",
@@ -65,29 +69,29 @@ export function AiImportSourcePicker({ onSelect, categoryLabel }: Props) {
             key={source.key}
             onClick={() => onSelect(source.key)}
             className={cn(
-              "group relative flex min-h-[100px] items-center rounded-xl border border-border/60 bg-card p-5 text-left transition-all",
+              "group relative flex min-h-[110px] items-center rounded-xl border border-border/60 bg-card p-5 text-left transition-all",
               "hover:border-primary/40 hover:shadow-lg active:shadow-sm",
               source.key === "manual" && "col-span-2"
             )}>
-            <div className="flex w-full items-center gap-4">
+            <div className="flex w-full items-center gap-5">
               {source.logo ? (
                 <>
                   <img
                     src={source.logo}
                     alt={source.label}
-                    className="h-10 w-10 object-contain shrink-0"
+                    className="h-14 w-14 object-contain shrink-0"
                   />
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-sm font-semibold text-foreground">{source.label}</span>
-                    <span className="text-xs text-muted-foreground">{source.subtitle}</span>
+                    <span className="text-base font-semibold text-foreground">{source.label}</span>
+                    <span className="text-sm text-muted-foreground">{source.subtitle}</span>
                   </div>
                 </>
               ) : (
                 <>
-                  <PenLine className="h-8 w-8 text-muted-foreground shrink-0" />
+                  <PenLine className="h-12 w-12 text-muted-foreground shrink-0" />
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-sm font-semibold text-foreground">{source.label}</span>
-                    <span className="text-xs text-muted-foreground">{source.subtitle}</span>
+                    <span className="text-base font-semibold text-foreground">{source.label}</span>
+                    <span className="text-sm text-muted-foreground">{source.subtitle}</span>
                   </div>
                 </>
               )}
