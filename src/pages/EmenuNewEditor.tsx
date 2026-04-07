@@ -366,7 +366,7 @@ export default function EmenuNewEditor() {
             </div>
           ) : (
             <EditorToolsPanel
-              onToggleAdaChat={() => setLeftMode(leftMode === "ada" ? "tools" : "ada")}
+              onToggleAdaChat={() => setLeftMode((prev) => prev === "ada" ? "tools" : "ada")}
               onAction={handleEditorAction}
               selectedSection={null}
               businessName={surfaceTitle}
