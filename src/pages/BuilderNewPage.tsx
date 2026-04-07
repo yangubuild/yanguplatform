@@ -1,4 +1,5 @@
 import { useEffect, useCallback, useRef, useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import type { CanvasSelection } from "@/lib/builder/selectionTypes";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ChatInterface } from "@/components/builder-new/ChatInterface";
