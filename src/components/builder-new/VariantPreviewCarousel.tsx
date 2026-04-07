@@ -91,18 +91,16 @@ export function VariantPreviewCarousel({ variants, onChoose, isGenerating }: Var
           style={{ transform: `translateX(-${activeIndex * 100}%)` }}
         >
           {variants.map((item, i) => (
-            <div key={i} className="w-full h-full shrink-0 flex items-center justify-center p-3">
-              <div className="relative w-full h-full rounded-xl overflow-hidden border border-border shadow-xl bg-white">
+            <div key={i} className="w-full h-full shrink-0 flex items-center justify-center">
+              <div className="relative w-full h-full rounded-xl overflow-hidden shadow-xl">
                 {item.imageUrl ? (
-                  /* Screenshot-based preview for reference templates */
-                  <div className="w-full h-full overflow-auto">
-                    <img
-                      src={item.imageUrl}
-                      alt={item.label}
-                      className="w-full h-auto object-cover object-top"
-                      loading={i === 0 ? "eager" : "lazy"}
-                    />
-                  </div>
+                  /* Screenshot-based preview for reference templates — fill card */
+                  <img
+                    src={item.imageUrl}
+                    alt={item.label}
+                    className="w-full h-full object-cover object-top"
+                    loading={i === 0 ? "eager" : "lazy"}
+                  />
                 ) : item.html ? (
                   /* HTML iframe preview for internal templates */
                   <iframe

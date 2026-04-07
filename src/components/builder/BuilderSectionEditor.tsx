@@ -1181,7 +1181,7 @@ export function BuilderSectionEditor({
   const label = TYPE_LABELS[section.section_type] || section.section_type;
 
   return (
-    <aside className="w-80 border-l border-border flex flex-col bg-sidebar overflow-y-auto">
+    <aside className="w-80 border-l border-border flex flex-col bg-sidebar overflow-y-auto overflow-x-hidden">
       {/* Header */}
       <div className="p-4 border-b border-border flex items-center justify-between">
         <h2 className="text-sm font-semibold">Edit: {label}</h2>
