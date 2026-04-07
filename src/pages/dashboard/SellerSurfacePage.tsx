@@ -7,8 +7,6 @@ import { getEngine } from "@/lib/builder/engineRegistry";
 import { BuilderEntryScreen } from "@/components/builder/BuilderEntryScreen";
 import { mergeIntoDefault } from "@/lib/builderDefaults";
 import BuilderNewPage from "@/pages/BuilderNewPage";
-import { mergeIntoDefault } from "@/lib/builderDefaults";
-import BuilderNewPage from "@/pages/BuilderNewPage";
 
 /** Map legacy seller keys → engine keys */
 const SELLER_KEY_MAP: Record<string, string> = {
