@@ -318,28 +318,32 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     );
   }
 
-  // For emenu: keep the entry page first, then open AI chat within the Seller shell
-  if (engineKey === "emenu") {
-    if (mode === "ai") {
-      return <BuilderNewPage embedded initialCategory="emenu" />;
-    }
+  // Shared chat path handler — opens AI chat flow embedded in the dashboard shell
+  const handleChatPath = useCallback(() => {
+    const next = new URLSearchParams(searchParams);
+    next.set("mode", "ai");
+    setSearchParams(next, { replace: false });
+  }, [searchParams, setSearchParams]);
 
-    return (
-      <div className="min-h-screen bg-background">
-        <BuilderEntryScreen
-          engine={engine}
-          onComplete={handleComplete}
-          onAiPath={handleEmenuAi}
-          onManualPath={() => setEmenuWizardOpen(true)}
-        />
-        <EmenuWizard
-          open={emenuWizardOpen}
-          onOpenChange={setEmenuWizardOpen}
-          onComplete={handleEmenuWizardComplete}
-        />
-      </div>
-    );
+  // AI import source handler (social imports — not "manual")
+  const handleAiImportSource = useCallback((source: string) => {
+    // TODO: wire social import flows (Google Business, TikTok, Instagram, Facebook)
+    toast.info(`${source} import coming soon`);
+  }, []);
+
+  // If mode=ai, show the embedded chat flow within the dashboard shell
+  if (mode === "ai") {
+    return <BuilderNewPage embedded initialCategory={engineKey} />;
   }
 
-  return <div className="min-h-screen bg-background"><BuilderEntryScreen engine={engine} onComplete={handleComplete} /></div>;
+  return (
+    <div className="min-h-screen bg-background">
+      <BuilderEntryScreen
+        engine={engine}
+        onComplete={handleComplete}
+        onChatPath={handleChatPath}
+        onAiImportSource={handleAiImportSource}
+      />
+    </div>
+  );
 }
