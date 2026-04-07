@@ -16,10 +16,11 @@ import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { lazy, Suspense } from "react";
 
 const SellerEditor = lazy(() => import("./SellerEditor"));
+const EmenuNewEditor = lazy(() => import("./EmenuNewEditor"));
 const InfluencerEditorPlaceholder = lazy(() => import("./InfluencerEditorPlaceholder"));
 const CommunityEditorPlaceholder = lazy(() => import("./CommunityEditorPlaceholder"));
 
-const SELLER_TYPES = new Set(["emenu", "eshop", "store_listing", "quick_site"]);
+const SELLER_TYPES = new Set(["eshop", "store_listing", "quick_site"]);
 
 export default function BuilderEditorRouter() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
@@ -83,6 +84,15 @@ export default function BuilderEditorRouter() {
       <Skeleton className="h-12 w-48 rounded-lg" />
     </div>
   );
+
+  // Emenu → new editor with old navbar/publish
+  if (surfaceType === "emenu") {
+    return (
+      <Suspense fallback={fallbackLoader}>
+        <EmenuNewEditor />
+      </Suspense>
+    );
+  }
 
   // Route based on surface_type
   if (SELLER_TYPES.has(surfaceType)) {
