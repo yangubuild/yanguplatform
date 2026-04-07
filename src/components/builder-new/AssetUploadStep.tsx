@@ -125,7 +125,7 @@ export function AssetUploadStep({ assets, onAssetsChange, onConfirm }: AssetUplo
             <button
               key={p.value}
               onClick={() => setSelectedPurpose(p.value)}
-              className={`text-[11px] px-2.5 py-1 rounded-full border transition-all ${
+              className={`text-[11px] px-2.5 py-1 rounded-lg border transition-all ${
                 selectedPurpose === p.value
                   ? "border-primary bg-primary/10 text-primary font-medium"
                   : "border-border text-muted-foreground hover:bg-muted"

@@ -98,7 +98,7 @@ export function StepRenderer({
             <button
               key={opt.id}
               onClick={() => onSelect(opt)}
-              className={`inline-flex items-center gap-1 px-3 py-1.5 text-[12px] rounded-full border transition-all ${
+              className={`inline-flex items-center gap-1 px-3 py-1.5 text-[12px] rounded-lg border transition-all ${
                 isSelected
                   ? "border-primary bg-primary/10 text-primary font-medium"
                   : "border-border bg-card text-foreground hover:bg-muted"
