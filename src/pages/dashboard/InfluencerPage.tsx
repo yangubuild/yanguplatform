@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { getEngine } from "@/lib/builder/engineRegistry";
 import { BuilderEntryScreen } from "@/components/builder/BuilderEntryScreen";
+import { BuilderAiOnboarding } from "@/components/builder/BuilderAiOnboarding";
 import BuilderNewPage from "@/pages/BuilderNewPage";
 
 /**
@@ -62,12 +63,27 @@ export default function InfluencerPage() {
     setSearchParams(next, { replace: false });
   }, [searchParams, setSearchParams]);
 
-  const handleAiImportSource = useCallback((source: string) => {
-    toast.info(`${source} import coming soon`);
-  }, []);
+  const handleAiPath = useCallback(() => {
+    const next = new URLSearchParams(searchParams);
+    next.set("mode", "ai_onboarding");
+    setSearchParams(next, { replace: false });
+  }, [searchParams, setSearchParams]);
 
   if (mode === "ai") {
     return <BuilderNewPage embedded initialCategory="influencer" onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }} />;
+  }
+
+  if (mode === "ai_onboarding") {
+    return (
+      <div className="min-h-screen bg-background">
+        <BuilderAiOnboarding
+          engine={engine}
+          onComplete={handleComplete}
+          onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }}
+          onChatPath={handleChatPath}
+        />
+      </div>
+    );
   }
 
   return (
@@ -76,7 +92,7 @@ export default function InfluencerPage() {
         engine={engine}
         onComplete={handleComplete}
         onChatPath={handleChatPath}
-        onAiImportSource={handleAiImportSource}
+        onAiPath={handleAiPath}
       />
     </div>
   );

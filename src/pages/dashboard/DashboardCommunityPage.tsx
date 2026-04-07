@@ -5,6 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { getEngine } from "@/lib/builder/engineRegistry";
 import { BuilderEntryScreen } from "@/components/builder/BuilderEntryScreen";
+import { BuilderAiOnboarding } from "@/components/builder/BuilderAiOnboarding";
 import { Store, Users } from "lucide-react";
 import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
@@ -75,13 +76,28 @@ export default function DashboardCommunityPage() {
     setSearchParams(next, { replace: false });
   }, [searchParams, setSearchParams]);
 
-  const handleAiImportSource = useCallback((source: string) => {
-    toast.info(`${source} import coming soon`);
-  }, []);
+  const handleAiPath = useCallback(() => {
+    const next = new URLSearchParams(searchParams);
+    next.set("mode", "ai_onboarding");
+    setSearchParams(next, { replace: false });
+  }, [searchParams, setSearchParams]);
 
   // Chat flow embedded
   if (mode === "ai" && selectedFlow === "community") {
     return <BuilderNewPage embedded initialCategory="community" onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }} />;
+  }
+
+  if (mode === "ai_onboarding" && selectedFlow === "community") {
+    return (
+      <div className="min-h-screen bg-background">
+        <BuilderAiOnboarding
+          engine={communityEngine}
+          onComplete={handleCommunityComplete}
+          onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }}
+          onChatPath={handleChatPath}
+        />
+      </div>
+    );
   }
 
   if (selectedFlow === "community") {
@@ -97,7 +113,7 @@ export default function DashboardCommunityPage() {
           engine={communityEngine}
           onComplete={handleCommunityComplete}
           onChatPath={handleChatPath}
-          onAiImportSource={handleAiImportSource}
+          onAiPath={handleAiPath}
         />
       </div>
     );

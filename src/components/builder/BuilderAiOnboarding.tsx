@@ -30,9 +30,11 @@ interface Props {
   engine: BuilderEngine;
   onComplete: (answers: Record<string, unknown>) => Promise<unknown>;
   onBack: () => void;
+  /** Called when user selects "Add info manually" — routes to chat flow */
+  onChatPath?: () => void;
 }
 
-export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
+export function BuilderAiOnboarding({ engine, onComplete, onBack, onChatPath }: Props) {
   const [phase, setPhase] = useState<"source" | "google_search" | "url_input" | "questions" | "generating">("source");
   const [selectedSource, setSelectedSource] = useState<ImportSource | null>(null);
   const [profileUrl, setProfileUrl] = useState("");
@@ -44,7 +46,12 @@ export function BuilderAiOnboarding({ engine, onComplete, onBack }: Props) {
   const handleSourceSelect = (source: ImportSource) => {
     setSelectedSource(source);
     if (source === "manual") {
-      setPhase("questions");
+      // "Add info manually" routes to chat flow
+      if (onChatPath) {
+        onChatPath();
+      } else {
+        setPhase("questions");
+      }
     } else if (source === "google_business") {
       setPhase("google_search");
     } else {

@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { getEngine } from "@/lib/builder/engineRegistry";
 import { BuilderEntryScreen } from "@/components/builder/BuilderEntryScreen";
+import { BuilderAiOnboarding } from "@/components/builder/BuilderAiOnboarding";
 import { mergeIntoDefault } from "@/lib/builderDefaults";
 import BuilderNewPage from "@/pages/BuilderNewPage";
 
@@ -151,17 +152,19 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
   const engine = getEngine(engineKey);
   const mode = searchParams.get("mode");
 
-  // Shared chat path handler — opens AI chat flow embedded in the dashboard shell
+  // Shared chat path handler
   const handleChatPath = useCallback(() => {
     const next = new URLSearchParams(searchParams);
     next.set("mode", "ai");
     setSearchParams(next, { replace: false });
   }, [searchParams, setSearchParams]);
 
-  // AI import source handler (social imports — not "manual")
-  const handleAiImportSource = useCallback((source: string) => {
-    toast.info(`${source} import coming soon`);
-  }, []);
+  // AI onboarding path handler
+  const handleAiPath = useCallback(() => {
+    const next = new URLSearchParams(searchParams);
+    next.set("mode", "ai_onboarding");
+    setSearchParams(next, { replace: false });
+  }, [searchParams, setSearchParams]);
 
   /** Handle wizard/AI completion — build seed sections and navigate to editor */
   const handleComplete = useCallback(async (answers: Record<string, unknown>) => {
@@ -251,13 +254,27 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     return <BuilderNewPage embedded initialCategory={engineKey} onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }} />;
   }
 
+  // If mode=ai_onboarding, show the Build with AI flow (social imports → auto-generate → template preview)
+  if (mode === "ai_onboarding") {
+    return (
+      <div className="min-h-screen bg-background">
+        <BuilderAiOnboarding
+          engine={engine}
+          onComplete={handleComplete}
+          onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }}
+          onChatPath={handleChatPath}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <BuilderEntryScreen
         engine={engine}
         onComplete={handleComplete}
         onChatPath={handleChatPath}
-        onAiImportSource={handleAiImportSource}
+        onAiPath={handleAiPath}
       />
     </div>
   );
