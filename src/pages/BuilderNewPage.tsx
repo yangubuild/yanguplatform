@@ -207,45 +207,119 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
 
       const businessName = ctrl.businessName || "My Restaurant";
       const slug = businessName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+      const templateKey = ctrl.selectedTemplateKey || "";
 
-      // Build seed sections from engine defaults with user data
-      const seedSections = engine.defaultSections.map((s) => {
-        const schema = mergeIntoDefault(s.type, s.schema);
-        if (s.type === "hero") {
-          schema.headline = businessName;
-          if (ctrl.businessLocation) schema.subheadline = ctrl.businessLocation;
+      // Look up the selected template preset to build real sections from its patches
+      const templatePreset = templateKey ? getTemplate("emenu", templateKey) : null;
+
+      let seedSections: { type: string; schema: Record<string, unknown>; core_slot?: string }[];
+
+      if (templatePreset && Object.keys(templatePreset.patches).length > 0) {
+        // ─── Template-aware section generation ───
+        // Use the template's sectionOrder if available, otherwise derive from patches
+        const sectionOrder = templatePreset.reference?.sectionOrder || [];
+        const patchEntries = Object.entries(templatePreset.patches) as [string, { schema: Record<string, unknown> }][];
+
+        // Map core_slot → section type
+        const SLOT_TO_TYPE: Record<string, string> = {
+          header: "header",
+          hero: "hero",
+          main_content: "menu",
+          offer: "offer",
+          footer: "footer",
+          showcase: "showcase",
+        };
+
+        // Build sections in sectionOrder if available, then add any remaining patches
+        const orderedSlots: string[] = [];
+        const patchSlots = new Set(patchEntries.map(([slot]) => slot));
+
+        if (sectionOrder.length > 0) {
+          // Map sectionOrder types back to slot keys
+          const TYPE_TO_SLOT: Record<string, string> = {};
+          for (const [slot, type] of Object.entries(SLOT_TO_TYPE)) TYPE_TO_SLOT[type] = slot;
+          // Also handle compound names like "menu_grid" → main_content
+          TYPE_TO_SLOT["menu_grid"] = "main_content";
+          TYPE_TO_SLOT["about_story"] = "offer";
+          TYPE_TO_SLOT["testimonials"] = "offer";
+          TYPE_TO_SLOT["categories"] = "main_content";
+          TYPE_TO_SLOT["featured"] = "main_content";
+
+          for (const sectionName of sectionOrder) {
+            const slot = TYPE_TO_SLOT[sectionName] || sectionName;
+            if (patchSlots.has(slot) && !orderedSlots.includes(slot)) {
+              orderedSlots.push(slot);
+            }
+          }
         }
-        if (s.type === "menu") {
-          // Bootstrap with sample categories and items so editor isn't empty
-          schema.categories = [
-            {
-              name: "Starters",
-              items: [
-                { name: "House Salad", price: 8, description: "Fresh mixed greens", image_url: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop" },
-                { name: "Soup of the Day", price: 6, description: "Ask your server", image_url: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop" },
-              ],
-            },
-            {
-              name: "Main Course",
-              items: [
-                { name: "Grilled Chicken", price: 15, description: "Served with vegetables", image_url: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=400&h=300&fit=crop" },
-                { name: "Pasta Primavera", price: 12, description: "Seasonal vegetables", image_url: "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&h=300&fit=crop" },
-              ],
-            },
-            {
-              name: "Desserts",
-              items: [
-                { name: "Chocolate Cake", price: 7, description: "Rich and decadent", image_url: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=300&fit=crop" },
-              ],
-            },
-          ];
+
+        // Add any remaining patches not covered by sectionOrder
+        for (const [slot] of patchEntries) {
+          if (!orderedSlots.includes(slot)) orderedSlots.push(slot);
         }
-        if (s.type === "footer") {
-          schema.phone = "";
-          schema.address = ctrl.businessLocation || "";
-        }
-        return { type: s.type, schema, core_slot: s.core_slot };
-      });
+
+        seedSections = orderedSlots.map((slot) => {
+          const patch = templatePreset.patches[slot as keyof typeof templatePreset.patches];
+          if (!patch) return null;
+          const sectionType = SLOT_TO_TYPE[slot] || slot;
+          const schema = mergeIntoDefault(sectionType, { ...patch.schema });
+
+          // Inject business name into hero
+          if (sectionType === "hero") {
+            if (!schema.headline || schema.headline === "Your Headline") {
+              schema.headline = businessName;
+            }
+            if (ctrl.businessLocation && !schema.subheadline) {
+              schema.subheadline = ctrl.businessLocation;
+            }
+          }
+
+          // Inject business location into footer
+          if (sectionType === "footer" && ctrl.businessLocation) {
+            if (!schema.address) schema.address = ctrl.businessLocation;
+          }
+
+          return { type: sectionType, schema, core_slot: slot };
+        }).filter((s): s is NonNullable<typeof s> => s !== null);
+      } else {
+        // ─── Fallback: no template preset found, use engine defaults ───
+        seedSections = engine.defaultSections.map((s) => {
+          const schema = mergeIntoDefault(s.type, s.schema);
+          if (s.type === "hero") {
+            schema.headline = businessName;
+            if (ctrl.businessLocation) schema.subheadline = ctrl.businessLocation;
+          }
+          if (s.type === "menu") {
+            schema.categories = [
+              {
+                name: "Starters",
+                items: [
+                  { name: "House Salad", price: 8, description: "Fresh mixed greens", image_url: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop" },
+                  { name: "Soup of the Day", price: 6, description: "Ask your server", image_url: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop" },
+                ],
+              },
+              {
+                name: "Main Course",
+                items: [
+                  { name: "Grilled Chicken", price: 15, description: "Served with vegetables", image_url: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=400&h=300&fit=crop" },
+                  { name: "Pasta Primavera", price: 12, description: "Seasonal vegetables", image_url: "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&h=300&fit=crop" },
+                ],
+              },
+              {
+                name: "Desserts",
+                items: [
+                  { name: "Chocolate Cake", price: 7, description: "Rich and decadent", image_url: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=300&fit=crop" },
+                ],
+              },
+            ];
+          }
+          if (s.type === "footer") {
+            schema.phone = "";
+            schema.address = ctrl.businessLocation || "";
+          }
+          return { type: s.type, schema, core_slot: s.core_slot };
+        });
+      }
 
       const metadata: Record<string, unknown> = {
         brand: { primary_color: "#b5622a" },
@@ -254,8 +328,9 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
           name: businessName,
           location: ctrl.businessLocation || "",
         },
-        builder_new_template: ctrl.selectedTemplateKey || "default",
+        builder_new_template: templateKey || "default",
         builder_new_html: selectedHtml,
+        template_family: templatePreset?.template_family || null,
       };
 
       try {
