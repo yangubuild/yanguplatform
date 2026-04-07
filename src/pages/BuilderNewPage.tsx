@@ -587,6 +587,18 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
 
   return (
     <div className={`${embedded ? "h-[calc(100vh-64px)]" : "h-screen"} flex flex-col bg-background`}>
+      {/* Chat phase: show a back bar */}
+      {!isEditMode && onBack && (
+        <div className="shrink-0 border-b border-border px-4 py-2">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </button>
+        </div>
+      )}
       {/* Only show the builder top bar during in-page edit mode */}
       {isEditMode && (
         <BuilderEditorTopBar
