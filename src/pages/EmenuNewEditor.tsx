@@ -295,7 +295,8 @@ export default function EmenuNewEditor() {
     const iframe = getIframe();
     const doc = iframe?.contentDocument;
 
-    const getSelected = (cls: string) => doc?.querySelector(`.${cls}`) as HTMLElement | null;
+    // Use stable nodeId-based targeting
+    const getSelected = (_cls: string) => doc ? getSelectedElement(doc) : null;
 
     switch (action) {
       // ── Section actions ──
