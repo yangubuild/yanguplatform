@@ -1,7 +1,6 @@
 /**
- * EmenuNewEditor — Wraps the new builder editor (BuilderNewPage) for existing
- * emenu surfaces, reusing the OLD top navbar and OLD publish modal.
- * This is the real Emenu editor as of the Option B→new-editor switch.
+ * EmenuNewEditor — Full Emenu editor with persistence, undo/redo,
+ * theme, magic editor toolbar, and fully wired side panels.
  */
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -10,7 +9,10 @@ import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, AlertTriangle, Monitor, Smartphone, Sparkles, Settings, ClipboardList, Rocket, Wrench, X } from "lucide-react";
+import {
+  ArrowLeft, AlertTriangle, Monitor, Smartphone, Sparkles,
+  Settings, ClipboardList, Rocket, X, Undo2, Redo2, Palette, Wand2,
+} from "lucide-react";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { EditablePreview } from "@/components/builder-new/EditablePreview";
 import { EditorToolsPanel } from "@/components/builder-new/EditorToolsPanel";
@@ -19,10 +21,15 @@ import { ButtonEditorPanel } from "@/components/builder-new/ButtonEditorPanel";
 import { TextEditorPanel } from "@/components/builder-new/TextEditorPanel";
 import { SectionEditorPanel } from "@/components/builder-new/SectionEditorPanel";
 import { ImageEditorPanel } from "@/components/builder-new/ImageEditorPanel";
+import { MagicEditorToolbar } from "@/components/builder-new/MagicEditorToolbar";
+import { ThemePanel } from "@/components/builder-new/ThemePanel";
+import type { ThemeValues } from "@/components/builder-new/ThemePanel";
 import { BuilderPublishModal } from "@/components/builder/BuilderPublishModal";
 import { BuilderSettingsDrawer, getThemeFromMetadata } from "@/components/builder/BuilderSettingsDrawer";
 import { BuilderPagesDropdown } from "@/components/builder/BuilderPagesDropdown";
 import { useBuilderEditor } from "@/hooks/useBuilderEditor";
+import { useEditorHistory } from "@/hooks/useEditorHistory";
+import { useDebounce } from "@/hooks/useDebounce";
 import { getSellerMode } from "@/lib/builder/sellerModes";
 import type { CanvasSelection } from "@/lib/builder/selectionTypes";
 import type { BuilderSurfaceType } from "@/types/builder";
@@ -36,62 +43,140 @@ export default function EmenuNewEditor() {
   const navigate = useNavigate();
   const [publishOpen, setPublishOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [themeOpen, setThemeOpen] = useState(false);
+  const [magicEditorOn, setMagicEditorOn] = useState(true);
   const [leftMode, setLeftMode] = useState<LeftMode>("tools");
   const [previewViewport, setPreviewViewport] = useState<PreviewViewport>("desktop");
   const [canvasSelection, setCanvasSelection] = useState<CanvasSelection | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [showLeaveWarning, setShowLeaveWarning] = useState(false);
   const pendingNavRef = useRef<string | null>(null);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const {
-    editorState,
-    isLoading,
-    error,
-    sections,
-    activePage,
-    activePageId,
-    setActivePageId,
-    pageSettings,
-    savePageSettings,
-    isSavingPageSettings,
-    updateSectionSchema,
-    refreshEditor,
+    editorState, isLoading, error, sections, activePage, activePageId,
+    setActivePageId, pageSettings, savePageSettings, isSavingPageSettings,
+    updateSectionSchema, refreshEditor,
   } = useBuilderEditor(surfaceId);
 
-  // Load the generated HTML from surface metadata
-  const surfaceHtml = (editorState?.surface?.metadata as any)?.builder_new_html || null;
+  // ─── Per-page HTML storage ───
+  // Store each page's HTML in metadata.pages_html[pageId]
+  const getPageHtmlKey = useCallback((pageId: string) => `page_html_${pageId}`, []);
 
-  // Build live HTML from sections if no builder_new_html
+  const surfaceMeta = (editorState?.surface?.metadata as any) || {};
+  const pagesHtml: Record<string, string> = surfaceMeta.pages_html || {};
+  const mainHtml = surfaceMeta.builder_new_html || null;
+
+  // Current page HTML: check pages_html first, then fall back to main builder_new_html
+  const currentPageSavedHtml = activePageId
+    ? (pagesHtml[activePageId] || mainHtml)
+    : mainHtml;
+
   const [liveHtml, setLiveHtml] = useState<string | null>(null);
+  const { pushState, undo, redo, canUndo, canRedo, initHistory } = useEditorHistory(null);
 
+  // Load HTML when page/surface changes
   useEffect(() => {
-    if (!surfaceHtml) return;
-    // If the saved HTML still has blob: URLs, try to persist them
-    if (surfaceHtml.includes("blob:")) {
+    if (!currentPageSavedHtml) { setLiveHtml(null); return; }
+
+    if (currentPageSavedHtml.includes("blob:")) {
       (async () => {
         try {
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.user?.id) {
-            const fixed = await persistBlobUrls(surfaceHtml, session.user.id);
+            const fixed = await persistBlobUrls(currentPageSavedHtml, session.user.id);
             setLiveHtml(fixed);
-            // Save the fixed HTML back to the surface metadata
-            if (fixed !== surfaceHtml && surfaceId) {
-              const currentMeta = (editorState?.surface?.metadata as any) || {};
-              await supabase.from("builder_surfaces").update({
-                metadata: { ...currentMeta, builder_new_html: fixed },
-              }).eq("id", surfaceId);
-            }
+            initHistory(fixed);
           } else {
-            setLiveHtml(surfaceHtml);
+            setLiveHtml(currentPageSavedHtml);
+            initHistory(currentPageSavedHtml);
           }
         } catch {
-          setLiveHtml(surfaceHtml);
+          setLiveHtml(currentPageSavedHtml);
+          initHistory(currentPageSavedHtml);
         }
       })();
     } else {
-      setLiveHtml(surfaceHtml);
+      setLiveHtml(currentPageSavedHtml);
+      initHistory(currentPageSavedHtml);
     }
-  }, [surfaceHtml]);
+  }, [currentPageSavedHtml, activePageId]);
+
+  // ─── AUTOSAVE — debounced 3s after last edit ───
+  const saveHtml = useCallback(async (html: string) => {
+    if (!surfaceId || !html) return;
+    setIsSaving(true);
+    try {
+      const { data: surfData } = await supabase
+        .from("builder_surfaces")
+        .select("metadata")
+        .eq("id", surfaceId)
+        .single();
+      
+      const currentMeta = (surfData?.metadata as any) || {};
+      const updatedPagesHtml = { ...(currentMeta.pages_html || {}) };
+
+      if (activePageId) {
+        updatedPagesHtml[activePageId] = html;
+      }
+
+      await supabase.from("builder_surfaces").update({
+        metadata: {
+          ...currentMeta,
+          builder_new_html: html, // Always keep main html current
+          pages_html: updatedPagesHtml,
+        },
+      }).eq("id", surfaceId);
+
+      setHasUnsavedChanges(false);
+    } catch (err) {
+      console.error("Autosave failed:", err);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [surfaceId, activePageId]);
+
+  // Trigger autosave on changes
+  useEffect(() => {
+    if (!hasUnsavedChanges || !liveHtml) return;
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      saveHtml(liveHtml);
+    }, 3000);
+    return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current); };
+  }, [hasUnsavedChanges, liveHtml, saveHtml]);
+
+  // Manual save
+  const handleManualSave = useCallback(() => {
+    if (liveHtml) {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      saveHtml(liveHtml);
+      toast.success("Saved!");
+    }
+  }, [liveHtml, saveHtml]);
+
+  // Keyboard shortcut: Ctrl+S, Ctrl+Z, Ctrl+Shift+Z
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        handleManualSave();
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        const prev = undo();
+        if (prev) { setLiveHtml(prev); setHasUnsavedChanges(true); }
+      }
+      if ((e.metaKey || e.ctrlKey) && (e.key === "Z" || (e.key === "z" && e.shiftKey)) ) {
+        e.preventDefault();
+        const next = redo();
+        if (next) { setLiveHtml(next); setHasUnsavedChanges(true); }
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [handleManualSave, undo, redo]);
 
   // Unsaved changes warning
   useEffect(() => {
@@ -120,9 +205,21 @@ export default function EmenuNewEditor() {
   const handleHtmlChange = useCallback((html: string) => {
     setLiveHtml(html);
     setHasUnsavedChanges(true);
-  }, []);
+    pushState(html);
+  }, [pushState]);
 
-  // Editor action handler
+  // ─── Undo/Redo buttons ───
+  const handleUndo = useCallback(() => {
+    const prev = undo();
+    if (prev) { setLiveHtml(prev); setHasUnsavedChanges(true); }
+  }, [undo]);
+
+  const handleRedo = useCallback(() => {
+    const next = redo();
+    if (next) { setLiveHtml(next); setHasUnsavedChanges(true); }
+  }, [redo]);
+
+  // ─── Iframe helpers ───
   const getIframe = useCallback(() => document.querySelector<HTMLIFrameElement>('iframe[title="Editable Website Preview"]'), []);
 
   const pushUpdate = useCallback((doc: Document, iframe: HTMLIFrameElement | null) => {
@@ -130,14 +227,46 @@ export default function EmenuNewEditor() {
       const html = doc.documentElement.outerHTML;
       setLiveHtml(html);
       setHasUnsavedChanges(true);
+      pushState(html);
     }
-  }, []);
+  }, [pushState]);
 
+  // ─── Apply theme to live page ───
+  const applyTheme = useCallback((theme: ThemeValues) => {
+    const iframe = getIframe();
+    const doc = iframe?.contentDocument;
+    if (!doc) return;
+
+    if (theme.background) doc.body.style.backgroundColor = theme.background;
+    if (theme.foreground) doc.body.style.color = theme.foreground;
+    if (theme.fontFamily) doc.body.style.fontFamily = theme.fontFamily;
+
+    if (theme.primary) {
+      doc.querySelectorAll("button, a[class*='btn'], a[class*='cta'], [class*='button']").forEach((el) => {
+        const he = el as HTMLElement;
+        if (he.style.backgroundColor || getComputedStyle(he).backgroundColor !== "rgba(0, 0, 0, 0)") {
+          he.style.backgroundColor = theme.primary!;
+        }
+      });
+    }
+    if (theme.cardBg) {
+      doc.querySelectorAll("[class*='card'], [class*='item'], [class*='menu-item']").forEach((el) => {
+        (el as HTMLElement).style.backgroundColor = theme.cardBg!;
+      });
+    }
+    pushUpdate(doc, iframe);
+    toast.success("Theme applied!");
+  }, [getIframe, pushUpdate]);
+
+  // ─── Editor action handler (ALL actions wired) ───
   const handleEditorAction = useCallback((action: string, payload?: any) => {
     const iframe = getIframe();
     const doc = iframe?.contentDocument;
 
+    const getSelected = (cls: string) => doc?.querySelector(`.${cls}`) as HTMLElement | null;
+
     switch (action) {
+      // ── Section actions ──
       case "add_section":
       case "move_up":
       case "move_down":
@@ -145,36 +274,111 @@ export default function EmenuNewEditor() {
       case "duplicate_section":
         iframe?.contentWindow?.postMessage({ type: "toolbar-action", action }, "*");
         break;
+
       case "edit_text":
         iframe?.contentWindow?.postMessage({ type: "toggle-edit-mode" }, "*");
         break;
+
+      // ── Image actions ──
       case "replace_image":
       case "upload_image":
       case "stock_image":
       case "ai_generate_image":
         iframe?.contentWindow?.postMessage({ type: "open-image-picker" }, "*");
         break;
+
       case "change_colors":
+      case "open_button_color":
+      case "open_text_color":
         iframe?.contentWindow?.postMessage({ type: "open-color-picker" }, "*");
         break;
+
+      // ── Text style (wired to selected text element) ──
+      case "set_text_style": {
+        if (!doc) break;
+        const textEl = getSelected("yangu-el-selected");
+        if (textEl && payload) {
+          Object.entries(payload).forEach(([k, v]) => {
+            (textEl.style as any)[k] = v;
+          });
+          pushUpdate(doc, iframe);
+        } else {
+          toast.info("Click a text element in preview first");
+        }
+        break;
+      }
+
+      // ── Button styles ──
       case "set_button_color": {
         if (!doc) break;
-        const btnSel = doc.querySelector('.yangu-btn-selected') as HTMLElement | null;
-        if (btnSel && payload?.color) {
-          btnSel.style.backgroundColor = payload.color;
+        const btn = getSelected("yangu-btn-selected");
+        if (btn && payload?.color) {
+          btn.style.backgroundColor = payload.color;
           const isLight = payload.color === "#ffffff" || payload.color === "#d4a853";
-          btnSel.style.color = isLight ? "#1a1a1a" : "#ffffff";
+          btn.style.color = isLight ? "#1a1a1a" : "#ffffff";
           pushUpdate(doc, iframe);
         } else toast.info("Click a button in the preview first");
         break;
       }
       case "set_button_shape": {
         if (!doc) break;
-        const btn = doc.querySelector('.yangu-btn-selected') as HTMLElement | null;
+        const btn = getSelected("yangu-btn-selected");
         if (btn && payload?.radius) { btn.style.borderRadius = payload.radius; pushUpdate(doc, iframe); }
         else toast.info("Click a button in the preview first");
         break;
       }
+      case "set_button_size": {
+        if (!doc) break;
+        const btn = getSelected("yangu-btn-selected");
+        if (btn && payload) {
+          if (payload.padding) btn.style.padding = payload.padding;
+          if (payload.fontSize) btn.style.fontSize = payload.fontSize;
+          pushUpdate(doc, iframe);
+        } else toast.info("Click a button in the preview first");
+        break;
+      }
+      case "set_button_align": {
+        if (!doc) break;
+        const btn = getSelected("yangu-btn-selected");
+        if (btn?.parentElement && payload?.align) {
+          btn.parentElement.style.display = "flex";
+          btn.parentElement.style.justifyContent = payload.align;
+          pushUpdate(doc, iframe);
+        }
+        break;
+      }
+
+      // ── Section style (wired to selected section) ──
+      case "set_section_style": {
+        if (!doc) break;
+        const sec = getSelected("section-selected");
+        if (sec && payload) {
+          Object.entries(payload).forEach(([k, v]) => {
+            (sec.style as any)[k] = v;
+          });
+          pushUpdate(doc, iframe);
+        } else toast.info("Click a section in the preview first");
+        break;
+      }
+      case "set_section_bg_image": {
+        iframe?.contentWindow?.postMessage({ type: "open-image-picker" }, "*");
+        break;
+      }
+
+      // ── Image style (wired to selected image) ──
+      case "set_image_style": {
+        if (!doc) break;
+        const img = getSelected("yangu-img-selected");
+        if (img && payload) {
+          Object.entries(payload).forEach(([k, v]) => {
+            (img.style as any)[k] = v;
+          });
+          pushUpdate(doc, iframe);
+        } else toast.info("Click an image in the preview first");
+        break;
+      }
+
+      // ── Layout ──
       case "set_layout": {
         if (!doc) break;
         const menuGrid = doc.querySelector('[class*="menu-grid"], [class*="menu-items"], [style*="grid"]');
@@ -183,13 +387,11 @@ export default function EmenuNewEditor() {
           (menuGrid as HTMLElement).style.flexDirection = "column";
           (menuGrid as HTMLElement).style.gap = "16px";
           pushUpdate(doc, iframe);
-          toast.success("Switched to list layout");
         } else if (menuGrid && payload?.mode === "grid") {
           (menuGrid as HTMLElement).style.display = "grid";
           (menuGrid as HTMLElement).style.gridTemplateColumns = "repeat(2, 1fr)";
           (menuGrid as HTMLElement).style.gap = "24px";
           pushUpdate(doc, iframe);
-          toast.success("Switched to grid layout");
         }
         break;
       }
@@ -199,10 +401,11 @@ export default function EmenuNewEditor() {
         if (grid && payload?.columns) {
           (grid as HTMLElement).style.gridTemplateColumns = `repeat(${payload.columns}, 1fr)`;
           pushUpdate(doc, iframe);
-          toast.success(`Set to ${payload.columns} columns`);
         }
         break;
       }
+
+      // ── Menu item ──
       case "add_menu_item": {
         if (!doc) break;
         const menuContainer = doc.querySelector('[class*="menu-grid"], [class*="menu-items"], section:nth-of-type(2) [style*="grid"]');
@@ -223,15 +426,181 @@ export default function EmenuNewEditor() {
         } else toast.info("Scroll to the menu section first");
         break;
       }
+
+      // ── Category management ──
+      case "add_category": {
+        if (!doc) break;
+        const catContainer = doc.querySelector('[class*="categor"], [class*="filter"], nav + div');
+        if (catContainer) {
+          const newCat = doc.createElement("button");
+          newCat.textContent = "New Category";
+          newCat.setAttribute("contenteditable", "true");
+          newCat.style.cssText = "padding:8px 16px;border-radius:8px;font-size:0.85rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);cursor:pointer;color:inherit;";
+          catContainer.appendChild(newCat);
+          pushUpdate(doc, iframe);
+          toast.success("Category added! Click to rename.");
+        } else toast.info("No category container found in the template");
+        break;
+      }
+      case "delete_category": {
+        if (!doc) break;
+        const sel = getSelected("yangu-btn-selected") || getSelected("yangu-el-selected");
+        if (sel && sel.closest('[class*="categor"], [class*="filter"]')) {
+          sel.remove();
+          pushUpdate(doc, iframe);
+          toast.success("Category removed");
+        } else toast.info("Click a category button first, then delete");
+        break;
+      }
+
+      // ── Business info (inline prompt edits) ──
+      case "edit_business_name": {
+        if (!doc) break;
+        const h1 = doc.querySelector("h1, [class*='brand'], [class*='logo-text'], nav h1, header h1");
+        if (h1) {
+          const name = prompt("Restaurant name:", h1.textContent || "");
+          if (name) { h1.textContent = name; pushUpdate(doc, iframe); }
+        } else toast.info("No restaurant name element found");
+        break;
+      }
+      case "edit_logo": {
+        iframe?.contentWindow?.postMessage({ type: "open-image-picker" }, "*");
+        break;
+      }
+      case "edit_phone": {
+        if (!doc) break;
+        const phoneEl = doc.querySelector('[href^="tel:"], [class*="phone"]');
+        if (phoneEl) {
+          const phone = prompt("Phone:", phoneEl.textContent || "");
+          if (phone) {
+            phoneEl.textContent = phone;
+            if (phoneEl.tagName === "A") (phoneEl as HTMLAnchorElement).href = `tel:${phone}`;
+            pushUpdate(doc, iframe);
+          }
+        } else toast.info("No phone element found in template");
+        break;
+      }
+      case "edit_address": {
+        if (!doc) break;
+        const addrEl = doc.querySelector('[class*="address"], [class*="location"], footer p');
+        if (addrEl) {
+          const addr = prompt("Address:", addrEl.textContent || "");
+          if (addr) { addrEl.textContent = addr; pushUpdate(doc, iframe); }
+        } else toast.info("No address element found");
+        break;
+      }
+
+      // ── Hours ──
+      case "hours": {
+        if (!doc) break;
+        const hoursEl = doc.querySelector('[class*="hour"], [class*="schedule"], [class*="time"]');
+        if (hoursEl) {
+          const hours = prompt("Opening hours (e.g. Mon-Fri 9am-10pm):", hoursEl.textContent || "");
+          if (hours) { hoursEl.textContent = hours; pushUpdate(doc, iframe); }
+        } else {
+          // Add hours to footer
+          const footer = doc.querySelector("footer");
+          if (footer) {
+            const hours = prompt("Opening hours (e.g. Mon-Fri 9am-10pm):");
+            if (hours) {
+              const p = doc.createElement("p");
+              p.textContent = hours;
+              p.style.cssText = "font-size:0.85rem;opacity:0.7;margin-top:8px;";
+              footer.appendChild(p);
+              pushUpdate(doc, iframe);
+            }
+          }
+        }
+        break;
+      }
+
+      // ── Contact ──
+      case "contact": {
+        if (!doc) break;
+        const contactSection = doc.querySelector('[class*="contact"], footer');
+        if (contactSection) {
+          const email = prompt("Email:", "");
+          if (email) {
+            const a = doc.createElement("a");
+            a.href = `mailto:${email}`;
+            a.textContent = email;
+            a.style.cssText = "font-size:0.85rem;color:inherit;display:block;margin-top:4px;";
+            contactSection.appendChild(a);
+            pushUpdate(doc, iframe);
+          }
+        }
+        break;
+      }
+
+      // ── Social links ──
+      case "social": {
+        if (!doc) break;
+        const ig = prompt("Instagram URL:", "");
+        const fb = prompt("Facebook URL:", "");
+        const footer = doc.querySelector("footer");
+        if (footer && (ig || fb)) {
+          let socialDiv = doc.querySelector('[class*="social"]') as HTMLElement | null;
+          if (!socialDiv) {
+            socialDiv = doc.createElement("div");
+            socialDiv.style.cssText = "display:flex;gap:12px;margin-top:12px;justify-content:center;";
+            footer.appendChild(socialDiv);
+          }
+          if (ig) {
+            const a = doc.createElement("a");
+            a.href = ig; a.textContent = "Instagram"; a.target = "_blank";
+            a.style.cssText = "color:inherit;font-size:0.85rem;opacity:0.7;";
+            socialDiv.appendChild(a);
+          }
+          if (fb) {
+            const a = doc.createElement("a");
+            a.href = fb; a.textContent = "Facebook"; a.target = "_blank";
+            a.style.cssText = "color:inherit;font-size:0.85rem;opacity:0.7;";
+            socialDiv.appendChild(a);
+          }
+          pushUpdate(doc, iframe);
+          toast.success("Social links added!");
+        }
+        break;
+      }
+
+      // ── Order settings ──
+      case "order_settings": {
+        if (!doc) break;
+        const mode = prompt("Order mode (delivery / pickup / both):", "both");
+        const time = prompt("Estimated delivery time:", "30-45 min");
+        if (mode || time) {
+          toast.success(`Order settings: ${mode || "both"}, ${time || "30-45 min"}`);
+          // Store in a data attribute on body for template use
+          if (doc.body) {
+            doc.body.dataset.orderMode = mode || "both";
+            doc.body.dataset.deliveryTime = time || "30-45 min";
+            pushUpdate(doc, iframe);
+          }
+        }
+        break;
+      }
+
+      // ── Page/settings ──
       case "page_settings":
       case "seo_meta":
         setSettingsOpen(true);
         break;
+
       default:
         toast.info(`${action} — coming soon`);
         break;
     }
   }, [getIframe, pushUpdate]);
+
+  // ─── Page switching handler ───
+  const handlePageSwitch = useCallback((pageId: string) => {
+    // Save current page's HTML first
+    if (liveHtml && surfaceId && activePageId) {
+      saveHtml(liveHtml);
+    }
+    setActivePageId(pageId);
+    setCanvasSelection(null);
+  }, [liveHtml, surfaceId, activePageId, saveHtml, setActivePageId]);
 
   // Loading
   if (isLoading) {
@@ -272,7 +641,6 @@ export default function EmenuNewEditor() {
   const surfaceTitle = editorState.surface.title || "Untitled";
   const sellerMode = getSellerMode(surfaceType);
 
-  // If no generated HTML exists, show a fallback message
   if (!liveHtml) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -290,9 +658,9 @@ export default function EmenuNewEditor() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* ═══ OLD TOP NAVBAR — dark green, reused exactly ═══ */}
+      {/* ═══ TOP NAVBAR ═══ */}
       <header
-        className="sticky top-0 z-40 h-14 border-b border-white/10 flex items-center px-3 lg:px-4 gap-2 lg:gap-4"
+        className="sticky top-0 z-40 h-14 border-b border-white/10 flex items-center px-3 lg:px-4 gap-2 lg:gap-3"
         style={{ background: "#152A20" }}
       >
         <button
@@ -303,7 +671,7 @@ export default function EmenuNewEditor() {
         </button>
         <div className="h-6 w-px bg-white/20 hidden sm:block" />
         <h1 className="text-sm font-semibold text-white truncate">{surfaceTitle}</h1>
-        <span className="hidden sm:inline-flex text-[10px] font-medium px-2 py-0.5 rounded-full bg-white/10 text-white/70">
+        <span className="hidden sm:inline-flex text-[10px] font-medium px-2 py-0.5 rounded-lg bg-white/10 text-white/70">
           {sellerMode.categoryBadge}
         </span>
         <div className="hidden lg:block">
@@ -311,21 +679,52 @@ export default function EmenuNewEditor() {
             pages={editorState.pages}
             activePageId={activePageId}
             surfaceId={editorState.surface.id}
-            onSwitch={setActivePageId}
+            onSwitch={handlePageSwitch}
             onRefresh={refreshEditor}
           />
         </div>
         <div className="flex-1" />
 
+        {/* Save indicator */}
+        <span className={`text-[10px] font-medium px-2 py-1 rounded-lg transition-colors ${
+          isSaving ? "text-amber-300 bg-amber-500/10" :
+          hasUnsavedChanges ? "text-amber-300 bg-amber-500/10" :
+          "text-green-300 bg-green-500/10"
+        }`}>
+          {isSaving ? "Saving..." : hasUnsavedChanges ? "Unsaved" : "Saved"}
+        </span>
+
+        {/* Undo / Redo */}
+        <div className="hidden lg:flex items-center gap-0.5">
+          <button
+            onClick={handleUndo}
+            disabled={!canUndo}
+            title="Undo (Ctrl+Z)"
+            className={`p-1.5 rounded-lg transition-colors ${canUndo ? "text-white/80 hover:text-white hover:bg-white/10" : "text-white/20 cursor-not-allowed"}`}
+          >
+            <Undo2 className="h-4 w-4" />
+          </button>
+          <button
+            onClick={handleRedo}
+            disabled={!canRedo}
+            title="Redo (Ctrl+Shift+Z)"
+            className={`p-1.5 rounded-lg transition-colors ${canRedo ? "text-white/80 hover:text-white hover:bg-white/10" : "text-white/20 cursor-not-allowed"}`}
+          >
+            <Redo2 className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="h-6 w-px bg-white/20 hidden lg:block" />
+
         {/* Viewport toggle */}
-        <div className="hidden lg:flex items-center border border-white/20 rounded-md overflow-hidden">
+        <div className="hidden lg:flex items-center border border-white/20 rounded-lg overflow-hidden">
           <button
             onClick={() => setPreviewViewport("desktop")}
             className={`flex items-center gap-1 px-2.5 py-1.5 text-xs transition-colors ${
               previewViewport === "desktop" ? "bg-white/20 text-white" : "text-white/50 hover:text-white"
             }`}
           >
-            <Monitor className="h-3.5 w-3.5" /> Desktop
+            <Monitor className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={() => setPreviewViewport("mobile")}
@@ -333,9 +732,29 @@ export default function EmenuNewEditor() {
               previewViewport === "mobile" ? "bg-white/20 text-white" : "text-white/50 hover:text-white"
             }`}
           >
-            <Smartphone className="h-3.5 w-3.5" /> Mobile
+            <Smartphone className="h-3.5 w-3.5" />
           </button>
         </div>
+
+        {/* Theme */}
+        <button
+          onClick={() => setThemeOpen(true)}
+          title="Theme"
+          className="hidden lg:flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+        >
+          <Palette className="h-3.5 w-3.5" />
+        </button>
+
+        {/* Magic Editor toggle */}
+        <button
+          onClick={() => setMagicEditorOn(!magicEditorOn)}
+          title={magicEditorOn ? "Magic Editor ON" : "Magic Editor OFF"}
+          className={`hidden lg:flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs transition-colors ${
+            magicEditorOn ? "bg-primary/20 text-primary" : "text-white/50 hover:text-white hover:bg-white/10"
+          }`}
+        >
+          <Wand2 className="h-3.5 w-3.5" />
+        </button>
 
         {/* Ada AI toggle */}
         <Button
@@ -348,15 +767,15 @@ export default function EmenuNewEditor() {
           }`}
           onClick={() => setLeftMode(leftMode === "ada" ? "tools" : "ada")}
         >
-          <Sparkles className="h-4 w-4" /> {leftMode === "ada" ? "Back to Editor" : "Edit with Ada AI"}
+          <Sparkles className="h-4 w-4" /> <span className="hidden xl:inline">{leftMode === "ada" ? "Editor" : "Ada AI"}</span>
         </Button>
-        <Button size="sm" variant="outline" onClick={() => setSettingsOpen(true)} className="gap-2 hidden lg:flex border-white/20 text-white/80 hover:text-white hover:bg-white/10">
-          <Settings className="h-4 w-4" /> Settings
+        <Button size="sm" variant="outline" onClick={() => setSettingsOpen(true)} className="gap-1 hidden lg:flex border-white/20 text-white/80 hover:text-white hover:bg-white/10">
+          <Settings className="h-4 w-4" />
         </Button>
-        <Button size="sm" variant="outline" onClick={() => safeNavigate("/dashboard/my-business")} className="gap-2 hidden lg:flex border-white/20 text-white/80 hover:text-white hover:bg-white/10">
-          <ClipboardList className="h-4 w-4" /> View Orders
+        <Button size="sm" variant="outline" onClick={() => safeNavigate("/dashboard/my-business")} className="gap-1 hidden lg:flex border-white/20 text-white/80 hover:text-white hover:bg-white/10">
+          <ClipboardList className="h-4 w-4" />
         </Button>
-        <Button size="sm" onClick={() => setPublishOpen(true)} className="gap-2 hidden lg:flex" style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}>
+        <Button size="sm" onClick={() => setPublishOpen(true)} className="gap-1 hidden lg:flex" style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}>
           <Rocket className="h-4 w-4 text-white" /> <span className="text-white">Publish</span>
         </Button>
       </header>
@@ -379,9 +798,7 @@ export default function EmenuNewEditor() {
                 <div className="text-center space-y-3">
                   <Sparkles className="h-8 w-8 text-accent mx-auto" />
                   <p className="text-sm font-medium">Ada AI Editor</p>
-                  <p className="text-xs text-muted-foreground">
-                    Describe changes to your menu and Ada will apply them.
-                  </p>
+                  <p className="text-xs text-muted-foreground">Describe changes to your menu and Ada will apply them.</p>
                   <div className="mt-4 rounded-lg border border-border bg-muted/30 p-3">
                     <p className="text-xs text-muted-foreground italic">Full Ada AI editing — coming soon</p>
                   </div>
@@ -401,13 +818,23 @@ export default function EmenuNewEditor() {
         </aside>
 
         {/* ═══ CENTER — Editable Preview ═══ */}
-        <main className="flex-1 min-w-0 overflow-hidden">
+        <main className="flex-1 min-w-0 overflow-hidden relative">
           <EditablePreview
             html={liveHtml}
             onHtmlChange={handleHtmlChange}
             onSelectionChange={handleCanvasSelection}
             viewportMode={previewViewport}
           />
+
+          {/* Magic Editor floating toolbar */}
+          {magicEditorOn && canvasSelection && canvasSelection.kind !== "page" && (
+            <div className="absolute top-14 left-1/2 -translate-x-1/2 z-30">
+              <MagicEditorToolbar
+                selection={canvasSelection}
+                onAction={handleEditorAction}
+              />
+            </div>
+          )}
         </main>
 
         {/* ═══ RIGHT PANEL — context-aware ═══ */}
@@ -426,7 +853,10 @@ export default function EmenuNewEditor() {
         </div>
       </div>
 
-      {/* OLD Publish Modal — reused exactly */}
+      {/* Theme Panel */}
+      <ThemePanel open={themeOpen} onClose={() => setThemeOpen(false)} onApply={applyTheme} />
+
+      {/* OLD Publish Modal */}
       <BuilderPublishModal
         open={publishOpen}
         onOpenChange={setPublishOpen}
@@ -437,7 +867,7 @@ export default function EmenuNewEditor() {
         pages={editorState.pages}
       />
 
-      {/* OLD Settings Drawer — reused exactly */}
+      {/* OLD Settings Drawer */}
       <BuilderSettingsDrawer
         open={settingsOpen}
         onOpenChange={setSettingsOpen}
@@ -455,8 +885,8 @@ export default function EmenuNewEditor() {
       {showLeaveWarning && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="bg-background border border-border rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl space-y-4">
-            <h3 className="text-lg font-semibold">Unpublished Changes</h3>
-            <p className="text-sm text-muted-foreground">You have unpublished changes. If you leave now you may lose them.</p>
+            <h3 className="text-lg font-semibold">Unsaved Changes</h3>
+            <p className="text-sm text-muted-foreground">You have unsaved changes. If you leave now, autosave will try to save them, but you may lose recent edits.</p>
             <div className="flex gap-2 justify-end">
               <Button variant="outline" size="sm" onClick={() => setShowLeaveWarning(false)}>Stay</Button>
               <Button variant="destructive" size="sm" onClick={confirmLeave}>Leave Anyway</Button>
