@@ -27,6 +27,7 @@ import { getEngine } from "@/lib/builder/engineRegistry";
 import { mergeIntoDefault } from "@/lib/builderDefaults";
 import { getTemplate } from "@/config/templateRegistry";
 import { supabase } from "@/integrations/supabase/client";
+import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
 import { toast } from "sonner";
 
 function naturalDelay(): Promise<void> {
