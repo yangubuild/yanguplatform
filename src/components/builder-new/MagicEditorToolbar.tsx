@@ -37,7 +37,8 @@ export function MagicEditorToolbar({ selection, onAction }: MagicEditorToolbarPr
       )}
       {kind === "section" && (
         <>
-          <MagicBtn icon={Palette} label="Background" onClick={() => onAction("change_colors")} />
+          <MagicBtn icon={Palette} label="Section BG" onClick={() => onAction("change_colors")} />
+          <MagicBtn icon={Palette} label="Page BG" onClick={() => onAction("set_page_bg")} />
           <MagicBtn icon={Type} label="Edit Text" onClick={() => onAction("edit_text")} />
         </>
       )}
