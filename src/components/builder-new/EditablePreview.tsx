@@ -97,7 +97,8 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
               clearAllHighlights();
               el.classList.add('yangu-img-selected');
               var si = findSectionIndex(el);
-              window.parent.postMessage({ type: 'canvas-select', kind: 'image', tag: 'IMG', preview: el.src || '', sectionIndex: si }, '*');
+              var imgRect = el.getBoundingClientRect();
+              window.parent.postMessage({ type: 'canvas-select', kind: 'image', tag: 'IMG', preview: el.src || '', sectionIndex: si, elRect: { top: imgRect.top, left: imgRect.left, width: imgRect.width, height: imgRect.height } }, '*');
               window.parent.postMessage({ type: 'image-click', src: el.src }, '*');
             });
           });
@@ -135,13 +136,15 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
               if (sections[si]) sections[si].classList.add('section-selected');
             }
 
+            var rect = el.getBoundingClientRect();
             window.parent.postMessage({
               type: 'canvas-select',
               kind: kind,
               tag: el.tagName,
               preview: getPreview(el, kind),
               sectionIndex: si,
-              sectionId: si >= 0 ? (document.querySelectorAll('section, footer, nav')[si]?.id || '') : ''
+              sectionId: si >= 0 ? (document.querySelectorAll('section, footer, nav')[si]?.id || '') : '',
+              elRect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
             }, '*');
 
             // Legacy section-select for backward compat
