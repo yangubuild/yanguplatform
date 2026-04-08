@@ -178,6 +178,7 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
           preview: e.data.preview,
           sectionIndex: e.data.sectionIndex >= 0 ? e.data.sectionIndex : undefined,
           sectionId: e.data.sectionId || undefined,
+          elRect: e.data.elRect || undefined,
         });
       }
     };
