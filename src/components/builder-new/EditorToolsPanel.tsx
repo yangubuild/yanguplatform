@@ -22,11 +22,11 @@ interface EditorToolsPanelProps {
 
 const SELECTION_LABELS: Record<SelectionKind, { label: string; icon: typeof Type; color: string }> = {
   page: { label: "Page", icon: LayoutGrid, color: "text-muted-foreground" },
-  section: { label: "Section", icon: Columns, color: "text-primary" },
+  section: { label: "Section", icon: Columns, color: "text-green-500" },
   text: { label: "Text", icon: Type, color: "text-green-500" },
-  image: { label: "Image", icon: ImageIcon, color: "text-blue-500" },
-  button: { label: "Button", icon: MousePointer, color: "text-amber-500" },
-  card: { label: "Card / Item", icon: Square, color: "text-violet-500" },
+  image: { label: "Image", icon: ImageIcon, color: "text-green-500" },
+  button: { label: "Button", icon: MousePointer, color: "text-green-500" },
+  card: { label: "Card / Item", icon: Square, color: "text-green-500" },
   background: { label: "Background", icon: LayoutGrid, color: "text-muted-foreground" },
 };
 
@@ -170,10 +170,9 @@ export function EditorToolsPanel({
         ))}
       </div>
 
-      {/* Quick tip */}
       <div className="px-4 py-3 border-t border-border shrink-0">
         <p className="text-[11px] text-muted-foreground leading-relaxed">
-          💡 Click elements in preview to select them. Or ask{" "}
+          Click elements in preview to select them. Or ask{" "}
           <button
             onClick={onToggleAdaChat}
             className="text-primary font-medium hover:underline"
