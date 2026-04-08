@@ -1,4 +1,4 @@
-import { Type, Image as ImageIcon, Palette, Replace, Bold, Italic, AlignCenter, Maximize } from "lucide-react";
+import { Type, Image as ImageIcon, Palette, Replace, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Maximize } from "lucide-react";
 import type { CanvasSelection } from "@/lib/builder/selectionTypes";
 
 interface MagicEditorToolbarProps {
@@ -16,7 +16,9 @@ export function MagicEditorToolbar({ selection, onAction }: MagicEditorToolbarPr
         <>
           <MagicBtn icon={Bold} label="Bold" onClick={() => onAction("set_text_style", { fontWeight: "700" })} />
           <MagicBtn icon={Italic} label="Italic" onClick={() => onAction("set_text_style", { fontStyle: "italic" })} />
+          <MagicBtn icon={AlignLeft} label="Left" onClick={() => onAction("set_text_style", { textAlign: "left" })} />
           <MagicBtn icon={AlignCenter} label="Center" onClick={() => onAction("set_text_style", { textAlign: "center" })} />
+          <MagicBtn icon={AlignRight} label="Right" onClick={() => onAction("set_text_style", { textAlign: "right" })} />
           <MagicBtn icon={Maximize} label="Larger" onClick={() => onAction("set_text_style", { fontSize: "1.25rem" })} />
           <MagicBtn icon={Palette} label="Color" onClick={() => onAction("open_text_color")} />
           <div className="w-px h-4 bg-background/20 mx-0.5" />

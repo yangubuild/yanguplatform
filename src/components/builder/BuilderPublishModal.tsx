@@ -39,6 +39,7 @@ interface BuilderPublishModalProps {
   surfaceTitle: string;
   defaultSlug?: string;
   pages?: PublishPage[];
+  onBeforePublish?: () => Promise<boolean | void> | boolean | void;
 }
 
 // Simple QR code generator using a public API
@@ -139,6 +140,7 @@ export function BuilderPublishModal({
   surfaceTitle,
   defaultSlug,
   pages,
+  onBeforePublish,
 }: BuilderPublishModalProps) {
   const {
     allowedDomains,
@@ -333,6 +335,17 @@ export function BuilderPublishModal({
   };
 
   const handlePublishWithMeta = async () => {
+    try {
+      const ready = await onBeforePublish?.();
+      if (ready === false) {
+        toast.error("Couldn't prepare the latest Emenu page for publish");
+        return;
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't prepare the latest Emenu page for publish");
+      return;
+    }
+
     // Save metadata to surface first
     try {
       let resolvedCoverImageUrl = coverImageUrl || null;
@@ -373,7 +386,7 @@ export function BuilderPublishModal({
         .eq("id", surfaceId);
     } catch {}
     // Then publish
-    publish();
+    await publish();
   };
 
   return (

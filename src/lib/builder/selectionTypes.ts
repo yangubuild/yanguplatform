@@ -20,6 +20,8 @@ export interface CanvasSelection {
   tag?: string;
   /** Short content preview (first 60 chars of text, or image src) */
   preview?: string;
+  /** Stable in-session editor node identifier */
+  nodeId?: string;
   /** Section id attribute if present */
   sectionId?: string;
   /** Bounding rect of the selected element relative to the iframe viewport */
