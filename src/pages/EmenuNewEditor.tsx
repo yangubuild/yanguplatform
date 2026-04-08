@@ -344,26 +344,29 @@ export default function EmenuNewEditor() {
       // ── Text style with toggle support ──
       case "set_text_style": {
         if (!doc) break;
-        const textEl = getSelected("yangu-el-selected") || getSelected("yangu-btn-selected");
+        const textEl = getSelectedElement(doc);
         if (textEl && payload) {
+          const iframeWin = iframe?.contentWindow;
           Object.entries(payload).forEach(([k, v]) => {
-            const current = (textEl.style as any)[k] || window.getComputedStyle(textEl).getPropertyValue(
+            const computed = iframeWin ? iframeWin.getComputedStyle(textEl).getPropertyValue(
               k.replace(/([A-Z])/g, '-$1').toLowerCase()
-            );
+            ) : '';
+            const current = (textEl.style as any)[k] || computed;
             // Toggle logic for italic
             if (k === "fontStyle") {
               (textEl.style as any)[k] = current === "italic" ? "normal" : "italic";
             }
             // Toggle logic for bold
             else if (k === "fontWeight") {
-              const isBold = current === "700" || current === "bold";
+              const numWeight = parseInt(current, 10);
+              const isBold = current === "bold" || numWeight >= 700;
               (textEl.style as any)[k] = isBold ? "400" : String(v);
             }
             // Toggle logic for underline
             else if (k === "textDecoration") {
               (textEl.style as any)[k] = current.includes("underline") ? "none" : String(v);
             }
-            // Color from inline palette (TextEditorPanel)
+            // Color from inline palette
             else if (k === "color") {
               textEl.style.color = String(v);
             }
