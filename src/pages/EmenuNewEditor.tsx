@@ -847,15 +847,29 @@ export default function EmenuNewEditor() {
             viewportMode={previewViewport}
           />
 
-          {/* Magic Editor floating toolbar */}
-          {magicEditorOn && canvasSelection && canvasSelection.kind !== "page" && (
-            <div className="absolute top-14 left-1/2 -translate-x-1/2 z-30">
-              <MagicEditorToolbar
-                selection={canvasSelection}
-                onAction={handleEditorAction}
-              />
-            </div>
-          )}
+          {/* Magic Editor floating toolbar — positioned near selected element */}
+          {magicEditorOn && canvasSelection && canvasSelection.kind !== "page" && canvasSelection.elRect && (() => {
+            const iframe = getIframe();
+            const iframeRect = iframe?.getBoundingClientRect();
+            if (!iframeRect) return null;
+            const mainEl = document.querySelector('main');
+            const mainRect = mainEl?.getBoundingClientRect() || { top: 0, left: 0, width: 800 };
+            // Position toolbar above the selected element, relative to the main container
+            const toolbarTop = iframeRect.top - mainRect.top + canvasSelection.elRect.top - 48;
+            const toolbarLeft = iframeRect.left - mainRect.left + canvasSelection.elRect.left + canvasSelection.elRect.width / 2;
+            return (
+              <div
+                className="absolute z-30"
+                style={{
+                  top: Math.max(4, toolbarTop),
+                  left: Math.min(Math.max(120, toolbarLeft), (mainRect.width || 800) - 120),
+                  transform: "translateX(-50%)",
+                }}
+              >
+                <MagicEditorToolbar selection={canvasSelection} onAction={handleEditorAction} />
+              </div>
+            );
+          })()}
         </main>
 
         {/* ═══ RIGHT PANEL — context-aware ═══ */}

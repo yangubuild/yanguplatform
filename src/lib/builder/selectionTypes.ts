@@ -22,6 +22,8 @@ export interface CanvasSelection {
   preview?: string;
   /** Section id attribute if present */
   sectionId?: string;
+  /** Bounding rect of the selected element relative to the iframe viewport */
+  elRect?: { top: number; left: number; width: number; height: number };
 }
 
 /** Classify an element tag + context into a SelectionKind */

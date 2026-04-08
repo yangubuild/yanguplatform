@@ -27,11 +27,11 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
         .section-hover { position: relative; }
         .section-hover:hover { outline: 2px dashed #22c55e44; outline-offset: -2px; border-radius: 8px; }
         .section-selected { outline: 2px solid #22c55e !important; outline-offset: -2px; border-radius: 8px; }
-        img:hover { outline: 2px solid #3b82f644; cursor: pointer; }
-        .yangu-img-selected { outline: 2px solid #3b82f6 !important; }
-        .yangu-el-selected { outline: 2px solid #a855f7 !important; outline-offset: 2px; }
-        button:hover, a[class*="btn"]:hover, a[class*="cta"]:hover { outline: 2px solid #f59e0b44; outline-offset: 2px; }
-        .yangu-btn-selected { outline: 2px solid #f59e0b !important; outline-offset: 2px; }
+        img:hover { outline: 2px solid #22c55e44; cursor: pointer; }
+        .yangu-img-selected { outline: 2px solid #22c55e !important; }
+        .yangu-el-selected { outline: 2px solid #22c55e !important; outline-offset: 2px; }
+        button:hover, a[class*="btn"]:hover, a[class*="cta"]:hover { outline: 2px solid #22c55e44; outline-offset: 2px; }
+        .yangu-btn-selected { outline: 2px solid #22c55e !important; outline-offset: 2px; }
       </style>
       <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -97,7 +97,8 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
               clearAllHighlights();
               el.classList.add('yangu-img-selected');
               var si = findSectionIndex(el);
-              window.parent.postMessage({ type: 'canvas-select', kind: 'image', tag: 'IMG', preview: el.src || '', sectionIndex: si }, '*');
+              var imgRect = el.getBoundingClientRect();
+              window.parent.postMessage({ type: 'canvas-select', kind: 'image', tag: 'IMG', preview: el.src || '', sectionIndex: si, elRect: { top: imgRect.top, left: imgRect.left, width: imgRect.width, height: imgRect.height } }, '*');
               window.parent.postMessage({ type: 'image-click', src: el.src }, '*');
             });
           });
@@ -135,13 +136,15 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
               if (sections[si]) sections[si].classList.add('section-selected');
             }
 
+            var rect = el.getBoundingClientRect();
             window.parent.postMessage({
               type: 'canvas-select',
               kind: kind,
               tag: el.tagName,
               preview: getPreview(el, kind),
               sectionIndex: si,
-              sectionId: si >= 0 ? (document.querySelectorAll('section, footer, nav')[si]?.id || '') : ''
+              sectionId: si >= 0 ? (document.querySelectorAll('section, footer, nav')[si]?.id || '') : '',
+              elRect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
             }, '*');
 
             // Legacy section-select for backward compat
@@ -175,6 +178,7 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
           preview: e.data.preview,
           sectionIndex: e.data.sectionIndex >= 0 ? e.data.sectionIndex : undefined,
           sectionId: e.data.sectionId || undefined,
+          elRect: e.data.elRect || undefined,
         });
       }
     };
