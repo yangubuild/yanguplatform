@@ -86,15 +86,15 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
     return validatePagesForPublish(pages, surfaceType, surfaceId);
   }, [pages, surfaceType, surfaceId]);
 
-  const publish = useCallback(async () => {
-    if (!selectedDomainId) return;
+  const publish = useCallback(async (slugOverride?: string): Promise<BuilderPublishResult | null> => {
+    if (!selectedDomainId) return null;
 
     // Run client-side validation first
     const vErrors = validate();
     setValidationErrors(vErrors);
     if (vErrors.length> 0) {
       setPublishError(vErrors[0].message);
-      return;
+      return { ok: false, error: vErrors[0].message };
     }
 
     setIsPublishing(true);
@@ -105,13 +105,13 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
       const { data, error } = await supabase.rpc("builder_publish_surface", {
         p_surface_id: surfaceId,
         p_domain_id: selectedDomainId,
-        p_slug: customSlug || undefined,
+        p_slug: slugOverride || customSlug || undefined,
       });
 
       if (error) {
         console.error("[useBuilderPublish] RPC error:", error);
         setPublishError(error.message);
-        return;
+        return { ok: false, error: error.message };
       }
 
       const result = data as unknown as BuilderPublishResult;
@@ -131,9 +131,12 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
         };
         setPublishError(errorMessages[result.error || ""] || result.error || "Unknown error");
       }
+
+      return result;
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Publish failed";
       setPublishError(msg);
+      return { ok: false, error: msg };
     } finally {
       setIsPublishing(false);
     }
