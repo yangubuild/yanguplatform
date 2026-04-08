@@ -22,8 +22,6 @@ import { TextEditorPanel } from "@/components/builder-new/TextEditorPanel";
 import { SectionEditorPanel } from "@/components/builder-new/SectionEditorPanel";
 import { ImageEditorPanel } from "@/components/builder-new/ImageEditorPanel";
 import { MagicEditorToolbar } from "@/components/builder-new/MagicEditorToolbar";
-import { ThemePanel } from "@/components/builder-new/ThemePanel";
-import type { ThemeValues } from "@/components/builder-new/ThemePanel";
 import { BuilderPublishModal } from "@/components/builder/BuilderPublishModal";
 import { BuilderSettingsDrawer, getThemeFromMetadata } from "@/components/builder/BuilderSettingsDrawer";
 import { BuilderPagesDropdown } from "@/components/builder/BuilderPagesDropdown";
