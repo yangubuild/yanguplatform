@@ -956,7 +956,7 @@ export default function EmenuNewEditor() {
         onSelect={applyEditorColor}
       />
 
-      {/* OLD Publish Modal */}
+      {/* Publish Modal — flush save before publish */}
       <BuilderPublishModal
         open={publishOpen}
         onOpenChange={setPublishOpen}
@@ -965,6 +965,13 @@ export default function EmenuNewEditor() {
         surfaceTitle={surfaceTitle}
         defaultSlug={editorState.surface.slug}
         pages={editorState.pages}
+        onBeforePublish={async () => {
+          if (!liveHtml || !surfaceId) return false;
+          // Force-save the latest editor HTML before publish
+          if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+          await saveHtml(liveHtml);
+          return true;
+        }}
       />
 
       {/* OLD Settings Drawer */}
