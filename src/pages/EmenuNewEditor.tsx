@@ -11,7 +11,7 @@ import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft, AlertTriangle, Monitor, Smartphone, Sparkles,
-  Settings, ClipboardList, Rocket, X, Undo2, Redo2, Palette, Wand2,
+  Settings, ClipboardList, Rocket, X, Undo2, Redo2, Wand2,
 } from "lucide-react";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { EditablePreview } from "@/components/builder-new/EditablePreview";
