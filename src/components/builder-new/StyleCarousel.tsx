@@ -1,6 +1,13 @@
-import { useMemo } from "react";
 import type { StepOption } from "./hooks/useStepController";
 import { STYLE_PREVIEW_IMAGES } from "./utils/styleImages";
+
+const PREVIEW_IMAGE_CLASSNAMES: Record<string, string> = {
+  emenu_plateria:
+    "w-full h-full object-cover object-top scale-[1.08] group-hover:scale-[1.13] transition-transform duration-300",
+};
+
+const DEFAULT_PREVIEW_IMAGE_CLASSNAME =
+  "w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300";
 
 interface StyleCarouselProps {
   options: StepOption[];
@@ -13,6 +20,9 @@ export function StyleCarousel({ options, onSelect }: StyleCarouselProps) {
       <div className="flex gap-3 pb-2" style={{ minWidth: "max-content" }}>
         {options.map((opt) => {
           const previewSrc = STYLE_PREVIEW_IMAGES[opt.value];
+          const previewImageClassName =
+            PREVIEW_IMAGE_CLASSNAMES[opt.value] ?? DEFAULT_PREVIEW_IMAGE_CLASSNAME;
+
           return (
             <button
               key={opt.id}
@@ -25,7 +35,7 @@ export function StyleCarousel({ options, onSelect }: StyleCarouselProps) {
                   <img
                     src={previewSrc}
                     alt={opt.label}
-                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                    className={previewImageClassName}
                     loading="lazy"
                     width={180}
                     height={110}
