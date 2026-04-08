@@ -41,7 +41,7 @@ export default function EmenuNewEditor() {
   const navigate = useNavigate();
   const [publishOpen, setPublishOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [themeOpen, setThemeOpen] = useState(false);
+  
   const [magicEditorOn, setMagicEditorOn] = useState(true);
   const [leftMode, setLeftMode] = useState<LeftMode>("tools");
   const [previewViewport, setPreviewViewport] = useState<PreviewViewport>("desktop");
