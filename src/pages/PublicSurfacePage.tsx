@@ -13,8 +13,8 @@ import { Loader2 } from "lucide-react";
 
 /**
  * Public published page renderer.
- * Reads host + slug from the URL, calls builder_get_public_schema,
- * and renders the published schema using the same BuilderPreview renderers.
+ * For emenu surfaces: renders raw HTML from metadata.builder_new_html.
+ * For other surfaces: reads from builder_get_public_schema RPC.
  */
 export default function PublicSurfacePage() {
   const location = useLocation();
@@ -26,6 +26,7 @@ export default function PublicSurfacePage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["builder_public_schema", host, pathSlug],
     queryFn: async () => {
+      // First try the standard RPC
       const { data, error } = await supabase.rpc("builder_get_public_schema", {
         p_host: host,
         p_slug: pathSlug,
@@ -39,6 +40,26 @@ export default function PublicSurfacePage() {
     },
     retry: false,
     staleTime: 60_000,
+  });
+
+  // For emenu surfaces, also fetch the raw HTML from metadata
+  const surfaceType = (data?.published_schema?.surface as any)?.surface_type;
+  const publishSurfaceId = (data?.published_schema?.surface as any)?.id;
+
+  const { data: emenuHtmlData } = useQuery({
+    queryKey: ["emenu_raw_html", publishSurfaceId],
+    queryFn: async () => {
+      const { data: surfData, error } = await supabase
+        .from("builder_surfaces")
+        .select("metadata")
+        .eq("id", publishSurfaceId)
+        .single();
+      if (error) throw error;
+      const meta = (surfData?.metadata as any) || {};
+      return meta.builder_new_html as string | null;
+    },
+    enabled: !!publishSurfaceId && surfaceType === "emenu",
+    staleTime: 30_000,
   });
 
   // Extract metadata for document head (must be before early returns)
