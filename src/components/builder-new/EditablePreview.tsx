@@ -27,11 +27,11 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
         .section-hover { position: relative; }
         .section-hover:hover { outline: 2px dashed #22c55e44; outline-offset: -2px; border-radius: 8px; }
         .section-selected { outline: 2px solid #22c55e !important; outline-offset: -2px; border-radius: 8px; }
-        img:hover { outline: 2px solid #3b82f644; cursor: pointer; }
-        .yangu-img-selected { outline: 2px solid #3b82f6 !important; }
-        .yangu-el-selected { outline: 2px solid #a855f7 !important; outline-offset: 2px; }
-        button:hover, a[class*="btn"]:hover, a[class*="cta"]:hover { outline: 2px solid #f59e0b44; outline-offset: 2px; }
-        .yangu-btn-selected { outline: 2px solid #f59e0b !important; outline-offset: 2px; }
+        img:hover { outline: 2px solid #22c55e44; cursor: pointer; }
+        .yangu-img-selected { outline: 2px solid #22c55e !important; }
+        .yangu-el-selected { outline: 2px solid #22c55e !important; outline-offset: 2px; }
+        button:hover, a[class*="btn"]:hover, a[class*="cta"]:hover { outline: 2px solid #22c55e44; outline-offset: 2px; }
+        .yangu-btn-selected { outline: 2px solid #22c55e !important; outline-offset: 2px; }
       </style>
       <script>
         document.addEventListener('DOMContentLoaded', function() {
