@@ -923,6 +923,13 @@ export default function EmenuNewEditor() {
         </div>
       </div>
 
+      {/* Editor Color Picker (for text/button/section/page colors) */}
+      <EditorColorPickerDialog
+        open={editorColorPickerOpen}
+        onOpenChange={setEditorColorPickerOpen}
+        onSelect={applyEditorColor}
+      />
+
       {/* OLD Publish Modal */}
       <BuilderPublishModal
         open={publishOpen}
