@@ -853,7 +853,7 @@ export default function EmenuNewEditor() {
             const iframeRect = iframe?.getBoundingClientRect();
             if (!iframeRect) return null;
             const mainEl = document.querySelector('main');
-            const mainRect = mainEl?.getBoundingClientRect() || { top: 0, left: 0 };
+            const mainRect = mainEl?.getBoundingClientRect() || { top: 0, left: 0, width: 800 };
             // Position toolbar above the selected element, relative to the main container
             const toolbarTop = iframeRect.top - mainRect.top + canvasSelection.elRect.top - 48;
             const toolbarLeft = iframeRect.left - mainRect.left + canvasSelection.elRect.left + canvasSelection.elRect.width / 2;
