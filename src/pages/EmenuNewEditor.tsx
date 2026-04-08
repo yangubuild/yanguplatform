@@ -229,13 +229,36 @@ export default function EmenuNewEditor() {
   // ─── Iframe helpers ───
   const getIframe = useCallback(() => document.querySelector<HTMLIFrameElement>('iframe[title="Editable Website Preview"]'), []);
 
-  const pushUpdate = useCallback((doc: Document, iframe: HTMLIFrameElement | null) => {
-    if (doc && iframe) {
-      const html = doc.documentElement.outerHTML;
-      setLiveHtml(html);
-      setHasUnsavedChanges(true);
-      pushState(html);
+  /** Get the currently selected element by stable nodeId first, then fall back to highlight class */
+  const getSelectedElement = useCallback((doc: Document): HTMLElement | null => {
+    if (canvasSelection?.nodeId) {
+      const el = doc.querySelector(`[data-yangu-node-id="${canvasSelection.nodeId}"]`) as HTMLElement | null;
+      if (el) return el;
     }
+    return doc.querySelector('.yangu-el-selected') as HTMLElement
+      || doc.querySelector('.yangu-btn-selected') as HTMLElement
+      || doc.querySelector('.section-selected') as HTMLElement
+      || null;
+  }, [canvasSelection?.nodeId]);
+
+  const pushUpdate = useCallback((doc: Document, _iframe: HTMLIFrameElement | null) => {
+    if (!doc) return;
+    const clone = doc.documentElement.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll('.yangu-editor-inject').forEach(el => el.remove());
+    clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected,.section-hover').forEach(el => {
+      el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected','section-hover');
+    });
+    clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+    clone.querySelectorAll('[data-yangu-node-id]').forEach(el => el.removeAttribute('data-yangu-node-id'));
+    clone.querySelectorAll('[data-section-idx]').forEach(el => el.removeAttribute('data-section-idx'));
+    clone.querySelectorAll('*').forEach(el => {
+      const ca = el.getAttribute('class');
+      if (ca !== null && !ca.trim()) el.removeAttribute('class');
+    });
+    const html = clone.outerHTML;
+    setLiveHtml(html);
+    setHasUnsavedChanges(true);
+    pushState(html);
   }, [pushState]);
 
 
