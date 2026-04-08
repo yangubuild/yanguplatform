@@ -1,7 +1,8 @@
 import { useState } from "react";
 import {
   ChevronRight, LayoutGrid, List, Image, Plus, Trash2,
-  GripVertical, Type, Phone, MapPin, Store
+  GripVertical, Type, Phone, MapPin, Store, Clock,
+  Share2, Truck, Mail
 } from "lucide-react";
 
 interface EmenuEditorPanelProps {
@@ -10,7 +11,7 @@ interface EmenuEditorPanelProps {
   onAction: (action: string, payload?: any) => void;
 }
 
-type Section = "menu" | "categories" | "images" | "layout" | "business";
+type Section = "menu" | "categories" | "images" | "layout" | "business" | "hours" | "social" | "orders";
 
 const SECTIONS: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "menu", label: "Menu Items", icon: Type },
@@ -18,6 +19,9 @@ const SECTIONS: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "images", label: "Images", icon: Image },
   { id: "layout", label: "Layout", icon: LayoutGrid },
   { id: "business", label: "Business Info", icon: Store },
+  { id: "hours", label: "Hours", icon: Clock },
+  { id: "social", label: "Social Links", icon: Share2 },
+  { id: "orders", label: "Order Settings", icon: Truck },
 ];
 
 export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEditorPanelProps) {
@@ -29,11 +33,10 @@ export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEdit
 
   return (
     <div className="flex flex-col h-full bg-background text-foreground">
-      {/* Header */}
       <div className="px-4 py-3 border-b border-border shrink-0">
         <h3 className="text-sm font-semibold">Menu Editor</h3>
         <p className="text-[11px] text-muted-foreground mt-0.5">
-          {businessName || "Your Menu"} • {category === "emenu" ? "eMenu" : category || "site"}
+          {businessName || "Your Menu"} • eMenu
         </p>
       </div>
 
@@ -55,18 +58,19 @@ export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEdit
               <div className="px-4 pb-3 space-y-2">
                 {sec.id === "menu" && (
                   <>
-                    <p className="text-[11px] text-muted-foreground">Click any item in preview to edit name, price, description, or image.</p>
+                    <p className="text-[11px] text-muted-foreground">Click any item in preview to edit name, price, or description directly.</p>
                     <button
                       onClick={() => onAction("add_menu_item")}
                       className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-muted/60 hover:bg-muted text-sm transition-colors"
                     >
-                      <Plus className="h-3.5 w-3.5" /> Add Item
+                      <Plus className="h-3.5 w-3.5" /> Add Menu Item
                     </button>
                   </>
                 )}
 
                 {sec.id === "categories" && (
                   <>
+                    <p className="text-[11px] text-muted-foreground">Manage menu categories. Click categories in preview to rename.</p>
                     <button
                       onClick={() => onAction("add_category")}
                       className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-muted/60 hover:bg-muted text-sm transition-colors"
@@ -77,9 +81,8 @@ export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEdit
                       onClick={() => onAction("delete_category")}
                       className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-muted/60 hover:bg-muted text-sm text-destructive transition-colors"
                     >
-                      <Trash2 className="h-3.5 w-3.5" /> Delete Category
+                      <Trash2 className="h-3.5 w-3.5" /> Delete Selected Category
                     </button>
-                    <p className="text-[11px] text-muted-foreground">Drag to reorder. Click to rename.</p>
                   </>
                 )}
 
@@ -109,25 +112,23 @@ export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEdit
 
                 {sec.id === "layout" && (
                   <div className="space-y-3">
-                    {/* Grid / List */}
                     <div>
                       <label className="text-[11px] text-muted-foreground block mb-1">Display Mode</label>
                       <div className="flex gap-1">
                         <button
                           onClick={() => { setLayoutMode("grid"); onAction("set_layout", { mode: "grid" }); }}
-                          className={`flex items-center gap-1 px-3 py-1.5 rounded text-xs font-medium transition-colors ${layoutMode === "grid" ? "bg-primary text-primary-foreground" : "bg-muted/60 hover:bg-muted"}`}
+                          className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${layoutMode === "grid" ? "bg-primary text-primary-foreground" : "bg-muted/60 hover:bg-muted"}`}
                         >
                           <LayoutGrid className="h-3 w-3" /> Grid
                         </button>
                         <button
                           onClick={() => { setLayoutMode("list"); onAction("set_layout", { mode: "list" }); }}
-                          className={`flex items-center gap-1 px-3 py-1.5 rounded text-xs font-medium transition-colors ${layoutMode === "list" ? "bg-primary text-primary-foreground" : "bg-muted/60 hover:bg-muted"}`}
+                          className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${layoutMode === "list" ? "bg-primary text-primary-foreground" : "bg-muted/60 hover:bg-muted"}`}
                         >
                           <List className="h-3 w-3" /> List
                         </button>
                       </div>
                     </div>
-                    {/* Columns */}
                     {layoutMode === "grid" && (
                       <div>
                         <label className="text-[11px] text-muted-foreground block mb-1">Columns</label>
@@ -136,7 +137,7 @@ export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEdit
                             <button
                               key={n}
                               onClick={() => { setColumns(n); onAction("set_columns", { columns: n }); }}
-                              className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${columns === n ? "bg-primary text-primary-foreground" : "bg-muted/60 hover:bg-muted"}`}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${columns === n ? "bg-primary text-primary-foreground" : "bg-muted/60 hover:bg-muted"}`}
                             >
                               {n} cols
                             </button>
@@ -166,6 +167,45 @@ export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEdit
                     ))}
                   </div>
                 )}
+
+                {sec.id === "hours" && (
+                  <div className="space-y-2">
+                    <p className="text-[11px] text-muted-foreground">Set your restaurant's opening hours.</p>
+                    <button
+                      onClick={() => onAction("hours")}
+                      className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-muted/60 hover:bg-muted text-sm transition-colors"
+                    >
+                      <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                      Edit Opening Hours
+                    </button>
+                  </div>
+                )}
+
+                {sec.id === "social" && (
+                  <div className="space-y-2">
+                    <p className="text-[11px] text-muted-foreground">Add your social media links.</p>
+                    <button
+                      onClick={() => onAction("social")}
+                      className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-muted/60 hover:bg-muted text-sm transition-colors"
+                    >
+                      <Share2 className="h-3.5 w-3.5 text-muted-foreground" />
+                      Set Social Links
+                    </button>
+                  </div>
+                )}
+
+                {sec.id === "orders" && (
+                  <div className="space-y-2">
+                    <p className="text-[11px] text-muted-foreground">Configure delivery and pickup options.</p>
+                    <button
+                      onClick={() => onAction("order_settings")}
+                      className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-muted/60 hover:bg-muted text-sm transition-colors"
+                    >
+                      <Truck className="h-3.5 w-3.5 text-muted-foreground" />
+                      Order Mode & Delivery
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -174,7 +214,7 @@ export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEdit
 
       <div className="px-4 py-3 border-t border-border shrink-0">
         <p className="text-[11px] text-muted-foreground">
-          Phase 3A • Core menu editing only
+          Click elements in preview to edit directly.
         </p>
       </div>
     </div>
