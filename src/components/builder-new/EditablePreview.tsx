@@ -22,6 +22,15 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
   const getEditableHtml = useCallback((baseHtml: string) => {
     const editScript = `
       <style>
+        /* Prevent content cutoff on mobile */
+        * { box-sizing: border-box; }
+        body { overflow-x: hidden; }
+        button, a[class*="btn"], a[class*="cta"], a[class*="order"], [class*="button"] {
+          max-width: 100%;
+          overflow: visible;
+          white-space: normal;
+          word-wrap: break-word;
+        }
         [contenteditable]:hover { outline: 2px solid #22c55e44; outline-offset: 2px; cursor: text; }
         [contenteditable]:focus { outline: 2px solid #22c55e; outline-offset: 2px; }
         .section-hover { position: relative; }
