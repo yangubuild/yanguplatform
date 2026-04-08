@@ -251,6 +251,7 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
           tag: e.data.tag,
           preview: e.data.preview,
           sectionIndex: e.data.sectionIndex >= 0 ? e.data.sectionIndex : undefined,
+          nodeId: e.data.nodeId || undefined,
           sectionId: e.data.sectionId || undefined,
           elRect: e.data.elRect || undefined,
         });
@@ -267,13 +268,18 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
   const pushHtmlUpdate = useCallback(() => {
     const doc = getDoc();
     if (!doc) return;
-    // Clone and strip editor artifacts
     const clone = doc.documentElement.cloneNode(true) as HTMLElement;
     clone.querySelectorAll('.yangu-editor-inject').forEach(el => el.remove());
     clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected,.section-hover').forEach(el => {
       el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected','section-hover');
     });
     clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+    clone.querySelectorAll('[data-yangu-node-id]').forEach(el => el.removeAttribute('data-yangu-node-id'));
+    clone.querySelectorAll('[data-section-idx]').forEach(el => el.removeAttribute('data-section-idx'));
+    clone.querySelectorAll('*').forEach(el => {
+      const ca = el.getAttribute('class');
+      if (ca !== null && !ca.trim()) el.removeAttribute('class');
+    });
     const cleanHtml = clone.outerHTML;
     loadedHtmlRef.current = cleanHtml;
     onHtmlChange(cleanHtml);
@@ -386,12 +392,12 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
         </div>
       </div>
 
-      {/* Preview iframe — only reload srcDoc on page switch / undo / redo */}
+      {/* Preview iframe — stable key prevents remounting on edits */}
       <div className="flex-1 w-full flex items-start justify-center overflow-auto bg-muted/30">
         <iframe
           ref={iframeRef}
           srcDoc={getEditableHtml(html)}
-          key={html.length > 100 ? html.substring(0, 80) : html}
+          key="emenu-preview-stable"
           className={`bg-white border-0 transition-all duration-300 ${
             viewportMode === "mobile"
               ? "w-[390px] h-full shadow-2xl rounded-xl border border-border mx-auto"
