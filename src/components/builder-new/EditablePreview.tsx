@@ -38,6 +38,14 @@ const EDIT_STYLES = `
 const EDIT_SCRIPT = `
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Assign stable node IDs to all editable elements
+      var nodeIdCounter = 0;
+      document.querySelectorAll('h1,h2,h3,h4,h5,h6,p,span,a,li,button,img,section,footer,nav,header,div').forEach(function(el) {
+        if (!el.getAttribute('data-yangu-node-id')) {
+          el.setAttribute('data-yangu-node-id', 'yn-' + (++nodeIdCounter));
+        }
+      });
+
       function classifyEl(el) {
         var t = el.tagName.toUpperCase();
         var cl = Array.from(el.classList || []);
@@ -75,19 +83,25 @@ const EDIT_SCRIPT = `
         });
       }
 
-      // Notify parent of HTML changes after any edit
       function notifyHtmlUpdate() {
-        // Clone and strip editor artifacts before sending
         var clone = document.documentElement.cloneNode(true);
-        // Remove injected style/script
         clone.querySelectorAll('.yangu-editor-inject').forEach(function(el) { el.remove(); });
-        // Remove highlight classes
         clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected,.section-hover').forEach(function(el) {
           el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected','section-hover');
         });
-        // Remove contenteditable
         clone.querySelectorAll('[contenteditable]').forEach(function(el) {
           el.removeAttribute('contenteditable');
+        });
+        clone.querySelectorAll('[data-yangu-node-id]').forEach(function(el) {
+          el.removeAttribute('data-yangu-node-id');
+        });
+        clone.querySelectorAll('[data-section-idx]').forEach(function(el) {
+          el.removeAttribute('data-section-idx');
+        });
+        // Clean empty class attrs
+        clone.querySelectorAll('*').forEach(function(el) {
+          var ca = el.getAttribute('class');
+          if (ca !== null && !ca.trim()) el.removeAttribute('class');
         });
         window.parent.postMessage({ type: 'html-update', html: clone.outerHTML }, '*');
       }
@@ -117,7 +131,7 @@ const EDIT_SCRIPT = `
           el.classList.add('yangu-img-selected');
           var si = findSectionIndex(el);
           var imgRect = el.getBoundingClientRect();
-          window.parent.postMessage({ type: 'canvas-select', kind: 'image', tag: 'IMG', preview: el.src || '', sectionIndex: si, elRect: { top: imgRect.top, left: imgRect.left, width: imgRect.width, height: imgRect.height } }, '*');
+          window.parent.postMessage({ type: 'canvas-select', kind: 'image', tag: 'IMG', preview: el.src || '', sectionIndex: si, nodeId: el.getAttribute('data-yangu-node-id') || '', elRect: { top: imgRect.top, left: imgRect.left, width: imgRect.width, height: imgRect.height } }, '*');
           window.parent.postMessage({ type: 'image-click', src: el.src }, '*');
         });
       });
@@ -127,7 +141,7 @@ const EDIT_SCRIPT = `
         var el = e.target;
         if (!el || el.tagName === 'HTML' || el.tagName === 'BODY') {
           clearAllHighlights();
-          window.parent.postMessage({ type: 'canvas-select', kind: 'page', tag: 'BODY', preview: '', sectionIndex: -1 }, '*');
+          window.parent.postMessage({ type: 'canvas-select', kind: 'page', tag: 'BODY', preview: '', sectionIndex: -1, nodeId: '' }, '*');
           return;
         }
         if (el.tagName === 'IMG') return;
@@ -153,6 +167,7 @@ const EDIT_SCRIPT = `
           tag: el.tagName,
           preview: getPreview(el, kind),
           sectionIndex: si,
+          nodeId: el.getAttribute('data-yangu-node-id') || '',
           sectionId: si >= 0 ? (document.querySelectorAll('section, footer, nav')[si]?.id || '') : '',
           elRect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
         }, '*');
@@ -162,18 +177,29 @@ const EDIT_SCRIPT = `
         }
       }, true);
 
-      // Listen for parent commands
+      // Listen for parent commands — target by stable nodeId, NOT transient classes
       window.addEventListener('message', function(e) {
         if (!e.data || !e.data.type) return;
+
         if (e.data.type === 'apply-style') {
-          // Apply style to the currently selected element
-          var target = document.querySelector('.yangu-el-selected') || document.querySelector('.yangu-btn-selected') || document.querySelector('.section-selected');
+          var target = null;
+          if (e.data.nodeId) {
+            target = document.querySelector('[data-yangu-node-id="' + e.data.nodeId + '"]');
+          }
+          if (!target) {
+            target = document.querySelector('.yangu-el-selected') || document.querySelector('.yangu-btn-selected') || document.querySelector('.section-selected');
+          }
           if (target && e.data.styles) {
             Object.keys(e.data.styles).forEach(function(k) {
               target.style[k] = e.data.styles[k];
             });
             notifyHtmlUpdate();
           }
+        }
+
+        if (e.data.type === 'apply-page-bg') {
+          document.body.style.backgroundColor = e.data.color || '';
+          notifyHtmlUpdate();
         }
       });
     });

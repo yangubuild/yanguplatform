@@ -180,7 +180,7 @@ export default function PublicSurfacePage() {
       <div className="min-h-screen bg-background">
         <iframe
           ref={emenuFrameRef}
-          title={title}
+          title={pageTitle}
           srcDoc={sanitizedEmenuHtml}
           className="w-full border-0 bg-transparent"
           style={{ minHeight: "100vh", height: emenuFrameHeight ? `${emenuFrameHeight}px` : "100vh" }}
