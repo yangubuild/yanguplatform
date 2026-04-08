@@ -19,6 +19,8 @@ export function MagicEditorToolbar({ selection, onAction }: MagicEditorToolbarPr
           <MagicBtn icon={AlignCenter} label="Center" onClick={() => onAction("set_text_style", { textAlign: "center" })} />
           <MagicBtn icon={Maximize} label="Larger" onClick={() => onAction("set_text_style", { fontSize: "1.25rem" })} />
           <MagicBtn icon={Palette} label="Color" onClick={() => onAction("open_text_color")} />
+          <div className="w-px h-4 bg-background/20 mx-0.5" />
+          <MagicBtn icon={Palette} label="Page BG" onClick={() => onAction("set_page_bg")} />
         </>
       )}
       {kind === "image" && (
