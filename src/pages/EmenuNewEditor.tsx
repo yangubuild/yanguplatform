@@ -36,6 +36,14 @@ import { toast } from "sonner";
 type LeftMode = "tools" | "ada";
 type PreviewViewport = "desktop" | "mobile";
 
+function isLightHex(hex: string): boolean {
+  const c = hex.replace("#", "");
+  const r = parseInt(c.substring(0, 2), 16);
+  const g = parseInt(c.substring(2, 4), 16);
+  const b = parseInt(c.substring(4, 6), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 155;
+}
+
 export default function EmenuNewEditor() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
   const navigate = useNavigate();
