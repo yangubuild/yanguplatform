@@ -6,6 +6,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
+import { EditorColorPickerDialog } from "@/components/builder-new/EditorColorPickerDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,14 @@ import { toast } from "sonner";
 
 type LeftMode = "tools" | "ada";
 type PreviewViewport = "desktop" | "mobile";
+
+function isLightHex(hex: string): boolean {
+  const c = hex.replace("#", "");
+  const r = parseInt(c.substring(0, 2), 16);
+  const g = parseInt(c.substring(2, 4), 16);
+  const b = parseInt(c.substring(4, 6), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 155;
+}
 
 export default function EmenuNewEditor() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
@@ -230,6 +239,36 @@ export default function EmenuNewEditor() {
   }, [pushState]);
 
 
+  // ─── Color picker state (opened from actions, applies to selected element) ───
+  const [editorColorPickerOpen, setEditorColorPickerOpen] = useState(false);
+  const [editorColorTarget, setEditorColorTarget] = useState<"text" | "button" | "section" | "page">("text");
+
+  const applyEditorColor = useCallback((color: string) => {
+    const iframe = getIframe();
+    const doc = iframe?.contentDocument;
+    if (!doc) return;
+    const getSelected = (cls: string) => doc.querySelector(`.${cls}`) as HTMLElement | null;
+
+    if (editorColorTarget === "text") {
+      const el = getSelected("yangu-el-selected") || getSelected("yangu-btn-selected");
+      if (el) { el.style.color = color; pushUpdate(doc, iframe); }
+    } else if (editorColorTarget === "button") {
+      const btn = getSelected("yangu-btn-selected");
+      if (btn) {
+        btn.style.backgroundColor = color;
+        const isLight = isLightHex(color);
+        btn.style.color = isLight ? "#1a1a1a" : "#ffffff";
+        pushUpdate(doc, iframe);
+      }
+    } else if (editorColorTarget === "section") {
+      const sec = getSelected("section-selected");
+      if (sec) { sec.style.backgroundColor = color; pushUpdate(doc, iframe); }
+    } else if (editorColorTarget === "page") {
+      doc.body.style.backgroundColor = color;
+      pushUpdate(doc, iframe);
+    }
+  }, [getIframe, pushUpdate, editorColorTarget]);
+
   // ─── Editor action handler (ALL actions wired) ───
   const handleEditorAction = useCallback((action: string, payload?: any) => {
     const iframe = getIframe();
@@ -259,19 +298,56 @@ export default function EmenuNewEditor() {
         iframe?.contentWindow?.postMessage({ type: "open-image-picker" }, "*");
         break;
 
-      case "change_colors":
-      case "open_button_color":
+      // ── Color pickers — open dialog in parent, NOT postMessage ──
       case "open_text_color":
-        iframe?.contentWindow?.postMessage({ type: "open-color-picker" }, "*");
+        setEditorColorTarget("text");
+        setEditorColorPickerOpen(true);
+        break;
+      case "open_button_color":
+      case "change_colors":
+        if (canvasSelection?.kind === "button") {
+          setEditorColorTarget("button");
+        } else if (canvasSelection?.kind === "section") {
+          setEditorColorTarget("section");
+        } else {
+          setEditorColorTarget("page");
+        }
+        setEditorColorPickerOpen(true);
+        break;
+      case "set_page_bg":
+        setEditorColorTarget("page");
+        setEditorColorPickerOpen(true);
         break;
 
-      // ── Text style (wired to selected text element) ──
+      // ── Text style with toggle support ──
       case "set_text_style": {
         if (!doc) break;
         const textEl = getSelected("yangu-el-selected") || getSelected("yangu-btn-selected");
         if (textEl && payload) {
           Object.entries(payload).forEach(([k, v]) => {
-            (textEl.style as any)[k] = v;
+            const current = (textEl.style as any)[k] || window.getComputedStyle(textEl).getPropertyValue(
+              k.replace(/([A-Z])/g, '-$1').toLowerCase()
+            );
+            // Toggle logic for italic
+            if (k === "fontStyle") {
+              (textEl.style as any)[k] = current === "italic" ? "normal" : "italic";
+            }
+            // Toggle logic for bold
+            else if (k === "fontWeight") {
+              const isBold = current === "700" || current === "bold";
+              (textEl.style as any)[k] = isBold ? "400" : String(v);
+            }
+            // Toggle logic for underline
+            else if (k === "textDecoration") {
+              (textEl.style as any)[k] = current.includes("underline") ? "none" : String(v);
+            }
+            // Color from inline palette (TextEditorPanel)
+            else if (k === "color") {
+              textEl.style.color = String(v);
+            }
+            else {
+              (textEl.style as any)[k] = v;
+            }
           });
           pushUpdate(doc, iframe);
         }
@@ -284,11 +360,9 @@ export default function EmenuNewEditor() {
         const btn = getSelected("yangu-btn-selected");
         if (btn && payload?.color) {
           btn.style.backgroundColor = payload.color;
-          const isLight = payload.color === "#ffffff" || payload.color === "#d4a853";
-          btn.style.color = isLight ? "#1a1a1a" : "#ffffff";
+          btn.style.color = isLightHex(payload.color) ? "#1a1a1a" : "#ffffff";
           pushUpdate(doc, iframe);
         }
-        break;
         break;
       }
       case "set_button_shape": {
@@ -849,6 +923,13 @@ export default function EmenuNewEditor() {
           )}
         </div>
       </div>
+
+      {/* Editor Color Picker (for text/button/section/page colors) */}
+      <EditorColorPickerDialog
+        open={editorColorPickerOpen}
+        onOpenChange={setEditorColorPickerOpen}
+        onSelect={applyEditorColor}
+      />
 
       {/* OLD Publish Modal */}
       <BuilderPublishModal
