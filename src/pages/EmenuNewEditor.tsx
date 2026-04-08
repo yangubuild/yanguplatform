@@ -6,6 +6,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
+import { sanitizeEditorHtml } from "@/lib/builder/editorHtml";
 import { EditorColorPickerDialog } from "@/components/builder-new/EditorColorPickerDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/primitives";
@@ -81,7 +82,12 @@ export default function EmenuNewEditor() {
     : mainHtml;
 
   const [liveHtml, setLiveHtml] = useState<string | null>(null);
+  const liveHtmlRef = useRef<string | null>(null);
   const { pushState, undo, redo, canUndo, canRedo, initHistory } = useEditorHistory(null);
+
+  useEffect(() => {
+    liveHtmlRef.current = liveHtml;
+  }, [liveHtml]);
 
   // Load HTML when page/surface changes
   useEffect(() => {
@@ -115,6 +121,13 @@ export default function EmenuNewEditor() {
     if (!surfaceId || !html) return;
     setIsSaving(true);
     try {
+      let persistedHtml = sanitizeEditorHtml(html);
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session?.user?.id) {
+        persistedHtml = await persistBlobUrls(persistedHtml, session.user.id);
+      }
+
       const { data: surfData } = await supabase
         .from("builder_surfaces")
         .select("metadata")
@@ -125,18 +138,24 @@ export default function EmenuNewEditor() {
       const updatedPagesHtml = { ...(currentMeta.pages_html || {}) };
 
       if (activePageId) {
-        updatedPagesHtml[activePageId] = html;
+        updatedPagesHtml[activePageId] = persistedHtml;
       }
 
       await supabase.from("builder_surfaces").update({
         metadata: {
           ...currentMeta,
-          builder_new_html: html, // Always keep main html current
+          builder_new_html: persistedHtml, // Always keep main html current
           pages_html: updatedPagesHtml,
         },
       }).eq("id", surfaceId);
 
-      setHasUnsavedChanges(false);
+      if (persistedHtml !== html) {
+        setLiveHtml((current) => current === html ? persistedHtml : current);
+      }
+
+      if (liveHtmlRef.current === html) {
+        setHasUnsavedChanges(false);
+      }
     } catch (err) {
       console.error("Autosave failed:", err);
     } finally {
