@@ -229,32 +229,6 @@ export default function EmenuNewEditor() {
     }
   }, [pushState]);
 
-  // ─── Apply theme to live page ───
-  const applyTheme = useCallback((theme: ThemeValues) => {
-    const iframe = getIframe();
-    const doc = iframe?.contentDocument;
-    if (!doc) return;
-
-    if (theme.background) doc.body.style.backgroundColor = theme.background;
-    if (theme.foreground) doc.body.style.color = theme.foreground;
-    if (theme.fontFamily) doc.body.style.fontFamily = theme.fontFamily;
-
-    if (theme.primary) {
-      doc.querySelectorAll("button, a[class*='btn'], a[class*='cta'], [class*='button']").forEach((el) => {
-        const he = el as HTMLElement;
-        if (he.style.backgroundColor || getComputedStyle(he).backgroundColor !== "rgba(0, 0, 0, 0)") {
-          he.style.backgroundColor = theme.primary!;
-        }
-      });
-    }
-    if (theme.cardBg) {
-      doc.querySelectorAll("[class*='card'], [class*='item'], [class*='menu-item']").forEach((el) => {
-        (el as HTMLElement).style.backgroundColor = theme.cardBg!;
-      });
-    }
-    pushUpdate(doc, iframe);
-    toast.success("Theme applied!");
-  }, [getIframe, pushUpdate]);
 
   // ─── Editor action handler (ALL actions wired) ───
   const handleEditorAction = useCallback((action: string, payload?: any) => {
@@ -875,9 +849,6 @@ export default function EmenuNewEditor() {
           )}
         </div>
       </div>
-
-      {/* Theme Panel */}
-      <ThemePanel open={themeOpen} onClose={() => setThemeOpen(false)} onApply={applyTheme} />
 
       {/* OLD Publish Modal */}
       <BuilderPublishModal
