@@ -315,14 +315,14 @@ export default function EmenuNewEditor() {
           const isLight = payload.color === "#ffffff" || payload.color === "#d4a853";
           btn.style.color = isLight ? "#1a1a1a" : "#ffffff";
           pushUpdate(doc, iframe);
-        } else toast.info("Click a button in the preview first");
+        }
+        break;
         break;
       }
       case "set_button_shape": {
         if (!doc) break;
         const btn = getSelected("yangu-btn-selected");
         if (btn && payload?.radius) { btn.style.borderRadius = payload.radius; pushUpdate(doc, iframe); }
-        else toast.info("Click a button in the preview first");
         break;
       }
       case "set_button_size": {
@@ -332,7 +332,7 @@ export default function EmenuNewEditor() {
           if (payload.padding) btn.style.padding = payload.padding;
           if (payload.fontSize) btn.style.fontSize = payload.fontSize;
           pushUpdate(doc, iframe);
-        } else toast.info("Click a button in the preview first");
+        }
         break;
       }
       case "set_button_align": {
