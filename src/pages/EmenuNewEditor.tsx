@@ -355,7 +355,7 @@ export default function EmenuNewEditor() {
             (sec.style as any)[k] = v;
           });
           pushUpdate(doc, iframe);
-        } else toast.info("Click a section in the preview first");
+        }
         break;
       }
       case "set_section_bg_image": {
@@ -372,7 +372,7 @@ export default function EmenuNewEditor() {
             (img.style as any)[k] = v;
           });
           pushUpdate(doc, iframe);
-        } else toast.info("Click an image in the preview first");
+        }
         break;
       }
 
