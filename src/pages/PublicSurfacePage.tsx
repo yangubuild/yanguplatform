@@ -14,7 +14,7 @@ import { Loader2 } from "lucide-react";
 
 /**
  * Public published page renderer.
- * For emenu surfaces: renders raw HTML from metadata.builder_new_html.
+ * For emenu surfaces: renders the exact published HTML stored in builder_publishes.published_schema.surface.emenu_html.
  * For other surfaces: reads from builder_get_public_schema RPC.
  */
 export default function PublicSurfacePage() {
@@ -48,26 +48,10 @@ export default function PublicSurfacePage() {
 
   // For emenu surfaces, also fetch the raw HTML from metadata
   const surfaceType = (data?.published_schema?.surface as any)?.surface_type;
-  const publishSurfaceId = (data?.published_schema?.surface as any)?.id;
-
-  const { data: emenuHtmlData } = useQuery({
-    queryKey: ["emenu_raw_html", publishSurfaceId],
-    queryFn: async () => {
-      const { data: surfData, error } = await supabase
-        .from("builder_surfaces")
-        .select("metadata")
-        .eq("id", publishSurfaceId)
-        .single();
-      if (error) throw error;
-      const meta = (surfData?.metadata as any) || {};
-      return meta.builder_new_html as string | null;
-    },
-    enabled: !!publishSurfaceId && surfaceType === "emenu",
-    staleTime: 0,
-    refetchOnMount: "always",
-  });
-
-  const sanitizedEmenuHtml = emenuHtmlData ? sanitizeEditorHtml(emenuHtmlData) : null;
+  const publishedEmenuHtml = surfaceType === "emenu"
+    ? ((data?.published_schema?.surface as any)?.emenu_html as string | null)
+    : null;
+  const sanitizedEmenuHtml = publishedEmenuHtml ? sanitizeEditorHtml(publishedEmenuHtml) : null;
 
   const syncEmenuFrameHeight = useCallback(() => {
     const doc = emenuFrameRef.current?.contentDocument;
@@ -175,7 +159,11 @@ export default function PublicSurfacePage() {
 
   // ═══ EMENU: render raw HTML directly ═══
   const pubSurfaceType = surfaceData.surface_type;
-  if (pubSurfaceType === "emenu" && sanitizedEmenuHtml) {
+  if (pubSurfaceType === "emenu") {
+    if (!sanitizedEmenuHtml) {
+      return <PublicNotFound host={host} slug={pathSlug} message="This menu needs to be republished." />;
+    }
+
     return (
       <div className="min-h-screen bg-background">
         <iframe
@@ -263,12 +251,12 @@ export default function PublicSurfacePage() {
   );
 }
 
-function PublicNotFound({ host, slug }: { host: string; slug: string }) {
+function PublicNotFound({ host, slug, message = "Page not found" }: { host: string; slug: string; message?: string }) {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="text-center max-w-md">
         <h1 className="text-4xl font-bold text-foreground mb-2">404</h1>
-        <p className="text-muted-foreground mb-1">Page not found</p>
+        <p className="text-muted-foreground mb-1">{message}</p>
         <p className="text-xs text-muted-foreground/60">
           {host}/{slug}
         </p>

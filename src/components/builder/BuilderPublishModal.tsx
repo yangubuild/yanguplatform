@@ -185,6 +185,7 @@ export function BuilderPublishModal({
   const [uploadingFavicon, setUploadingFavicon] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [metaLoaded, setMetaLoaded] = useState(false);
+  const [persistedSlug, setPersistedSlug] = useState(defaultSlug || "");
 
   // Load existing surface metadata when modal opens
   useEffect(() => {
@@ -193,27 +194,38 @@ export function BuilderPublishModal({
       try {
         const { data } = await supabase
           .from("builder_surfaces")
-          .select("seo_title, seo_description, favicon_url, cover_image_url")
+          .select("slug, seo_title, seo_description, favicon_url, cover_image_url")
           .eq("id", surfaceId)
           .single();
         if (data) {
+          setPersistedSlug((data as any).slug || defaultSlug || "");
           setSeoTitle((data as any).seo_title || surfaceTitle);
           setSeoDescription((data as any).seo_description || "");
           setFaviconUrl((data as any).favicon_url || "");
           setCoverImageUrl((data as any).cover_image_url || "");
         }
+      } catch {
+        setPersistedSlug(defaultSlug || "");
+      } finally {
         setMetaLoaded(true);
-      } catch {}
+      }
     })();
-  }, [open, surfaceId, surfaceTitle, metaLoaded]);
+  }, [open, surfaceId, surfaceTitle, metaLoaded, defaultSlug]);
 
-  // Reset metaLoaded when modal closes so it reloads next time
+  // Hydrate slug from the current persisted surface row, not stale editor state
+  useEffect(() => {
+    if (open && metaLoaded) {
+      setCustomSlug(persistedSlug);
+    }
+  }, [open, metaLoaded, persistedSlug, setCustomSlug]);
+
+  // Reset meta load when modal closes so it reloads current persisted values next time
   useEffect(() => {
     if (!open) setMetaLoaded(false);
   }, [open]);
 
   const isSuccess = publishResult?.ok === true;
-  const slugDisplay = customSlug || defaultSlug || "";
+  const slugDisplay = customSlug || persistedSlug || defaultSlug || "";
   const publishedUrl = selectedDomain
     ? `https://${selectedDomain.host}${slugDisplay ? `/${slugDisplay}` : ""}`
     : null;
@@ -385,8 +397,12 @@ export function BuilderPublishModal({
         } as any)
         .eq("id", surfaceId);
     } catch {}
-    // Then publish
-    await publish();
+    // Then publish using the current persisted slug source if the field was left untouched
+    const result = await publish(customSlug || persistedSlug || defaultSlug || undefined);
+
+    if (result?.ok) {
+      setPersistedSlug(result.published_slug || customSlug || persistedSlug || defaultSlug || "");
+    }
   };
 
   return (
@@ -519,7 +535,7 @@ export function BuilderPublishModal({
                 </span>
                 <Input
                   id="builder-slug"
-                  placeholder={defaultSlug || "my-page"}
+                  placeholder={persistedSlug || defaultSlug || "my-page"}
                   value={customSlug}
                   onChange={(e) => setCustomSlug(e.target.value)}
                   className="flex-1"
@@ -566,7 +582,7 @@ export function BuilderPublishModal({
           </Button>
           <Button
             onClick={handlePublishWithMeta}
-            disabled={!selectedDomainId || isPublishing}
+            disabled={!selectedDomainId || isPublishing || !metaLoaded}
             className="gap-2">
             {isPublishing ? (
               <Loader2 className="h-4 w-4 animate-spin" />
