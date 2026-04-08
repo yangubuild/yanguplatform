@@ -38,7 +38,7 @@ function BadgePill({ badgeKey }: { badgeKey: string }) {
     teal: "bg-teal-100 text-teal-800",
   };
   return (
-    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${colorMap[badge.color] || "bg-muted text-muted-foreground"}`}>
+    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-lg ${colorMap[badge.color] || "bg-muted text-muted-foreground"}`}>
       {badge.label}
     </span>
   );
@@ -140,10 +140,9 @@ function FoodItemCard({
         {showImages && (
           <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-muted flex items-center justify-center">
             {item.image_url ? (
-              <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" loading="lazy" />
-            ) : (
-              <span className="text-2xl">🍽️</span>
-            )}
+              <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.querySelector('.fallback-emoji')?.classList.remove('hidden'); }} />
+            ) : null}
+            <span className={`text-2xl fallback-emoji ${item.image_url ? 'hidden' : ''}`}>🍽️</span>
           </div>
         )}
         <div className="flex-1 min-w-0">
@@ -184,12 +183,11 @@ function FoodItemCard({
       {showImages && (
         <div className="aspect-square bg-muted relative overflow-hidden">
           {item.image_url ? (
-            <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" loading="lazy" />
-          ) : (
-            <div className={`w-full h-full flex items-center justify-center ${fs ? fs.cardBg : "bg-muted"}`}>
-              <span className="text-4xl">🍽️</span>
-            </div>
-          )}
+            <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden'); }} />
+          ) : null}
+          <div className={`w-full h-full flex items-center justify-center ${fs ? fs.cardBg : "bg-muted"} ${item.image_url ? 'hidden' : ''}`}>
+            <span className="text-4xl">🍽️</span>
+          </div>
           {showBadges && item.badges && item.badges.length > 0 && (
             <div className="absolute top-2 left-2 flex gap-1 flex-wrap">
               {item.badges.map((b) => <BadgePill key={b} badgeKey={b} />)}
@@ -245,7 +243,7 @@ function CategoryFilterBar({
     <div className="flex gap-2 overflow-x-auto pb-2 px-1 scrollbar-thin">
       <button
         onClick={() => onSelect(-1)}
-        className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+        className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
           activeIndex === -1
             ? (fs ? fs.pillActive : "bg-foreground text-background")
             : (fs ? `${fs.pillBg} ${fs.pillText} hover:opacity-80` : "bg-muted text-muted-foreground hover:bg-muted/80")
@@ -257,7 +255,7 @@ function CategoryFilterBar({
         <button
           key={i}
           onClick={() => onSelect(i)}
-          className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
             activeIndex === i
               ? (fs ? fs.pillActive : "bg-foreground text-background")
               : (fs ? `${fs.pillBg} ${fs.pillText} hover:opacity-80` : "bg-muted text-muted-foreground hover:bg-muted/80")
@@ -337,7 +335,7 @@ export function EmenuPreview({ schema }: EmenuPreviewProps) {
                   )}
                 </div>
                 {cat.items && (
-                  <span className={`text-[10px] ml-auto px-1.5 py-0.5 rounded-full ${familyStyle ? `${familyStyle.pillBg} ${familyStyle.pillText}` : "text-muted-foreground bg-muted"}`}>
+                  <span className={`text-[10px] ml-auto px-1.5 py-0.5 rounded-lg ${familyStyle ? `${familyStyle.pillBg} ${familyStyle.pillText}` : "text-muted-foreground bg-muted"}`}>
                     {cat.items.length} items
                   </span>
                 )}
