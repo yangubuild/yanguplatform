@@ -229,13 +229,36 @@ export default function EmenuNewEditor() {
   // ─── Iframe helpers ───
   const getIframe = useCallback(() => document.querySelector<HTMLIFrameElement>('iframe[title="Editable Website Preview"]'), []);
 
-  const pushUpdate = useCallback((doc: Document, iframe: HTMLIFrameElement | null) => {
-    if (doc && iframe) {
-      const html = doc.documentElement.outerHTML;
-      setLiveHtml(html);
-      setHasUnsavedChanges(true);
-      pushState(html);
+  /** Get the currently selected element by stable nodeId first, then fall back to highlight class */
+  const getSelectedElement = useCallback((doc: Document): HTMLElement | null => {
+    if (canvasSelection?.nodeId) {
+      const el = doc.querySelector(`[data-yangu-node-id="${canvasSelection.nodeId}"]`) as HTMLElement | null;
+      if (el) return el;
     }
+    return doc.querySelector('.yangu-el-selected') as HTMLElement
+      || doc.querySelector('.yangu-btn-selected') as HTMLElement
+      || doc.querySelector('.section-selected') as HTMLElement
+      || null;
+  }, [canvasSelection?.nodeId]);
+
+  const pushUpdate = useCallback((doc: Document, _iframe: HTMLIFrameElement | null) => {
+    if (!doc) return;
+    const clone = doc.documentElement.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll('.yangu-editor-inject').forEach(el => el.remove());
+    clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected,.section-hover').forEach(el => {
+      el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected','section-hover');
+    });
+    clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+    clone.querySelectorAll('[data-yangu-node-id]').forEach(el => el.removeAttribute('data-yangu-node-id'));
+    clone.querySelectorAll('[data-section-idx]').forEach(el => el.removeAttribute('data-section-idx'));
+    clone.querySelectorAll('*').forEach(el => {
+      const ca = el.getAttribute('class');
+      if (ca !== null && !ca.trim()) el.removeAttribute('class');
+    });
+    const html = clone.outerHTML;
+    setLiveHtml(html);
+    setHasUnsavedChanges(true);
+    pushState(html);
   }, [pushState]);
 
 
@@ -247,34 +270,33 @@ export default function EmenuNewEditor() {
     const iframe = getIframe();
     const doc = iframe?.contentDocument;
     if (!doc) return;
-    const getSelected = (cls: string) => doc.querySelector(`.${cls}`) as HTMLElement | null;
 
     if (editorColorTarget === "text") {
-      const el = getSelected("yangu-el-selected") || getSelected("yangu-btn-selected");
+      const el = getSelectedElement(doc);
       if (el) { el.style.color = color; pushUpdate(doc, iframe); }
     } else if (editorColorTarget === "button") {
-      const btn = getSelected("yangu-btn-selected");
-      if (btn) {
-        btn.style.backgroundColor = color;
-        const isLight = isLightHex(color);
-        btn.style.color = isLight ? "#1a1a1a" : "#ffffff";
+      const el = getSelectedElement(doc);
+      if (el) {
+        el.style.backgroundColor = color;
+        el.style.color = isLightHex(color) ? "#1a1a1a" : "#ffffff";
         pushUpdate(doc, iframe);
       }
     } else if (editorColorTarget === "section") {
-      const sec = getSelected("section-selected");
-      if (sec) { sec.style.backgroundColor = color; pushUpdate(doc, iframe); }
+      const el = getSelectedElement(doc);
+      if (el) { el.style.backgroundColor = color; pushUpdate(doc, iframe); }
     } else if (editorColorTarget === "page") {
       doc.body.style.backgroundColor = color;
       pushUpdate(doc, iframe);
     }
-  }, [getIframe, pushUpdate, editorColorTarget]);
+  }, [getIframe, pushUpdate, editorColorTarget, getSelectedElement]);
 
   // ─── Editor action handler (ALL actions wired) ───
   const handleEditorAction = useCallback((action: string, payload?: any) => {
     const iframe = getIframe();
     const doc = iframe?.contentDocument;
 
-    const getSelected = (cls: string) => doc?.querySelector(`.${cls}`) as HTMLElement | null;
+    // Use stable nodeId-based targeting
+    const getSelected = (_cls: string) => doc ? getSelectedElement(doc) : null;
 
     switch (action) {
       // ── Section actions ──
@@ -322,26 +344,29 @@ export default function EmenuNewEditor() {
       // ── Text style with toggle support ──
       case "set_text_style": {
         if (!doc) break;
-        const textEl = getSelected("yangu-el-selected") || getSelected("yangu-btn-selected");
+        const textEl = getSelectedElement(doc);
         if (textEl && payload) {
+          const iframeWin = iframe?.contentWindow;
           Object.entries(payload).forEach(([k, v]) => {
-            const current = (textEl.style as any)[k] || window.getComputedStyle(textEl).getPropertyValue(
+            const computed = iframeWin ? iframeWin.getComputedStyle(textEl).getPropertyValue(
               k.replace(/([A-Z])/g, '-$1').toLowerCase()
-            );
+            ) : '';
+            const current = (textEl.style as any)[k] || computed;
             // Toggle logic for italic
             if (k === "fontStyle") {
               (textEl.style as any)[k] = current === "italic" ? "normal" : "italic";
             }
             // Toggle logic for bold
             else if (k === "fontWeight") {
-              const isBold = current === "700" || current === "bold";
+              const numWeight = parseInt(current, 10);
+              const isBold = current === "bold" || numWeight >= 700;
               (textEl.style as any)[k] = isBold ? "400" : String(v);
             }
             // Toggle logic for underline
             else if (k === "textDecoration") {
               (textEl.style as any)[k] = current.includes("underline") ? "none" : String(v);
             }
-            // Color from inline palette (TextEditorPanel)
+            // Color from inline palette
             else if (k === "color") {
               textEl.style.color = String(v);
             }
@@ -655,7 +680,7 @@ export default function EmenuNewEditor() {
         toast.info(`${action} — coming soon`);
         break;
     }
-  }, [getIframe, pushUpdate]);
+  }, [getIframe, pushUpdate, getSelectedElement, canvasSelection]);
 
   // ─── Page switching handler ───
   const handlePageSwitch = useCallback((pageId: string) => {
@@ -931,7 +956,7 @@ export default function EmenuNewEditor() {
         onSelect={applyEditorColor}
       />
 
-      {/* OLD Publish Modal */}
+      {/* Publish Modal — flush save before publish */}
       <BuilderPublishModal
         open={publishOpen}
         onOpenChange={setPublishOpen}
@@ -940,6 +965,13 @@ export default function EmenuNewEditor() {
         surfaceTitle={surfaceTitle}
         defaultSlug={editorState.surface.slug}
         pages={editorState.pages}
+        onBeforePublish={async () => {
+          if (!liveHtml || !surfaceId) return false;
+          // Force-save the latest editor HTML before publish
+          if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+          await saveHtml(liveHtml);
+          return true;
+        }}
       />
 
       {/* OLD Settings Drawer */}
