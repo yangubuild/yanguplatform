@@ -296,14 +296,12 @@ export default function EmenuNewEditor() {
       // ── Text style (wired to selected text element) ──
       case "set_text_style": {
         if (!doc) break;
-        const textEl = getSelected("yangu-el-selected");
+        const textEl = getSelected("yangu-el-selected") || getSelected("yangu-btn-selected");
         if (textEl && payload) {
           Object.entries(payload).forEach(([k, v]) => {
             (textEl.style as any)[k] = v;
           });
           pushUpdate(doc, iframe);
-        } else {
-          toast.info("Click a text element in preview first");
         }
         break;
       }
@@ -756,15 +754,6 @@ export default function EmenuNewEditor() {
             <Smartphone className="h-3.5 w-3.5" />
           </button>
         </div>
-
-        {/* Theme */}
-        <button
-          onClick={() => setThemeOpen(true)}
-          title="Theme"
-          className="hidden lg:flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-white/70 hover:text-white hover:bg-white/10 transition-colors"
-        >
-          <Palette className="h-3.5 w-3.5" />
-        </button>
 
         {/* Magic Editor toggle */}
         <button
