@@ -847,14 +847,13 @@ export default function EmenuNewEditor() {
             viewportMode={previewViewport}
           />
 
-          {/* Magic Editor floating toolbar */}
+          {/* Magic Editor floating toolbar — positioned via iframe element bounds */}
           {magicEditorOn && canvasSelection && canvasSelection.kind !== "page" && (
-            <div className="absolute top-14 left-1/2 -translate-x-1/2 z-30">
-              <MagicEditorToolbar
-                selection={canvasSelection}
-                onAction={handleEditorAction}
-              />
-            </div>
+            <MagicEditorFloating
+              selection={canvasSelection}
+              onAction={handleEditorAction}
+              getIframe={getIframe}
+            />
           )}
         </main>
 
