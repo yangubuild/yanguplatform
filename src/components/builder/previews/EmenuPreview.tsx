@@ -140,9 +140,8 @@ function FoodItemCard({
         {showImages && (
           <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-muted flex items-center justify-center">
             {item.image_url ? (
-              <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.querySelector('.fallback-emoji')?.classList.remove('hidden'); }} />
+              <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
             ) : null}
-            <span className={`text-2xl fallback-emoji ${item.image_url ? 'hidden' : ''}`}>🍽️</span>
           </div>
         )}
         <div className="flex-1 min-w-0">

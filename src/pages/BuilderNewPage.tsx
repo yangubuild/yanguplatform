@@ -225,6 +225,17 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
         return { type: s.type, schema, core_slot: s.core_slot };
       });
 
+      // Persist any blob: URLs to storage before saving
+      let persistedHtml = selectedHtml;
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user?.id) {
+          persistedHtml = await persistBlobUrls(selectedHtml, session.user.id);
+        }
+      } catch {
+        // Continue with original HTML if persistence fails
+      }
+
       const metadata: Record<string, unknown> = {
         brand: { primary_color: "#b5622a" },
         industry: "restaurant",
@@ -233,7 +244,7 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
           location: ctrl.businessLocation || "",
         },
         builder_new_template: templateKey || "default",
-        builder_new_html: selectedHtml,
+        builder_new_html: persistedHtml,
         template_family: templatePreset?.template_family || null,
         variant_index: index,
       };
