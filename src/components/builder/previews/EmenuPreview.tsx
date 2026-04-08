@@ -257,7 +257,7 @@ function CategoryFilterBar({
               : (fs ? `${fs.pillBg} ${fs.pillText} hover:opacity-80` : "bg-muted text-muted-foreground hover:bg-muted/80")
           }`}
         >
-          {getPlaceholderEmoji(cat.name || "")} {cat.name || "Category"}
+          {cat.name || "Category"}
         </button>
       ))}
     </div>
@@ -307,7 +307,6 @@ export function EmenuPreview({ schema }: EmenuPreviewProps) {
 
       {categories.length === 0 ? (
         <div className={`text-center py-12 border-2 border-dashed rounded-xl ${familyStyle ? `${familyStyle.cardBorder} ${familyStyle.cardBg}` : "border-border/50"}`}>
-          <span className="text-4xl">🍽️</span>
           <p className={`text-sm mt-2 ${familyStyle ? familyStyle.mutedClass : "text-muted-foreground"}`}>No menu items added yet</p>
           <p className={`text-xs mt-1 opacity-60 ${familyStyle ? familyStyle.mutedClass : "text-muted-foreground/60"}`}>Add categories and items from the editor panel</p>
         </div>
@@ -319,9 +318,7 @@ export function EmenuPreview({ schema }: EmenuPreviewProps) {
               <div className="flex items-center gap-2 mb-3">
                 {cat.image_url ? (
                   <img src={cat.image_url} alt={cat.name} className="w-8 h-8 rounded-full object-cover" />
-                ) : (
-                  <span className="text-lg">{getPlaceholderEmoji(cat.name || "")}</span>
-                )}
+                ) : null}
                 <div>
                   <h4 className={`text-sm font-semibold uppercase tracking-wide ${familyStyle ? familyStyle.textClass : "text-foreground"}`}>
                     {cat.name || "Category"}
