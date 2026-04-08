@@ -680,7 +680,7 @@ export default function EmenuNewEditor() {
         toast.info(`${action} — coming soon`);
         break;
     }
-  }, [getIframe, pushUpdate]);
+  }, [getIframe, pushUpdate, getSelectedElement, canvasSelection]);
 
   // ─── Page switching handler ───
   const handlePageSwitch = useCallback((pageId: string) => {
