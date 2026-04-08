@@ -122,7 +122,7 @@ function StockPane({ onSelect }: { onSelect: (url: string) => void }) {
       </div>
       <div className="flex gap-1.5 flex-wrap shrink-0">
         {SUGGESTIONS.map((s) => (
-          <button key={s} onClick={() => search(s)} className="text-xs px-2.5 py-1 rounded-full bg-muted hover:bg-muted/80 text-foreground transition-colors">{s}</button>
+          <button key={s} onClick={() => search(s)} className="text-xs px-2.5 py-1 rounded-lg bg-muted hover:bg-muted/80 text-foreground transition-colors">{s}</button>
         ))}
       </div>
       <div className="flex-1 overflow-y-auto min-h-[200px]">

@@ -343,7 +343,7 @@ export function AiLogoStep({ businessName, category = "emenu", businessType = "r
       <button
         onClick={() => void handleConfirm()}
         disabled={selectedIdx === null || !sourceLogos[selectedIdx] || isSavingSelection}
-        className="self-start px-6 py-2.5 text-sm font-semibold rounded-full bg-accent text-accent-foreground hover:opacity-90 transition-opacity disabled:bg-muted disabled:text-muted-foreground disabled:opacity-60"
+        className="self-start px-6 py-2.5 text-sm font-semibold rounded-lg bg-accent text-accent-foreground hover:opacity-90 transition-opacity disabled:bg-muted disabled:text-muted-foreground disabled:opacity-60"
       >
         {isSavingSelection ? "Applying Logo..." : "Use This Logo ✓"}
       </button>
