@@ -586,6 +586,27 @@ export default function EmenuNewEditor() {
         setSettingsOpen(true);
         break;
 
+      // ── Module registry IDs → real actions ──
+      case "menu_categories":
+        handleEditorAction("add_category");
+        break;
+      case "menu_items":
+        handleEditorAction("add_menu_item");
+        break;
+      case "food_image_ai":
+        handleEditorAction("ai_generate_image");
+        break;
+      case "section_settings":
+        if (doc) {
+          const sec = getSelected("section-selected");
+          if (sec) toast.info("Use the right panel to edit section styles");
+          else toast.info("Click a section in preview first");
+        }
+        break;
+      case "toggle_grid":
+        handleEditorAction("set_layout", { mode: "grid" });
+        break;
+
       default:
         toast.info(`${action} — coming soon`);
         break;
