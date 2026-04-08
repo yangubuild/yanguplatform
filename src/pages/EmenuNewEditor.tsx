@@ -6,6 +6,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
@@ -64,7 +65,30 @@ export default function EmenuNewEditor() {
   const [liveHtml, setLiveHtml] = useState<string | null>(null);
 
   useEffect(() => {
-    if (surfaceHtml) {
+    if (!surfaceHtml) return;
+    // If the saved HTML still has blob: URLs, try to persist them
+    if (surfaceHtml.includes("blob:")) {
+      (async () => {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user?.id) {
+            const fixed = await persistBlobUrls(surfaceHtml, session.user.id);
+            setLiveHtml(fixed);
+            // Save the fixed HTML back to the surface metadata
+            if (fixed !== surfaceHtml && surfaceId) {
+              const currentMeta = (editorState?.surface?.metadata as any) || {};
+              await supabase.from("builder_surfaces").update({
+                metadata: { ...currentMeta, builder_new_html: fixed },
+              }).eq("id", surfaceId);
+            }
+          } else {
+            setLiveHtml(surfaceHtml);
+          }
+        } catch {
+          setLiveHtml(surfaceHtml);
+        }
+      })();
+    } else {
       setLiveHtml(surfaceHtml);
     }
   }, [surfaceHtml]);
