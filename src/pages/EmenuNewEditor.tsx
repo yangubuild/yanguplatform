@@ -270,27 +270,25 @@ export default function EmenuNewEditor() {
     const iframe = getIframe();
     const doc = iframe?.contentDocument;
     if (!doc) return;
-    const getSelected = (cls: string) => doc.querySelector(`.${cls}`) as HTMLElement | null;
 
     if (editorColorTarget === "text") {
-      const el = getSelected("yangu-el-selected") || getSelected("yangu-btn-selected");
+      const el = getSelectedElement(doc);
       if (el) { el.style.color = color; pushUpdate(doc, iframe); }
     } else if (editorColorTarget === "button") {
-      const btn = getSelected("yangu-btn-selected");
-      if (btn) {
-        btn.style.backgroundColor = color;
-        const isLight = isLightHex(color);
-        btn.style.color = isLight ? "#1a1a1a" : "#ffffff";
+      const el = getSelectedElement(doc);
+      if (el) {
+        el.style.backgroundColor = color;
+        el.style.color = isLightHex(color) ? "#1a1a1a" : "#ffffff";
         pushUpdate(doc, iframe);
       }
     } else if (editorColorTarget === "section") {
-      const sec = getSelected("section-selected");
-      if (sec) { sec.style.backgroundColor = color; pushUpdate(doc, iframe); }
+      const el = getSelectedElement(doc);
+      if (el) { el.style.backgroundColor = color; pushUpdate(doc, iframe); }
     } else if (editorColorTarget === "page") {
       doc.body.style.backgroundColor = color;
       pushUpdate(doc, iframe);
     }
-  }, [getIframe, pushUpdate, editorColorTarget]);
+  }, [getIframe, pushUpdate, editorColorTarget, getSelectedElement]);
 
   // ─── Editor action handler (ALL actions wired) ───
   const handleEditorAction = useCallback((action: string, payload?: any) => {
