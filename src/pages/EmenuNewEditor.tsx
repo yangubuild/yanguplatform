@@ -11,7 +11,7 @@ import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft, AlertTriangle, Monitor, Smartphone, Sparkles,
-  Settings, ClipboardList, Rocket, X, Undo2, Redo2, Palette, Wand2,
+  Settings, ClipboardList, Rocket, X, Undo2, Redo2, Wand2,
 } from "lucide-react";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { EditablePreview } from "@/components/builder-new/EditablePreview";
@@ -22,8 +22,6 @@ import { TextEditorPanel } from "@/components/builder-new/TextEditorPanel";
 import { SectionEditorPanel } from "@/components/builder-new/SectionEditorPanel";
 import { ImageEditorPanel } from "@/components/builder-new/ImageEditorPanel";
 import { MagicEditorToolbar } from "@/components/builder-new/MagicEditorToolbar";
-import { ThemePanel } from "@/components/builder-new/ThemePanel";
-import type { ThemeValues } from "@/components/builder-new/ThemePanel";
 import { BuilderPublishModal } from "@/components/builder/BuilderPublishModal";
 import { BuilderSettingsDrawer, getThemeFromMetadata } from "@/components/builder/BuilderSettingsDrawer";
 import { BuilderPagesDropdown } from "@/components/builder/BuilderPagesDropdown";
@@ -43,7 +41,7 @@ export default function EmenuNewEditor() {
   const navigate = useNavigate();
   const [publishOpen, setPublishOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [themeOpen, setThemeOpen] = useState(false);
+  
   const [magicEditorOn, setMagicEditorOn] = useState(true);
   const [leftMode, setLeftMode] = useState<LeftMode>("tools");
   const [previewViewport, setPreviewViewport] = useState<PreviewViewport>("desktop");
@@ -231,32 +229,6 @@ export default function EmenuNewEditor() {
     }
   }, [pushState]);
 
-  // ─── Apply theme to live page ───
-  const applyTheme = useCallback((theme: ThemeValues) => {
-    const iframe = getIframe();
-    const doc = iframe?.contentDocument;
-    if (!doc) return;
-
-    if (theme.background) doc.body.style.backgroundColor = theme.background;
-    if (theme.foreground) doc.body.style.color = theme.foreground;
-    if (theme.fontFamily) doc.body.style.fontFamily = theme.fontFamily;
-
-    if (theme.primary) {
-      doc.querySelectorAll("button, a[class*='btn'], a[class*='cta'], [class*='button']").forEach((el) => {
-        const he = el as HTMLElement;
-        if (he.style.backgroundColor || getComputedStyle(he).backgroundColor !== "rgba(0, 0, 0, 0)") {
-          he.style.backgroundColor = theme.primary!;
-        }
-      });
-    }
-    if (theme.cardBg) {
-      doc.querySelectorAll("[class*='card'], [class*='item'], [class*='menu-item']").forEach((el) => {
-        (el as HTMLElement).style.backgroundColor = theme.cardBg!;
-      });
-    }
-    pushUpdate(doc, iframe);
-    toast.success("Theme applied!");
-  }, [getIframe, pushUpdate]);
 
   // ─── Editor action handler (ALL actions wired) ───
   const handleEditorAction = useCallback((action: string, payload?: any) => {
@@ -296,14 +268,12 @@ export default function EmenuNewEditor() {
       // ── Text style (wired to selected text element) ──
       case "set_text_style": {
         if (!doc) break;
-        const textEl = getSelected("yangu-el-selected");
+        const textEl = getSelected("yangu-el-selected") || getSelected("yangu-btn-selected");
         if (textEl && payload) {
           Object.entries(payload).forEach(([k, v]) => {
             (textEl.style as any)[k] = v;
           });
           pushUpdate(doc, iframe);
-        } else {
-          toast.info("Click a text element in preview first");
         }
         break;
       }
@@ -317,14 +287,14 @@ export default function EmenuNewEditor() {
           const isLight = payload.color === "#ffffff" || payload.color === "#d4a853";
           btn.style.color = isLight ? "#1a1a1a" : "#ffffff";
           pushUpdate(doc, iframe);
-        } else toast.info("Click a button in the preview first");
+        }
+        break;
         break;
       }
       case "set_button_shape": {
         if (!doc) break;
         const btn = getSelected("yangu-btn-selected");
         if (btn && payload?.radius) { btn.style.borderRadius = payload.radius; pushUpdate(doc, iframe); }
-        else toast.info("Click a button in the preview first");
         break;
       }
       case "set_button_size": {
@@ -334,7 +304,7 @@ export default function EmenuNewEditor() {
           if (payload.padding) btn.style.padding = payload.padding;
           if (payload.fontSize) btn.style.fontSize = payload.fontSize;
           pushUpdate(doc, iframe);
-        } else toast.info("Click a button in the preview first");
+        }
         break;
       }
       case "set_button_align": {
@@ -357,7 +327,7 @@ export default function EmenuNewEditor() {
             (sec.style as any)[k] = v;
           });
           pushUpdate(doc, iframe);
-        } else toast.info("Click a section in the preview first");
+        }
         break;
       }
       case "set_section_bg_image": {
@@ -374,7 +344,7 @@ export default function EmenuNewEditor() {
             (img.style as any)[k] = v;
           });
           pushUpdate(doc, iframe);
-        } else toast.info("Click an image in the preview first");
+        }
         break;
       }
 
@@ -757,15 +727,6 @@ export default function EmenuNewEditor() {
           </button>
         </div>
 
-        {/* Theme */}
-        <button
-          onClick={() => setThemeOpen(true)}
-          title="Theme"
-          className="hidden lg:flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-white/70 hover:text-white hover:bg-white/10 transition-colors"
-        >
-          <Palette className="h-3.5 w-3.5" />
-        </button>
-
         {/* Magic Editor toggle */}
         <button
           onClick={() => setMagicEditorOn(!magicEditorOn)}
@@ -888,9 +849,6 @@ export default function EmenuNewEditor() {
           )}
         </div>
       </div>
-
-      {/* Theme Panel */}
-      <ThemePanel open={themeOpen} onClose={() => setThemeOpen(false)} onApply={applyTheme} />
 
       {/* OLD Publish Modal */}
       <BuilderPublishModal
