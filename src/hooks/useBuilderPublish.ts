@@ -86,7 +86,7 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
     return validatePagesForPublish(pages, surfaceType, surfaceId);
   }, [pages, surfaceType, surfaceId]);
 
-  const publish = useCallback(async (): Promise<BuilderPublishResult | null> => {
+  const publish = useCallback(async (slugOverride?: string): Promise<BuilderPublishResult | null> => {
     if (!selectedDomainId) return null;
 
     // Run client-side validation first
@@ -105,7 +105,7 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
       const { data, error } = await supabase.rpc("builder_publish_surface", {
         p_surface_id: surfaceId,
         p_domain_id: selectedDomainId,
-        p_slug: customSlug || undefined,
+        p_slug: slugOverride || customSlug || undefined,
       });
 
       if (error) {
