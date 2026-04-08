@@ -12,165 +12,204 @@ interface EditablePreviewProps {
   viewportMode?: "desktop" | "mobile";
 }
 
+const EDIT_STYLES = `
+  <style>
+    * { box-sizing: border-box; }
+    body { overflow-x: hidden; }
+    button, a[class*="btn"], a[class*="cta"], a[class*="order"], [class*="button"] {
+      max-width: 100%;
+      overflow: visible;
+      white-space: normal;
+      word-wrap: break-word;
+    }
+    [contenteditable]:hover { outline: 2px solid #22c55e44; outline-offset: 2px; cursor: text; }
+    [contenteditable]:focus { outline: 2px solid #22c55e; outline-offset: 2px; }
+    .section-hover { position: relative; }
+    .section-hover:hover { outline: 2px dashed #22c55e44; outline-offset: -2px; border-radius: 8px; }
+    .section-selected { outline: 2px solid #22c55e !important; outline-offset: -2px; border-radius: 8px; }
+    img:hover { outline: 2px solid #22c55e44; cursor: pointer; }
+    .yangu-img-selected { outline: 2px solid #22c55e !important; }
+    .yangu-el-selected { outline: 2px solid #22c55e !important; outline-offset: 2px; }
+    button:hover, a[class*="btn"]:hover, a[class*="cta"]:hover { outline: 2px solid #22c55e44; outline-offset: 2px; }
+    .yangu-btn-selected { outline: 2px solid #22c55e !important; outline-offset: 2px; }
+  </style>
+`;
+
+const EDIT_SCRIPT = `
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      function classifyEl(el) {
+        var t = el.tagName.toUpperCase();
+        var cl = Array.from(el.classList || []);
+        if (t === 'BUTTON' || (t === 'A' && cl.some(function(c) { return c.includes('btn') || c.includes('button') || c.includes('cta'); }))) return 'button';
+        if (t === 'IMG') return 'image';
+        if (['H1','H2','H3','H4','H5','H6','P','SPAN','LI','LABEL'].indexOf(t) !== -1) return 'text';
+        if (t === 'A') return 'button';
+        if (['SECTION','FOOTER','NAV','HEADER'].indexOf(t) !== -1) return 'section';
+        if (t === 'DIV' && cl.some(function(c) { return c.includes('card') || c.includes('item') || c.includes('product') || c.includes('menu-item'); })) return 'card';
+        return 'page';
+      }
+
+      function getPreview(el, kind) {
+        if (kind === 'image') return el.src || '';
+        if (kind === 'text' || kind === 'button') return (el.textContent || '').trim().substring(0, 60);
+        if (kind === 'section') return el.id || el.querySelector('h1,h2,h3')?.textContent?.trim()?.substring(0,40) || '';
+        return '';
+      }
+
+      function findSectionIndex(el) {
+        var sections = document.querySelectorAll('section, footer, nav, header');
+        var node = el;
+        while (node && node !== document.body) {
+          for (var i = 0; i < sections.length; i++) {
+            if (sections[i] === node) return i;
+          }
+          node = node.parentElement;
+        }
+        return -1;
+      }
+
+      function clearAllHighlights() {
+        document.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected').forEach(function(s) {
+          s.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected');
+        });
+      }
+
+      // Notify parent of HTML changes after any edit
+      function notifyHtmlUpdate() {
+        // Clone and strip editor artifacts before sending
+        var clone = document.documentElement.cloneNode(true);
+        // Remove injected style/script
+        clone.querySelectorAll('.yangu-editor-inject').forEach(function(el) { el.remove(); });
+        // Remove highlight classes
+        clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected,.section-hover').forEach(function(el) {
+          el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected','section-hover');
+        });
+        // Remove contenteditable
+        clone.querySelectorAll('[contenteditable]').forEach(function(el) {
+          el.removeAttribute('contenteditable');
+        });
+        window.parent.postMessage({ type: 'html-update', html: clone.outerHTML }, '*');
+      }
+
+      // Make text elements editable
+      document.querySelectorAll('h1,h2,h3,h4,p,span,a,li,button').forEach(function(el) {
+        if (el.children.length === 0 || el.tagName === 'A' || el.tagName === 'BUTTON') {
+          el.setAttribute('contenteditable', 'true');
+          el.addEventListener('blur', function() {
+            notifyHtmlUpdate();
+          });
+        }
+      });
+
+      // Section hover
+      document.querySelectorAll('section, footer, nav').forEach(function(el, idx) {
+        el.classList.add('section-hover');
+        el.dataset.sectionIdx = idx;
+      });
+
+      // Image click
+      document.querySelectorAll('img').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          clearAllHighlights();
+          el.classList.add('yangu-img-selected');
+          var si = findSectionIndex(el);
+          var imgRect = el.getBoundingClientRect();
+          window.parent.postMessage({ type: 'canvas-select', kind: 'image', tag: 'IMG', preview: el.src || '', sectionIndex: si, elRect: { top: imgRect.top, left: imgRect.left, width: imgRect.width, height: imgRect.height } }, '*');
+          window.parent.postMessage({ type: 'image-click', src: el.src }, '*');
+        });
+      });
+
+      // Global click handler
+      document.addEventListener('click', function(e) {
+        var el = e.target;
+        if (!el || el.tagName === 'HTML' || el.tagName === 'BODY') {
+          clearAllHighlights();
+          window.parent.postMessage({ type: 'canvas-select', kind: 'page', tag: 'BODY', preview: '', sectionIndex: -1 }, '*');
+          return;
+        }
+        if (el.tagName === 'IMG') return;
+
+        var kind = classifyEl(el);
+        var si = findSectionIndex(el);
+        clearAllHighlights();
+
+        if (kind === 'section') el.classList.add('section-selected');
+        else if (kind === 'button') el.classList.add('yangu-btn-selected');
+        else if (kind === 'text') el.classList.add('yangu-el-selected');
+        else if (kind === 'card') el.classList.add('yangu-el-selected');
+
+        if (kind !== 'section' && si >= 0) {
+          var sections = document.querySelectorAll('section, footer, nav');
+          if (sections[si]) sections[si].classList.add('section-selected');
+        }
+
+        var rect = el.getBoundingClientRect();
+        window.parent.postMessage({
+          type: 'canvas-select',
+          kind: kind,
+          tag: el.tagName,
+          preview: getPreview(el, kind),
+          sectionIndex: si,
+          sectionId: si >= 0 ? (document.querySelectorAll('section, footer, nav')[si]?.id || '') : '',
+          elRect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
+        }, '*');
+
+        if (si >= 0) {
+          window.parent.postMessage({ type: 'section-select', idx: si, tag: el.tagName }, '*');
+        }
+      }, true);
+
+      // Listen for parent commands
+      window.addEventListener('message', function(e) {
+        if (!e.data || !e.data.type) return;
+        if (e.data.type === 'apply-style') {
+          // Apply style to the currently selected element
+          var target = document.querySelector('.yangu-el-selected') || document.querySelector('.yangu-btn-selected') || document.querySelector('.section-selected');
+          if (target && e.data.styles) {
+            Object.keys(e.data.styles).forEach(function(k) {
+              target.style[k] = e.data.styles[k];
+            });
+            notifyHtmlUpdate();
+          }
+        }
+      });
+    });
+  </script>
+`;
+
 export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewportMode = "desktop" }: EditablePreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [imagePickerOpen, setImagePickerOpen] = useState(false);
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const [pendingImageSrc, setPendingImageSrc] = useState<string | undefined>(undefined);
+  const loadedHtmlRef = useRef<string | null>(null);
 
+  // Only inject editor chrome into initial srcDoc
   const getEditableHtml = useCallback((baseHtml: string) => {
-    const editScript = `
-      <style>
-        /* Prevent content cutoff on mobile */
-        * { box-sizing: border-box; }
-        body { overflow-x: hidden; }
-        button, a[class*="btn"], a[class*="cta"], a[class*="order"], [class*="button"] {
-          max-width: 100%;
-          overflow: visible;
-          white-space: normal;
-          word-wrap: break-word;
-        }
-        [contenteditable]:hover { outline: 2px solid #22c55e44; outline-offset: 2px; cursor: text; }
-        [contenteditable]:focus { outline: 2px solid #22c55e; outline-offset: 2px; }
-        .section-hover { position: relative; }
-        .section-hover:hover { outline: 2px dashed #22c55e44; outline-offset: -2px; border-radius: 8px; }
-        .section-selected { outline: 2px solid #22c55e !important; outline-offset: -2px; border-radius: 8px; }
-        img:hover { outline: 2px solid #22c55e44; cursor: pointer; }
-        .yangu-img-selected { outline: 2px solid #22c55e !important; }
-        .yangu-el-selected { outline: 2px solid #22c55e !important; outline-offset: 2px; }
-        button:hover, a[class*="btn"]:hover, a[class*="cta"]:hover { outline: 2px solid #22c55e44; outline-offset: 2px; }
-        .yangu-btn-selected { outline: 2px solid #22c55e !important; outline-offset: 2px; }
-      </style>
-      <script>
-        document.addEventListener('DOMContentLoaded', function() {
-          // Classify element for selection sync
-          function classifyEl(el) {
-            var t = el.tagName.toUpperCase();
-            var cl = Array.from(el.classList || []);
-            if (t === 'BUTTON' || (t === 'A' && cl.some(function(c) { return c.includes('btn') || c.includes('button') || c.includes('cta'); }))) return 'button';
-            if (t === 'IMG') return 'image';
-            if (['H1','H2','H3','H4','H5','H6','P','SPAN','LI','LABEL'].indexOf(t) !== -1) return 'text';
-            if (t === 'A') return 'button';
-            if (['SECTION','FOOTER','NAV','HEADER'].indexOf(t) !== -1) return 'section';
-            if (t === 'DIV' && cl.some(function(c) { return c.includes('card') || c.includes('item') || c.includes('product') || c.includes('menu-item'); })) return 'card';
-            return 'page';
-          }
-
-          function getPreview(el, kind) {
-            if (kind === 'image') return el.src || '';
-            if (kind === 'text' || kind === 'button') return (el.textContent || '').trim().substring(0, 60);
-            if (kind === 'section') return el.id || el.querySelector('h1,h2,h3')?.textContent?.trim()?.substring(0,40) || '';
-            return '';
-          }
-
-          function findSectionIndex(el) {
-            var sections = document.querySelectorAll('section, footer, nav, header');
-            var node = el;
-            while (node && node !== document.body) {
-              for (var i = 0; i < sections.length; i++) {
-                if (sections[i] === node) return i;
-              }
-              node = node.parentElement;
-            }
-            return -1;
-          }
-
-          function clearAllHighlights() {
-            document.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected').forEach(function(s) {
-              s.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected');
-            });
-          }
-
-          // Make text elements editable
-          document.querySelectorAll('h1,h2,h3,h4,p,span,a,li,button').forEach(function(el) {
-            if (el.children.length === 0 || el.tagName === 'A' || el.tagName === 'BUTTON') {
-              el.setAttribute('contenteditable', 'true');
-              el.addEventListener('blur', function() {
-                window.parent.postMessage({ type: 'html-update', html: document.documentElement.outerHTML }, '*');
-              });
-            }
-          });
-
-          // Section hover/selection
-          document.querySelectorAll('section, footer, nav').forEach(function(el, idx) {
-            el.classList.add('section-hover');
-            el.dataset.sectionIdx = idx;
-          });
-
-          // Image click
-          document.querySelectorAll('img').forEach(function(el) {
-            el.addEventListener('click', function(e) {
-              e.preventDefault();
-              e.stopPropagation();
-              clearAllHighlights();
-              el.classList.add('yangu-img-selected');
-              var si = findSectionIndex(el);
-              var imgRect = el.getBoundingClientRect();
-              window.parent.postMessage({ type: 'canvas-select', kind: 'image', tag: 'IMG', preview: el.src || '', sectionIndex: si, elRect: { top: imgRect.top, left: imgRect.left, width: imgRect.width, height: imgRect.height } }, '*');
-              window.parent.postMessage({ type: 'image-click', src: el.src }, '*');
-            });
-          });
-
-          // Global click handler for selection sync
-          document.addEventListener('click', function(e) {
-            var el = e.target;
-            if (!el || el.tagName === 'HTML' || el.tagName === 'BODY') {
-              clearAllHighlights();
-              window.parent.postMessage({ type: 'canvas-select', kind: 'page', tag: 'BODY', preview: '', sectionIndex: -1 }, '*');
-              return;
-            }
-            // Skip if img (handled above)
-            if (el.tagName === 'IMG') return;
-
-            var kind = classifyEl(el);
-            var si = findSectionIndex(el);
-
-            clearAllHighlights();
-
-            // Apply highlight based on kind
-            if (kind === 'section') {
-              el.classList.add('section-selected');
-            } else if (kind === 'button') {
-              el.classList.add('yangu-btn-selected');
-            } else if (kind === 'text') {
-              el.classList.add('yangu-el-selected');
-            } else if (kind === 'card') {
-              el.classList.add('yangu-el-selected');
-            }
-
-            // Also select parent section
-            if (kind !== 'section' && si >= 0) {
-              var sections = document.querySelectorAll('section, footer, nav');
-              if (sections[si]) sections[si].classList.add('section-selected');
-            }
-
-            var rect = el.getBoundingClientRect();
-            window.parent.postMessage({
-              type: 'canvas-select',
-              kind: kind,
-              tag: el.tagName,
-              preview: getPreview(el, kind),
-              sectionIndex: si,
-              sectionId: si >= 0 ? (document.querySelectorAll('section, footer, nav')[si]?.id || '') : '',
-              elRect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
-            }, '*');
-
-            // Legacy section-select for backward compat
-            if (si >= 0) {
-              window.parent.postMessage({ type: 'section-select', idx: si, tag: el.tagName }, '*');
-            }
-          }, true);
-        });
-      </script>
-    `;
-
-    return baseHtml.replace('</head>', editScript + '</head>');
+    // Mark injected elements so we can strip them when exporting
+    const inject = `<div class="yangu-editor-inject" style="display:none!important"></div>${EDIT_STYLES.replace('<style>', '<style class="yangu-editor-inject">')}${EDIT_SCRIPT.replace('<script>', '<script class="yangu-editor-inject">')}`;
+    return baseHtml.replace('</head>', inject + '</head>');
   }, []);
+
+  // Only set srcDoc when html fundamentally changes (page switch, undo/redo)
+  // We compare against what the iframe currently has loaded
+  const shouldReloadIframe = html !== loadedHtmlRef.current;
+
+  useEffect(() => {
+    if (shouldReloadIframe) {
+      loadedHtmlRef.current = html;
+    }
+  }, [html, shouldReloadIframe]);
 
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
       if (e.data?.type === 'html-update') {
+        // Update parent state without causing iframe reload
+        loadedHtmlRef.current = e.data.html;
         onHtmlChange(e.data.html);
       }
       if (e.data?.type === 'section-select') {
@@ -201,7 +240,17 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
 
   const pushHtmlUpdate = useCallback(() => {
     const doc = getDoc();
-    if (doc) onHtmlChange(doc.documentElement.outerHTML);
+    if (!doc) return;
+    // Clone and strip editor artifacts
+    const clone = doc.documentElement.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll('.yangu-editor-inject').forEach(el => el.remove());
+    clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected,.section-hover').forEach(el => {
+      el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected','section-hover');
+    });
+    clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+    const cleanHtml = clone.outerHTML;
+    loadedHtmlRef.current = cleanHtml;
+    onHtmlChange(cleanHtml);
   }, [getDoc, onHtmlChange]);
 
   const handleImageSelected = useCallback((url: string) => {
@@ -220,7 +269,8 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
     if (!doc) return;
     const newSection = doc.createElement("section");
     newSection.style.cssText = "padding:72px 24px;text-align:center;";
-    newSection.innerHTML = `<div style="max-width:900px;margin:0 auto;"><h2 style="font-size:1.8rem;font-weight:700;margin-bottom:12px;">New Section</h2><p style="color:#666;">Click to edit this section content.</p></div>`;
+    newSection.innerHTML = `<div style="max-width:900px;margin:0 auto;"><h2 style="font-size:1.8rem;font-weight:700;margin-bottom:12px;" contenteditable="true">New Section</h2><p style="color:#666;" contenteditable="true">Click to edit this section content.</p></div>`;
+    newSection.classList.add('section-hover');
     const footer = doc.querySelector("footer");
     if (footer) { footer.parentElement?.insertBefore(newSection, footer); } else { doc.body.appendChild(newSection); }
     pushHtmlUpdate();
@@ -285,7 +335,8 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
     toast.success("Section removed!");
   }, [selectedSection, getDoc, pushHtmlUpdate]);
 
-  const processedHtml = getEditableHtml(html);
+  // Only compute srcDoc when we actually need to reload
+  const processedHtml = shouldReloadIframe ? getEditableHtml(html) : undefined;
 
   return (
     <div className="flex flex-col h-full">
@@ -309,11 +360,12 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
         </div>
       </div>
 
-      {/* Preview iframe */}
+      {/* Preview iframe — only reload srcDoc on page switch / undo / redo */}
       <div className="flex-1 w-full flex items-start justify-center overflow-auto bg-muted/30">
         <iframe
           ref={iframeRef}
-          srcDoc={processedHtml}
+          srcDoc={getEditableHtml(html)}
+          key={html.length > 100 ? html.substring(0, 80) : html}
           className={`bg-white border-0 transition-all duration-300 ${
             viewportMode === "mobile"
               ? "w-[390px] h-full shadow-2xl rounded-xl border border-border mx-auto"
