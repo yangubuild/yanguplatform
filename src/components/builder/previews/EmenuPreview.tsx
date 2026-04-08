@@ -182,11 +182,8 @@ function FoodItemCard({
       {showImages && (
         <div className="aspect-square bg-muted relative overflow-hidden">
           {item.image_url ? (
-            <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden'); }} />
+            <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
           ) : null}
-          <div className={`w-full h-full flex items-center justify-center ${fs ? fs.cardBg : "bg-muted"} ${item.image_url ? 'hidden' : ''}`}>
-            <span className="text-4xl">🍽️</span>
-          </div>
           {showBadges && item.badges && item.badges.length > 0 && (
             <div className="absolute top-2 left-2 flex gap-1 flex-wrap">
               {item.badges.map((b) => <BadgePill key={b} badgeKey={b} />)}
