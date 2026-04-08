@@ -13,8 +13,8 @@ import { Loader2 } from "lucide-react";
 
 /**
  * Public published page renderer.
- * Reads host + slug from the URL, calls builder_get_public_schema,
- * and renders the published schema using the same BuilderPreview renderers.
+ * For emenu surfaces: renders raw HTML from metadata.builder_new_html.
+ * For other surfaces: reads from builder_get_public_schema RPC.
  */
 export default function PublicSurfacePage() {
   const location = useLocation();
@@ -26,6 +26,7 @@ export default function PublicSurfacePage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["builder_public_schema", host, pathSlug],
     queryFn: async () => {
+      // First try the standard RPC
       const { data, error } = await supabase.rpc("builder_get_public_schema", {
         p_host: host,
         p_slug: pathSlug,
@@ -39,6 +40,26 @@ export default function PublicSurfacePage() {
     },
     retry: false,
     staleTime: 60_000,
+  });
+
+  // For emenu surfaces, also fetch the raw HTML from metadata
+  const surfaceType = (data?.published_schema?.surface as any)?.surface_type;
+  const publishSurfaceId = (data?.published_schema?.surface as any)?.id;
+
+  const { data: emenuHtmlData } = useQuery({
+    queryKey: ["emenu_raw_html", publishSurfaceId],
+    queryFn: async () => {
+      const { data: surfData, error } = await supabase
+        .from("builder_surfaces")
+        .select("metadata")
+        .eq("id", publishSurfaceId)
+        .single();
+      if (error) throw error;
+      const meta = (surfData?.metadata as any) || {};
+      return meta.builder_new_html as string | null;
+    },
+    enabled: !!publishSurfaceId && surfaceType === "emenu",
+    staleTime: 30_000,
   });
 
   // Extract metadata for document head (must be before early returns)
@@ -87,6 +108,16 @@ export default function PublicSurfacePage() {
     return <PublicNotFound host={host} slug={pathSlug} />;
   }
 
+  // ═══ EMENU: render raw HTML directly ═══
+  const pubSurfaceType = surfaceData.surface_type;
+  if (pubSurfaceType === "emenu" && emenuHtmlData) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div dangerouslySetInnerHTML={{ __html: emenuHtmlData }} />
+      </div>
+    );
+  }
+
   // Render published schema — use same normalization as editor canvas
   const schema = data.published_schema;
   const page = schema.pages?.[0];
@@ -97,8 +128,7 @@ export default function PublicSurfacePage() {
   const sections = deduplicatePublishedSections(rawSections, surfaceData.surface_type || "quick_site");
   
   const title = pageTitle;
-  const surfaceType = surfaceData.surface_type;
-  const isInfluencer = surfaceType === "live_bio";
+  const isInfluencer = pubSurfaceType === "live_bio";
   
   // Read theme from published schema
   const rawTheme = (surfaceData.theme as Partial<BuilderTheme>) || {};
@@ -123,7 +153,7 @@ export default function PublicSurfacePage() {
               <div className={isInfluencer ? "px-4 py-4" : "max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8 py-8 lg:py-12"}>
                 {Preview ? (
                   isHero
-                    ? <Preview schema={section.schema} {...({ surfaceType } as any)} />
+                    ? <Preview schema={section.schema} {...({ pubSurfaceType } as any)} />
                     : <Preview schema={section.schema} />
                 ) : (
                   <div className="py-4 text-sm text-muted-foreground italic">

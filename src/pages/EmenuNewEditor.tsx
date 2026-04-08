@@ -715,8 +715,8 @@ export default function EmenuNewEditor() {
           {isSaving ? "Saving..." : hasUnsavedChanges ? "Unsaved" : "Saved"}
         </span>
 
-        {/* Undo / Redo */}
-        <div className="hidden lg:flex items-center gap-0.5">
+        {/* Undo / Redo — visible on all sizes */}
+        <div className="flex items-center gap-0.5">
           <button
             onClick={handleUndo}
             disabled={!canUndo}
@@ -737,11 +737,11 @@ export default function EmenuNewEditor() {
 
         <div className="h-6 w-px bg-white/20 hidden lg:block" />
 
-        {/* Viewport toggle */}
-        <div className="hidden lg:flex items-center border border-white/20 rounded-lg overflow-hidden">
+        {/* Viewport toggle — visible on all sizes */}
+        <div className="flex items-center border border-white/20 rounded-lg overflow-hidden">
           <button
             onClick={() => setPreviewViewport("desktop")}
-            className={`flex items-center gap-1 px-2.5 py-1.5 text-xs transition-colors ${
+            className={`flex items-center gap-1 px-2 py-1.5 text-xs transition-colors ${
               previewViewport === "desktop" ? "bg-white/20 text-white" : "text-white/50 hover:text-white"
             }`}
           >
@@ -749,7 +749,7 @@ export default function EmenuNewEditor() {
           </button>
           <button
             onClick={() => setPreviewViewport("mobile")}
-            className={`flex items-center gap-1 px-2.5 py-1.5 text-xs transition-colors ${
+            className={`flex items-center gap-1 px-2 py-1.5 text-xs transition-colors ${
               previewViewport === "mobile" ? "bg-white/20 text-white" : "text-white/50 hover:text-white"
             }`}
           >
@@ -796,8 +796,9 @@ export default function EmenuNewEditor() {
         <Button size="sm" variant="outline" onClick={() => safeNavigate("/dashboard/my-business")} className="gap-1 hidden lg:flex border-white/20 text-white/80 hover:text-white hover:bg-white/10">
           <ClipboardList className="h-4 w-4" />
         </Button>
-        <Button size="sm" onClick={() => setPublishOpen(true)} className="gap-1 hidden lg:flex" style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}>
-          <Rocket className="h-4 w-4 text-white" /> <span className="text-white">Publish</span>
+        {/* Publish button — visible on all sizes */}
+        <Button size="sm" onClick={() => setPublishOpen(true)} className="gap-1" style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}>
+          <Rocket className="h-4 w-4 text-white" /> <span className="text-white hidden sm:inline">Publish</span>
         </Button>
       </header>
 
