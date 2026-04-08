@@ -108,6 +108,16 @@ export default function PublicSurfacePage() {
     return <PublicNotFound host={host} slug={pathSlug} />;
   }
 
+  // ═══ EMENU: render raw HTML directly ═══
+  const pubSurfaceType = surfaceData.surface_type;
+  if (pubSurfaceType === "emenu" && emenuHtmlData) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div dangerouslySetInnerHTML={{ __html: emenuHtmlData }} />
+      </div>
+    );
+  }
+
   // Render published schema — use same normalization as editor canvas
   const schema = data.published_schema;
   const page = schema.pages?.[0];
@@ -118,8 +128,7 @@ export default function PublicSurfacePage() {
   const sections = deduplicatePublishedSections(rawSections, surfaceData.surface_type || "quick_site");
   
   const title = pageTitle;
-  const surfaceType = surfaceData.surface_type;
-  const isInfluencer = surfaceType === "live_bio";
+  const isInfluencer = pubSurfaceType === "live_bio";
   
   // Read theme from published schema
   const rawTheme = (surfaceData.theme as Partial<BuilderTheme>) || {};
@@ -144,7 +153,7 @@ export default function PublicSurfacePage() {
               <div className={isInfluencer ? "px-4 py-4" : "max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8 py-8 lg:py-12"}>
                 {Preview ? (
                   isHero
-                    ? <Preview schema={section.schema} {...({ surfaceType } as any)} />
+                    ? <Preview schema={section.schema} {...({ pubSurfaceType } as any)} />
                     : <Preview schema={section.schema} />
                 ) : (
                   <div className="py-4 text-sm text-muted-foreground italic">
