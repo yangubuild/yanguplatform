@@ -3,31 +3,65 @@ import { YANGU_BADGE_HTML } from "@/components/routing/YanguBadge";
 
 const PUBLISHED_EMENU_HEAD_INJECT = `<link href="https://api.fontshare.com/v2/css?f[]=lufga@700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --yangu-published-header-width:1320px;
-  --yangu-published-hero-width:1320px;
+html,body{
+  overflow-x:hidden;max-width:100vw;margin:0;padding:0;
+  font-size:16px !important;
 }
-html,body{overflow-x:hidden;max-width:100vw;margin:0;padding:0;}
-body{min-height:100vh;}
+body{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  background-color:#ffffff;
+}
 *,*::before,*::after{box-sizing:border-box;}
 img,video,canvas,svg{max-width:100%;}
-@media (min-width:1200px){
-  body > nav:first-of-type,
-  body > header:first-of-type{
-    padding-left:max(28px, calc((100vw - var(--yangu-published-header-width)) / 2)) !important;
-    padding-right:max(28px, calc((100vw - var(--yangu-published-header-width)) / 2)) !important;
-  }
-  body > nav:first-of-type + section,
-  body > header:first-of-type + section,
-  body > section:first-of-type{
-    padding-left:max(40px, calc((100vw - var(--yangu-published-hero-width)) / 2)) !important;
-    padding-right:max(40px, calc((100vw - var(--yangu-published-hero-width)) / 2)) !important;
-  }
-  body > nav:first-of-type + section[style*="grid-template-columns"],
-  body > header:first-of-type + section[style*="grid-template-columns"],
-  body > section:first-of-type[style*="grid-template-columns"]{
-    column-gap:clamp(32px, 4vw, 56px) !important;
-  }
+
+/* Unified 1320px centered container for ALL sections */
+header,nav,.hero,section,
+[class*="hero"],[class*="header"],[class*="nav"],[class*="section"],[class*="container"],
+footer{
+  width:100% !important;
+  max-width:1320px !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+  padding-left:24px !important;
+  padding-right:24px !important;
+  box-sizing:border-box !important;
+}
+
+/* Navigation — space-between distribution */
+nav,.navbar,[class*="nav"]{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  width:100% !important;
+}
+
+/* Restore proper font sizes */
+nav a,.nav-link,[class*="nav-item"]{
+  font-size:1rem !important;
+  font-weight:500 !important;
+}
+button,.btn,[class*="button"]{
+  font-size:1rem !important;
+  padding:10px 20px !important;
+}
+h1,.hero-title{
+  font-size:3.5rem !important;
+  line-height:1.2 !important;
+}
+h2,.section-title{
+  font-size:2rem !important;
+}
+
+/* Exclude the yangu badge from container rules */
+[data-yangu-badge]{
+  max-width:none !important;
+  margin-left:unset !important;
+  margin-right:unset !important;
+  padding-left:10px !important;
+  padding-right:14px !important;
+  width:auto !important;
+  justify-content:flex-start !important;
 }
 </style>`;
 
