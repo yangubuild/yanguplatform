@@ -981,15 +981,15 @@ export function renderSofra(ctx: RenderContext): string {
       ${logo}
     </div>
     <div style="display:flex;gap:32px;">
-      ${navLinks.map((l: string) => `<a href="${navHref(l)}" style="color:${t.pageText};text-decoration:none;font-size:14px;letter-spacing:2px;text-transform:uppercase;font-family:'Inter',sans-serif;">${l}</a>`).join("")}
+      ${(navLinks as string[]).map((l: string) => `<a href="${navHref(l)}" style="color:${t.pageText};text-decoration:none;font-size:14px;letter-spacing:2px;text-transform:uppercase;font-family:'Inter',sans-serif;">${l}</a>`).join("")}
     </div>
     <a href="#menu" style="display:inline-block;padding:14px 28px;background:${t.accent};color:${t.accentText};text-decoration:none;font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:600;border-radius:${t.buttonRadius};">VIEW MENU</a>
   </nav>`;
 
   // HERO
-  const headline = heroS.headline || "Savor Every Moment with Every Bite";
-  const heroDesc = heroS.description || "Delight in flavors crafted to bring joy, comfort, and unforgettable dining experiences every time.";
-  const heroCTA = heroS.cta_text || "BOOK YOUR TABLE";
+  const headline = (heroS.headline as string) || "Savor Every Moment with Every Bite";
+  const heroDesc = (heroS.description as string) || "Delight in flavors crafted to bring joy, comfort, and unforgettable dining experiences every time.";
+  const heroCTA = (heroS.cta_text as string) || "BOOK YOUR TABLE";
   // Split headline — last two words in accent
   const words = headline.split(" ");
   const lastTwo = words.slice(-2).join(" ");
@@ -1010,7 +1010,7 @@ export function renderSofra(ctx: RenderContext): string {
   </div>`;
 
   // ABOUT + STATS
-  const aboutDesc = offerS.story_block?.description || "At Sofra Restaurant, dining is more than just a meal—it's an experience of flavor, tradition, and hospitality. Inspired by the rich heritage of culinary artistry, we bring together authentic recipes, fresh ingredients, and modern presentation to create dishes that delight every sense.";
+  const aboutDesc = (offerS.story_block as any)?.description || "At Sofra Restaurant, dining is more than just a meal—it's an experience of flavor, tradition, and hospitality. Inspired by the rich heritage of culinary artistry, we bring together authentic recipes, fresh ingredients, and modern presentation to create dishes that delight every sense.";
   const stats = [
     { num: "110+", label: "Seasonal Delights to Enjoy Fresh flavors" },
     { num: "30+", label: "Years of Exceptional Dining Experiences" },
@@ -1165,7 +1165,7 @@ export function renderSofra(ctx: RenderContext): string {
   </section>`;
 
   // TESTIMONIALS
-  const testimonialItems = offerS.testimonials?.items || [
+  const testimonialItems = (offerS.testimonials as any)?.items || [
     { quote: "Sofra Restaurant never disappoints.", body: "From the attentive service to the fresh ingredients, every dish tells a story. The grilled salmon is a must-try!", author: "Ronald Richards", rating: 5 },
   ];
   const testimonialsHTML = `
