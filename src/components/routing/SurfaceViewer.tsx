@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Layout } from "lucide-react";
 import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
 import { PublishedEmenuFrame } from "@/components/routing/PublishedEmenuFrame";
+import { YanguBadge } from "@/components/routing/YanguBadge";
 import { DEFAULT_THEME, type BuilderTheme } from "@/components/builder/BuilderSettingsDrawer";
 import { deduplicatePublishedSections } from "@/config/builderCoreSections";
 import type {
@@ -15,45 +16,6 @@ interface SurfaceViewerProps {
   host?: string;
   domainType?: string;
 }
-
-/** Inline SVG for the YANGU badge icon */
-const BADGE_SVG_DATA = "data:image/svg+xml," + encodeURIComponent(
-  '<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="22" fill="#E8612D"/><path d="M50 30L35 50h10v20h10V50h10L50 30z" fill="white"/></svg>'
-);
-
-function YanguBadge() {
-  return (
-    <a
-      href="https://yangu.io"
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{
-        position: "fixed",
-        bottom: 16,
-        right: 16,
-        zIndex: 9999,
-        display: "flex",
-        alignItems: "center",
-        gap: 6,
-        background: "#ffffff",
-        border: "1px solid #e5e7eb",
-        borderRadius: 8,
-        padding: "6px 12px 6px 8px",
-        fontFamily: "system-ui, -apple-system, sans-serif",
-        fontSize: 12,
-        color: "#333",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-        textDecoration: "none",
-        cursor: "pointer",
-        lineHeight: 1,
-      }}
-    >
-      <img src={BADGE_SVG_DATA} alt="" style={{ width: 14, height: 14, borderRadius: 3 }} />
-      Made in YANGU
-    </a>
-  );
-}
-
 export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProps) {
   const [data, setData] = useState<BuilderPublicSchemaResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -64,7 +26,7 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   const surfaceMeta = (schema?.surface || {}) as Record<string, any>;
   const pageTitle = surfaceMeta.seo_title || surfaceMeta.title || "Untitled";
   const faviconUrl = (surfaceMeta.favicon_url as string | null) || null;
-  const showBadge = surfaceMeta.show_yangu_badge !== false;
+  const showBadge = surfaceMeta.show_yangu_badge === true;
 
   useEffect(() => {
     async function load() {
