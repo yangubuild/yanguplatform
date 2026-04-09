@@ -1,6 +1,36 @@
 import { useEffect, useRef } from "react";
 import { YANGU_BADGE_HTML } from "@/components/routing/YanguBadge";
 
+const PUBLISHED_EMENU_HEAD_INJECT = `<link href="https://api.fontshare.com/v2/css?f[]=lufga@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --yangu-published-header-width:1320px;
+  --yangu-published-hero-width:1320px;
+}
+html,body{overflow-x:hidden;max-width:100vw;margin:0;padding:0;}
+body{min-height:100vh;}
+*,*::before,*::after{box-sizing:border-box;}
+img,video,canvas,svg{max-width:100%;}
+@media (min-width:1200px){
+  body > nav:first-of-type,
+  body > header:first-of-type{
+    padding-left:max(28px, calc((100vw - var(--yangu-published-header-width)) / 2)) !important;
+    padding-right:max(28px, calc((100vw - var(--yangu-published-header-width)) / 2)) !important;
+  }
+  body > nav:first-of-type + section,
+  body > header:first-of-type + section,
+  body > section:first-of-type{
+    padding-left:max(40px, calc((100vw - var(--yangu-published-hero-width)) / 2)) !important;
+    padding-right:max(40px, calc((100vw - var(--yangu-published-hero-width)) / 2)) !important;
+  }
+  body > nav:first-of-type + section[style*="grid-template-columns"],
+  body > header:first-of-type + section[style*="grid-template-columns"],
+  body > section:first-of-type[style*="grid-template-columns"]{
+    column-gap:clamp(32px, 4vw, 56px) !important;
+  }
+}
+</style>`;
+
 interface PublishedEmenuFrameProps {
   html: string;
   title: string;
@@ -23,26 +53,22 @@ export function PublishedEmenuFrame({ html, title, faviconUrl, showBadge }: Publ
 
     let processedHtml = html;
 
+    processedHtml = processedHtml.replace(/<a\b[^>]*href=["']https:\/\/yangu\.io["'][^>]*>[\s\S]*?<\/a>/gi, "");
+    processedHtml = processedHtml.replace(/<link[^>]+rel=["'](?:shortcut icon|icon)["'][^>]*>/gi, "");
+
     // Inject per-surface favicon into <head>
     if (faviconUrl && processedHtml.includes("</head>")) {
       processedHtml = processedHtml.replace(
         "</head>",
-        `<link rel="icon" href="${faviconUrl}" type="image/png">\n</head>`
+        `<link rel="icon" href="${faviconUrl}" type="image/png">\n<link rel="shortcut icon" href="${faviconUrl}" type="image/png">\n</head>`
       );
     }
 
-    // Inject desktop layout guards + Lufga font for badge
+    // Inject desktop layout guards + Lufga font for badge + contained public hero/header frame
     if (processedHtml.includes("</head>")) {
       processedHtml = processedHtml.replace(
         "</head>",
-        `<link href="https://api.fontshare.com/v2/css?f[]=lufga@700&display=swap" rel="stylesheet">
-<style>
-html,body{overflow-x:hidden;max-width:100vw;margin:0;padding:0;}
-body{min-height:100vh;}
-*,*::before,*::after{box-sizing:border-box;}
-img,video,canvas,svg{max-width:100%;}
-</style>
-</head>`
+        `${PUBLISHED_EMENU_HEAD_INJECT}\n</head>`
       );
     }
 
