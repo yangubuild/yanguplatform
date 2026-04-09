@@ -71,10 +71,11 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   // Render published schema — use same normalization as editor canvas
   const schema = data.published_schema;
   const page = schema.pages?.[0];
-  const title = schema.surface?.seo_title || schema.surface?.title || "Untitled";
-  const surfaceType = schema.surface?.surface_type;
+  const surfaceMeta = (schema.surface || {}) as Record<string, any>;
+  const title = surfaceMeta.seo_title || surfaceMeta.title || "Untitled";
+  const surfaceType = surfaceMeta.surface_type;
   const publishedEmenuHtml = surfaceType === "emenu"
-    ? ((schema.surface as any)?.emenu_html as string | null)
+    ? ((surfaceMeta.emenu_html as string | null) || null)
     : null;
 
   if (surfaceType === "emenu") {
