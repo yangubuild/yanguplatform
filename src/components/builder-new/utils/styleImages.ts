@@ -24,7 +24,6 @@ import retroFunImg from "@/assets/styles/retro_fun.jpg";
 import emenuPlateriaImg from "@/assets/styles/emenu_plateria.jpg";
 import emenuYumixImg from "@/assets/styles/emenu_yumix.jpg";
 import emenuZooomImg from "@/assets/styles/emenu_zooom.jpg";
-import emenuVisualAImg from "@/assets/styles/emenu_visual_a.png";
 import emenuGustoReservationImg from "@/assets/styles/emenu_gusto_reservation.png";
 
 export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
@@ -54,6 +53,5 @@ export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
   emenu_plateria: emenuPlateriaImg,
   emenu_yumix: emenuYumixImg,
   emenu_zooom: emenuZooomImg,
-  emenu_visual_a: emenuVisualAImg,
   emenu_gusto_reservation: emenuGustoReservationImg,
 };
