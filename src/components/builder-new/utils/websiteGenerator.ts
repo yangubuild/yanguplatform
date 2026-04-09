@@ -5,7 +5,7 @@
 import type { Category } from "../types/builder.types";
 import { CATEGORY_CONFIGS } from "../types/builder.types";
 import { getTemplate, type TemplatePreset } from "@/config/templateRegistry";
-import { renderPlateria, renderYumix, renderZooom, renderVisualA } from "./emenuFamilyRenderers";
+import { renderPlateria, renderYumix, renderZooom } from "./emenuFamilyRenderers";
 
 export interface GeneratorConfig {
   category: Category;
@@ -662,10 +662,10 @@ function buildEmenuTemplateHTML(config: GeneratorConfig, preset: TemplatePreset,
       return renderYumix(ctx);
     case "zooom":
       return renderZooom(ctx);
-    case "visual_a":
-      return renderVisualA(ctx);
+    case "gusto_reservation":
+      // Gusto uses the reservation flow handled above; fallback to Plateria for non-reservation
+      return renderPlateria(ctx);
     default:
-      // Fallback for any unknown family — use Plateria as safe default
       console.warn(`Unknown emenu template family "${family}", falling back to plateria renderer`);
       return renderPlateria(ctx);
   }
