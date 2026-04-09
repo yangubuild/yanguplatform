@@ -1,82 +1,39 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { sanitizeEditorHtml } from "@/lib/builder/editorHtml";
+import { useEffect } from "react";
 
 interface PublishedEmenuFrameProps {
   html: string;
   title: string;
 }
 
+/**
+ * Renders a published Emenu page by writing the full HTML document directly
+ * into the current page. No iframe — the published HTML IS the page.
+ */
 export function PublishedEmenuFrame({ html, title }: PublishedEmenuFrameProps) {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [frameHeight, setFrameHeight] = useState(0);
-  const sanitizedHtml = useMemo(() => sanitizeEditorHtml(html), [html]);
-
-  const syncFrameHeight = useCallback(() => {
-    const doc = iframeRef.current?.contentDocument;
-    if (!doc) return;
-
-    const nextHeight = Math.max(
-      doc.documentElement.scrollHeight,
-      doc.documentElement.offsetHeight,
-      doc.body?.scrollHeight || 0,
-      doc.body?.offsetHeight || 0,
-      window.innerHeight,
-    );
-
-    setFrameHeight((prev) => (prev !== nextHeight ? nextHeight : prev));
-  }, []);
-
+  // Replace the entire document with the published HTML
   useEffect(() => {
-    const iframe = iframeRef.current;
-    if (!iframe || !sanitizedHtml) return;
+    if (!html) return;
 
-    let resizeObserver: ResizeObserver | null = null;
-    let timeoutA: number | null = null;
-    let timeoutB: number | null = null;
+    // Set the document title before replacing the page
+    document.title = title;
 
-    const attachSizing = () => {
-      syncFrameHeight();
-
-      const doc = iframe.contentDocument;
-      if (!doc) return;
-
-      resizeObserver?.disconnect();
-      if (typeof ResizeObserver !== "undefined") {
-        resizeObserver = new ResizeObserver(() => syncFrameHeight());
-        resizeObserver.observe(doc.documentElement);
-        if (doc.body) resizeObserver.observe(doc.body);
-      }
-
-      timeoutA = window.setTimeout(syncFrameHeight, 120);
-      timeoutB = window.setTimeout(syncFrameHeight, 600);
-    };
-
-    iframe.addEventListener("load", attachSizing);
-    window.addEventListener("resize", syncFrameHeight);
-
-    if (iframe.contentDocument?.readyState === "complete") {
-      attachSizing();
+    // Write the full emenu HTML directly — replaces the entire React app
+    // This is intentional: the published page IS the final output
+    try {
+      document.open();
+      document.write(html);
+      document.close();
+    } catch {
+      // Fallback: inject into body if document.write fails
+      document.documentElement.innerHTML = html;
     }
+  }, [html, title]);
 
-    return () => {
-      iframe.removeEventListener("load", attachSizing);
-      window.removeEventListener("resize", syncFrameHeight);
-      resizeObserver?.disconnect();
-      if (timeoutA) window.clearTimeout(timeoutA);
-      if (timeoutB) window.clearTimeout(timeoutB);
-    };
-  }, [sanitizedHtml, syncFrameHeight]);
-
+  // Render a loading state that will be replaced by document.write
   return (
-    <div className="min-h-screen bg-background">
-      <iframe
-        ref={iframeRef}
-        title={title}
-        srcDoc={sanitizedHtml}
-        className="w-full border-0 bg-transparent"
-        style={{ minHeight: "100vh", height: frameHeight ? `${frameHeight}px` : "100vh" }}
-        sandbox="allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
-      />
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ width: 32, height: 32, border: "3px solid #e5e7eb", borderTopColor: "#10b981", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
