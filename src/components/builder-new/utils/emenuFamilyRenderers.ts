@@ -261,24 +261,27 @@ ${heroHTML}${menuHTML}${storyHTML}${testimonialsHTML}${footerHTML}
 
 
 // ═══════════════════════════════════════════════════════════════════
-// YUMIX — Bold dark food brand
+// YUMIX — Bold dark food brand (scraped from yumix.framer.website)
+// Yellow accent on dark background, full-width hero, 4-col categories,
+// 3x2 menu grid, about+stats, why-choose, catering, testimonials,
+// FAQ accordion, newsletter, footer with social links.
 // ═══════════════════════════════════════════════════════════════════
 
 const YUMIX_VARIANTS: VariantTheme[] = [
   {
-    accent: "#F97316", accentText: "#FFFFFF", pageBg: "#0F0D0A", pageText: "#F5F0E8",
+    accent: "#FFD700", accentText: "#0A0A0A", pageBg: "#0F0D0A", pageText: "#F5F0E8",
     cardBg: "#1A1714", borderColor: "#2D2A25", fontHeading: "'DM Sans', sans-serif",
-    heroLayout: "split", cardStyle: "rounded", buttonRadius: "28px", menuCols: 3, cardImageHeight: "190px",
+    heroLayout: "fullwidth", cardStyle: "rounded", buttonRadius: "8px", menuCols: 3, cardImageHeight: "200px",
   },
   {
     accent: "#EF4444", accentText: "#FFFFFF", pageBg: "#0A0A0F", pageText: "#E8E8F0",
     cardBg: "#14141A", borderColor: "#25253A", fontHeading: "'Poppins', sans-serif",
-    heroLayout: "fullwidth", cardStyle: "sharp", buttonRadius: "4px", menuCols: 2, cardImageHeight: "220px",
+    heroLayout: "fullwidth", cardStyle: "sharp", buttonRadius: "4px", menuCols: 3, cardImageHeight: "200px",
   },
   {
     accent: "#FBBF24", accentText: "#0A0A0A", pageBg: "#0D0F0A", pageText: "#F0F5E8",
     cardBg: "#171A14", borderColor: "#2A2D25", fontHeading: "'Outfit', sans-serif",
-    heroLayout: "centered", cardStyle: "pill", buttonRadius: "24px", menuCols: 3, cardImageHeight: "180px",
+    heroLayout: "fullwidth", cardStyle: "pill", buttonRadius: "24px", menuCols: 3, cardImageHeight: "200px",
   },
 ];
 
@@ -297,108 +300,155 @@ export function renderYumix(ctx: RenderContext): string {
   const items = (mainS.items as any[]) || [];
   const catShowcase = mainS.category_showcase;
   const promos = (offerS.promo_banners as any[]) || [];
-  const stats = (offerS.stats as any[]) || [];
+  const stats = (offerS.stats as any[]) || [
+    { value: "205+", label: "Unique Menu Items" },
+    { value: "1950+", label: "Satisfied Customers" },
+    { value: "500+", label: "5-Star Reviews" },
+    { value: "40+", label: "Expert Chefs" },
+  ];
   const testimonials = offerS.testimonials || {};
   const newsletter = offerS.newsletter || {};
+  const story = offerS.story_block || {};
   const footerCols = (footerS.columns as any[]) || [];
-  const navItems = (headerS.nav_items as string[]) || ["Home", "Menu", "Deals", "About", "Contact"];
-  const headline = heroS.headline || "Delicious Food For Every Mood";
-  const subheadline = heroS.subheadline || "";
-  const ctaText = heroS.cta_text || "Order Now";
+  const navItems = (headerS.nav_items as string[]) || ["Home", "Menu", "About", "Blog"];
+  const headline = heroS.headline || "Satisfy Your Cravings, Delight Your Tastebuds";
+  const subheadline = heroS.subheadline || `${name} - Best Food Forever`;
+  const description = heroS.description || `At ${name}, we expertly whip up every single meal using only the freshest ingredients and the most delicious flavors, crafted just for you!`;
+  const ctaText = heroS.cta_text || "Explore Menu";
   const badge = heroS.badge;
   const cardRadius = t.cardStyle === "sharp" ? "4px" : t.cardStyle === "pill" ? "20px" : "16px";
 
   const logo = config.userLogoUrl
     ? `<img src="${config.userLogoUrl}" alt="${name}" style="height:28px;"/>`
-    : `<span style="font-family:${t.fontHeading};font-weight:800;font-size:20px;color:${t.pageText};">${name}</span>`;
+    : `<span style="font-family:${t.fontHeading};font-weight:800;font-size:22px;color:${t.pageText};">${name}</span>`;
 
-  const btnStyle = `padding:14px 32px;border-radius:${t.buttonRadius};background:${t.accent};color:${t.accentText};text-decoration:none;font-weight:700;font-size:14px;display:inline-block;`;
-  const btnOutline = `padding:14px 24px;border-radius:${t.buttonRadius};background:transparent;color:${t.pageText};text-decoration:none;font-weight:600;font-size:14px;border:1px solid ${t.borderColor};display:inline-block;`;
+  const btnStyle = `padding:16px 32px;border-radius:${t.buttonRadius};background:${t.accent};color:${t.accentText};text-decoration:none;font-weight:700;font-size:15px;display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;`;
+  const btnOutline = `padding:12px 28px;border-radius:${t.buttonRadius};border:1px solid ${t.borderColor};background:transparent;color:${t.pageText};text-decoration:none;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:8px;cursor:pointer;`;
 
-  // HERO
-  let heroHTML = "";
-  if (t.heroLayout === "split") {
-    heroHTML = `
-    <section id="hero" style="min-height:85vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:100px 48px 80px;gap:48px;background:linear-gradient(135deg, ${t.pageBg} 0%, #1A1408 100%);">
-      <div>
-        ${badge ? `<span style="display:inline-block;padding:6px 16px;border-radius:20px;background:${t.accent};color:${t.accentText};font-size:12px;font-weight:700;margin-bottom:16px;">${badge.text || "30% OFF"}</span>` : ""}
-        ${subheadline ? `<p style="font-size:13px;text-transform:uppercase;letter-spacing:2px;color:${t.pageText}77;margin-bottom:10px;">${subheadline}</p>` : ""}
-        <h1 style="font-family:${t.fontHeading};font-size:clamp(2.4rem,5vw,3.6rem);font-weight:800;margin-bottom:20px;line-height:1.06;color:${t.pageText};">${headline}</h1>
-        <div style="display:flex;gap:12px;">
-          <a href="#menu" style="${btnStyle}">${ctaText}</a>
+  // ─── NAV ───
+  const navHTML = `
+  <nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:${t.pageBg}ee;backdrop-filter:blur(12px);border-bottom:1px solid ${t.borderColor};padding:0 48px;display:flex;align-items:center;justify-content:space-between;height:64px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      ${logo}
+    </div>
+    <div style="display:flex;gap:28px;align-items:center;">
+      ${navItems.map((n, i) => `<a href="${navHref(n)}" style="text-decoration:none;font-size:14px;color:${i === 0 ? t.accent : t.pageText + '99'};font-weight:500;">${n}</a>`).join("")}
+    </div>
+    <a href="#contact" style="padding:10px 24px;border-radius:${t.buttonRadius};border:1px solid ${t.pageText}44;color:${t.pageText};text-decoration:none;font-size:14px;font-weight:500;display:inline-flex;align-items:center;gap:6px;">Contact Us →</a>
+  </nav>`;
+
+  // ─── HERO — Full-width bg image, left-aligned content, badge, Google rating ───
+  const heroHTML = `
+  <section id="hero" style="min-height:100vh;position:relative;display:flex;align-items:center;padding:0 48px;">
+    <div style="position:absolute;inset:0;"><img src="${heroImg}" style="width:100%;height:100%;object-fit:cover;" alt=""/></div>
+    <div style="position:absolute;inset:0;background:linear-gradient(90deg, ${t.pageBg}ee 0%, ${t.pageBg}88 50%, transparent 100%);"></div>
+    <div style="position:relative;z-index:1;max-width:560px;padding-top:80px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <div style="width:36px;height:36px;border-radius:50%;overflow:hidden;border:2px solid ${t.accent};">
+          <img src="${getImageUrl(config, "menu", 0)}" style="width:100%;height:100%;object-fit:cover;" alt=""/>
+        </div>
+        <span style="font-size:14px;color:${t.accent};font-weight:500;">${subheadline}</span>
+      </div>
+      <h1 style="font-family:${t.fontHeading};font-size:clamp(2.8rem,5vw,3.8rem);font-weight:800;margin-bottom:20px;line-height:1.08;color:${t.pageText};">${headline}</h1>
+      <p style="font-size:15px;color:${t.pageText}99;margin-bottom:32px;line-height:1.7;max-width:480px;">${description}</p>
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+        <a href="#menu" style="${btnStyle}">${ctaText} →</a>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-weight:700;font-size:14px;color:${t.pageText};">Google</span>
+          <span style="color:${t.accent};font-size:14px;">★★★★★</span>
+          <span style="font-size:13px;color:${t.pageText}88;">4.5/5</span>
         </div>
       </div>
-      <div style="border-radius:20px;overflow:hidden;aspect-ratio:1/1;">
-        <img src="${heroImg}" alt="${headline}" style="width:100%;height:100%;object-fit:cover;"/>
-      </div>
-    </section>`;
-  } else if (t.heroLayout === "fullwidth") {
-    heroHTML = `
-    <section id="hero" style="min-height:90vh;position:relative;display:flex;align-items:center;justify-content:center;text-align:center;">
-      <div style="position:absolute;inset:0;"><img src="${heroImg}" style="width:100%;height:100%;object-fit:cover;" alt=""/></div>
-      <div style="position:absolute;inset:0;background:linear-gradient(180deg, ${t.pageBg}cc 0%, ${t.pageBg}ee 100%);"></div>
-      <div style="position:relative;z-index:1;max-width:600px;padding:24px;">
-        ${badge ? `<span style="display:inline-block;padding:8px 20px;border-radius:${t.buttonRadius};background:${t.accent};color:${t.accentText};font-size:13px;font-weight:700;margin-bottom:20px;">${badge.text || "30% OFF"}</span>` : ""}
-        <h1 style="font-family:${t.fontHeading};font-size:clamp(2.6rem,6vw,4rem);font-weight:800;margin-bottom:20px;line-height:1.06;color:#FFFFFF;">${headline}</h1>
-        <div style="display:flex;gap:12px;justify-content:center;">
-          <a href="#menu" style="${btnStyle}">${ctaText}</a>
-          <a href="#about" style="${btnOutline}">Explore</a>
-        </div>
-      </div>
-    </section>`;
-  } else {
-    heroHTML = `
-    <section id="hero" style="min-height:85vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;background:${t.pageBg};">
-      ${badge ? `<span style="display:inline-block;padding:8px 20px;border-radius:${t.buttonRadius};background:${t.accent};color:${t.accentText};font-size:13px;font-weight:700;margin-bottom:20px;">${badge.text || "30% OFF"}</span>` : ""}
-      ${subheadline ? `<p style="font-size:13px;text-transform:uppercase;letter-spacing:2px;color:${t.accent};margin-bottom:10px;">${subheadline}</p>` : ""}
-      <h1 style="font-family:${t.fontHeading};font-size:clamp(2.4rem,5vw,3.6rem);font-weight:800;margin-bottom:24px;line-height:1.06;color:${t.pageText};max-width:600px;">${headline}</h1>
-      <div style="display:flex;gap:12px;margin-bottom:40px;">
-        <a href="#menu" style="${btnStyle}">${ctaText}</a>
-      </div>
-      <div style="display:flex;gap:16px;justify-content:center;">
-        ${[0,1,2].map(i => `<div style="width:160px;height:160px;border-radius:${cardRadius};overflow:hidden;border:2px solid ${t.borderColor};">
-          <img src="${getImageUrl(config, "menu", i)}" style="width:100%;height:100%;object-fit:cover;" alt=""/>
-        </div>`).join("")}
-      </div>
-    </section>`;
-  }
+    </div>
+    ${badge ? `<div style="position:absolute;top:50%;right:15%;transform:translateY(-50%);width:160px;height:160px;border-radius:50%;background:${t.pageText};display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;z-index:2;">
+      <span style="font-size:11px;color:${t.pageBg}88;font-weight:500;">Limited Offer</span>
+      <span style="font-size:2.5rem;font-weight:800;color:${t.pageBg};line-height:1;">${badge.text || "50%"}</span>
+      <span style="font-size:11px;color:${t.pageBg}88;font-weight:500;">Discount</span>
+    </div>` : ""}
+  </section>`;
 
-  // Category cards
-  const catHTML = catShowcase?.enabled && catShowcase.items?.length ? `
-  <section id="categories" style="padding:64px 28px;background:#141210;">
-    <div style="max-width:1000px;margin:0 auto;text-align:center;">
-      <h2 style="font-family:${t.fontHeading};font-size:1.5rem;font-weight:700;margin-bottom:28px;color:${t.pageText};">${catShowcase.heading || "Categories"}</h2>
-      <div style="display:grid;grid-template-columns:repeat(${catShowcase.columns || 4},1fr);gap:16px;">
-        ${catShowcase.items.map((cat: any) => `
-          <div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:${cardRadius};padding:28px 16px;text-align:center;">
-            ${cat.emoji ? `<span style="font-size:2rem;display:block;margin-bottom:8px;">${cat.emoji}</span>` : ""}
-            <span style="font-weight:600;font-size:14px;color:${t.pageText};">${cat.title}</span>
-            ${cat.count ? `<br/><span style="font-size:11px;color:${t.pageText}66;">${cat.count}</span>` : ""}
+  // ─── CATEGORY GRID — 4-column with food images ───
+  const defaultCats = [
+    { title: "Main Dishes", count: "16 Items" },
+    { title: "Beverages", count: "12 Items" },
+    { title: "Desserts", count: "10 Items" },
+    { title: "Appetizers", count: "14 Items" },
+  ];
+  const catItems = catShowcase?.enabled && catShowcase.items?.length ? catShowcase.items : defaultCats;
+  const catHTML = `
+  <section id="categories" style="padding:80px 48px;background:${t.pageBg};">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div style="text-align:center;margin-bottom:48px;">
+        <h2 style="font-family:${t.fontHeading};font-size:clamp(1.8rem,3vw,2.4rem);font-weight:800;margin-bottom:16px;color:${t.pageText};">Discover Our Food Category</h2>
+        <p style="font-size:15px;color:${t.pageText}77;max-width:600px;margin:0 auto;line-height:1.7;">From sizzling starters to satisfying mains and sweet endings — our menu is thoughtfully organized into categories.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:32px;">
+        ${catItems.map((cat: any, i: number) => `
+          <div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:${cardRadius};overflow:hidden;position:relative;">
+            <div style="aspect-ratio:4/3;overflow:hidden;">
+              <img src="${getImageUrl(config, "menu", i)}" alt="${cat.title}" style="width:100%;height:100%;object-fit:cover;"/>
+            </div>
+            <div style="padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <span style="font-weight:700;font-size:15px;color:${t.pageText};">${cat.title}</span>
+                <br/><span style="font-size:12px;color:${t.pageText}66;">${cat.count || ""}</span>
+              </div>
+              <span style="color:${t.accent};font-size:16px;">→</span>
+            </div>
           </div>
         `).join("")}
       </div>
+      <div style="text-align:center;">
+        <a href="#menu" style="font-size:14px;color:${t.accent};text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:6px;">Browse More Categories →</a>
+      </div>
     </div>
-  </section>` : "";
+  </section>`;
 
-  // Menu grid
+  // ─── PROMO BANNERS — 2 cards side by side ───
+  const defaultPromos = [
+    { heading: "🔥 Delicious Deals Await!", description: "Enjoy Buy 1 Get 1 FREE on selected items every Friday!", cta_text: "Explore Menu" },
+    { heading: "🔥 20% OFF Your First Order!", description: "Use code YUM20 at checkout and enjoy the savings!", cta_text: "Explore Menu" },
+  ];
+  const promoItems = promos.length ? promos : defaultPromos;
+  const promoHTML = `
+  <section id="deals" style="padding:64px 48px;background:#141210;">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(2,1fr);gap:24px;">
+      ${promoItems.slice(0, 2).map((p: any) => `
+        <div style="background:linear-gradient(135deg, ${t.accent}22 0%, ${t.accent}08 100%);border:1px solid ${t.accent}33;border-radius:${cardRadius};padding:36px 28px;position:relative;overflow:hidden;">
+          <h3 style="font-family:${t.fontHeading};font-size:1.3rem;font-weight:800;margin-bottom:10px;color:${t.pageText};">${p.heading}</h3>
+          <p style="font-size:14px;color:${t.pageText}88;margin-bottom:20px;line-height:1.6;">${p.description}</p>
+          ${p.cta_text ? `<a href="#menu" style="font-size:14px;color:${t.accent};text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:6px;">${p.cta_text} →</a>` : ""}
+        </div>
+      `).join("")}
+    </div>
+  </section>`;
+
+  // ─── MENU GRID — 3×2 with price, category, name, description ───
   const menuHTML = `
-  <section id="menu" style="padding:72px 28px;background:${t.pageBg};">
-    <div style="max-width:1000px;margin:0 auto;text-align:center;">
-      <h2 style="font-family:${t.fontHeading};font-size:1.6rem;font-weight:800;margin-bottom:36px;color:${t.pageText};">${mainS.heading || "Featured"}</h2>
-      <div style="display:grid;grid-template-columns:repeat(${t.menuCols},1fr);gap:22px;">
+  <section id="menu" style="padding:80px 48px;background:${t.pageBg};">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:48px;">
+        <div>
+          <h2 style="font-family:${t.fontHeading};font-size:clamp(1.8rem,3vw,2.4rem);font-weight:800;margin-bottom:12px;color:${t.pageText};">Find Your Best Delicious Flavor</h2>
+          <p style="font-size:15px;color:${t.pageText}77;max-width:480px;line-height:1.7;">Scroll, select, and savor — our diverse menu brings together the best of local favorites and global flavors.</p>
+        </div>
+        <a href="#" style="font-size:14px;color:${t.accent};text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;">Browse More Dishes →</a>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(${t.menuCols},1fr);gap:24px;">
         ${items.map((item: any, idx: number) => {
           const imgSrc = getImageUrl(config, "menu", idx);
-          const itemBadge = item.badges?.[0] ? `<span style="position:absolute;top:10px;right:10px;padding:4px 12px;border-radius:${t.cardStyle === "sharp" ? "2px" : "16px"};background:${t.accent};color:${t.accentText};font-size:10px;font-weight:700;">${item.badges[0]}</span>` : "";
-          return `<div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:${cardRadius};overflow:hidden;position:relative;">
-            ${itemBadge}
-            <img src="${imgSrc}" alt="${item.title}" style="width:100%;height:${t.cardImageHeight};object-fit:cover;"/>
-            <div style="padding:16px;">
-              <div style="display:flex;justify-content:space-between;align-items:center;">
-                <span style="font-weight:700;font-size:14px;color:${t.pageText};">${item.title}</span>
-                <span style="font-weight:800;font-size:14px;color:${t.accent};">${item.price || ""}</span>
+          const category = item.category || (idx % 2 === 0 ? "Spicy & Zesty" : "Classic Flavor");
+          return `<div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:${cardRadius};overflow:hidden;">
+            <div style="aspect-ratio:16/10;overflow:hidden;">
+              <img src="${imgSrc}" alt="${item.title}" style="width:100%;height:100%;object-fit:cover;"/>
+            </div>
+            <div style="padding:20px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span style="font-weight:800;font-size:18px;color:${t.accent};">${item.price || ""}</span>
+                <span style="font-size:12px;color:${t.pageText}66;">${category}</span>
               </div>
-              ${item.description ? `<p style="font-size:12px;color:${t.pageText}77;margin-top:5px;">${item.description}</p>` : ""}
-              <button style="margin-top:10px;width:100%;padding:10px;border-radius:${t.buttonRadius};background:${t.accent}22;color:${t.accent};border:1px solid ${t.accent}44;font-weight:600;font-size:12px;cursor:pointer;">Add to Cart</button>
+              <h3 style="font-weight:700;font-size:16px;color:${t.pageText};margin-bottom:6px;">${item.title}</h3>
+              ${item.description ? `<p style="font-size:13px;color:${t.pageText}77;line-height:1.6;">${item.description}</p>` : ""}
             </div>
           </div>`;
         }).join("")}
@@ -406,80 +456,213 @@ export function renderYumix(ctx: RenderContext): string {
     </div>
   </section>`;
 
-  // Promos
-  const promoHTML = promos.length ? `
-  <section id="deals" style="padding:48px 28px;background:#141210;">
-    <div style="max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(${Math.min(promos.length, 2)},1fr);gap:20px;">
-      ${promos.map((p: any) => `
-        <div style="background:${t.accent}15;border:1px solid ${t.accent}33;border-radius:${cardRadius};padding:32px 24px;">
-          <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:8px;color:${t.pageText};">${p.heading}</h3>
-          <p style="font-size:0.85rem;color:${t.pageText}88;margin-bottom:16px;">${p.description}</p>
-          ${p.cta_text ? `<a href="#" style="padding:10px 24px;border-radius:${t.buttonRadius};background:${t.accent};color:${t.accentText};text-decoration:none;font-size:13px;font-weight:600;">${p.cta_text}</a>` : ""}
-        </div>
-      `).join("")}
+  // ─── ABOUT + STATS — "More Than Just Food" ───
+  const aboutHTML = `
+  <section id="about" style="padding:80px 48px;background:#141210;">
+    <div style="max-width:1200px;margin:0 auto;text-align:center;margin-bottom:56px;">
+      <h2 style="font-family:${t.fontHeading};font-size:clamp(2rem,4vw,2.8rem);font-weight:800;margin-bottom:16px;color:${t.pageText};">More Than Just Food – It's a Flavor Story</h2>
+      <p style="font-size:15px;color:${t.pageText}77;max-width:640px;margin:0 auto;line-height:1.7;">${story.description || `At ${name}, we offer bold flavors and fresh ingredients. From juicy burgers to refreshing drinks, every bite satisfies your cravings.`}</p>
     </div>
-  </section>` : "";
-
-  // Stats
-  const statsHTML = stats.length ? `
-  <section id="stats" style="padding:48px 28px;background:${t.pageBg};">
-    <div style="max-width:900px;margin:0 auto;display:flex;justify-content:space-around;text-align:center;flex-wrap:wrap;gap:24px;">
+    <div style="max-width:900px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:32px;text-align:center;">
       ${stats.map((st: any) => `
         <div>
-          <div style="font-size:2.2rem;font-weight:800;color:${t.accent};">${st.value}</div>
-          <div style="font-size:12px;color:${t.pageText}77;margin-top:4px;">${st.label}</div>
+          <div style="font-family:${t.fontHeading};font-size:2.5rem;font-weight:800;color:${t.accent};line-height:1;">${st.value}</div>
+          <div style="font-size:13px;color:${t.pageText}77;margin-top:8px;">${st.label}</div>
         </div>
       `).join("")}
     </div>
-  </section>` : "";
+  </section>`;
 
-  // Testimonials
+  // ─── WHY CHOOSE US — 4 feature cards ───
+  const defaultFeatures = [
+    { title: "Expertly Crafted Recipes", desc: "Our chefs mix creativity with flavor to deliver dishes that are both innovative and satisfying." },
+    { title: "Hygiene & Safety First", desc: "Strict standards ensure every dish is prepared in the cleanest, safest environment." },
+    { title: "Made with Premium Ingredients", desc: "We source only the freshest, highest-quality ingredients for an exceptional dining experience." },
+    { title: "Served with Love & Care", desc: "Every dish is plated beautifully and served with genuine warmth and attention." },
+  ];
+  const features = (offerS.features as any[]) || defaultFeatures;
+  const whyHTML = `
+  <section style="padding:80px 48px;background:${t.pageBg};">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;">
+        ${features.slice(0, 4).map((f: any) => `
+          <div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:${cardRadius};padding:28px 22px;">
+            <div style="width:44px;height:44px;border-radius:12px;background:${t.accent}15;display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+              <span style="color:${t.accent};font-size:18px;">✦</span>
+            </div>
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:8px;color:${t.pageText};">${f.title}</h3>
+            <p style="font-size:13px;color:${t.pageText}77;line-height:1.6;">${f.desc || f.description || ""}</p>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  </section>`;
+
+  // ─── CATERING — 3 event cards ───
+  const cateringHTML = `
+  <section style="padding:80px 48px;background:#141210;">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:48px;align-items:start;">
+        <div>
+          <h2 style="font-family:${t.fontHeading};font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;margin-bottom:16px;color:${t.pageText};">Catering Cravings for Every Celebration</h2>
+          <p style="font-size:14px;color:${t.pageText}77;line-height:1.7;margin-bottom:24px;">From intimate gatherings to grand celebrations, ${name} delivers delicious food options that impress every guest.</p>
+          <a href="#menu" style="font-size:14px;color:${t.accent};text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:6px;">Explore Menu →</a>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+          ${["Social Event", "Corporate", "Wedding"].map((ev, i) => `
+            <div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:${cardRadius};overflow:hidden;text-align:center;">
+              <div style="aspect-ratio:1/1;overflow:hidden;">
+                <img src="${getImageUrl(config, "menu", i + 3)}" alt="${ev}" style="width:100%;height:100%;object-fit:cover;"/>
+              </div>
+              <div style="padding:16px;">
+                <h4 style="font-weight:700;font-size:15px;color:${t.pageText};margin-bottom:4px;">${ev}</h4>
+                <span style="font-size:12px;color:${t.pageText}66;">80+ Packages Available</span>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </div>
+  </section>`;
+
+  // ─── TESTIMONIALS — 3 review cards ───
   const testimonialsHTML = testimonials.enabled && testimonials.items?.length ? `
-  <section id="reviews" style="padding:64px 28px;background:#0D0B08;">
-    <div style="max-width:1000px;margin:0 auto;text-align:center;">
-      <h2 style="font-family:${t.fontHeading};font-size:1.5rem;font-weight:700;margin-bottom:28px;color:${t.pageText};">${testimonials.heading || "Reviews"}</h2>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+  <section id="reviews" style="padding:80px 48px;background:${t.pageBg};">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:48px;">
+        <div>
+          <h2 style="font-family:${t.fontHeading};font-size:clamp(1.8rem,3vw,2.4rem);font-weight:800;margin-bottom:12px;color:${t.pageText};">Here's What Our Foodies Are Raving About!</h2>
+          <p style="font-size:14px;color:${t.pageText}77;max-width:440px;line-height:1.7;">We serve happiness, flavor, and unforgettable experiences. Here's what our customers say.</p>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:${t.fontHeading};font-size:1.4rem;font-weight:800;color:${t.pageText};">12K+ Happy Customers</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
         ${testimonials.items.slice(0, 3).map((r: any) => `
-          <div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:${cardRadius};padding:24px 20px;text-align:left;">
-            <p style="font-size:14px;color:${t.pageText}bb;line-height:1.6;font-style:italic;">"${r.quote}"</p>
-            <div style="margin-top:12px;"><span style="font-weight:600;font-size:13px;color:${t.pageText};">${r.name}</span></div>
+          <div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:${cardRadius};padding:28px 24px;">
+            <div style="color:${t.accent};font-size:14px;margin-bottom:16px;">★★★★★</div>
+            <p style="font-size:14px;color:${t.pageText}cc;line-height:1.7;margin-bottom:20px;">"${r.quote}"</p>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:40px;height:40px;border-radius:50%;background:${t.accent}22;display:flex;align-items:center;justify-content:center;font-weight:700;color:${t.accent};font-size:16px;">${(r.name || "G")[0]}</div>
+              <div>
+                <span style="font-weight:600;font-size:14px;color:${t.pageText};display:block;">${r.name}</span>
+                <span style="font-size:12px;color:${t.pageText}66;">Food Lover</span>
+              </div>
+            </div>
           </div>
         `).join("")}
       </div>
     </div>
   </section>` : "";
 
-  // Newsletter
-  const newsletterHTML = newsletter.enabled ? `
-  <section id="newsletter" style="padding:52px 28px;background:#141210;">
-    <div style="max-width:460px;margin:0 auto;text-align:center;">
-      <h3 style="font-family:${t.fontHeading};font-size:1.2rem;font-weight:700;margin-bottom:14px;color:${t.pageText};">${newsletter.heading || "Subscribe"}</h3>
-      <div style="display:flex;gap:8px;">
-        <input type="email" placeholder="Your email" style="flex:1;padding:12px 16px;border-radius:${t.buttonRadius};border:1px solid ${t.borderColor};background:${t.cardBg};color:${t.pageText};font-size:14px;"/>
-        <button style="padding:12px 24px;border-radius:${t.buttonRadius};background:${t.accent};color:${t.accentText};border:none;font-weight:700;font-size:14px;cursor:pointer;">${newsletter.cta_text || "Subscribe"}</button>
+  // ─── FAQ ACCORDION — 2-column layout ───
+  const faqItems = (offerS.faq as any[]) || [
+    { q: "What kind of food do you offer?", a: "We offer a wide range of dishes from local favorites to global flavors, all made fresh daily." },
+    { q: "Do you offer delivery?", a: "Yes! We deliver to your doorstep. Order through our menu section above." },
+    { q: "Can I customize my order?", a: "Absolutely! Let us know your preferences and dietary requirements." },
+    { q: "What are your opening hours?", a: "We're open daily from 10 AM to 11 PM. Check our contact section for details." },
+  ];
+  const faqHTML = faqItems.length ? `
+  <section id="faq" style="padding:80px 48px;background:#141210;">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div style="text-align:center;margin-bottom:48px;">
+        <h2 style="font-family:${t.fontHeading};font-size:clamp(1.8rem,3vw,2.4rem);font-weight:800;color:${t.pageText};">Frequently Asked Questions</h2>
+        <p style="font-size:14px;color:${t.pageText}77;max-width:500px;margin:8px auto 0;line-height:1.7;">Curious about ${name}? We've answered the most common questions about delivery, customization, and payment!</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:48px;align-items:start;">
+        <div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:${cardRadius};padding:28px;">
+          <div style="aspect-ratio:4/3;overflow:hidden;border-radius:12px;margin-bottom:16px;">
+            <img src="${getImageUrl(config, "about", 0)}" alt="FAQ" style="width:100%;height:100%;object-fit:cover;"/>
+          </div>
+          <p style="font-size:13px;color:${t.pageText}77;line-height:1.6;">Still have questions? Don't worry — our team is ready to help.</p>
+          <a href="#contact" style="margin-top:12px;font-size:14px;color:${t.accent};text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:6px;">Contact Us →</a>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          ${faqItems.map((faq: any) => `
+            <div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:${cardRadius};padding:20px 24px;">
+              <h4 style="font-weight:600;font-size:15px;color:${t.pageText};margin-bottom:8px;">${faq.q}</h4>
+              <p style="font-size:13px;color:${t.pageText}77;line-height:1.6;">${faq.a}</p>
+            </div>
+          `).join("")}
+        </div>
       </div>
     </div>
   </section>` : "";
 
-  // Footer
-  const footerHTML = `
-  <footer id="contact" style="padding:48px 28px;background:#080705;border-top:1px solid ${t.borderColor};">
-    <div style="max-width:900px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:28px;">
-      ${footerCols.map((col: any) => `<div><h4 style="font-weight:600;font-size:13px;margin-bottom:10px;color:${t.accent};">${col.title}</h4>${(col.links as string[]).map((l: string) => `<p style="font-size:12px;color:${t.pageText}55;margin-bottom:4px;">${l}</p>`).join("")}</div>`).join("")}
+  // ─── NEWSLETTER — Email subscription CTA ───
+  const newsletterHTML = `
+  <section id="newsletter" style="padding:80px 48px;background:${t.pageBg};position:relative;overflow:hidden;">
+    <div style="max-width:600px;margin:0 auto;text-align:center;">
+      <p style="font-size:14px;color:${t.accent};font-weight:600;margin-bottom:12px;">${newsletter.eyebrow || "Subscribe now and get 10% off your first order!"}</p>
+      <h2 style="font-family:${t.fontHeading};font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;margin-bottom:12px;color:${t.pageText};">${newsletter.heading || "Sign Up for Tasty Updates"}</h2>
+      <p style="font-size:14px;color:${t.pageText}77;margin-bottom:28px;line-height:1.6;">Be the first to know about our newest dishes, exclusive discounts, seasonal specials, and foodie tips.</p>
+      <div style="display:flex;gap:0;max-width:480px;margin:0 auto;background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:${t.buttonRadius};overflow:hidden;">
+        <input type="email" placeholder="Enter your email" style="flex:1;padding:14px 20px;border:none;background:transparent;color:${t.pageText};font-size:14px;outline:none;"/>
+        <button style="padding:14px 28px;background:${t.accent};color:${t.accentText};border:none;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:6px;">${newsletter.cta_text || "Subscribe"} →</button>
+      </div>
     </div>
-    <p style="text-align:center;font-size:11px;color:${t.pageText}33;margin-top:32px;">${footerS.copyright || `${name} — All rights reserved.`}</p>
+  </section>`;
+
+  // ─── FOOTER — Logo + description + social + 3 columns ───
+  const footerHTML = `
+  <footer id="contact" style="padding:64px 48px 32px;background:#0A0908;border-top:1px solid ${t.borderColor};">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;">
+      <div>
+        ${logo}
+        <p style="font-size:13px;color:${t.pageText}66;margin-top:16px;line-height:1.7;max-width:280px;">${description}</p>
+        <div style="margin-top:20px;">
+          <span style="font-size:13px;color:${t.pageText}88;display:block;margin-bottom:10px;">Follow us on</span>
+          <div style="display:flex;gap:10px;">
+            ${["IG", "X", "IN", "FB"].map(s => `<div style="width:34px;height:34px;border-radius:50%;border:1px solid ${t.borderColor};display:flex;align-items:center;justify-content:center;font-size:11px;color:${t.pageText}88;">${s}</div>`).join("")}
+          </div>
+        </div>
+      </div>
+      ${footerCols.length ? footerCols.map((col: any) => `
+        <div>
+          <h4 style="font-weight:700;font-size:14px;margin-bottom:16px;color:${t.accent};">${col.title}</h4>
+          ${(col.links as string[]).map((l: string) => `<p style="font-size:13px;color:${t.pageText}55;margin-bottom:8px;">${l}</p>`).join("")}
+        </div>
+      `).join("") : `
+        <div>
+          <h4 style="font-weight:700;font-size:14px;margin-bottom:16px;color:${t.accent};">Useful Links</h4>
+          <p style="font-size:13px;color:${t.pageText}55;margin-bottom:8px;">Contact Us</p>
+          <p style="font-size:13px;color:${t.pageText}55;margin-bottom:8px;">Terms & Conditions</p>
+          <p style="font-size:13px;color:${t.pageText}55;margin-bottom:8px;">Privacy Policy</p>
+        </div>
+        <div>
+          <h4 style="font-weight:700;font-size:14px;margin-bottom:16px;color:${t.accent};">Quick Links</h4>
+          <p style="font-size:13px;color:${t.pageText}55;margin-bottom:8px;">Home</p>
+          <p style="font-size:13px;color:${t.pageText}55;margin-bottom:8px;">Food Menu</p>
+          <p style="font-size:13px;color:${t.pageText}55;margin-bottom:8px;">About Us</p>
+        </div>
+        <div>
+          <h4 style="font-weight:700;font-size:14px;margin-bottom:16px;color:${t.accent};">Get in Touch</h4>
+          <p style="font-size:13px;color:${t.pageText}55;margin-bottom:8px;">${(config as any).phone || "+1 234 567 890"}</p>
+          <p style="font-size:13px;color:${t.pageText}55;margin-bottom:8px;">${(config as any).email || "hello@restaurant.com"}</p>
+        </div>
+      `}
+    </div>
+    <div style="max-width:1200px;margin:40px auto 0;padding-top:20px;border-top:1px solid ${t.borderColor};">
+      <p style="text-align:center;font-size:12px;color:${t.pageText}33;">${footerS.copyright || `© ${new Date().getFullYear()} ${name}. All rights reserved.`}</p>
+    </div>
   </footer>`;
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>${name}</title>
-<style>${baseStyles(true, t.pageText, t.pageBg)}</style></head><body>
-<nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:${t.pageBg}ee;backdrop-filter:blur(12px);border-bottom:1px solid ${t.borderColor};padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:54px;">
-  ${logo}
-  <div style="display:flex;gap:20px;align-items:center;">
-    ${navItems.map(n => `<a href="${navHref(n)}" style="text-decoration:none;font-size:13px;color:${t.pageText}88;font-weight:500;">${n}</a>`).join("")}
-    <a href="#menu" style="padding:8px 20px;border-radius:${t.buttonRadius};background:${t.accent};color:${t.accentText};text-decoration:none;font-size:12px;font-weight:600;">Order</a>
-  </div>
-</nav>
-${heroHTML}${catHTML}${menuHTML}${promoHTML}${statsHTML}${testimonialsHTML}${newsletterHTML}${footerHTML}
+<style>${baseStyles(true, t.pageText, t.pageBg)}
+  @media (max-width: 768px) {
+    [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
+    [style*="grid-template-columns:repeat(3"] { grid-template-columns: 1fr !important; }
+    [style*="grid-template-columns:1fr 1.5fr"] { grid-template-columns: 1fr !important; }
+    [style*="grid-template-columns:1fr 2fr"] { grid-template-columns: 1fr !important; }
+    [style*="grid-template-columns:2fr 1fr 1fr 1fr"] { grid-template-columns: 1fr !important; }
+    nav { padding: 0 16px !important; }
+    section { padding-left: 20px !important; padding-right: 20px !important; }
+    footer { padding-left: 20px !important; padding-right: 20px !important; }
+  }
+</style></head><body>
+${navHTML}
+${heroHTML}${catHTML}${promoHTML}${menuHTML}${aboutHTML}${whyHTML}${cateringHTML}${testimonialsHTML}${faqHTML}${newsletterHTML}${footerHTML}
 </body></html>`;
 }
 
