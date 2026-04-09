@@ -485,24 +485,24 @@ ${heroHTML}${catHTML}${menuHTML}${promoHTML}${statsHTML}${testimonialsHTML}${new
 
 
 // ═══════════════════════════════════════════════════════════════════
-// ZOOOM — Clean bright modern
+// ZOOOM — Plateria-inspired premium restaurant template
 // ═══════════════════════════════════════════════════════════════════
 
 const ZOOOM_VARIANTS: VariantTheme[] = [
   {
-    accent: "#10B981", accentText: "#FFFFFF", pageBg: "#FFFFFF", pageText: "#1A1A1A",
-    cardBg: "#FFFFFF", borderColor: "#E5E7EB", fontHeading: "'DM Sans', sans-serif",
-    heroLayout: "split", cardStyle: "rounded", buttonRadius: "28px", menuCols: 4, cardImageHeight: "170px",
+    accent: "#F97316", accentText: "#FFFFFF", pageBg: "#FFFFFF", pageText: "#1A1A1A",
+    cardBg: "#FFFFFF", borderColor: "#E5E7EB", fontHeading: "'Playfair Display', serif",
+    heroLayout: "centered", cardStyle: "rounded", buttonRadius: "999px", menuCols: 4, cardImageHeight: "200px",
   },
   {
-    accent: "#6366F1", accentText: "#FFFFFF", pageBg: "#FAFBFF", pageText: "#1E1B4B",
-    cardBg: "#FFFFFF", borderColor: "#E0E0F0", fontHeading: "'Poppins', sans-serif",
-    heroLayout: "centered", cardStyle: "pill", buttonRadius: "24px", menuCols: 3, cardImageHeight: "200px",
+    accent: "#D97706", accentText: "#FFFFFF", pageBg: "#FFFDF8", pageText: "#1C1917",
+    cardBg: "#FFFFFF", borderColor: "#E7E5E4", fontHeading: "'Playfair Display', serif",
+    heroLayout: "centered", cardStyle: "rounded", buttonRadius: "999px", menuCols: 3, cardImageHeight: "220px",
   },
   {
-    accent: "#0EA5E9", accentText: "#FFFFFF", pageBg: "#F8FFFE", pageText: "#0F172A",
-    cardBg: "#FFFFFF", borderColor: "#D1E9E4", fontHeading: "'Outfit', sans-serif",
-    heroLayout: "split", cardStyle: "sharp", buttonRadius: "6px", menuCols: 4, cardImageHeight: "160px",
+    accent: "#EA580C", accentText: "#FFFFFF", pageBg: "#FFF7ED", pageText: "#171717",
+    cardBg: "#FFFFFF", borderColor: "#FED7AA", fontHeading: "'Playfair Display', serif",
+    heroLayout: "centered", cardStyle: "rounded", buttonRadius: "999px", menuCols: 4, cardImageHeight: "200px",
   },
 ];
 
@@ -523,140 +523,226 @@ export function renderZooom(ctx: RenderContext): string {
   const story = offerS.story_block || {};
   const testimonials = offerS.testimonials || {};
   const footerCols = (footerS.columns as any[]) || [];
-  const navItems = (headerS.nav_items as string[]) || ["Home", "Menu", "Delivery", "Contact"];
-  const headline = heroS.headline || "Your Favorite Food, Delivered Fast";
-  const subheadline = heroS.subheadline || "";
-  const ctaText = heroS.cta_text || "Order Now";
-  const softBg = variantIndex === 1 ? "#F0F0FF" : variantIndex === 2 ? "#F0FFFE" : "#F9FAFB";
-  const cardRadius = t.cardStyle === "sharp" ? "6px" : t.cardStyle === "pill" ? "20px" : "14px";
+  const navItems = (headerS.nav_items as string[]) || ["About", "Menu", "Gallery", "Contact"];
+  const headline = heroS.headline || "Where every meal is a chef masterpiece";
+  const subheadline = heroS.subheadline || "We bring you the finest flavors, carefully crafted with the freshest ingredients";
+  const ctaText = heroS.cta_text || "Book a table";
+  const warmBg = "#FFF8F2";
 
   const logo = config.userLogoUrl
-    ? `<img src="${config.userLogoUrl}" alt="${name}" style="height:28px;"/>`
-    : `<span style="font-family:${t.fontHeading};font-weight:700;font-size:20px;color:${t.pageText};">${name}</span>`;
+    ? `<img src="${config.userLogoUrl}" alt="${name}" style="height:32px;"/>`
+    : `<span style="font-family:${t.fontHeading};font-weight:700;font-size:22px;color:${t.pageText};">${name}</span>`;
 
-  const btnStyle = `padding:14px 32px;border-radius:${t.buttonRadius};background:${t.accent};color:${t.accentText};text-decoration:none;font-weight:700;font-size:14px;display:inline-block;`;
-  const btnOutline = `padding:14px 24px;border-radius:${t.buttonRadius};background:transparent;color:${t.pageText};text-decoration:none;font-weight:600;font-size:14px;border:1px solid ${t.borderColor};display:inline-block;`;
+  const btnPrimary = `padding:14px 36px;border-radius:${t.buttonRadius};background:${t.accent};color:${t.accentText};text-decoration:none;font-weight:600;font-size:15px;display:inline-block;border:none;cursor:pointer;`;
+  const btnOutline = `padding:14px 36px;border-radius:${t.buttonRadius};background:transparent;color:${t.pageText};text-decoration:none;font-weight:500;font-size:15px;border:1px solid ${t.borderColor};display:inline-block;`;
 
-  // HERO
-  let heroHTML = "";
-  if (t.heroLayout === "split") {
-    const imgShape = variantIndex === 2 ? "border-radius:12px;" : "border-radius:24px;";
-    heroHTML = `
-    <section id="hero" style="min-height:80vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:100px 48px 80px;gap:48px;background:${t.pageBg};">
-      <div>
-        ${subheadline ? `<p style="font-size:13px;color:${t.accent};font-weight:600;margin-bottom:10px;">${subheadline}</p>` : ""}
-        <h1 style="font-family:${t.fontHeading};font-size:clamp(2.4rem,5vw,3.4rem);font-weight:800;margin-bottom:20px;line-height:1.08;color:${t.pageText};">${headline}</h1>
-        <div style="display:flex;gap:12px;">
-          <a href="#menu" style="${btnStyle}">${ctaText}</a>
-          <a href="#about" style="${btnOutline}">Learn More</a>
-        </div>
-      </div>
-      <div style="${imgShape}overflow:hidden;aspect-ratio:1/1;box-shadow:0 20px 60px rgba(0,0,0,0.08);">
-        <img src="${heroImg}" alt="${headline}" style="width:100%;height:100%;object-fit:cover;"/>
-      </div>
-    </section>`;
-  } else {
-    heroHTML = `
-    <section id="hero" style="min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 60px;background:${t.pageBg};">
-      ${subheadline ? `<p style="font-size:13px;color:${t.accent};font-weight:600;margin-bottom:10px;">${subheadline}</p>` : ""}
-      <h1 style="font-family:${t.fontHeading};font-size:clamp(2.4rem,5vw,3.4rem);font-weight:800;margin-bottom:20px;line-height:1.08;color:${t.pageText};max-width:640px;">${headline}</h1>
-      <div style="display:flex;gap:12px;margin-bottom:40px;">
-        <a href="#menu" style="${btnStyle}">${ctaText}</a>
-        <a href="#about" style="${btnOutline}">Explore</a>
-      </div>
-      <div style="border-radius:${cardRadius};overflow:hidden;width:80%;max-width:700px;aspect-ratio:16/9;box-shadow:0 20px 60px rgba(0,0,0,0.1);">
-        <img src="${heroImg}" alt="${headline}" style="width:100%;height:100%;object-fit:cover;"/>
-      </div>
-    </section>`;
-  }
+  // NAV — Plateria style: logo left, nav links center, CTA right
+  const navHTML = `
+  <nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:${t.pageBg}ee;backdrop-filter:blur(16px);padding:0 48px;display:flex;align-items:center;justify-content:space-between;height:72px;">
+    <div style="flex-shrink:0;">${logo}</div>
+    <div style="display:flex;gap:32px;align-items:center;">
+      ${navItems.map(n => `<a href="${navHref(n)}" style="text-decoration:none;font-size:15px;color:${t.pageText};font-weight:500;padding:6px 12px;border-radius:999px;transition:background 0.2s;">${n}</a>`).join("")}
+    </div>
+    <a href="#menu" style="${btnPrimary}font-size:14px;padding:12px 28px;">${ctaText}</a>
+  </nav>`;
 
-  // Categories
-  const catHTML = catShowcase?.enabled && catShowcase.items?.length ? `
-  <section id="categories" style="padding:48px 28px;background:${softBg};">
-    <div style="max-width:1000px;margin:0 auto;text-align:center;">
-      <h2 style="font-family:${t.fontHeading};font-size:1.3rem;font-weight:700;margin-bottom:24px;color:${t.pageText};">${catShowcase.heading || "Categories"}</h2>
-      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
-        ${catShowcase.items.map((cat: any) => `
-          <div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:${cardRadius};padding:20px 24px;text-align:center;min-width:120px;">
-            ${cat.emoji ? `<span style="font-size:1.8rem;display:block;margin-bottom:6px;">${cat.emoji}</span>` : ""}
-            <span style="font-weight:600;font-size:13px;color:${t.pageText};">${cat.title}</span>
+  // HERO — Plateria centered style with tagline
+  const heroTagline = heroS.tagline || "PREMIUM RESTAURANT";
+  const heroHTML = `
+  <section id="hero" style="min-height:90vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:140px 24px 60px;background:${warmBg};">
+    <div style="max-width:1200px;margin:0 auto;width:100%;">
+      <p style="font-size:12px;letter-spacing:3px;text-transform:uppercase;color:${t.accent};font-weight:600;margin-bottom:24px;">${heroTagline}</p>
+      <h1 style="font-family:${t.fontHeading};font-size:clamp(2.6rem,5vw,4rem);font-weight:700;margin-bottom:24px;line-height:1.15;color:${t.pageText};max-width:700px;margin-left:auto;margin-right:auto;">${headline}</h1>
+      <p style="font-size:16px;color:${t.pageText}99;max-width:500px;margin:0 auto 32px;line-height:1.7;">${subheadline}</p>
+      <div style="display:flex;gap:16px;justify-content:center;align-items:center;">
+        <a href="#menu" style="${btnPrimary}">${ctaText}</a>
+        <span style="font-size:14px;color:${t.pageText}88;">(4.9/5)</span>
+        <span style="color:${t.accent};font-size:16px;">★★★★★</span>
+      </div>
+    </div>
+  </section>`;
+
+  // FEATURE CARDS — "Best dining experience" section
+  const featureItems = (offerS.features as any[]) || [
+    { number: "01", title: "Authentic Flavors", desc: "We take pride in offering an array of dishes made with love & quality" },
+    { number: "02", title: "Cozy Ambiance", desc: "Our restaurant provides the perfect setting to enjoy your food" },
+    { number: "03", title: "Exceptional Service", desc: "Our team is dedicated to making your dining experience smooth" },
+  ];
+  const featuresHTML = `
+  <section id="about" style="padding:80px 24px;background:${t.pageBg};">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div style="text-align:center;margin-bottom:48px;">
+        <p style="font-size:12px;letter-spacing:3px;text-transform:uppercase;color:${t.accent};font-weight:600;margin-bottom:16px;">Best Dining Experience</p>
+        <h2 style="font-family:${t.fontHeading};font-size:clamp(1.8rem,3vw,2.4rem);font-weight:700;color:${t.pageText};max-width:600px;margin:0 auto;">Best dining experience with every dish</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:48px;">
+        ${featureItems.slice(0,3).map((f: any, i: number) => `
+          <div style="text-align:center;padding:32px 24px;">
+            <div style="font-family:${t.fontHeading};font-size:3rem;font-weight:700;color:${t.pageText}15;margin-bottom:12px;">0${i + 1}</div>
+            <h3 style="font-size:16px;font-weight:600;margin-bottom:8px;color:${t.pageText};">${f.title}</h3>
+            <p style="font-size:14px;color:${t.pageText}77;line-height:1.6;">${f.desc}</p>
           </div>
         `).join("")}
       </div>
     </div>
-  </section>` : "";
+  </section>`;
 
-  // Menu grid
+  // MENU — Category tabs + grid
+  const categories = catShowcase?.items?.map((c: any) => c.title) || ["Full Menu", "Courses", "Desserts", "Starters"];
   const menuHTML = `
-  <section id="menu" style="padding:72px 28px;background:${t.pageBg};">
-    <div style="max-width:1100px;margin:0 auto;text-align:center;">
-      <h2 style="font-family:${t.fontHeading};font-size:1.5rem;font-weight:700;margin-bottom:36px;color:${t.pageText};">${mainS.heading || "Browse Our Menu"}</h2>
+  <section id="menu" style="padding:80px 24px;background:${t.pageBg};">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div style="text-align:center;margin-bottom:16px;">
+        <p style="font-size:12px;letter-spacing:3px;text-transform:uppercase;color:${t.accent};font-weight:600;margin-bottom:16px;">This is what we serve you</p>
+        <h2 style="font-family:${t.fontHeading};font-size:clamp(1.8rem,3vw,2.4rem);font-weight:700;color:${t.pageText};max-width:600px;margin:0 auto 32px;">Discover the perfect meal for every taste</h2>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:40px;">
+        ${categories.map((cat: string, i: number) => `<button style="padding:10px 24px;border-radius:999px;border:1px solid ${i === 0 ? t.accent : t.borderColor};background:${i === 0 ? t.accent : 'transparent'};color:${i === 0 ? t.accentText : t.pageText};font-size:14px;font-weight:500;cursor:pointer;">${cat}</button>`).join("")}
+      </div>
       <div style="display:grid;grid-template-columns:repeat(${t.menuCols},1fr);gap:20px;">
         ${items.map((item: any, idx: number) => {
           const imgSrc = getImageUrl(config, "menu", idx);
-          const itemBadge = item.badges?.[0] ? `<span style="position:absolute;top:8px;left:8px;padding:3px 10px;border-radius:10px;background:${t.accent};color:${t.accentText};font-size:10px;font-weight:600;">${item.badges[0]}</span>` : "";
-          return `<div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:${cardRadius};overflow:hidden;position:relative;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-            ${itemBadge}
-            <img src="${imgSrc}" alt="${item.title}" style="width:100%;height:${t.cardImageHeight};object-fit:cover;"/>
-            <div style="padding:14px 16px;">
-              <div style="display:flex;justify-content:space-between;align-items:center;">
-                <span style="font-weight:600;font-size:13px;color:${t.pageText};">${item.title}</span>
-                <span style="font-weight:700;font-size:13px;color:${t.accent};">${item.price || ""}</span>
-              </div>
-              ${item.description ? `<p style="font-size:11px;color:${t.pageText}77;margin-top:4px;">${item.description}</p>` : ""}
-              <button style="margin-top:8px;width:100%;padding:8px;border-radius:${t.buttonRadius};background:${t.accent}11;color:${t.accent};border:1px solid ${t.accent}33;font-weight:600;font-size:11px;cursor:pointer;">Add +</button>
+          return `<a href="#" style="text-decoration:none;color:inherit;background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:16px;overflow:hidden;transition:box-shadow 0.2s;">
+            <div style="aspect-ratio:1/1;overflow:hidden;">
+              <img src="${imgSrc}" alt="${item.title}" style="width:100%;height:100%;object-fit:cover;"/>
             </div>
-          </div>`;
+            <div style="padding:16px;">
+              <div style="font-weight:600;font-size:15px;color:${t.pageText};margin-bottom:4px;">${item.title}</div>
+              <div style="font-weight:600;font-size:14px;color:${t.pageText}88;">${item.price || ""}</div>
+            </div>
+          </a>`;
         }).join("")}
       </div>
     </div>
   </section>`;
 
-  // Story
+  // WHY CHOOSE US — 6 icon cards
+  const whyItems = (offerS.why_choose as any[]) || [
+    { title: "Fresh Ingredients", desc: "Only the freshest ingredients are used in our dishes daily" },
+    { title: "Creative Plating", desc: "Every meal is beautifully plated, showcasing our culinary art" },
+    { title: "Artisan Recipes", desc: "Each dish is made with our unique, handcrafted artisan recipes" },
+    { title: "Locally Sourced", desc: "We work with local farmers to bring the best ingredients" },
+    { title: "Sustainable Practices", desc: "We focus on reducing food waste while supporting sustainability" },
+    { title: "Exceptional Service", desc: "Delivering personalized service for an unforgettable dining experience" },
+  ];
+  const whyHTML = `
+  <section style="padding:80px 24px;background:${warmBg};">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div style="text-align:center;margin-bottom:48px;">
+        <p style="font-size:12px;letter-spacing:3px;text-transform:uppercase;color:${t.accent};font-weight:600;margin-bottom:16px;">Discover what makes us special</p>
+        <h2 style="font-family:${t.fontHeading};font-size:clamp(1.8rem,3vw,2.4rem);font-weight:700;color:${t.pageText};max-width:600px;margin:0 auto;">Why choose ${name} for your dining experience</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+        ${whyItems.slice(0,6).map((w: any) => `
+          <div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:16px;padding:28px 24px;">
+            <div style="width:40px;height:40px;border-radius:12px;background:${t.accent}15;display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+              <span style="color:${t.accent};font-size:18px;">✦</span>
+            </div>
+            <h3 style="font-size:16px;font-weight:600;margin-bottom:8px;color:${t.pageText};">${w.title}</h3>
+            <p style="font-size:14px;color:${t.pageText}77;line-height:1.6;">${w.desc}</p>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  </section>`;
+
+  // STORY / About
   const storyHTML = story.enabled ? `
-  <section id="about" style="padding:72px 28px;background:${softBg};">
-    <div style="max-width:620px;margin:0 auto;text-align:center;">
-      ${story.eyebrow ? `<p style="font-size:11px;text-transform:uppercase;letter-spacing:2px;color:${t.accent};margin-bottom:8px;font-weight:600;">${story.eyebrow}</p>` : ""}
-      <h2 style="font-family:${t.fontHeading};font-size:1.6rem;font-weight:700;margin-bottom:14px;color:${t.pageText};">${story.heading || ""}</h2>
-      <p style="font-size:0.95rem;color:${t.pageText}88;line-height:1.8;">${story.description || ""}</p>
+  <section style="padding:80px 24px;background:${t.pageBg};">
+    <div style="max-width:800px;margin:0 auto;text-align:center;">
+      ${story.eyebrow ? `<p style="font-size:12px;letter-spacing:3px;text-transform:uppercase;color:${t.accent};font-weight:600;margin-bottom:16px;">${story.eyebrow}</p>` : ""}
+      <h2 style="font-family:${t.fontHeading};font-size:clamp(1.8rem,3vw,2.4rem);font-weight:700;margin-bottom:20px;color:${t.pageText};">${story.heading || ""}</h2>
+      <p style="font-size:16px;color:${t.pageText}88;line-height:1.8;">${story.description || ""}</p>
     </div>
   </section>` : "";
 
-  // Testimonials
+  // TESTIMONIALS — Review cards
   const testimonialsHTML = testimonials.enabled && testimonials.items?.length ? `
-  <section id="reviews" style="padding:64px 28px;background:${t.pageBg};">
-    <div style="max-width:1000px;margin:0 auto;text-align:center;">
-      <h2 style="font-family:${t.fontHeading};font-size:1.4rem;font-weight:700;margin-bottom:28px;color:${t.pageText};">${testimonials.heading || "Reviews"}</h2>
+  <section id="reviews" style="padding:80px 24px;background:${t.pageBg};">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div style="text-align:center;margin-bottom:48px;">
+        <p style="font-size:12px;letter-spacing:3px;text-transform:uppercase;color:${t.accent};font-weight:600;margin-bottom:16px;">Real experiences, real satisfaction</p>
+        <h2 style="font-family:${t.fontHeading};font-size:clamp(1.8rem,3vw,2.4rem);font-weight:700;color:${t.pageText};">Customer reviews that speak for themselves</h2>
+      </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
         ${testimonials.items.slice(0, 3).map((r: any) => `
-          <div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:${cardRadius};padding:24px 20px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
-            <p style="font-size:14px;color:${t.pageText}bb;line-height:1.6;font-style:italic;">"${r.quote}"</p>
-            <div style="margin-top:12px;"><span style="font-weight:600;font-size:13px;color:${t.pageText};">${r.name}</span></div>
+          <div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:16px;padding:28px 24px;">
+            <div style="color:${t.accent};font-size:14px;margin-bottom:16px;">★★★★★</div>
+            <p style="font-size:15px;color:${t.pageText}bb;line-height:1.7;margin-bottom:20px;">"${r.quote}"</p>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:40px;height:40px;border-radius:50%;background:${t.accent}20;display:flex;align-items:center;justify-content:center;font-weight:600;color:${t.accent};font-size:16px;">${(r.name || "G")[0]}</div>
+              <span style="font-weight:600;font-size:14px;color:${t.pageText};">${r.name}</span>
+            </div>
           </div>
         `).join("")}
       </div>
     </div>
   </section>` : "";
 
-  // Footer
-  const footerHTML = `
-  <footer id="contact" style="padding:48px 28px;background:${softBg};border-top:1px solid ${t.borderColor};">
-    <div style="max-width:900px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:28px;">
-      ${footerCols.map((col: any) => `<div><h4 style="font-weight:600;font-size:13px;margin-bottom:10px;color:${t.pageText};">${col.title}</h4>${(col.links as string[]).map((l: string) => `<p style="font-size:12px;color:${t.pageText}77;margin-bottom:4px;">${l}</p>`).join("")}</div>`).join("")}
+  // CTA BANNER — Orange full-width
+  const ctaBannerHTML = `
+  <section style="background:${t.accent};padding:80px 24px;position:relative;overflow:hidden;">
+    <div style="max-width:700px;margin:0 auto;text-align:center;position:relative;z-index:1;">
+      <p style="font-size:12px;letter-spacing:3px;text-transform:uppercase;color:${t.accentText}cc;font-weight:600;margin-bottom:16px;">Reserve your spot today</p>
+      <h2 style="font-family:${t.fontHeading};font-size:clamp(2rem,4vw,3rem);font-weight:700;color:${t.accentText};margin-bottom:20px;">Ready to indulge in a memorable meal?</h2>
+      <p style="font-size:16px;color:${t.accentText}cc;margin-bottom:32px;line-height:1.7;">Reserve your table now and enjoy a delightful dining experience with exceptional flavors</p>
+      <div style="display:flex;gap:16px;justify-content:center;align-items:center;">
+        <a href="#menu" style="padding:14px 36px;border-radius:${t.buttonRadius};background:${t.accentText};color:${t.accent};text-decoration:none;font-weight:600;font-size:15px;">${ctaText}</a>
+        <span style="font-size:14px;color:${t.accentText}88;">(4.9/5)</span>
+        <span style="color:${t.accentText};font-size:16px;">★★★★★</span>
+      </div>
     </div>
-    <p style="text-align:center;font-size:11px;color:${t.pageText}55;margin-top:32px;">${footerS.copyright || `${name} — All rights reserved.`}</p>
+  </section>`;
+
+  // FOOTER — Plateria 4-column style
+  const footerHTML = `
+  <footer id="contact" style="padding:64px 24px 48px;background:${t.pageBg};border-top:1px solid ${t.borderColor};">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;">
+      <div>
+        ${logo}
+        <p style="font-size:14px;color:${t.pageText}77;margin-top:16px;line-height:1.7;max-width:280px;">${footerS.description || `A modern restaurant with premium dining experiences`}</p>
+        <div style="display:flex;gap:12px;margin-top:20px;">
+          ${["X", "IG", "FB", "TT"].map(s => `<div style="width:36px;height:36px;border-radius:50%;border:1px solid ${t.borderColor};display:flex;align-items:center;justify-content:center;font-size:11px;color:${t.pageText}88;">${s}</div>`).join("")}
+        </div>
+      </div>
+      ${footerCols.length ? footerCols.map((col: any) => `
+        <div>
+          <h4 style="font-weight:600;font-size:15px;margin-bottom:16px;color:${t.pageText};">${col.title}</h4>
+          ${(col.links as string[]).map((l: string) => `<p style="font-size:14px;color:${t.pageText}77;margin-bottom:10px;">${l}</p>`).join("")}
+        </div>
+      `).join("") : `
+        <div>
+          <h4 style="font-weight:600;font-size:15px;margin-bottom:16px;color:${t.pageText};">Menu</h4>
+          <p style="font-size:14px;color:${t.pageText}77;margin-bottom:10px;">Home</p>
+          <p style="font-size:14px;color:${t.pageText}77;margin-bottom:10px;">About</p>
+          <p style="font-size:14px;color:${t.pageText}77;margin-bottom:10px;">Menu</p>
+          <p style="font-size:14px;color:${t.pageText}77;margin-bottom:10px;">Gallery</p>
+        </div>
+        <div>
+          <h4 style="font-weight:600;font-size:15px;margin-bottom:16px;color:${t.pageText};">Contact</h4>
+          <p style="font-size:14px;color:${t.pageText}77;margin-bottom:10px;">${(config as any).phone || "+123 456 789"}</p>
+          <p style="font-size:14px;color:${t.pageText}77;margin-bottom:10px;">${(config as any).email || "hello@restaurant.com"}</p>
+          <p style="font-size:14px;color:${t.pageText}77;margin-bottom:10px;">${(config as any).address || "Los Angeles"}</p>
+        </div>
+      `}
+    </div>
+    <div style="max-width:1200px;margin:40px auto 0;padding-top:24px;border-top:1px solid ${t.borderColor};">
+      <p style="text-align:center;font-size:13px;color:${t.pageText}55;">${footerS.copyright || `© ${new Date().getFullYear()} ${name}. All rights reserved.`}</p>
+    </div>
   </footer>`;
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>${name}</title>
-<style>${baseStyles(false, t.pageText, t.pageBg)}</style></head><body>
-<nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:${t.pageBg}ee;backdrop-filter:blur(12px);border-bottom:1px solid ${t.borderColor};padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:54px;">
-  ${logo}
-  <div style="display:flex;gap:20px;align-items:center;">
-    ${navItems.map(n => `<a href="${navHref(n)}" style="text-decoration:none;font-size:13px;color:${t.pageText}88;font-weight:500;">${n}</a>`).join("")}
-    <a href="#menu" style="padding:8px 20px;border-radius:${t.buttonRadius};background:${t.accent};color:${t.accentText};text-decoration:none;font-size:12px;font-weight:600;">Order</a>
-  </div>
-</nav>
-${heroHTML}${catHTML}${menuHTML}${storyHTML}${testimonialsHTML}${footerHTML}
+<style>${baseStyles(false, t.pageText, t.pageBg)}
+  @media (max-width: 768px) {
+    [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
+    [style*="grid-template-columns:repeat(3"] { grid-template-columns: repeat(2, 1fr) !important; }
+    [style*="grid-template-columns:2fr 1fr 1fr 1fr"] { grid-template-columns: 1fr !important; }
+    nav { padding: 0 16px !important; }
+    nav > div:nth-child(2) { display: none !important; }
+  }
+</style></head><body>
+${navHTML}
+${heroHTML}${featuresHTML}${menuHTML}${whyHTML}${storyHTML}${testimonialsHTML}${ctaBannerHTML}${footerHTML}
 </body></html>`;
 }
 
