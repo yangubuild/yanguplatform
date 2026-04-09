@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
 import { PublishedEmenuFrame } from "@/components/routing/PublishedEmenuFrame";
+import { YanguBadge } from "@/components/routing/YanguBadge";
 import { DEFAULT_THEME, type BuilderTheme } from "@/components/builder/BuilderSettingsDrawer";
 import { deduplicatePublishedSections } from "@/config/builderCoreSections";
 import type {
@@ -55,6 +56,7 @@ export default function PublicSurfacePage() {
   const pageTitle = surfaceData.seo_title || surfaceData.title || "Untitled";
   const seoDescription = surfaceData.seo_description || surfaceData.description || "";
   const faviconUrl = surfaceData.favicon_url || "";
+  const showBadge = surfaceData.show_yangu_badge === true;
 
   // Set document metadata (Block A — public page output)
   useEffect(() => {
@@ -103,7 +105,7 @@ export default function PublicSurfacePage() {
       return <PublicNotFound host={host} slug={pathSlug} message="This menu needs to be republished." />;
     }
 
-    return <PublishedEmenuFrame html={publishedEmenuHtml} title={pageTitle} />;
+    return <PublishedEmenuFrame html={publishedEmenuHtml} title={pageTitle} faviconUrl={faviconUrl || null} showBadge={showBadge} />;
   }
 
   // Render published schema — use same normalization as editor canvas
@@ -162,6 +164,7 @@ export default function PublicSurfacePage() {
         <div className="w-full max-w-[420px] min-h-screen bg-background yangu-live shadow-xl" style={themeStyle}>
           {sectionContent}
         </div>
+        {showBadge && <YanguBadge />}
       </div>
     );
   }
@@ -175,6 +178,7 @@ export default function PublicSurfacePage() {
         </div>
       </header>
       {sectionContent}
+      {showBadge && <YanguBadge />}
     </div>
   );
 }

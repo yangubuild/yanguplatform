@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { YANGU_BADGE_HTML } from "@/components/routing/YanguBadge";
 
 interface PublishedEmenuFrameProps {
   html: string;
@@ -6,11 +7,6 @@ interface PublishedEmenuFrameProps {
   faviconUrl?: string | null;
   showBadge?: boolean;
 }
-
-/** Inline SVG badge icon (YANGU logo, orange rounded square with Y) */
-const BADGE_SVG = `<svg width="14" height="14" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="22" fill="#E8612D"/><path d="M50 30L35 50h10v20h10V50h10L50 30z" fill="white"/></svg>`;
-
-const BADGE_HTML = `<a href="https://yangu.io" target="_blank" rel="noopener noreferrer" style="position:fixed;bottom:16px;right:16px;z-index:9999;display:flex;align-items:center;gap:6px;background:#ffffff;border:1px solid #e5e7eb;border-radius:8px;padding:6px 12px 6px 8px;font-family:system-ui,-apple-system,sans-serif;font-size:12px;color:#333;box-shadow:0 2px 8px rgba(0,0,0,0.08);text-decoration:none;cursor:pointer;line-height:1;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.12)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'">${BADGE_SVG} Made in YANGU</a>`;
 
 /**
  * Renders a published Emenu page by writing the full HTML document directly
@@ -32,17 +28,17 @@ export function PublishedEmenuFrame({ html, title, faviconUrl, showBadge }: Publ
       );
     }
 
-    // Inject overflow-prevention CSS
+    // Inject desktop layout guards (consistent container + overflow prevention)
     if (processedHtml.includes("</head>")) {
       processedHtml = processedHtml.replace(
         "</head>",
-        `<style>html,body{overflow-x:hidden;max-width:100vw;margin:0;}*{box-sizing:border-box;}</style>\n</head>`
+        `<style>html,body{overflow-x:hidden;max-width:100vw;margin:0;padding:0;}body{min-height:100vh;}*,*::before,*::after{box-sizing:border-box;}img,video,canvas,svg{max-width:100%;}</style>\n</head>`
       );
     }
 
     // Inject "Made in YANGU" badge for free-plan surfaces
     if (showBadge && processedHtml.includes("</body>")) {
-      processedHtml = processedHtml.replace("</body>", `${BADGE_HTML}\n</body>`);
+      processedHtml = processedHtml.replace("</body>", `${YANGU_BADGE_HTML}\n</body>`);
     }
 
     try {
