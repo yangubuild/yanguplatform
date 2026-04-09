@@ -720,9 +720,9 @@ export function renderZooom(ctx: RenderContext): string {
         </div>
         <div>
           <h4 style="font-weight:600;font-size:15px;margin-bottom:16px;color:${t.pageText};">Contact</h4>
-          <p style="font-size:14px;color:${t.pageText}77;margin-bottom:10px;">${config.phone || "+123 456 789"}</p>
-          <p style="font-size:14px;color:${t.pageText}77;margin-bottom:10px;">${config.email || "hello@restaurant.com"}</p>
-          <p style="font-size:14px;color:${t.pageText}77;margin-bottom:10px;">${config.address || "Los Angeles"}</p>
+          <p style="font-size:14px;color:${t.pageText}77;margin-bottom:10px;">${(config as any).phone || "+123 456 789"}</p>
+          <p style="font-size:14px;color:${t.pageText}77;margin-bottom:10px;">${(config as any).email || "hello@restaurant.com"}</p>
+          <p style="font-size:14px;color:${t.pageText}77;margin-bottom:10px;">${(config as any).address || "Los Angeles"}</p>
         </div>
       `}
     </div>
