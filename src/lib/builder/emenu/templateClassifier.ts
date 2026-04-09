@@ -119,7 +119,7 @@ const NON_RESERVATION_TEMPLATE_KEYS = [
   "emenu_plateria",
   "emenu_yumix",
   "emenu_zooom",
-  "emenu_visual_a",
+  "emenu_sofra",
 ];
 
 export const EMENU_TEMPLATE_GROUPS: TemplateGroup[] = [

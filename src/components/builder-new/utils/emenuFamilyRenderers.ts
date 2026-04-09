@@ -930,4 +930,341 @@ ${heroHTML}${featuresHTML}${menuHTML}${whyHTML}${storyHTML}${testimonialsHTML}${
 }
 
 
-// Visual A renderer removed — template deprecated (no reference URL)
+// ═══════════════════════════════════════════════════════════════════
+// SOFRA — Elegant serif restaurant (scraped from sofra.framer.website)
+// Dark green bg, copper/gold accent, serif typography, hero with
+// leaf accents, about with stats grid, 3-col categories, why-choose,
+// menu with tabs, event booking, testimonials, reservation form,
+// gallery grid, large-letter footer.
+// ═══════════════════════════════════════════════════════════════════
+
+const SOFRA_VARIANTS: VariantTheme[] = [
+  {
+    accent: "#C49A6C", accentText: "#FFFFFF", pageBg: "#1A2820", pageText: "#F5F0E8",
+    cardBg: "#223830", borderColor: "#2E4A3C", fontHeading: "'Playfair Display', serif",
+    heroLayout: "fullwidth", cardStyle: "rounded", buttonRadius: "4px", menuCols: 1, cardImageHeight: "200px",
+  },
+  {
+    accent: "#D4A853", accentText: "#FFFFFF", pageBg: "#0E1A14", pageText: "#ECE6DA",
+    cardBg: "#182A20", borderColor: "#2A3E30", fontHeading: "'Playfair Display', serif",
+    heroLayout: "split", cardStyle: "sharp", buttonRadius: "0px", menuCols: 1, cardImageHeight: "220px",
+  },
+  {
+    accent: "#B8845A", accentText: "#FFFFFF", pageBg: "#1C2E24", pageText: "#F0E8DC",
+    cardBg: "#253C30", borderColor: "#3A5446", fontHeading: "'Playfair Display', serif",
+    heroLayout: "centered", cardStyle: "rounded", buttonRadius: "28px", menuCols: 1, cardImageHeight: "200px",
+  },
+];
+
+export function renderSofra(ctx: RenderContext): string {
+  const { config, preset, variantIndex } = ctx;
+  const t = SOFRA_VARIANTS[variantIndex % SOFRA_VARIANTS.length];
+  const name = config.businessName || "Sofra";
+  const heroImg = getImageUrl(config, "hero", variantIndex);
+  const logo = config.userLogoUrl
+    ? `<img src="${config.userLogoUrl}" alt="${name}" style="height:40px;"/>`
+    : `<span style="font-family:${t.fontHeading};font-size:28px;font-weight:700;color:${t.accent};">${name}</span>`;
+
+  const navLinks = preset.patches?.header?.schema?.nav_items || ["Home", "About Us", "Why Choose", "Book a Table"];
+  const sections = preset.patches || {};
+  const heroS = sections.hero?.schema || {};
+  const mainS = sections.main_content?.schema || {};
+  const offerS = sections.offer?.schema || {};
+  const footerS = sections.footer?.schema || {};
+  const footerCols = footerS.columns || [];
+
+  // NAV
+  const navHTML = `
+  <nav style="display:flex;align-items:center;justify-content:space-between;padding:20px 48px;background:${t.pageBg};border-bottom:1px solid ${t.borderColor};position:sticky;top:0;z-index:100;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="color:${t.accent};font-size:24px;">✕</span>
+      ${logo}
+    </div>
+    <div style="display:flex;gap:32px;">
+      ${(navLinks as string[]).map((l: string) => `<a href="${navHref(l)}" style="color:${t.pageText};text-decoration:none;font-size:14px;letter-spacing:2px;text-transform:uppercase;font-family:'Inter',sans-serif;">${l}</a>`).join("")}
+    </div>
+    <a href="#menu" style="display:inline-block;padding:14px 28px;background:${t.accent};color:${t.accentText};text-decoration:none;font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:600;border-radius:${t.buttonRadius};">VIEW MENU</a>
+  </nav>`;
+
+  // HERO
+  const headline = (heroS.headline as string) || "Savor Every Moment with Every Bite";
+  const heroDesc = (heroS.description as string) || "Delight in flavors crafted to bring joy, comfort, and unforgettable dining experiences every time.";
+  const heroCTA = (heroS.cta_text as string) || "BOOK YOUR TABLE";
+  // Split headline — last two words in accent
+  const words = headline.split(" ");
+  const lastTwo = words.slice(-2).join(" ");
+  const firstPart = words.slice(0, -2).join(" ");
+
+  const heroHTML = `
+  <section id="hero" style="position:relative;min-height:85vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 48px 80px;background:${t.pageBg};overflow:hidden;">
+    <div style="position:relative;z-index:2;max-width:900px;">
+      <h1 style="font-family:${t.fontHeading};font-size:clamp(2.5rem,5.5vw,4.5rem);font-weight:400;color:${t.pageText};line-height:1.15;margin-bottom:24px;">
+        ${firstPart} <span style="color:${t.accent};font-style:italic;">${lastTwo}</span>
+      </h1>
+      <p style="font-size:16px;color:${t.pageText}AA;max-width:620px;margin:0 auto 40px;line-height:1.7;">${heroDesc}</p>
+      <a href="#contact" style="display:inline-block;padding:18px 40px;background:${t.accent};color:${t.accentText};text-decoration:none;font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:600;border-radius:${t.buttonRadius};">${heroCTA}</a>
+    </div>
+  </section>
+  <div style="display:flex;justify-content:center;padding:0 48px 80px;background:${t.pageBg};">
+    <img src="${heroImg}" alt="Featured dish" style="width:100%;max-width:900px;border-radius:12px;object-fit:cover;height:500px;"/>
+  </div>`;
+
+  // ABOUT + STATS
+  const aboutDesc = (offerS.story_block as any)?.description || "At Sofra Restaurant, dining is more than just a meal—it's an experience of flavor, tradition, and hospitality. Inspired by the rich heritage of culinary artistry, we bring together authentic recipes, fresh ingredients, and modern presentation to create dishes that delight every sense.";
+  const stats = [
+    { num: "110+", label: "Seasonal Delights to Enjoy Fresh flavors" },
+    { num: "30+", label: "Years of Exceptional Dining Experiences" },
+    { num: "120+", label: "Healthy Choices with Nutritious options" },
+    { num: "100+", label: "Outstanding Customers Reviews" },
+  ];
+  const aboutHTML = `
+  <section id="about" style="padding:80px 48px;background:${t.pageBg};">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;">
+      <div>
+        <p style="color:${t.accent};font-size:14px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">About</p>
+        <h2 style="font-family:${t.fontHeading};font-size:clamp(1.8rem,3vw,2.8rem);font-weight:500;color:${t.pageText};margin-bottom:24px;">Every Celebration Remarkable</h2>
+        <p style="font-size:15px;color:${t.pageText}AA;line-height:1.8;margin-bottom:32px;">${aboutDesc}</p>
+        <a href="#contact" style="display:inline-block;padding:16px 36px;background:${t.accent};color:${t.accentText};text-decoration:none;font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:600;border-radius:${t.buttonRadius};">BOOK YOUR TABLE</a>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+        ${stats.map(s => `
+          <div style="padding:24px;background:${t.cardBg};border-radius:12px;border:1px solid ${t.borderColor};">
+            <div style="font-family:${t.fontHeading};font-size:2.2rem;font-weight:700;color:${t.accent};margin-bottom:8px;">${s.num}</div>
+            <p style="font-size:13px;color:${t.pageText}99;line-height:1.5;">${s.label}</p>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  </section>`;
+
+  // 3-COLUMN FEATURE CATEGORIES
+  const featureCategories = [
+    { title: "Pasta & Noodles", desc: "An indulgent collection of Italian pastas and Asian noodles with rich sauces." },
+    { title: "Desserts & Sweet", desc: "Indulge in irresistible cakes, pastries, & traditional sweets to end on a high." },
+    { title: "Chef's Specials", desc: "Exclusive dishes prepared with passion & creativity, available for a limited time." },
+  ];
+  const featCatHTML = `
+  <section style="padding:80px 48px;background:${t.cardBg};">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:32px;">
+      ${featureCategories.map((c, i) => `
+        <div style="text-align:center;">
+          <img src="${getImageUrl(config, "menu", i)}" alt="${c.title}" style="width:100%;height:240px;object-fit:cover;border-radius:12px;margin-bottom:20px;"/>
+          <h3 style="font-family:${t.fontHeading};font-size:1.4rem;color:${t.pageText};margin-bottom:10px;">${c.title}</h3>
+          <p style="font-size:14px;color:${t.pageText}99;line-height:1.6;">${c.desc}</p>
+        </div>
+      `).join("")}
+    </div>
+  </section>`;
+
+  // WHY CHOOSE US
+  const whyFeatures = [
+    { title: "Fresh & Authentic Ingredients" },
+    { title: "Healthy & Flavorful Options" },
+    { title: "Perfect for Every Occasion" },
+  ];
+  const whyHTML = `
+  <section style="padding:80px 48px;background:${t.pageBg};">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;">
+      <div>
+        <p style="color:${t.accent};font-size:14px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">Why Choose Us?</p>
+        <h2 style="font-family:${t.fontHeading};font-size:clamp(1.8rem,3vw,2.8rem);font-weight:500;color:${t.pageText};margin-bottom:40px;">More Than Dining It's ${name}</h2>
+        ${whyFeatures.map((f, i) => `
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding:16px 20px;background:${t.cardBg};border-radius:10px;border:1px solid ${t.borderColor};">
+            <div style="width:48px;height:48px;border-radius:50%;background:${t.accent}22;display:flex;align-items:center;justify-content:center;">
+              <img src="${getImageUrl(config, "menu", i + 3)}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;"/>
+            </div>
+            <span style="font-family:${t.fontHeading};font-size:1.1rem;color:${t.pageText};">${f.title}</span>
+          </div>
+        `).join("")}
+      </div>
+      <div style="position:relative;">
+        <img src="${getImageUrl(config, "about", 0)}" alt="Why choose us" style="width:100%;height:400px;object-fit:cover;border-radius:12px;"/>
+        <div style="position:absolute;bottom:20px;right:20px;background:${t.accent};padding:20px 28px;border-radius:10px;text-align:center;">
+          <p style="font-size:12px;color:${t.accentText};letter-spacing:1px;">Established Since</p>
+          <p style="font-family:${t.fontHeading};font-size:2.2rem;font-weight:700;color:${t.accentText};">1970</p>
+        </div>
+      </div>
+    </div>
+  </section>`;
+
+  // MENU SECTION
+  const menuItems = mainS.categories?.[0]?.items || [
+    { name: "Herb-Infused Grilled Prawns", price: "$75.00", description: "Tender prawns, flame-grilled and brushed with garlic butter, served with sautéed greens." },
+    { name: "Seared Tuna Bites", price: "$55.00", description: "Layers of chia pudding, fresh mango, toasted coconut flakes, and a drizzle of honey." },
+    { name: "Truffle Mushroom Risotto Balls", price: "$48.00", description: "Creamy risotto balls infused with truffle oil and parmesan." },
+    { name: "Citrus-Glazed Salmon Fillet", price: "$35.00", description: "Al dente pasta tossed with basil pesto, cherry tomatoes, and parmesan shavings." },
+    { name: "Tropical Coconut Chia Parfait", price: "$40.00", description: "Golden roasted chicken with crispy skin, served over prosciutto salad." },
+  ];
+  const menuStats = [
+    { num: "2K", label: "Our Daily Order" },
+    { num: "15+", label: "Specialist Chef" },
+    { num: "150+", label: "Our Menu Dish" },
+    { num: "2K", label: "Won Awards" },
+  ];
+  const menuHTML = `
+  <section id="menu" style="padding:80px 48px;background:${t.cardBg};">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;">
+      <div>
+        <p style="color:${t.accent};font-size:14px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">Explore Menu Option</p>
+        <h2 style="font-family:${t.fontHeading};font-size:clamp(1.8rem,3vw,2.8rem);font-weight:500;color:${t.pageText};margin-bottom:32px;">Best Catering Menus</h2>
+        <div style="display:flex;gap:20px;margin-bottom:32px;">
+          ${["Breakfast", "Brunch", "Lunch", "Dinner"].map((tab, i) => `<span style="font-size:14px;padding:8px 16px;border-radius:20px;cursor:pointer;${i === 0 ? `background:${t.accent};color:${t.accentText};` : `color:${t.pageText}88;border:1px solid ${t.borderColor};`}">${tab}</span>`).join("")}
+        </div>
+        ${menuItems.map((item: any) => `
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:20px 0;border-bottom:1px solid ${t.borderColor};">
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+                <span style="font-family:${t.fontHeading};font-size:1.1rem;color:${t.pageText};">${item.name}</span>
+                <span style="font-size:1rem;font-weight:600;color:${t.accent};">${item.price}</span>
+              </div>
+              <p style="font-size:13px;color:${t.pageText}77;line-height:1.5;">${item.description}</p>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-content:start;">
+        ${menuStats.map(s => `
+          <div style="padding:28px;background:${t.pageBg};border-radius:12px;border:1px solid ${t.borderColor};text-align:center;">
+            <div style="font-family:${t.fontHeading};font-size:2rem;font-weight:700;color:${t.accent};margin-bottom:6px;">${s.num}</div>
+            <p style="font-size:13px;color:${t.pageText}99;">${s.label}</p>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  </section>`;
+
+  // EVENT BOOKING / OPENING HOURS
+  const eventHTML = `
+  <section style="padding:80px 48px;background:${t.pageBg};">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;">
+      <div>
+        <p style="color:${t.accent};font-size:14px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">Event Booking</p>
+        <h2 style="font-family:${t.fontHeading};font-size:clamp(1.8rem,3vw,2.8rem);font-weight:500;color:${t.pageText};margin-bottom:32px;">Planning a Party or Special Event?</h2>
+        <div style="margin-bottom:32px;">
+          <p style="font-family:${t.fontHeading};font-size:1.2rem;color:${t.pageText};margin-bottom:16px;">Opening Hour</p>
+          ${[
+            { day: "Monday - Saturday", time: "7.30 am - 10.30 pm" },
+            { day: "Sunday", time: "7.30 am - 11.30 pm" },
+            { day: "Happy Hour", time: "5.30 am - 09.30 pm" },
+          ].map(h => `
+            <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid ${t.borderColor};">
+              <span style="font-size:14px;color:${t.pageText};">${h.day}</span>
+              <span style="font-size:14px;color:${t.pageText}AA;">${h.time}</span>
+            </div>
+          `).join("")}
+        </div>
+        <p style="font-size:14px;color:${t.pageText}99;margin-bottom:8px;">Just Call for Reservation</p>
+        <p style="font-family:${t.fontHeading};font-size:1.5rem;color:${t.accent};margin-bottom:24px;">${(config as any).phone || "+01234 555 999"}</p>
+        <a href="#contact" style="display:inline-block;padding:16px 36px;background:${t.accent};color:${t.accentText};text-decoration:none;font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:600;border-radius:${t.buttonRadius};">BOOK YOUR TABLE</a>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <img src="${getImageUrl(config, "menu", 0)}" alt="Event food" style="width:100%;height:300px;object-fit:cover;border-radius:12px;"/>
+        <img src="${getImageUrl(config, "menu", 1)}" alt="Event food" style="width:100%;height:300px;object-fit:cover;border-radius:12px;"/>
+      </div>
+    </div>
+  </section>`;
+
+  // TESTIMONIALS
+  const testimonialItems = (offerS.testimonials as any)?.items || [
+    { quote: "Sofra Restaurant never disappoints.", body: "From the attentive service to the fresh ingredients, every dish tells a story. The grilled salmon is a must-try!", author: "Ronald Richards", rating: 5 },
+  ];
+  const testimonialsHTML = `
+  <section style="padding:80px 48px;background:${t.cardBg};">
+    <div style="max-width:1200px;margin:0 auto;text-align:center;">
+      <p style="color:${t.accent};font-size:14px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">Testimonial</p>
+      <h2 style="font-family:${t.fontHeading};font-size:clamp(1.8rem,3vw,2.8rem);font-weight:500;color:${t.pageText};margin-bottom:48px;">What Our Guests Are Saying</h2>
+      <div style="max-width:700px;margin:0 auto;">
+        ${testimonialItems.map((t2: any) => `
+          <div style="padding:40px;background:${t.pageBg};border-radius:16px;border:1px solid ${t.borderColor};">
+            <div style="font-size:48px;color:${t.accent};margin-bottom:16px;">"</div>
+            <p style="font-family:${t.fontHeading};font-size:1.1rem;color:${t.pageText};line-height:1.7;font-style:italic;margin-bottom:24px;">"${t2.quote || t2.body}"</p>
+            <p style="font-size:15px;font-weight:600;color:${t.pageText};">${t2.author}</p>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  </section>`;
+
+  // RESERVATION FORM
+  const reservationHTML = `
+  <section id="contact" style="padding:80px 48px;background:${t.pageBg};">
+    <div style="max-width:800px;margin:0 auto;text-align:center;">
+      <p style="color:${t.accent};font-size:14px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">Book your Table</p>
+      <h2 style="font-family:${t.fontHeading};font-size:clamp(1.8rem,3vw,2.8rem);font-weight:500;color:${t.pageText};margin-bottom:48px;">Make A Reservation</h2>
+      <form style="display:grid;grid-template-columns:1fr 1fr;gap:20px;text-align:left;">
+        ${[
+          { label: "Booking Name", type: "text", placeholder: "Your name" },
+          { label: "Phone Number", type: "tel", placeholder: "+1 234 567 890" },
+          { label: "Date", type: "date", placeholder: "mm/dd/yyyy" },
+          { label: "Time", type: "time", placeholder: "--:-- --" },
+        ].map(f => `
+          <div>
+            <label style="font-size:13px;color:${t.pageText}AA;display:block;margin-bottom:8px;">${f.label}</label>
+            <input type="${f.type}" placeholder="${f.placeholder}" style="width:100%;padding:14px 16px;background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:8px;color:${t.pageText};font-size:14px;outline:none;"/>
+          </div>
+        `).join("")}
+        <div style="grid-column:1/-1;">
+          <label style="font-size:13px;color:${t.pageText}AA;display:block;margin-bottom:8px;">Number of Guests</label>
+          <input type="number" placeholder="2" min="1" max="20" style="width:100%;padding:14px 16px;background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:8px;color:${t.pageText};font-size:14px;outline:none;"/>
+        </div>
+        <div style="grid-column:1/-1;text-align:center;margin-top:16px;">
+          <button type="submit" style="padding:18px 48px;background:${t.accent};color:${t.accentText};border:none;cursor:pointer;font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:600;border-radius:${t.buttonRadius};">BOOK YOUR TABLE</button>
+        </div>
+      </form>
+    </div>
+  </section>`;
+
+  // IMAGE GALLERY
+  const galleryHTML = `
+  <section style="padding:80px 48px;background:${t.cardBg};">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
+      ${[0,1,2,3].map(i => `<img src="${getImageUrl(config, "menu", i)}" alt="Gallery" style="width:100%;height:200px;object-fit:cover;border-radius:10px;"/>`).join("")}
+    </div>
+  </section>`;
+
+  // FOOTER — large letter branding
+  const footerHTML = `
+  <footer style="padding:80px 48px 40px;background:${t.pageBg};border-top:1px solid ${t.borderColor};">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:40px;align-items:center;margin-bottom:48px;">
+        <h3 style="font-family:${t.fontHeading};font-size:1.6rem;color:${t.pageText};line-height:1.4;">Plan Ahead — Book a Table at ${name} Restaurant</h3>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div style="width:48px;height:48px;border-radius:50%;background:${t.accent}22;display:flex;align-items:center;justify-content:center;color:${t.accent};font-size:20px;">📍</div>
+          <div>
+            <p style="font-family:${t.fontHeading};font-size:1rem;color:${t.pageText};">Location</p>
+            <p style="font-size:13px;color:${t.pageText}99;">${(config as any).address || "555 12th Ave, New York"}</p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div style="width:48px;height:48px;border-radius:50%;background:${t.accent}22;display:flex;align-items:center;justify-content:center;color:${t.accent};font-size:20px;">📞</div>
+          <div>
+            <p style="font-family:${t.fontHeading};font-size:1rem;color:${t.pageText};">Phone No</p>
+            <p style="font-size:13px;color:${t.accent};">${(config as any).phone || "+888 999 5555 4444"}</p>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-bottom:40px;">
+        <div style="font-family:${t.fontHeading};font-size:clamp(4rem,12vw,10rem);font-weight:700;letter-spacing:0.1em;background:linear-gradient(180deg,${t.accent},${t.accent}44);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-transform:uppercase;">${name}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding-top:24px;border-top:1px solid ${t.borderColor};">
+        <p style="font-size:13px;color:${t.pageText}55;">© ${new Date().getFullYear()} Design ${name}. All rights reserved.</p>
+        <p style="font-size:13px;color:${t.pageText}55;">Powered by ${name}</p>
+      </div>
+    </div>
+  </footer>`;
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>${name}</title>
+<style>${baseStyles(true, t.pageText, t.pageBg)}
+  @media (max-width: 768px) {
+    [style*="grid-template-columns:1fr 1fr 1fr"] { grid-template-columns: 1fr !important; }
+    [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
+    [style*="grid-template-columns:repeat(3"] { grid-template-columns: repeat(2, 1fr) !important; }
+    [style*="grid-template-columns:2fr 1fr 1fr 1fr"] { grid-template-columns: 1fr !important; }
+    nav { padding: 0 16px !important; }
+    nav > div:nth-child(2) { display: none !important; }
+  }
+</style></head><body>
+${navHTML}
+${heroHTML}${aboutHTML}${featCatHTML}${whyHTML}${menuHTML}${eventHTML}${testimonialsHTML}${reservationHTML}${galleryHTML}${footerHTML}
+</body></html>`;
+}
