@@ -15,10 +15,8 @@ body{
 *,*::before,*::after{box-sizing:border-box;}
 img,video,canvas,svg{max-width:100%;}
 
-/* Unified 1320px centered container for ALL sections */
-header,nav,.hero,section,
-[class*="hero"],[class*="header"],[class*="nav"],[class*="section"],[class*="container"],
-footer{
+/* Unified 1320px centered container for ALL direct children of body */
+body > *:not([data-yangu-badge]){
   width:100% !important;
   max-width:1320px !important;
   margin-left:auto !important;
