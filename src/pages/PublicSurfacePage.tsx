@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
+import { PublishedEmenuFrame } from "@/components/routing/PublishedEmenuFrame";
 import { DEFAULT_THEME, type BuilderTheme } from "@/components/builder/BuilderSettingsDrawer";
 import { deduplicatePublishedSections } from "@/config/builderCoreSections";
-import { sanitizeEditorHtml } from "@/lib/builder/editorHtml";
 import type {
   BuilderPublicSchemaResult,
   BuilderPublishedSection,
@@ -19,8 +19,6 @@ import { Loader2 } from "lucide-react";
  */
 export default function PublicSurfacePage() {
   const location = useLocation();
-  const emenuFrameRef = useRef<HTMLIFrameElement>(null);
-  const [emenuFrameHeight, setEmenuFrameHeight] = useState(0);
 
   // Derive host and slug
   const host = window.location.hostname.replace(/^www\./, "");
@@ -51,22 +49,6 @@ export default function PublicSurfacePage() {
   const publishedEmenuHtml = surfaceType === "emenu"
     ? ((data?.published_schema?.surface as any)?.emenu_html as string | null)
     : null;
-  const sanitizedEmenuHtml = publishedEmenuHtml ? sanitizeEditorHtml(publishedEmenuHtml) : null;
-
-  const syncEmenuFrameHeight = useCallback(() => {
-    const doc = emenuFrameRef.current?.contentDocument;
-    if (!doc) return;
-
-    const nextHeight = Math.max(
-      doc.documentElement.scrollHeight,
-      doc.documentElement.offsetHeight,
-      doc.body?.scrollHeight || 0,
-      doc.body?.offsetHeight || 0,
-      window.innerHeight,
-    );
-
-    setEmenuFrameHeight((prev) => (prev !== nextHeight ? nextHeight : prev));
-  }, []);
 
   // Extract metadata for document head (must be before early returns)
   const surfaceData = (data?.published_schema?.surface || {}) as any;
@@ -100,49 +82,6 @@ export default function PublicSurfacePage() {
     return () => { document.title = "YANGU"; };
   }, [data, pageTitle, seoDescription, faviconUrl]);
 
-  useEffect(() => {
-    if (surfaceData.surface_type !== "emenu" || !sanitizedEmenuHtml) return;
-
-    const iframe = emenuFrameRef.current;
-    if (!iframe) return;
-
-    let resizeObserver: ResizeObserver | null = null;
-    let timeoutA: number | null = null;
-    let timeoutB: number | null = null;
-
-    const attachSizing = () => {
-      syncEmenuFrameHeight();
-
-      const doc = iframe.contentDocument;
-      if (!doc) return;
-
-      resizeObserver?.disconnect();
-      if (typeof ResizeObserver !== "undefined") {
-        resizeObserver = new ResizeObserver(() => syncEmenuFrameHeight());
-        resizeObserver.observe(doc.documentElement);
-        if (doc.body) resizeObserver.observe(doc.body);
-      }
-
-      timeoutA = window.setTimeout(syncEmenuFrameHeight, 120);
-      timeoutB = window.setTimeout(syncEmenuFrameHeight, 600);
-    };
-
-    iframe.addEventListener("load", attachSizing);
-    window.addEventListener("resize", syncEmenuFrameHeight);
-
-    if (iframe.contentDocument?.readyState === "complete") {
-      attachSizing();
-    }
-
-    return () => {
-      iframe.removeEventListener("load", attachSizing);
-      window.removeEventListener("resize", syncEmenuFrameHeight);
-      resizeObserver?.disconnect();
-      if (timeoutA) window.clearTimeout(timeoutA);
-      if (timeoutB) window.clearTimeout(timeoutB);
-    };
-  }, [sanitizedEmenuHtml, surfaceData.surface_type, syncEmenuFrameHeight]);
-
   // Loading
   if (isLoading) {
     return (
@@ -160,22 +99,11 @@ export default function PublicSurfacePage() {
   // ═══ EMENU: render raw HTML directly ═══
   const pubSurfaceType = surfaceData.surface_type;
   if (pubSurfaceType === "emenu") {
-    if (!sanitizedEmenuHtml) {
+    if (!publishedEmenuHtml) {
       return <PublicNotFound host={host} slug={pathSlug} message="This menu needs to be republished." />;
     }
 
-    return (
-      <div className="min-h-screen bg-background">
-        <iframe
-          ref={emenuFrameRef}
-          title={pageTitle}
-          srcDoc={sanitizedEmenuHtml}
-          className="w-full border-0 bg-transparent"
-          style={{ minHeight: "100vh", height: emenuFrameHeight ? `${emenuFrameHeight}px` : "100vh" }}
-          sandbox="allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
-        />
-      </div>
-    );
+    return <PublishedEmenuFrame html={publishedEmenuHtml} title={pageTitle} />;
   }
 
   // Render published schema — use same normalization as editor canvas

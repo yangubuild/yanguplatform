@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Layout } from "lucide-react";
 import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
+import { PublishedEmenuFrame } from "@/components/routing/PublishedEmenuFrame";
 import { DEFAULT_THEME, type BuilderTheme } from "@/components/builder/BuilderSettingsDrawer";
 import { deduplicatePublishedSections } from "@/config/builderCoreSections";
 import type {
@@ -70,8 +71,25 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   // Render published schema — use same normalization as editor canvas
   const schema = data.published_schema;
   const page = schema.pages?.[0];
-  const title = schema.surface?.title || "Untitled";
+  const title = schema.surface?.seo_title || schema.surface?.title || "Untitled";
   const surfaceType = schema.surface?.surface_type;
+  const publishedEmenuHtml = surfaceType === "emenu"
+    ? ((schema.surface as any)?.emenu_html as string | null)
+    : null;
+
+  if (surfaceType === "emenu") {
+    if (!publishedEmenuHtml) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
+          <Layout className="h-12 w-12 text-muted-foreground" />
+          <p className="text-muted-foreground">This menu needs to be republished.</p>
+        </div>
+      );
+    }
+
+    return <PublishedEmenuFrame html={publishedEmenuHtml} title={title} />;
+  }
+
   const rawSections = page?.sections
     ?.slice()
     .sort((a: BuilderPublishedSection, b: BuilderPublishedSection) => a.position - b.position) ?? [];
