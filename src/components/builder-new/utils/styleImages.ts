@@ -26,6 +26,7 @@ import emenuYumixImg from "@/assets/styles/emenu_yumix.jpg";
 import emenuZooomImg from "@/assets/styles/emenu_zooom.jpg";
 import emenuGustoReservationImg from "@/assets/styles/emenu_gusto_reservation.png";
 import emenuSofraImg from "@/assets/styles/emenu_sofra.jpg";
+import emenuQitchenImg from "@/assets/styles/emenu_qitchen.jpg";
 
 export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
   // Category-level
@@ -56,4 +57,5 @@ export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
   emenu_zooom: emenuZooomImg,
   emenu_gusto_reservation: emenuGustoReservationImg,
   emenu_sofra: emenuSofraImg,
+  emenu_qitchen: emenuQitchenImg,
 };

@@ -1268,3 +1268,202 @@ ${navHTML}
 ${heroHTML}${aboutHTML}${featCatHTML}${whyHTML}${menuHTML}${eventHTML}${testimonialsHTML}${reservationHTML}${galleryHTML}${footerHTML}
 </body></html>`;
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// QITCHEN — Cinematic dark sushi restaurant (scraped from qitchen.framer.website)
+// Ultra-dark bg, gold/cream serif text, hero with large display text,
+// 3 feature cards, menu with category headers and dotted separators,
+// about page with review badges, photo carousel, our story block.
+// ═══════════════════════════════════════════════════════════════════
+
+const QITCHEN_VARIANTS: VariantTheme[] = [
+  {
+    accent: "#C5A572", accentText: "#0A0A0A", pageBg: "#0A0A0A", pageText: "#E8E0D0",
+    cardBg: "#141414", borderColor: "#252520", fontHeading: "'Playfair Display', serif",
+    heroLayout: "fullwidth", cardStyle: "rounded", buttonRadius: "4px", menuCols: 1, cardImageHeight: "120px",
+  },
+  {
+    accent: "#D4B896", accentText: "#0A0A0A", pageBg: "#080808", pageText: "#DCD4C4",
+    cardBg: "#121212", borderColor: "#222218", fontHeading: "'Playfair Display', serif",
+    heroLayout: "split", cardStyle: "sharp", buttonRadius: "0px", menuCols: 1, cardImageHeight: "120px",
+  },
+  {
+    accent: "#A88B5E", accentText: "#FFFFFF", pageBg: "#0C0C08", pageText: "#F0E8D8",
+    cardBg: "#161610", borderColor: "#2A2A22", fontHeading: "'Playfair Display', serif",
+    heroLayout: "centered", cardStyle: "rounded", buttonRadius: "24px", menuCols: 1, cardImageHeight: "120px",
+  },
+];
+
+export function renderQitchen(ctx: RenderContext): string {
+  const { config, preset, variantIndex } = ctx;
+  const t = QITCHEN_VARIANTS[variantIndex % QITCHEN_VARIANTS.length];
+  const name = config.businessName || "Qitchen";
+  const heroImg = getImageUrl(config, "hero", variantIndex);
+  const logo = config.userLogoUrl
+    ? `<img src="${config.userLogoUrl}" alt="${name}" style="height:36px;"/>`
+    : `<span style="font-family:${t.fontHeading};font-size:24px;font-weight:400;color:${t.pageText};letter-spacing:4px;text-transform:uppercase;">${name}</span>`;
+
+  const navLinks = (preset.patches?.header?.schema?.nav_items as string[]) || ["Menu", "About", "Book a Table"];
+  const sections = preset.patches || {};
+  const heroS = sections.hero?.schema || {};
+  const mainS = sections.main_content?.schema || {};
+  const offerS = sections.offer?.schema || {};
+
+  // NAV — dark floating bar
+  const navHTML = `
+  <nav style="position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:100;display:flex;align-items:center;gap:24px;padding:14px 28px;background:${t.cardBg}DD;border:1px solid ${t.borderColor};border-radius:40px;backdrop-filter:blur(12px);">
+    <div style="width:32px;height:32px;border:1px solid ${t.borderColor};border-radius:6px;display:flex;align-items:center;justify-content:center;">
+      <span style="color:${t.pageText};font-size:14px;">☰</span>
+    </div>
+    ${logo}
+    ${navLinks.slice(0, -1).map((l: string) => `<a href="${navHref(l)}" style="color:${t.pageText};text-decoration:none;font-size:13px;letter-spacing:2px;text-transform:uppercase;">${l}</a>`).join("")}
+    <a href="#contact" style="display:inline-block;padding:10px 20px;border:1px solid ${t.borderColor};border-radius:4px;color:${t.pageText};text-decoration:none;font-size:13px;letter-spacing:2px;text-transform:uppercase;">${navLinks[navLinks.length - 1]}</a>
+  </nav>`;
+
+  // HERO — cinematic with large display text + 3 feature cards
+  const headline = (heroS.headline as string) || "Sushi Sensation";
+  const heroHTML = `
+  <section id="hero" style="display:grid;grid-template-columns:2fr 1fr;gap:16px;padding:16px;min-height:100vh;background:${t.pageBg};">
+    <div style="position:relative;border-radius:16px;overflow:hidden;display:flex;align-items:flex-end;padding:48px;">
+      <img src="${heroImg}" alt="Hero" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"/>
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.7) 0%,transparent 60%);"></div>
+      <div style="position:relative;z-index:2;">
+        <h1 style="font-family:${t.fontHeading};font-size:clamp(3rem,7vw,6rem);font-weight:400;color:${t.pageText};line-height:1.05;text-transform:uppercase;letter-spacing:2px;">${headline.toUpperCase()}</h1>
+      </div>
+      <div style="position:absolute;bottom:40px;right:40px;display:flex;gap:12px;z-index:2;">
+        ${["IG", "FB", "X"].map(s => `<div style="width:40px;height:40px;border-radius:50%;border:1px solid ${t.pageText}44;display:flex;align-items:center;justify-content:center;font-size:11px;color:${t.pageText}88;">${s}</div>`).join("")}
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      ${[
+        { label: "MENU", img: getImageUrl(config, "menu", 0) },
+        { label: "RESERVATION", img: getImageUrl(config, "menu", 1) },
+        { label: "OUR RESTAURANT", img: getImageUrl(config, "about", 0) },
+      ].map(card => `
+        <a href="${navHref(card.label.split(" ")[0])}" style="position:relative;flex:1;border-radius:16px;overflow:hidden;display:flex;align-items:flex-end;padding:24px;text-decoration:none;">
+          <img src="${card.img}" alt="${card.label}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"/>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.6) 0%,transparent 50%);"></div>
+          <div style="position:relative;z-index:2;display:flex;align-items:center;gap:8px;width:100%;">
+            <span style="flex:1;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:${t.pageText};">${card.label}</span>
+            <span style="color:${t.pageText};font-size:18px;">→</span>
+          </div>
+        </a>
+      `).join("")}
+    </div>
+  </section>`;
+
+  // MENU — category headers with diamond separators, item rows with dotted lines
+  const categories = (mainS.categories as any[]) || [
+    { name: "Maki", items: [
+      { name: "Salmon Maki", price: "$5", description: "Shiitake mushrooms, avocado, and pickled daikon radish nestle within a roll of seasoned rice." },
+      { name: "Tuna Maki", price: "$5", description: "A vibrant assortment of julienned carrots, bell peppers, and cucumber, tightly encased in a nori-wrapped rice roll." },
+    ]},
+    { name: "Uramaki", items: [
+      { name: "Volcano Delight", price: "$12", description: "Creamy crab salad, avocado, and cucumber rolled inside, topped with spicy tuna and fiery sriracha sauce." },
+      { name: "Rainbow Fusion", price: "$12", description: "A colorful blend of fresh tuna, salmon, yellowtail, and avocado, enveloping a core of cucumber and crab stick." },
+      { name: "Dragon Elegance", price: "$12", description: "Tempura shrimp and cucumber rolled inside, crowned with sliced avocado resembling dragon scales." },
+    ]},
+  ];
+  const menuHTML = `
+  <section id="menu" style="padding:16px;background:${t.pageBg};">
+    <div style="border-radius:16px;overflow:hidden;background:${t.cardBg};border:1px solid ${t.borderColor};">
+      <div style="position:relative;height:500px;overflow:hidden;">
+        <img src="${heroImg}" alt="Menu hero" style="width:100%;height:100%;object-fit:cover;"/>
+      </div>
+      <div style="max-width:900px;margin:0 auto;padding:64px 48px 80px;">
+        ${categories.map((cat: any) => `
+          <div style="margin-bottom:48px;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:40px;">
+              <span style="color:${t.accent};">◇</span>
+              <h2 style="font-family:${t.fontHeading};font-size:1.8rem;font-weight:400;color:${t.pageText};text-transform:uppercase;letter-spacing:4px;">${cat.name}</h2>
+              <span style="color:${t.accent};">◇</span>
+            </div>
+            ${(cat.items as any[]).map((item: any) => `
+              <div style="display:flex;gap:20px;align-items:flex-start;margin-bottom:32px;">
+                <img src="${getImageUrl(config, "menu", Math.floor(Math.random() * 6))}" alt="${item.name}" style="width:120px;height:90px;object-fit:cover;border-radius:8px;flex-shrink:0;"/>
+                <div style="flex:1;">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                    <span style="font-family:${t.fontHeading};font-size:1rem;color:${t.pageText};text-transform:uppercase;letter-spacing:1px;">${item.name}</span>
+                    <span style="flex:1;border-bottom:1px dotted ${t.borderColor};margin:0 8px;"></span>
+                    <span style="font-family:${t.fontHeading};font-size:1rem;color:${t.pageText};">${item.price}</span>
+                  </div>
+                  <p style="font-size:13px;color:${t.pageText}77;line-height:1.6;">${item.description}</p>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  </section>`;
+
+  // ABOUT — split layout with large text, review badges, story
+  const storyDesc = (offerS.story_block as any)?.description || "Founded with a passion for culinary excellence, our journey began in the heart of the city. Over years, it evolved into a haven for food enthusiasts, celebrated for its artful mastery and devotion to redefining dining.";
+  const aboutHTML = `
+  <section id="about" style="padding:16px;background:${t.pageBg};">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="position:relative;border-radius:16px;overflow:hidden;min-height:600px;">
+        <img src="${getImageUrl(config, "about", 0)}" alt="About" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"/>
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.7) 0%,transparent 50%);"></div>
+        <div style="position:absolute;bottom:48px;left:48px;z-index:2;">
+          <h2 style="font-family:${t.fontHeading};font-size:clamp(3rem,6vw,5rem);font-weight:400;color:${t.pageText};text-transform:uppercase;letter-spacing:4px;">ABOUT</h2>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:16px;padding:40px;">
+          <h3 style="font-family:${t.fontHeading};font-size:1.6rem;font-weight:400;color:${t.pageText};text-transform:uppercase;letter-spacing:2px;margin-bottom:20px;">Sushi Artistry Redefined</h3>
+          <p style="font-size:14px;color:${t.pageText}99;line-height:1.8;">Where culinary craftsmanship meets modern elegance. Indulge in the finest sushi, expertly curated to elevate your dining experience.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+          ${[
+            { title: "TRIP ADVISOR", sub: "BEST SUSHI" },
+            { title: "MICHELIN GUIDE", sub: "QUALITY FOOD" },
+            { title: "START DINING", sub: "COOL VIBE" },
+          ].map(badge => `
+            <div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:16px;padding:28px 16px;text-align:center;">
+              <div style="color:${t.accent};font-size:14px;letter-spacing:2px;margin-bottom:8px;">★★★★★</div>
+              <p style="font-family:${t.fontHeading};font-size:0.9rem;color:${t.pageText};text-transform:uppercase;letter-spacing:2px;margin-bottom:4px;">${badge.title}</p>
+              <p style="font-size:11px;color:${t.pageText}66;letter-spacing:2px;text-transform:uppercase;">${badge.sub}</p>
+            </div>
+          `).join("")}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1;">
+          <div style="border-radius:16px;overflow:hidden;">
+            <img src="${getImageUrl(config, "menu", 2)}" alt="Chef" style="width:100%;height:100%;object-fit:cover;"/>
+          </div>
+          <div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:16px;padding:32px;display:flex;flex-direction:column;justify-content:center;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+              <span style="color:${t.accent};">◇</span>
+              <h3 style="font-family:${t.fontHeading};font-size:1.2rem;font-weight:400;color:${t.pageText};text-transform:uppercase;letter-spacing:2px;">Our Story</h3>
+              <span style="color:${t.accent};">◇</span>
+            </div>
+            <p style="font-size:13px;color:${t.pageText}99;line-height:1.8;">${storyDesc}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>`;
+
+  // FOOTER — minimal
+  const footerHTML = `
+  <footer style="padding:24px 16px;background:${t.pageBg};">
+    <div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:16px;padding:24px 48px;display:flex;align-items:center;justify-content:center;gap:24px;">
+      <p style="font-size:12px;color:${t.pageText}66;letter-spacing:2px;text-transform:uppercase;">© ${new Date().getFullYear()} ${name}</p>
+      <span style="color:${t.accent};font-size:10px;">◇</span>
+      <p style="font-size:12px;color:${t.pageText}66;letter-spacing:2px;text-transform:uppercase;">All rights reserved</p>
+    </div>
+  </footer>`;
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>${name}</title>
+<style>${baseStyles(true, t.pageText, t.pageBg)}
+  @media (max-width: 768px) {
+    [style*="grid-template-columns:2fr 1fr"] { grid-template-columns: 1fr !important; }
+    [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+    [style*="grid-template-columns:repeat(3"] { grid-template-columns: 1fr !important; }
+    nav { padding: 10px 16px !important; border-radius: 12px !important; }
+  }
+</style></head><body>
+${navHTML}
+${heroHTML}${menuHTML}${aboutHTML}${footerHTML}
+</body></html>`;
+}
