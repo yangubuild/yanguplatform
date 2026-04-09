@@ -120,6 +120,7 @@ const NON_RESERVATION_TEMPLATE_KEYS = [
   "emenu_yumix",
   "emenu_zooom",
   "emenu_sofra",
+  "emenu_qitchen",
 ];
 
 export const EMENU_TEMPLATE_GROUPS: TemplateGroup[] = [
