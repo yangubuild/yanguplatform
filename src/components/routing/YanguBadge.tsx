@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-const BADGE_ICON = "/yangu-badge-mark.png";
+const BADGE_ICON = "https://yanguplatform.lovable.app/yangu-badge-mark.png";
 const BADGE_URL = "https://yangu.io";
 const BADGE_FONT_ID = "yangu-badge-font";
 const BADGE_FONT_HREF = "https://api.fontshare.com/v2/css?f[]=lufga@700&display=swap";
