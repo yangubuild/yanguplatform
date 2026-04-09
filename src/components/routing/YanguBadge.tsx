@@ -1,6 +1,7 @@
 const BADGE_ICON = "/yangu-badge-icon.png";
 
-export const YANGU_BADGE_HTML = `<a href="https://yangu.io" target="_blank" rel="noopener noreferrer" style="position:fixed;bottom:16px;right:16px;z-index:9999;display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:6px 10px 6px 8px;font-family:system-ui,-apple-system,sans-serif;font-size:12px;font-weight:500;color:#111827;box-shadow:0 2px 8px rgba(0,0,0,0.08);text-decoration:none;line-height:1;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.12)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'"><img src="${BADGE_ICON}" alt="" style="width:14px;height:14px;border-radius:4px;display:block;" />Made in YANGU</a>`;
+// Black badge, Lufga bold, lowercase "yangu" — injected as raw HTML into published emenu pages
+export const YANGU_BADGE_HTML = `<a href="https://yangu.io" target="_blank" rel="noopener noreferrer" style="position:fixed;bottom:16px;right:16px;z-index:9999;display:inline-flex;align-items:center;gap:7px;background:#000;border-radius:10px;padding:7px 14px 7px 10px;font-family:'Lufga',system-ui,sans-serif;font-size:12px;font-weight:700;color:#fff;box-shadow:0 2px 10px rgba(0,0,0,0.25);text-decoration:none;line-height:1;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'"><img src="${BADGE_ICON}" alt="" style="width:18px;height:18px;border-radius:4px;display:block;" />Made in yangu</a>`;
 
 export function YanguBadge() {
   return (
@@ -15,22 +16,21 @@ export function YanguBadge() {
         zIndex: 9999,
         display: "inline-flex",
         alignItems: "center",
-        gap: 6,
-        background: "#fff",
-        border: "1px solid #e5e7eb",
+        gap: 7,
+        background: "#000",
         borderRadius: 10,
-        padding: "6px 10px 6px 8px",
-        fontFamily: "system-ui, -apple-system, sans-serif",
+        padding: "7px 14px 7px 10px",
+        fontFamily: "'Lufga', system-ui, sans-serif",
         fontSize: 12,
-        fontWeight: 500,
-        color: "#111827",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        fontWeight: 700,
+        color: "#fff",
+        boxShadow: "0 2px 10px rgba(0,0,0,0.25)",
         textDecoration: "none",
         lineHeight: 1,
       }}
     >
-      <img src={BADGE_ICON} alt="" style={{ width: 14, height: 14, borderRadius: 4, display: "block" }} />
-      Made in YANGU
+      <img src={BADGE_ICON} alt="" style={{ width: 18, height: 18, borderRadius: 4, display: "block" }} />
+      Made in yangu
     </a>
   );
 }
