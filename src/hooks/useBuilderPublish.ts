@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import type { BuilderSurfaceType } from "@/types/builder";
 import { validatePagesForPublish, type PublishPage, type PublishValidationError } from "@/lib/builder/publishValidation";
 import { sanitizeEditorHtml } from "@/lib/builder/editorHtml";
+import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
+import { supabase as supabaseClient } from "@/integrations/supabase/client";
 
 // ─── Domain mapping (mirrors builder_is_domain_allowed in SQL) ───
 const SURFACE_DOMAIN_MAP: Record<BuilderSurfaceType, string[]> = {
@@ -138,7 +140,29 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
     }
 
     const rawPublishedHtml = metadata.builder_new_html || fallbackPageHtml || "";
-    const emenuHtml = sanitizeEditorHtml(rawPublishedHtml);
+    // Persist any remaining blob URLs before sanitizing
+    let resolvedHtml = rawPublishedHtml;
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session?.user?.id && resolvedHtml.includes("blob:")) {
+        resolvedHtml = await persistBlobUrls(resolvedHtml, session.user.id);
+        // Also update the surface metadata so future publishes don't hit this again
+        const updatedMeta = { ...metadata, builder_new_html: resolvedHtml };
+        if (metadata.pages_html) {
+          const updatedPages = { ...metadata.pages_html };
+          for (const [pageId, pageHtml] of Object.entries(updatedPages)) {
+            if (typeof pageHtml === "string" && pageHtml.includes("blob:")) {
+              updatedPages[pageId] = await persistBlobUrls(pageHtml, session.user.id);
+            }
+          }
+          updatedMeta.pages_html = updatedPages;
+        }
+        await supabase.from("builder_surfaces").update({ metadata: updatedMeta as any }).eq("id", surfaceId);
+      }
+    } catch (e) {
+      console.error("[syncPublishedRecord] blob persist error:", e);
+    }
+    const emenuHtml = sanitizeEditorHtml(resolvedHtml);
 
     if (!emenuHtml) {
       throw new Error("Couldn't find the latest Emenu page to publish.");
