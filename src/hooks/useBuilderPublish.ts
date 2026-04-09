@@ -102,9 +102,10 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
   }, [pages, surfaceType, surfaceId]);
 
   const syncPublishedRecord = useCallback(async (publishId: string, requestedSlug?: string): Promise<string> => {
+    // 1. Fetch surface data including favicon
     const { data: surfaceData, error: surfaceError } = await supabase
       .from("builder_surfaces")
-      .select("slug, metadata")
+      .select("slug, metadata, favicon_url")
       .eq("id", surfaceId)
       .single();
 
@@ -112,6 +113,7 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
 
     const surfaceRecord = surfaceData as {
       slug?: string | null;
+      favicon_url?: string | null;
       metadata?: {
         builder_new_html?: string | null;
         pages_html?: Record<string, string> | null;
@@ -119,15 +121,13 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
     } | null;
 
     const metadata = surfaceRecord?.metadata || {};
-    const fallbackPageHtml = Object.values(metadata.pages_html || {}).find(
-      (html): html is string => typeof html === "string" && html.trim().length > 0,
-    );
     const publishedSlug = normalizePublishSlug(requestedSlug || customSlug || surfaceRecord?.slug) || surfaceRecord?.slug || "";
 
     if (!publishedSlug) {
       throw new Error("Enter a URL name before publishing.");
     }
 
+    // 2. Update surface slug
     const { error: surfaceUpdateError } = await supabase
       .from("builder_surfaces")
       .update({ slug: publishedSlug })
@@ -135,39 +135,24 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
 
     if (surfaceUpdateError) throw surfaceUpdateError;
 
-    if (surfaceType !== "emenu") {
-      return publishedSlug;
-    }
-
-    const rawPublishedHtml = metadata.builder_new_html || fallbackPageHtml || "";
-    // Persist any remaining blob URLs before sanitizing
-    let resolvedHtml = rawPublishedHtml;
+    // 3. Determine badge visibility (free plan = show badge)
+    let showYanguBadge = true;
     try {
       const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session?.user?.id && resolvedHtml.includes("blob:")) {
-        resolvedHtml = await persistBlobUrls(resolvedHtml, session.user.id);
-        // Also update the surface metadata so future publishes don't hit this again
-        const updatedMeta = { ...metadata, builder_new_html: resolvedHtml };
-        if (metadata.pages_html) {
-          const updatedPages = { ...metadata.pages_html };
-          for (const [pageId, pageHtml] of Object.entries(updatedPages)) {
-            if (typeof pageHtml === "string" && pageHtml.includes("blob:")) {
-              updatedPages[pageId] = await persistBlobUrls(pageHtml, session.user.id);
-            }
-          }
-          updatedMeta.pages_html = updatedPages;
-        }
-        await supabase.from("builder_surfaces").update({ metadata: updatedMeta as any }).eq("id", surfaceId);
+      if (session?.user?.id) {
+        const { data: subs } = await supabase
+          .from("billing_subscriptions")
+          .select("id")
+          .eq("user_id", session.user.id)
+          .eq("status", "active")
+          .limit(1);
+        showYanguBadge = !subs || subs.length === 0;
       }
     } catch (e) {
-      console.error("[syncPublishedRecord] blob persist error:", e);
-    }
-    const emenuHtml = sanitizeEditorHtml(resolvedHtml);
-
-    if (!emenuHtml) {
-      throw new Error("Couldn't find the latest Emenu page to publish.");
+      console.error("[syncPublishedRecord] billing check error:", e);
     }
 
+    // 4. Fetch current published schema
     const { data: publishData, error: publishFetchError } = await supabase
       .from("builder_publishes")
       .select("published_schema")
@@ -178,17 +163,54 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
 
     const currentSchema = (publishData?.published_schema as Record<string, unknown> | null) || {};
     const currentSurface = ((currentSchema.surface as Record<string, unknown> | undefined) ?? {});
-    const syncedSchema = {
-      ...currentSchema,
-      surface: {
-        ...currentSurface,
-        id: surfaceId,
-        slug: publishedSlug,
-        surface_type: surfaceType,
-        emenu_html: emenuHtml,
-      },
+
+    // 5. Build updated surface with favicon + badge for ALL surface types
+    const updatedSurface: Record<string, unknown> = {
+      ...currentSurface,
+      id: surfaceId,
+      slug: publishedSlug,
+      surface_type: surfaceType,
+      favicon_url: surfaceRecord?.favicon_url || null,
+      show_yangu_badge: showYanguBadge,
     };
 
+    // 6. For emenu, add sanitized HTML
+    if (surfaceType === "emenu") {
+      const fallbackPageHtml = Object.values(metadata.pages_html || {}).find(
+        (html): html is string => typeof html === "string" && html.trim().length > 0,
+      );
+      let resolvedHtml = metadata.builder_new_html || fallbackPageHtml || "";
+
+      // Persist blob URLs
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session?.user?.id && resolvedHtml.includes("blob:")) {
+          resolvedHtml = await persistBlobUrls(resolvedHtml, session.user.id);
+          const updatedMeta = { ...metadata, builder_new_html: resolvedHtml };
+          if (metadata.pages_html) {
+            const updatedPages = { ...metadata.pages_html };
+            for (const [pageId, pageHtml] of Object.entries(updatedPages)) {
+              if (typeof pageHtml === "string" && pageHtml.includes("blob:")) {
+                updatedPages[pageId] = await persistBlobUrls(pageHtml, session.user.id);
+              }
+            }
+            updatedMeta.pages_html = updatedPages;
+          }
+          await supabase.from("builder_surfaces").update({ metadata: updatedMeta as any }).eq("id", surfaceId);
+        }
+      } catch (e) {
+        console.error("[syncPublishedRecord] blob persist error:", e);
+      }
+
+      const emenuHtml = sanitizeEditorHtml(resolvedHtml);
+      if (!emenuHtml) {
+        throw new Error("Couldn't find the latest Emenu page to publish.");
+      }
+      updatedSurface.emenu_html = emenuHtml;
+    }
+
+    // 7. Write updated schema back
+    const syncedSchema = { ...currentSchema, surface: updatedSurface };
     const { error: publishUpdateError } = await supabase
       .from("builder_publishes")
       .update({

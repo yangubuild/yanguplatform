@@ -16,12 +16,55 @@ interface SurfaceViewerProps {
   domainType?: string;
 }
 
-// Deduplication now handled by shared deduplicatePublishedSections from builderCoreSections
+/** Inline SVG for the YANGU badge icon */
+const BADGE_SVG_DATA = "data:image/svg+xml," + encodeURIComponent(
+  '<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="22" fill="#E8612D"/><path d="M50 30L35 50h10v20h10V50h10L50 30z" fill="white"/></svg>'
+);
+
+function YanguBadge() {
+  return (
+    <a
+      href="https://yangu.io"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        position: "fixed",
+        bottom: 16,
+        right: 16,
+        zIndex: 9999,
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        background: "#ffffff",
+        border: "1px solid #e5e7eb",
+        borderRadius: 8,
+        padding: "6px 12px 6px 8px",
+        fontFamily: "system-ui, -apple-system, sans-serif",
+        fontSize: 12,
+        color: "#333",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        textDecoration: "none",
+        cursor: "pointer",
+        lineHeight: 1,
+      }}
+    >
+      <img src={BADGE_SVG_DATA} alt="" style={{ width: 14, height: 14, borderRadius: 3 }} />
+      Made in YANGU
+    </a>
+  );
+}
 
 export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProps) {
   const [data, setData] = useState<BuilderPublicSchemaResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Extract surface metadata early for hooks (before conditional returns)
+  const schema = data?.published_schema;
+  const surfaceMeta = (schema?.surface || {}) as Record<string, any>;
+  const pageTitle = surfaceMeta.seo_title || surfaceMeta.title || "Untitled";
+  const faviconUrl = (surfaceMeta.favicon_url as string | null) || null;
+  const showBadge = surfaceMeta.show_yangu_badge !== false;
 
   useEffect(() => {
     async function load() {
@@ -51,6 +94,23 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
     load();
   }, [publishId, host]);
 
+  // Set per-surface favicon and title
+  useEffect(() => {
+    if (!data) return;
+
+    document.title = pageTitle;
+
+    if (faviconUrl) {
+      let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+      if (!link) {
+        link = document.createElement("link");
+        link.rel = "icon";
+        document.head.appendChild(link);
+      }
+      link.href = faviconUrl;
+    }
+  }, [data, pageTitle, faviconUrl]);
+
   if (loading) {
     return (
       <div className="bg-background min-h-screen flex items-center justify-center" >
@@ -69,10 +129,8 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   }
 
   // Render published schema — use same normalization as editor canvas
-  const schema = data.published_schema;
-  const page = schema.pages?.[0];
-  const surfaceMeta = (schema.surface || {}) as Record<string, any>;
-  const title = surfaceMeta.seo_title || surfaceMeta.title || "Untitled";
+  const page = schema?.pages?.[0];
+  const title = pageTitle;
   const surfaceType = surfaceMeta.surface_type;
   const publishedEmenuHtml = surfaceType === "emenu"
     ? ((surfaceMeta.emenu_html as string | null) || null)
@@ -88,7 +146,14 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
       );
     }
 
-    return <PublishedEmenuFrame html={publishedEmenuHtml} title={title} />;
+    return (
+      <PublishedEmenuFrame
+        html={publishedEmenuHtml}
+        title={title}
+        faviconUrl={faviconUrl}
+        showBadge={showBadge}
+      />
+    );
   }
 
   const rawSections = page?.sections
@@ -99,7 +164,7 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   const sections = deduplicatePublishedSections(rawSections, surfaceType || "quick_site");
 
   // Read theme
-  const rawTheme = (schema.surface?.theme as Partial<BuilderTheme>) || {};
+  const rawTheme = (schema?.surface?.theme as Partial<BuilderTheme>) || {};
   const surfaceTheme: BuilderTheme = { ...DEFAULT_THEME, ...rawTheme };
   const themeStyle: React.CSSProperties = {
     fontFamily: surfaceTheme.font_family,
@@ -169,6 +234,7 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
           style={themeStyle}>
           {pageContent}
         </div>
+        {showBadge && <YanguBadge />}
       </div>
     );
   }
@@ -176,6 +242,7 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   return (
     <div className="min-h-screen bg-background yangu-live" style={themeStyle}>
       {pageContent}
+      {showBadge && <YanguBadge />}
     </div>
   );
 }
