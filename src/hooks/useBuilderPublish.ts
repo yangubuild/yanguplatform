@@ -184,6 +184,7 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
         ...currentSurface,
         id: surfaceId,
         slug: publishedSlug,
+        surface_type: surfaceType,
         emenu_html: emenuHtml,
       },
     };
