@@ -194,15 +194,15 @@ export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEdit
                   </div>
                 )}
 
-                {sec.id === "orders" && (
+                {sec.id === "commerce" && (
                   <div className="space-y-2">
-                    <p className="text-[11px] text-muted-foreground">Configure delivery and pickup options.</p>
+                    <p className="text-[11px] text-muted-foreground">Configure ordering, delivery, and payments.</p>
                     <button
-                      onClick={() => onAction("order_settings")}
+                      onClick={() => onAction("commerce_config")}
                       className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-muted/60 hover:bg-muted text-sm transition-colors"
                     >
                       <Truck className="h-3.5 w-3.5 text-muted-foreground" />
-                      Order Mode & Delivery
+                      Commerce & Orders
                     </button>
                   </div>
                 )}
