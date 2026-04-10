@@ -16,6 +16,7 @@ const EDIT_STYLES = `
   <style>
     * { box-sizing: border-box; }
     body { overflow-x: hidden; }
+    section, header, nav, footer { overflow: visible !important; }
     button, a[class*="btn"], a[class*="cta"], a[class*="order"], [class*="button"] {
       max-width: 100%;
       overflow: visible;
