@@ -157,7 +157,8 @@ export function LinkPopup({ onClose, onApply, currentLink }: LinkPopupProps) {
           </button>
           <button
             onClick={() => onApply({ type: activeTab, value, openInNewTab: newTab })}
-            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-muted text-muted-foreground transition-colors"
+            disabled={!value.trim() && activeTab !== "document" && activeTab !== "popup" && activeTab !== "scroll"}
+            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             Done
           </button>

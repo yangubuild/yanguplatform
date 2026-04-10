@@ -410,6 +410,14 @@ export default function EmenuNewEditor() {
         setEditorColorTarget("page");
         setEditorColorPickerOpen(true);
         break;
+      case "set_page_bg_color": {
+        if (!doc) break;
+        if (payload?.color) {
+          doc.body.style.backgroundColor = payload.color;
+          pushUpdate(doc, iframe);
+        }
+        break;
+      }
 
       // ── Text style with toggle support ──
       case "set_text_style": {
@@ -1023,9 +1031,35 @@ export default function EmenuNewEditor() {
             if (!iframeRect) return null;
             const mainEl = document.querySelector('main');
             const mainRect = mainEl?.getBoundingClientRect() || { top: 0, left: 0, width: 800 };
-            // Position toolbar above the selected element, relative to the main container
             const toolbarTop = iframeRect.top - mainRect.top + canvasSelection.elRect.top - 48;
             const toolbarLeft = iframeRect.left - mainRect.left + canvasSelection.elRect.left + canvasSelection.elRect.width / 2;
+
+            // Read current color from iframe element
+            let detectedColor: string | undefined;
+            try {
+              const doc = iframe?.contentDocument;
+              if (doc) {
+                const el = canvasSelection.nodeId
+                  ? doc.querySelector(`[data-yangu-node-id="${canvasSelection.nodeId}"]`) as HTMLElement | null
+                  : doc.querySelector('.yangu-el-selected, .yangu-btn-selected, .section-selected') as HTMLElement | null;
+                if (el && iframe?.contentWindow) {
+                  const cs = iframe.contentWindow.getComputedStyle(el);
+                  if (canvasSelection.kind === "text") {
+                    detectedColor = cs.color;
+                  } else if (canvasSelection.kind === "button") {
+                    detectedColor = cs.backgroundColor;
+                  } else if (canvasSelection.kind === "section") {
+                    // For section, try to get the section-selected element
+                    const sec = doc.querySelector('.section-selected') as HTMLElement | null;
+                    if (sec) detectedColor = iframe.contentWindow.getComputedStyle(sec).backgroundColor;
+                    else detectedColor = cs.backgroundColor;
+                  } else {
+                    detectedColor = cs.backgroundColor;
+                  }
+                }
+              }
+            } catch {}
+
             return (
               <div
                 className="absolute z-30"
@@ -1035,7 +1069,7 @@ export default function EmenuNewEditor() {
                   transform: "translateX(-50%)",
                 }}
               >
-                <MagicEditorToolbar selection={canvasSelection} onAction={handleEditorAction} />
+                <MagicEditorToolbar selection={canvasSelection} onAction={handleEditorAction} currentColor={detectedColor} />
               </div>
             );
           })()}
