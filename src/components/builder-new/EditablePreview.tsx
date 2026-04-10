@@ -16,6 +16,7 @@ const EDIT_STYLES = `
   <style>
     * { box-sizing: border-box; }
     body { overflow-x: hidden; }
+    section, header, nav, footer { overflow: visible !important; }
     button, a[class*="btn"], a[class*="cta"], a[class*="order"], [class*="button"] {
       max-width: 100%;
       overflow: visible;
@@ -212,16 +213,34 @@ const EDIT_SCRIPT = `
         });
       });
 
+      function sendDeselect() {
+        clearAllHighlights();
+        window.parent.postMessage({ type: 'canvas-select', kind: 'page', tag: 'BODY', preview: '', sectionIndex: -1, nodeId: '' }, '*');
+      }
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { sendDeselect(); }
+      });
+
       document.addEventListener('click', function(e) {
         var el = e.target;
         if (!el || el.tagName === 'HTML' || el.tagName === 'BODY') {
-          clearAllHighlights();
-          window.parent.postMessage({ type: 'canvas-select', kind: 'page', tag: 'BODY', preview: '', sectionIndex: -1, nodeId: '' }, '*');
+          sendDeselect();
+          return;
+        }
+        // Clicking directly on a section/footer/nav/header element (not a child) = deselect
+        if (['SECTION','FOOTER','NAV','HEADER'].indexOf(el.tagName) !== -1 && e.target === el) {
+          sendDeselect();
           return;
         }
         if (el.tagName === 'IMG') return;
 
         var kind = classifyEl(el);
+        // Generic wrapper divs that aren't cards/items → deselect
+        if (kind === 'page') {
+          sendDeselect();
+          return;
+        }
         var si = findSectionIndex(el);
         var sectionEl = si >= 0 ? getSections()[si] : null;
         clearAllHighlights();

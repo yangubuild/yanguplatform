@@ -238,11 +238,26 @@ export default function EmenuNewEditor() {
   }, [navigate]);
 
   const handleCanvasSelection = useCallback((sel: CanvasSelection) => {
-    if (sel.kind === "page" && sel.sectionIndex !== undefined) {
+    // Body/HTML click → deselect (neutral state, no toolbar)
+    if (sel.kind === "page" && (!sel.sectionIndex || sel.sectionIndex < 0)) {
+      setCanvasSelection(null);
+      return;
+    }
+    // Clicks on generic divs inside a section → treat as section selection
+    if (sel.kind === "page" && sel.sectionIndex !== undefined && sel.sectionIndex >= 0) {
       setCanvasSelection({ ...sel, kind: "section", tag: "SECTION", nodeId: undefined });
       return;
     }
     setCanvasSelection(sel);
+  }, []);
+
+  // Escape key deselects in parent window
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setCanvasSelection(null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   const handleHtmlChange = useCallback((html: string) => {
