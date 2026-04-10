@@ -10,7 +10,7 @@ html,body{
 body{
   min-height:100vh;
   display:flex;flex-direction:column;align-items:center;
-  background-color:#ffffff;
+  /* Inherit template body bg; fallback to white only if template sets none */
 }
 *,*::before,*::after{box-sizing:border-box;}
 img,video,canvas,svg{max-width:100%;}
@@ -18,6 +18,28 @@ img,video,canvas,svg{max-width:100%;}
 /* Unified 1320px centered container for ALL direct children of body */
 body > *:not([data-yangu-badge]){
   width:100% !important;
+  max-width:1320px !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+  padding-left:24px !important;
+  padding-right:24px !important;
+  box-sizing:border-box !important;
+}
+
+/* Allow sections to stretch full width for background coverage */
+body > section:not([data-yangu-badge]),
+body > header:not([data-yangu-badge]),
+body > footer:not([data-yangu-badge]),
+body > nav:not([data-yangu-badge]){
+  max-width:100% !important;
+  padding-left:0 !important;
+  padding-right:0 !important;
+}
+/* Constrain inner content of full-width sections */
+body > section:not([data-yangu-badge]) > *,
+body > header:not([data-yangu-badge]) > *,
+body > footer:not([data-yangu-badge]) > *,
+body > nav:not([data-yangu-badge]) > *{
   max-width:1320px !important;
   margin-left:auto !important;
   margin-right:auto !important;

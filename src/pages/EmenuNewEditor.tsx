@@ -1060,6 +1060,31 @@ export default function EmenuNewEditor() {
               }
             } catch {}
 
+            // Resolve transparent/invisible colors by walking up the DOM
+            if (detectedColor) {
+              const isTransparent = (c: string) =>
+                !c || c === 'transparent' || c === 'rgba(0, 0, 0, 0)' || c === 'rgba(0,0,0,0)';
+              if (isTransparent(detectedColor)) {
+                try {
+                  const iDoc = iframe?.contentDocument;
+                  if (iDoc && iframe?.contentWindow) {
+                    let walkEl: HTMLElement | null = canvasSelection.nodeId
+                      ? iDoc.querySelector(`[data-yangu-node-id="${canvasSelection.nodeId}"]`) as HTMLElement | null
+                      : iDoc.querySelector('.yangu-el-selected, .yangu-btn-selected, .section-selected') as HTMLElement | null;
+                    while (walkEl && walkEl !== iDoc.body) {
+                      const bg = iframe.contentWindow!.getComputedStyle(walkEl).backgroundColor;
+                      if (!isTransparent(bg)) { detectedColor = bg; break; }
+                      walkEl = walkEl.parentElement;
+                    }
+                    if (isTransparent(detectedColor!)) {
+                      const bodyBg = iframe.contentWindow!.getComputedStyle(iDoc.body).backgroundColor;
+                      if (!isTransparent(bodyBg)) detectedColor = bodyBg;
+                    }
+                  }
+                } catch {}
+              }
+            }
+
             return (
               <div
                 className="absolute z-30"

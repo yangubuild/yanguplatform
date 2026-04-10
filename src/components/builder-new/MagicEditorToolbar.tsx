@@ -36,6 +36,15 @@ export function MagicEditorToolbar({ selection, onAction, currentColor }: MagicE
   const [activePopup, setActivePopup] = useState<ActivePopup>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Close popup when selection target changes (e.g. clicking in iframe)
+  const prevNodeRef = useRef(selection.nodeId);
+  useEffect(() => {
+    if (selection.nodeId !== prevNodeRef.current) {
+      setActivePopup(null);
+      prevNodeRef.current = selection.nodeId;
+    }
+  }, [selection.nodeId]);
+
   // Close popups on outside click
   useEffect(() => {
     if (!activePopup) return;
