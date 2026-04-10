@@ -30,7 +30,7 @@ function mapKindToScope(kind: string): SelectedScope {
   if (kind === "button") return "button";
   if (kind === "image") return "image";
   if (kind === "section") return "section";
-  if (kind === "card") return "text";
+  if (kind === "card") return "text"; // fallback scope for popups
   if (kind === "page") return "page";
   return "none";
 }
@@ -218,6 +218,7 @@ export function MagicEditorToolbar({ selection, onAction, currentColor, adaMessa
           <>
             <MagicBtn icon={TypeIcon} label="Edit" onClick={() => onAction("edit_text")} />
             <MagicBtn icon={ImageIcon} label="Image" onClick={() => onAction("replace_image")} />
+            <MagicBtn icon={Plus} label="Order Btn" onClick={() => onAction("add_card_order_button")} />
             <ColorDot
               onClick={() => togglePopup("color")}
               active={activePopup === "color"}
