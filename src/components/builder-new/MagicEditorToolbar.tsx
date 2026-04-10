@@ -16,6 +16,8 @@ interface MagicEditorToolbarProps {
   selection: CanvasSelection;
   onAction: (action: string, payload?: any) => void;
   position?: { top: number; left: number };
+  /** Current color of the selected element, read from iframe */
+  currentColor?: string;
 }
 
 function mapKindToScope(kind: string): SelectedScope {
@@ -28,7 +30,7 @@ function mapKindToScope(kind: string): SelectedScope {
   return "none";
 }
 
-export function MagicEditorToolbar({ selection, onAction }: MagicEditorToolbarProps) {
+export function MagicEditorToolbar({ selection, onAction, currentColor }: MagicEditorToolbarProps) {
   const kind = selection.kind;
   const scope = mapKindToScope(kind);
   const [activePopup, setActivePopup] = useState<ActivePopup>(null);
@@ -66,13 +68,15 @@ export function MagicEditorToolbar({ selection, onAction }: MagicEditorToolbarPr
   };
 
   const handleColorApply = useCallback((color: string) => {
-    if (kind === "text") onAction("set_text_style", { color });
-    else if (kind === "button") onAction("set_button_color", { color });
-    else if (kind === "section") onAction("change_colors");
-    else onAction("set_page_bg");
-    // For section/page, open the dialog in parent
-    if (kind === "section") { onAction("change_colors"); return; }
-    if (kind === "page" || kind === "card") { onAction("set_page_bg"); return; }
+    if (kind === "text") {
+      onAction("set_text_style", { color });
+    } else if (kind === "button") {
+      onAction("set_button_color", { color });
+    } else if (kind === "section") {
+      onAction("set_section_style", { backgroundColor: color });
+    } else if (kind === "page" || kind === "card") {
+      onAction("set_page_bg_color", { color });
+    }
     setActivePopup(null);
   }, [kind, onAction]);
 
@@ -93,6 +97,8 @@ export function MagicEditorToolbar({ selection, onAction }: MagicEditorToolbarPr
   const handleAdaPrompt = useCallback((prompt: string) => {
     onAction("ada_prompt", { prompt, scope });
   }, [onAction, scope]);
+
+  const dotColor = currentColor || undefined;
 
   return (
     <div ref={containerRef} className="relative">
@@ -115,6 +121,7 @@ export function MagicEditorToolbar({ selection, onAction }: MagicEditorToolbarPr
             <ColorDot
               onClick={() => togglePopup("color")}
               active={activePopup === "color"}
+              color={dotColor}
             />
             <MagicBtn icon={Bold} label="Bold" onClick={() => onAction("set_text_style", { fontWeight: "700" })} />
             <MagicBtn icon={Italic} label="Italic" onClick={() => onAction("set_text_style", { fontStyle: "italic" })} />
@@ -139,6 +146,7 @@ export function MagicEditorToolbar({ selection, onAction }: MagicEditorToolbarPr
             <ColorDot
               onClick={() => togglePopup("color")}
               active={activePopup === "color"}
+              color={dotColor}
             />
             <MagicBtn icon={TypeIcon} label="Font" onClick={() => togglePopup("typography")} active={activePopup === "typography"} />
             <MagicBtn icon={AlignCenter} label="Align" onClick={() => togglePopup("alignment")} active={activePopup === "alignment"} />
@@ -165,6 +173,7 @@ export function MagicEditorToolbar({ selection, onAction }: MagicEditorToolbarPr
             <ColorDot
               onClick={() => togglePopup("color")}
               active={activePopup === "color"}
+              color={dotColor}
             />
             <MagicBtn icon={LayoutGrid} label="Layout" onClick={() => onAction("change_layout")} />
             <MagicBtn icon={ImageIcon} label="Replace BG" onClick={() => onAction("set_section_bg_image")} />
@@ -177,6 +186,7 @@ export function MagicEditorToolbar({ selection, onAction }: MagicEditorToolbarPr
             <ColorDot
               onClick={() => togglePopup("color")}
               active={activePopup === "color"}
+              color={dotColor}
             />
           </>
         )}
@@ -189,6 +199,7 @@ export function MagicEditorToolbar({ selection, onAction }: MagicEditorToolbarPr
             <ColorDot
               onClick={() => togglePopup("color")}
               active={activePopup === "color"}
+              color={dotColor}
             />
           </>
         )}
@@ -213,6 +224,7 @@ export function MagicEditorToolbar({ selection, onAction }: MagicEditorToolbarPr
             <ColorPopup
               onClose={() => setActivePopup(null)}
               onApply={handleColorApply}
+              currentColor={currentColor}
               label={getColorLabel()}
             />
           )}
@@ -239,14 +251,17 @@ function MagicBtn({ icon: Icon, label, onClick, active }: { icon: any; label: st
   );
 }
 
-function ColorDot({ onClick, active }: { onClick: () => void; active?: boolean }) {
+function ColorDot({ onClick, active, color }: { onClick: () => void; active?: boolean; color?: string }) {
   return (
     <button
       onClick={onClick}
       title="Color"
       className={`p-1 rounded-md transition-colors ${active ? "bg-background/30" : "hover:bg-background/20"}`}
     >
-      <div className="w-4 h-4 rounded-full bg-primary border-2 border-background/50" />
+      <div
+        className="w-4 h-4 rounded-full border-2 border-background/50"
+        style={{ backgroundColor: color || "hsl(var(--primary))" }}
+      />
     </button>
   );
 }
