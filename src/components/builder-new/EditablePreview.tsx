@@ -111,10 +111,8 @@ const EDIT_SCRIPT = `
         if (t === 'IMG') return 'image';
         if (['H1','H2','H3','H4','H5','H6','P','SPAN','LI','LABEL'].indexOf(t) !== -1) return 'text';
         if (t === 'A') return 'button';
-        // Inline button-like elements (div styled as button)
         if (t === 'DIV' && cl.some(function(c) { return c.includes('btn') || c.includes('button') || c.includes('cta'); })) return 'button';
         if (['SECTION','FOOTER','NAV','HEADER'].indexOf(t) !== -1) return 'section';
-        // Card detection: class-based or structural (div with img + text children inside a grid/flex parent)
         if (t === 'DIV') {
           if (cl.some(function(c) { return c.includes('card') || c.includes('item') || c.includes('product') || c.includes('menu-item'); })) return 'card';
           var parent = el.parentElement;
@@ -125,6 +123,56 @@ const EDIT_SCRIPT = `
           }
         }
         return 'page';
+      }
+
+      /**
+       * Detect if a div is a purely visual overlay (gradient, backdrop, etc.)
+       * that should pass clicks through to the underlying image.
+       */
+      function isOverlayDiv(el) {
+        if (el.tagName !== 'DIV') return false;
+        var s = window.getComputedStyle(el);
+        if (s.position !== 'absolute' && s.position !== 'fixed') return false;
+        // Has a background gradient or semi-transparent bg but no meaningful content
+        var bg = s.backgroundImage || '';
+        var bgColor = s.backgroundColor || '';
+        var hasGradient = bg.includes('gradient');
+        var hasTransparentBg = bgColor.includes('rgba') || bgColor === 'transparent' || bgColor === '';
+        // No text content and no interactive children
+        var text = (el.textContent || '').trim();
+        var hasInteractive = el.querySelector('a, button, input, img, h1, h2, h3, h4, h5, h6, p, span');
+        if ((hasGradient || hasTransparentBg) && !text && !hasInteractive) return true;
+        // Empty div used as overlay
+        if (el.children.length === 0 && !text) return true;
+        return false;
+      }
+
+      /**
+       * Find the hero/section background image near an overlay div.
+       * Looks in sibling divs and the parent section for an <img>.
+       */
+      function findNearbyImage(overlayEl) {
+        var parent = overlayEl.parentElement;
+        if (!parent) return null;
+        // Check siblings
+        var siblings = parent.children;
+        for (var i = 0; i < siblings.length; i++) {
+          var sib = siblings[i];
+          if (sib === overlayEl) continue;
+          if (sib.tagName === 'IMG') return sib;
+          var img = sib.querySelector('img');
+          if (img) return img;
+        }
+        return null;
+      }
+
+      function selectImage(el) {
+        clearAllHighlights();
+        el.classList.add('yangu-img-selected');
+        var si = findSectionIndex(el);
+        var imgRect = el.getBoundingClientRect();
+        window.parent.postMessage({ type: 'canvas-select', kind: 'image', tag: 'IMG', preview: el.src || '', sectionIndex: si, nodeId: el.getAttribute('data-yangu-node-id') || '', elRect: { top: imgRect.top, left: imgRect.left, width: imgRect.width, height: imgRect.height } }, '*');
+        window.parent.postMessage({ type: 'image-click', src: el.src }, '*');
       }
 
       function getPreview(el, kind) {
@@ -216,12 +264,7 @@ const EDIT_SCRIPT = `
         el.addEventListener('click', function(e) {
           e.preventDefault();
           e.stopPropagation();
-          clearAllHighlights();
-          el.classList.add('yangu-img-selected');
-          var si = findSectionIndex(el);
-          var imgRect = el.getBoundingClientRect();
-          window.parent.postMessage({ type: 'canvas-select', kind: 'image', tag: 'IMG', preview: el.src || '', sectionIndex: si, nodeId: el.getAttribute('data-yangu-node-id') || '', elRect: { top: imgRect.top, left: imgRect.left, width: imgRect.width, height: imgRect.height } }, '*');
-          window.parent.postMessage({ type: 'image-click', src: el.src }, '*');
+          selectImage(el);
         });
       });
 
@@ -240,9 +283,29 @@ const EDIT_SCRIPT = `
           sendDeselect();
           return;
         }
+
+        // If clicking on an overlay div, find the underlying image
+        if (isOverlayDiv(el)) {
+          var underlyingImg = findNearbyImage(el);
+          if (underlyingImg) {
+            e.preventDefault();
+            e.stopPropagation();
+            selectImage(underlyingImg);
+            return;
+          }
+          // No image found — treat as section click
+          var nearSec = getNearestSection(el);
+          if (nearSec) {
+            el = nearSec;
+            // fall through to section selection below
+          } else {
+            sendDeselect();
+            return;
+          }
+        }
+
         // Clicking directly on a section/footer/nav/header = select that section
         if (['SECTION','FOOTER','NAV','HEADER'].indexOf(el.tagName) !== -1 && e.target === el) {
-          // Select the section instead of deselecting
           var kind = 'section';
           var si = findSectionIndex(el);
           clearAllHighlights();
