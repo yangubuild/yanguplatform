@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
 import { PublishedEmenuFrame } from "@/components/routing/PublishedEmenuFrame";
+import { PublicCommerceShell } from "@/components/commerce/PublicCommerceShell";
 import { YanguBadge } from "@/components/routing/YanguBadge";
 import { DEFAULT_THEME, type BuilderTheme } from "@/components/builder/BuilderSettingsDrawer";
 import { deduplicatePublishedSections } from "@/config/builderCoreSections";
@@ -15,20 +16,18 @@ import { Loader2 } from "lucide-react";
 
 /**
  * Public published page renderer.
- * For emenu surfaces: renders the exact published HTML stored in builder_publishes.published_schema.surface.emenu_html.
- * For other surfaces: reads from builder_get_public_schema RPC.
+ * For emenu surfaces: renders the exact published HTML in an iframe with commerce overlays.
+ * For other surfaces: reads from builder_get_public_schema RPC with React commerce shell.
  */
 export default function PublicSurfacePage() {
   const location = useLocation();
 
-  // Derive host and slug
   const host = window.location.hostname.replace(/^www\./, "");
   const pathSlug = location.pathname.replace(/^\/+/, "").split("/")[0] || "home";
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["builder_public_schema", host, pathSlug],
     queryFn: async () => {
-      // First try the standard RPC
       const { data, error } = await supabase.rpc("builder_get_public_schema", {
         p_host: host,
         p_slug: pathSlug,
@@ -45,20 +44,21 @@ export default function PublicSurfacePage() {
     refetchOnMount: "always",
   });
 
-  // For emenu surfaces, also fetch the raw HTML from metadata
   const surfaceType = (data?.published_schema?.surface as any)?.surface_type;
   const publishedEmenuHtml = surfaceType === "emenu"
     ? ((data?.published_schema?.surface as any)?.emenu_html as string | null)
     : null;
 
-  // Extract metadata for document head (must be before early returns)
   const surfaceData = (data?.published_schema?.surface || {}) as any;
   const pageTitle = surfaceData.seo_title || surfaceData.title || "Untitled";
   const seoDescription = surfaceData.seo_description || surfaceData.description || "";
   const faviconUrl = surfaceData.favicon_url || "";
   const showBadge = surfaceData.show_yangu_badge === true;
+  const surfaceId = surfaceData.id || "";
+  const ownerId = surfaceData.user_id || "";
+  const businessName = surfaceData.title || "";
 
-  // Set document metadata (Block A — public page output)
+  // Set document metadata
   useEffect(() => {
     if (!data) return;
     document.title = pageTitle;
@@ -84,7 +84,6 @@ export default function PublicSurfacePage() {
     return () => { document.title = "YANGU"; };
   }, [data, pageTitle, seoDescription, faviconUrl]);
 
-  // Loading
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -93,22 +92,42 @@ export default function PublicSurfacePage() {
     );
   }
 
-  // Not found / error
   if (error || !data) {
     return <PublicNotFound host={host} slug={pathSlug} />;
   }
 
-  // ═══ EMENU: render raw HTML directly ═══
+  // ═══ EMENU: iframe + commerce shell ═══
   const pubSurfaceType = surfaceData.surface_type;
   if (pubSurfaceType === "emenu") {
     if (!publishedEmenuHtml) {
       return <PublicNotFound host={host} slug={pathSlug} message="This menu needs to be republished." />;
     }
 
-    return <PublishedEmenuFrame html={publishedEmenuHtml} title={pageTitle} faviconUrl={faviconUrl || null} showBadge={showBadge} />;
+    return (
+      <PublicCommerceShell
+        surfaceId={surfaceId}
+        ownerId={ownerId}
+        businessName={businessName}
+      >
+        <PublishedEmenuFrame
+          html={publishedEmenuHtml}
+          title={pageTitle}
+          faviconUrl={faviconUrl || null}
+          showBadge={showBadge}
+          orderingEnabled={true}
+          onPostMessage={(msg) => {
+            if (msg.type === "yangu_add_to_cart" && msg.item) {
+              (window as any).__yangu_add_to_cart?.(msg.item);
+            } else if (msg.type === "yangu_open_cart") {
+              (window as any).__yangu_open_cart?.();
+            }
+          }}
+        />
+      </PublicCommerceShell>
+    );
   }
 
-  // Render published schema — use same normalization as editor canvas
+  // ═══ Non-emenu surfaces ═══
   const schema = data.published_schema;
   const page = schema.pages?.[0];
   const rawSections = page?.sections
@@ -120,7 +139,6 @@ export default function PublicSurfacePage() {
   const title = pageTitle;
   const isInfluencer = pubSurfaceType === "live_bio";
   
-  // Read theme from published schema
   const rawTheme = (surfaceData.theme as Partial<BuilderTheme>) || {};
   const surfaceTheme: BuilderTheme = { ...DEFAULT_THEME, ...rawTheme };
   const themeStyle: React.CSSProperties = {
@@ -160,26 +178,29 @@ export default function PublicSurfacePage() {
 
   if (isInfluencer) {
     return (
-      <div className="min-h-screen bg-muted/30 flex justify-center">
-        <div className="w-full max-w-[420px] min-h-screen bg-background yangu-live shadow-xl" style={themeStyle}>
-          {sectionContent}
+      <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName}>
+        <div className="min-h-screen bg-muted/30 flex justify-center">
+          <div className="w-full max-w-[420px] min-h-screen bg-background yangu-live shadow-xl" style={themeStyle}>
+            {sectionContent}
+          </div>
+          {showBadge && <YanguBadge />}
         </div>
-        {showBadge && <YanguBadge />}
-      </div>
+      </PublicCommerceShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background yangu-live" style={themeStyle}>
-      {/* Minimal header */}
-      <header className="border-b border-border bg-background/80 backdrop-blur-sm">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8 py-3">
-          <h1 className="text-sm font-semibold text-foreground truncate">{title}</h1>
-        </div>
-      </header>
-      {sectionContent}
-      {showBadge && <YanguBadge />}
-    </div>
+    <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName}>
+      <div className="min-h-screen bg-background yangu-live" style={themeStyle}>
+        <header className="border-b border-border bg-background/80 backdrop-blur-sm">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8 py-3">
+            <h1 className="text-sm font-semibold text-foreground truncate">{title}</h1>
+          </div>
+        </header>
+        {sectionContent}
+        {showBadge && <YanguBadge />}
+      </div>
+    </PublicCommerceShell>
   );
 }
 
