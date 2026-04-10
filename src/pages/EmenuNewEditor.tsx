@@ -995,13 +995,7 @@ export default function EmenuNewEditor() {
             onHtmlChange={handleHtmlChange}
             onSelectionChange={handleCanvasSelection}
             viewportMode={previewViewport}
-      />
-
-      {/* Background Image Picker */}
-      <EditorImagePickerDialog
-        open={bgImagePickerOpen}
-        onOpenChange={setBgImagePickerOpen}
-        onSelect={applyBgImage}
+          />
 
           {/* Magic Editor floating toolbar — positioned near selected element */}
           {magicEditorOn && canvasSelection && canvasSelection.kind !== "page" && canvasSelection.elRect && (() => {
