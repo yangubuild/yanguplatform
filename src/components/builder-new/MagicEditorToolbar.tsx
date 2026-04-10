@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Sparkles, Link2, Bold, Italic, Underline, Strikethrough,
   AlignCenter, Type as TypeIcon, LayoutGrid, Image as ImageIcon,
-  Replace, Palette, Trash2, Copy, MousePointer, Plus,
+  Replace, Palette, Trash2, Copy, MousePointer, Plus, ShoppingCart,
 } from "lucide-react";
 import type { CanvasSelection } from "@/lib/builder/selectionTypes";
 import type { ActivePopup, SelectedScope, LinkData } from "./editor-popups/EditorPopupTypes";
