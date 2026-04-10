@@ -34,47 +34,49 @@ const EDIT_STYLES = `
     button:hover, a[class*="btn"]:hover, a[class*="cta"]:hover { outline: 2px solid #22c55e44; outline-offset: 2px; }
     .yangu-btn-selected { outline: 2px solid #22c55e !important; outline-offset: 2px; }
     .yangu-add-section-pill {
-      display: none;
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
-      top: -16px;
+      top: -14px;
       z-index: 100;
-      padding: 6px 18px;
+      padding: 4px 14px;
       border-radius: 20px;
-      background: #3b82f6;
-      color: #fff;
-      font-size: 13px;
+      background: hsl(217 91% 60% / 0.15);
+      color: #3b82f6;
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
-      border: none;
-      box-shadow: 0 2px 12px rgba(59,130,246,0.4);
+      border: 1.5px dashed #3b82f6;
       white-space: nowrap;
-      transition: opacity 0.15s;
+      transition: all 0.2s;
+      opacity: 0.5;
+    }
+    .yangu-add-section-pill:hover {
+      opacity: 1;
+      background: #3b82f6;
+      color: #fff;
+      border-style: solid;
+      box-shadow: 0 2px 12px rgba(59,130,246,0.4);
     }
     .yangu-section-gap {
       position: relative;
-      height: 4px;
+      height: 24px;
       transition: height 0.15s;
     }
     .yangu-section-gap:hover {
-      height: 32px;
-    }
-    .yangu-section-gap:hover .yangu-add-section-pill {
-      display: flex;
-      align-items: center;
-      gap: 4px;
+      height: 36px;
     }
     .yangu-section-gap::before {
       content: '';
       position: absolute;
-      left: 0; right: 0; top: 50%;
-      height: 2px;
-      background: transparent;
+      left: 10%; right: 10%; top: 50%;
+      height: 1px;
+      background: hsl(217 91% 60% / 0.15);
       transition: background 0.15s;
     }
     .yangu-section-gap:hover::before {
       background: #3b82f6;
+      left: 0; right: 0;
     }
   </style>
 `;

@@ -31,8 +31,8 @@ const MODULE_DEFINITIONS: Record<string, EditorModule> = {
   menu_items: { id: "menu_items", label: "Menu Items", icon: UtensilsCrossed, description: "Add and edit menu items", group: "content" },
   food_image_ai: { id: "food_image_ai", label: "Food Image AI", icon: Image, description: "Generate food images with AI", group: "content" },
   hours: { id: "hours", label: "Hours", icon: Clock, description: "Set business hours", group: "content" },
-  order_settings: { id: "order_settings", label: "Order Settings", icon: Truck, description: "Configure ordering options", group: "commerce" },
-  commerce_config: { id: "commerce_config", label: "Commerce & Payments", icon: CreditCard, description: "Ordering, payments, WhatsApp", group: "commerce" },
+  order_settings: { id: "order_settings", label: "Commerce & Orders", icon: Truck, description: "Ordering, delivery, payments", group: "commerce" },
+  commerce_config: { id: "commerce_config", label: "Commerce & Orders", icon: CreditCard, description: "Ordering, delivery, payments", group: "commerce" },
   contact: { id: "contact", label: "Contact Info", icon: Phone, description: "Phone, email, address", group: "content" },
   social: { id: "social", label: "Social Links", icon: Share2, description: "Add social media links", group: "social" },
 

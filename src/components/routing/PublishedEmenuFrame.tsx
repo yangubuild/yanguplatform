@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { YANGU_BADGE_HTML } from "@/components/routing/YanguBadge";
-import { EMENU_CART_BRIDGE_SCRIPT } from "@/components/commerce/emenuCartBridge";
+import { buildCartBridgeScript } from "@/components/commerce/emenuCartBridge";
 
 const PUBLISHED_EMENU_HEAD_INJECT = `<link href="https://api.fontshare.com/v2/css?f[]=lufga@700&display=swap" rel="stylesheet">
 <style>
@@ -68,6 +68,58 @@ h2,.section-title{
   font-size:2rem !important;
 }
 
+/* ── Mobile-first responsive ── */
+@media (max-width: 768px) {
+  body > *:not([data-yangu-badge]) {
+    padding-left:16px !important;
+    padding-right:16px !important;
+  }
+  body > section:not([data-yangu-badge]) > *,
+  body > header:not([data-yangu-badge]) > *,
+  body > footer:not([data-yangu-badge]) > *,
+  body > nav:not([data-yangu-badge]) > * {
+    padding-left:16px !important;
+    padding-right:16px !important;
+  }
+  h1,.hero-title {
+    font-size:2rem !important;
+    line-height:1.25 !important;
+  }
+  h2,.section-title {
+    font-size:1.5rem !important;
+  }
+  h3 { font-size:1.15rem !important; }
+  nav { flex-wrap:wrap !important; gap:8px !important; }
+  nav a,.nav-link,[class*="nav-item"] {
+    font-size:0.875rem !important;
+  }
+  button,.btn,[class*="button"] {
+    font-size:0.875rem !important;
+    padding:8px 16px !important;
+  }
+  /* Stack grid items on mobile */
+  [style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+  }
+  [style*="display: flex"][style*="gap"] {
+    flex-wrap: wrap !important;
+  }
+  /* Ensure images don't overflow */
+  img { height: auto !important; }
+}
+
+@media (max-width: 480px) {
+  h1,.hero-title {
+    font-size:1.75rem !important;
+  }
+  h2,.section-title {
+    font-size:1.25rem !important;
+  }
+}
+
+/* Smooth scroll */
+html { scroll-behavior: smooth; }
+
 [data-yangu-badge]{
   max-width:none !important;
   margin-left:unset !important;
@@ -85,6 +137,7 @@ interface PublishedEmenuFrameProps {
   faviconUrl?: string | null;
   showBadge?: boolean;
   orderingEnabled?: boolean;
+  currency?: string;
   onPostMessage?: (data: any) => void;
 }
 
@@ -98,6 +151,7 @@ export function PublishedEmenuFrame({
   faviconUrl,
   showBadge,
   orderingEnabled,
+  currency = "USD",
   onPostMessage,
 }: PublishedEmenuFrameProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -116,6 +170,11 @@ export function PublishedEmenuFrame({
       );
     }
 
+    // Add viewport meta for mobile
+    if (!h.includes('name="viewport"') && h.includes("</head>")) {
+      h = h.replace("</head>", `<meta name="viewport" content="width=device-width, initial-scale=1.0">\n</head>`);
+    }
+
     if (h.includes("</head>")) {
       h = h.replace("</head>", `${PUBLISHED_EMENU_HEAD_INJECT}\n</head>`);
     }
@@ -124,9 +183,9 @@ export function PublishedEmenuFrame({
       h = h.replace("</body>", `${YANGU_BADGE_HTML}\n</body>`);
     }
 
-    // Inject cart bridge script if ordering enabled
+    // Inject cart bridge script with configured currency
     if (orderingEnabled && h.includes("</body>")) {
-      h = h.replace("</body>", `${EMENU_CART_BRIDGE_SCRIPT}\n</body>`);
+      h = h.replace("</body>", `${buildCartBridgeScript(currency)}\n</body>`);
     }
 
     if (h.includes("<title>")) {
@@ -134,7 +193,7 @@ export function PublishedEmenuFrame({
     }
 
     return h;
-  }, [html, title, faviconUrl, showBadge, orderingEnabled]);
+  }, [html, title, faviconUrl, showBadge, orderingEnabled, currency]);
 
   // Listen for postMessage from iframe
   useEffect(() => {

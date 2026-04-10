@@ -2,6 +2,7 @@ import { useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { usePublicCommerceConfig } from "@/hooks/useSurfaceCommerceConfig";
 import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
 import { PublishedEmenuFrame } from "@/components/routing/PublishedEmenuFrame";
 import { PublicCommerceShell } from "@/components/commerce/PublicCommerceShell";
@@ -98,32 +99,22 @@ export default function PublicSurfacePage() {
 
   // ═══ EMENU: iframe + commerce shell ═══
   const pubSurfaceType = surfaceData.surface_type;
+
   if (pubSurfaceType === "emenu") {
     if (!publishedEmenuHtml) {
       return <PublicNotFound host={host} slug={pathSlug} message="This menu needs to be republished." />;
     }
 
     return (
-      <PublicCommerceShell
+      <EmenuPublicView
         surfaceId={surfaceId}
         ownerId={ownerId}
         businessName={businessName}
-      >
-        <PublishedEmenuFrame
-          html={publishedEmenuHtml}
-          title={pageTitle}
-          faviconUrl={faviconUrl || null}
-          showBadge={showBadge}
-          orderingEnabled={true}
-          onPostMessage={(msg) => {
-            if (msg.type === "yangu_add_to_cart" && msg.item) {
-              (window as any).__yangu_add_to_cart?.(msg.item);
-            } else if (msg.type === "yangu_open_cart") {
-              (window as any).__yangu_open_cart?.();
-            }
-          }}
-        />
-      </PublicCommerceShell>
+        publishedEmenuHtml={publishedEmenuHtml}
+        pageTitle={pageTitle}
+        faviconUrl={faviconUrl || null}
+        showBadge={showBadge}
+      />
     );
   }
 
@@ -250,6 +241,38 @@ export default function PublicSurfacePage() {
         {sectionContent}
         {showBadge && <YanguBadge />}
       </div>
+    </PublicCommerceShell>
+  );
+}
+
+/** Emenu public view — loads commerce config for currency pass-through */
+function EmenuPublicView({
+  surfaceId, ownerId, businessName, publishedEmenuHtml, pageTitle, faviconUrl, showBadge,
+}: {
+  surfaceId: string; ownerId: string; businessName: string;
+  publishedEmenuHtml: string; pageTitle: string; faviconUrl: string | null; showBadge: boolean;
+}) {
+  const { data: commerceConfig } = usePublicCommerceConfig(surfaceId);
+  const currency = commerceConfig?.currency ?? "USD";
+  const orderingEnabled = commerceConfig?.ordering_enabled ?? true;
+
+  return (
+    <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName}>
+      <PublishedEmenuFrame
+        html={publishedEmenuHtml}
+        title={pageTitle}
+        faviconUrl={faviconUrl}
+        showBadge={showBadge}
+        orderingEnabled={orderingEnabled}
+        currency={currency}
+        onPostMessage={(msg) => {
+          if (msg.type === "yangu_add_to_cart" && msg.item) {
+            (window as any).__yangu_add_to_cart?.(msg.item);
+          } else if (msg.type === "yangu_open_cart") {
+            (window as any).__yangu_open_cart?.();
+          }
+        }}
+      />
     </PublicCommerceShell>
   );
 }
