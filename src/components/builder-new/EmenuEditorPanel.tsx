@@ -11,7 +11,7 @@ interface EmenuEditorPanelProps {
   onAction: (action: string, payload?: any) => void;
 }
 
-type Section = "menu" | "categories" | "images" | "layout" | "business" | "hours" | "social" | "orders";
+type Section = "menu" | "categories" | "images" | "layout" | "business" | "hours" | "social" | "commerce";
 
 const SECTIONS: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "menu", label: "Menu Items", icon: Type },
@@ -21,7 +21,7 @@ const SECTIONS: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "business", label: "Business Info", icon: Store },
   { id: "hours", label: "Hours", icon: Clock },
   { id: "social", label: "Social Links", icon: Share2 },
-  { id: "orders", label: "Order Settings", icon: Truck },
+  { id: "commerce", label: "Commerce & Orders", icon: Truck },
 ];
 
 export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEditorPanelProps) {
