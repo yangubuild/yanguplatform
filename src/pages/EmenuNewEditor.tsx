@@ -61,8 +61,16 @@ export default function EmenuNewEditor() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showLeaveWarning, setShowLeaveWarning] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string>("");
   const pendingNavRef = useRef<string | null>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Get current user ID for commerce config
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.id) setCurrentUserId(session.user.id);
+    });
+  }, []);
 
   const {
     editorState, isLoading, error, sections, activePage, activePageId,
