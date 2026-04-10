@@ -321,6 +321,38 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
           elRect: e.data.elRect || undefined,
         });
       }
+      if (e.data?.type === 'add-section-at') {
+        const doc = iframeRef.current?.contentDocument;
+        if (!doc) return;
+        const sections = Array.from(doc.querySelectorAll('section, footer, nav, header'));
+        const insertIdx = e.data.index ?? sections.length;
+        const newSec = doc.createElement('section');
+        newSec.style.cssText = 'padding:72px 24px;text-align:center;';
+        newSec.innerHTML = '<div style="max-width:900px;margin:0 auto;"><h2 style="font-size:1.8rem;font-weight:700;margin-bottom:12px;" contenteditable="true">New Section</h2><p style="color:#666;" contenteditable="true">Click to edit this section content.</p></div>';
+        newSec.classList.add('section-hover');
+        if (insertIdx < sections.length && sections[insertIdx]) {
+          sections[insertIdx].parentElement?.insertBefore(newSec, sections[insertIdx]);
+        } else {
+          const footer = doc.querySelector('footer');
+          if (footer) footer.parentElement?.insertBefore(newSec, footer);
+          else doc.body.appendChild(newSec);
+        }
+        // Remove old gap pills and re-inject would require reload, just push update
+        const clone = doc.documentElement.cloneNode(true) as HTMLElement;
+        clone.querySelectorAll('.yangu-editor-inject').forEach(el => el.remove());
+        clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected,.section-hover').forEach(el => {
+          el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected','section-hover');
+        });
+        clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+        clone.querySelectorAll('[data-yangu-node-id]').forEach(el => el.removeAttribute('data-yangu-node-id'));
+        clone.querySelectorAll('[data-section-idx]').forEach(el => el.removeAttribute('data-section-idx'));
+        clone.querySelectorAll('*').forEach(el => {
+          const ca = el.getAttribute('class');
+          if (ca !== null && !ca.trim()) el.removeAttribute('class');
+        });
+        loadedHtmlRef.current = clone.outerHTML;
+        onHtmlChange(clone.outerHTML);
+      }
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
