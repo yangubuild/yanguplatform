@@ -788,7 +788,17 @@ export default function EmenuNewEditor() {
       case "change_layout": {
         if (!doc) break;
         const sec = getSelectedElement(doc);
-        if (sec) toast.info("Use the right panel to change section layout");
+        if (!sec) {
+          toast.warning("Layout change is not available for this section.");
+          break;
+        }
+        // Check if section has a grid/flex container we can rearrange
+        const grid = sec.querySelector("[style*='grid']") || sec.querySelector("[style*='flex']");
+        if (!grid) {
+          toast.warning("This section does not have a changeable layout.");
+          break;
+        }
+        toast.info("Use the right panel to adjust this section's layout.");
         break;
       }
 
