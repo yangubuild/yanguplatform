@@ -87,6 +87,45 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
       var lastChild = priceEl.parentElement || card;
       lastChild.appendChild(btn);
     });
+
+    // Also wire up any pre-existing order buttons added via the editor
+    document.querySelectorAll('[data-yangu-order-btn]').forEach(function(btn) {
+      if (btn.getAttribute('data-cart-wired')) return;
+      btn.setAttribute('data-cart-wired', 'true');
+      var card = btn.closest('[data-cart-processed], [class*="card"], [class*="item"], [class*="product"], [class*="menu-item"]') || btn.parentElement;
+      if (!card) return;
+
+      var nameEl = card.querySelector('h3, h4, h5, [style*="font-weight:700"], [style*="font-weight:600"]');
+      var priceEl2 = null;
+      var spans2 = card.querySelectorAll('span, p');
+      for (var j = 0; j < spans2.length; j++) {
+        var txt = (spans2[j].textContent || '').trim();
+        if (pricePattern.test(txt)) { priceEl2 = spans2[j]; break; }
+      }
+      if (!nameEl || !priceEl2) return;
+
+      var pText = (priceEl2.textContent || '').trim();
+      var nStr = pText.replace(/^[A-Z]{3}|[\\$€£\\s]/g, '').replace(/,/g, '').trim();
+      var pNum = parseFloat(nStr);
+      if (isNaN(pNum)) return;
+      var pCents = Math.round(pNum * 100);
+      var iName = (nameEl.textContent || '').trim();
+      var iImg = card.querySelector('img');
+      var iId = btoa(iName + '_' + pCents).replace(/=/g, '');
+
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.parent.postMessage({
+          type: 'yangu_add_to_cart',
+          item: { id: iId, name: iName, price_cents: pCents, currency: CONFIGURED_CURRENCY, image_url: iImg ? iImg.src : null, variant: null }
+        }, '*');
+        btn.textContent = '\\u2713 Added';
+        btn.style.background = '#059669';
+        btn.style.color = '#fff';
+        setTimeout(function() { btn.textContent = '+ Add'; btn.style.background = '#22c55e'; btn.style.color = '#fff'; }, 1200);
+      });
+    });
   }
 
   function addCartButton() {

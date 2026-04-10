@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Sparkles, Link2, Bold, Italic, Underline, Strikethrough,
   AlignCenter, Type as TypeIcon, LayoutGrid, Image as ImageIcon,
-  Replace, Palette, Trash2, Copy, MousePointer, Plus,
+  Replace, Palette, Trash2, Copy, MousePointer, Plus, ShoppingCart,
 } from "lucide-react";
 import type { CanvasSelection } from "@/lib/builder/selectionTypes";
 import type { ActivePopup, SelectedScope, LinkData } from "./editor-popups/EditorPopupTypes";
@@ -30,7 +30,7 @@ function mapKindToScope(kind: string): SelectedScope {
   if (kind === "button") return "button";
   if (kind === "image") return "image";
   if (kind === "section") return "section";
-  if (kind === "card") return "text";
+  if (kind === "card") return "text"; // fallback scope for popups
   if (kind === "page") return "page";
   return "none";
 }
@@ -195,7 +195,8 @@ export function MagicEditorToolbar({ selection, onAction, currentColor, adaMessa
             />
             <MagicBtn icon={LayoutGrid} label="Layout" onClick={() => onAction("change_layout")} />
             <MagicBtn icon={ImageIcon} label="Replace BG" onClick={() => onAction("set_section_bg_image")} />
-            <MagicBtn icon={Plus} label="Add CTA" onClick={() => onAction("add_cta_button")} />
+            <MagicBtn icon={Plus} label="Nav CTA" onClick={() => onAction("add_cta_button")} />
+            <MagicBtn icon={ShoppingCart} label="Enable Ordering" onClick={() => onAction("enable_section_ordering")} />
             <div className="w-px h-4 bg-background/20 mx-0.5" />
             <MagicBtn icon={Copy} label="Duplicate" onClick={() => onAction("duplicate_section")} />
             <MagicBtn icon={Trash2} label="Delete" onClick={() => onAction("remove_section")} />
@@ -218,6 +219,7 @@ export function MagicEditorToolbar({ selection, onAction, currentColor, adaMessa
           <>
             <MagicBtn icon={TypeIcon} label="Edit" onClick={() => onAction("edit_text")} />
             <MagicBtn icon={ImageIcon} label="Image" onClick={() => onAction("replace_image")} />
+            <MagicBtn icon={ShoppingCart} label="Order Btn" onClick={() => onAction("add_card_order_button")} />
             <ColorDot
               onClick={() => togglePopup("color")}
               active={activePopup === "color"}
