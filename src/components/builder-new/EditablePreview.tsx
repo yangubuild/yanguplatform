@@ -112,8 +112,16 @@ const EDIT_SCRIPT = `
         if (['H1','H2','H3','H4','H5','H6','P','SPAN','LI','LABEL'].indexOf(t) !== -1) return 'text';
         if (t === 'A') return 'button';
         if (['SECTION','FOOTER','NAV','HEADER'].indexOf(t) !== -1) return 'section';
-        if (t === 'DIV' && cl.some(function(c) { return c.includes('card') || c.includes('item') || c.includes('product') || c.includes('menu-item'); })) return 'card';
-        if (getNearestSection(el)) return 'section';
+        // Card detection: class-based or structural (div with img + text children inside a grid/flex parent)
+        if (t === 'DIV') {
+          if (cl.some(function(c) { return c.includes('card') || c.includes('item') || c.includes('product') || c.includes('menu-item'); })) return 'card';
+          var parent = el.parentElement;
+          if (parent) {
+            var ps = window.getComputedStyle(parent);
+            var isGrid = ps.display === 'grid' || ps.display === 'inline-grid' || ps.display === 'flex' || ps.display === 'inline-flex';
+            if (isGrid && el.querySelector('img') && el.querySelector('h3,h4,p,span')) return 'card';
+          }
+        }
         return 'page';
       }
 
@@ -230,9 +238,21 @@ const EDIT_SCRIPT = `
           sendDeselect();
           return;
         }
-        // Clicking directly on a section/footer/nav/header element (not a child) = deselect
+        // Clicking directly on a section/footer/nav/header = select that section
         if (['SECTION','FOOTER','NAV','HEADER'].indexOf(el.tagName) !== -1 && e.target === el) {
-          sendDeselect();
+          // Select the section instead of deselecting
+          var kind = 'section';
+          var si = findSectionIndex(el);
+          clearAllHighlights();
+          el.classList.add('section-selected');
+          var rect = el.getBoundingClientRect();
+          window.parent.postMessage({
+            type: 'canvas-select', kind: kind, tag: el.tagName,
+            preview: (el.id || el.querySelector('h1,h2,h3')?.textContent?.trim()?.substring(0,40)) || '',
+            sectionIndex: si, nodeId: el.getAttribute('data-yangu-node-id') || '',
+            sectionId: el.id || '', elRect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
+          }, '*');
+          if (si >= 0) window.parent.postMessage({ type: 'section-select', idx: si, tag: el.tagName }, '*');
           return;
         }
         if (el.tagName === 'IMG') return;
