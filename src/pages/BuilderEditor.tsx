@@ -257,7 +257,7 @@ export default function BuilderEditor() {
         </div>
 
         {/* Desktop-only header buttons */}
-        <Button size="sm" variant="outline" className="gap-2 hidden lg:flex" onClick={() => toast.info("AI chat editor coming soon!")}>
+        <Button size="sm" variant="outline" className="gap-2 hidden lg:flex" onClick={() => toast.info("Ada AI is available in the new editor — open your surface from the dashboard to use it.")}>
           <Sparkles className="h-4 w-4" /> Edit with Ada AI
         </Button>
         <Button size="sm" variant="outline" onClick={() => setSettingsOpen(true)} className="gap-2 hidden lg:flex">
