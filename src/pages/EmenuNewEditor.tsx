@@ -102,6 +102,25 @@ export default function EmenuNewEditor() {
     liveHtmlRef.current = liveHtml;
   }, [liveHtml]);
 
+  // Bind ADA to real editor state for verified mutations
+  const pushStateRef = useRef(pushState);
+  pushStateRef.current = pushState;
+  useEffect(() => {
+    if (!editorState) return;
+    const st = editorState.surface.surface_type || "emenu";
+    const title = editorState.surface.title || "Untitled";
+    adaChat.bindEditor({
+      getHtml: () => liveHtmlRef.current,
+      setHtml: (html: string) => {
+        setLiveHtml(html);
+        setHasUnsavedChanges(true);
+        pushStateRef.current(html);
+      },
+      surfaceType: st,
+      surfaceTitle: title,
+    });
+  }, [editorState, adaChat.bindEditor]);
+
   // Load HTML when page/surface changes
   useEffect(() => {
     if (!currentPageSavedHtml) { setLiveHtml(null); return; }
