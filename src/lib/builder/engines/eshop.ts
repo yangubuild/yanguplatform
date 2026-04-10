@@ -113,7 +113,7 @@ export const eshopEngine: BuilderEngine = {
     { type: "offer", schema: { heading: "What We Offer", description: "", items: [] }, core_slot: "offer" },
     { type: "footer", schema: { heading: "Footer", email: "", phone: "", address: "", hours: [], social: {} }, core_slot: "footer" },
   ],
-  editorModules: ["products", "collections", "discount_rules", "cart", "checkout", "review_settings", "promos", "contact"],
+  editorModules: ["products", "collections", "discount_rules", "cart", "checkout", "commerce_config", "review_settings", "promos", "contact"],
   templates: [
     { key: "hero_shop", label: "Hero Shop", sectionType: "hero", schema: { headline: "", subheadline: "", cta_label: "Shop Now" } },
     { key: "product_grid", label: "Product Grid", sectionType: "products", schema: { heading: "Products", items: [], layout: "grid" } },
