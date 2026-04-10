@@ -1,6 +1,7 @@
 /**
  * Shared ADA builder chat hook — single runtime for left panel + Magic Editor popup.
- * Now wired to real mutation flow via builder-ai-service.ts
+ * Wired to real mutation flow via builder-ai-service.ts.
+ * Falls back to local deterministic parsing when AI gateway returns 402/429.
  */
 import { useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +12,11 @@ import {
   type AdaContextSnapshot,
   type AdaMutationPlan,
 } from "@/lib/builder/builder-ai-service";
+import {
+  parseLocalIntent,
+  buildLocalReply,
+  extractPageContext,
+} from "@/lib/builder/ada-local-fallback";
 
 export interface AdaChatMessage {
   id: string;
@@ -55,7 +61,7 @@ export function useAdaBuilderChat() {
       const binding = editorBindingRef.current;
       const currentHtml = binding?.getHtml() ?? null;
 
-      // Build context summary from current page state
+      // Build context snapshot
       const snapshot: AdaContextSnapshot = {
         mode: "html",
         surfaceType: binding?.surfaceType || "unknown",
@@ -70,40 +76,69 @@ export function useAdaBuilderChat() {
         content: m.content,
       }));
 
-      // Call the structured AI edge function
-      const { data, error } = await supabase.functions.invoke("ada-builder-edit", {
-        body: {
-          userMessage: userText,
-          contextSummary,
-          conversationHistory: history.slice(0, -1), // exclude current msg (sent as userMessage)
-        },
-      });
+      // Try the AI gateway first
+      let plan: (AdaMutationPlan & { reply?: string }) | null = null;
+      let usedFallback = false;
 
-      if (error || !data?.ok) {
-        // supabase.functions.invoke puts non-2xx response body in data even when error is set
-        const errorCode = data?.error || (error as Record<string, unknown>)?.error;
-        const errMsg = errorCode === "rate_limited"
-          ? "I'm being rate limited right now. Try again in a moment."
-          : errorCode === "payment_required"
-          ? "AI credits are exhausted. Please check your plan or add funds."
-          : "Something went wrong. Please try again.";
-        addAssistantMessage(errMsg);
+      try {
+        const { data, error } = await supabase.functions.invoke("ada-builder-edit", {
+          body: {
+            userMessage: userText,
+            contextSummary,
+            conversationHistory: history.slice(0, -1),
+          },
+        });
+
+        if (error || !data?.ok) {
+          const errorCode = data?.error || (error as Record<string, unknown>)?.error;
+          // If 402/429 → use local fallback
+          if (errorCode === "rate_limited" || errorCode === "payment_required") {
+            usedFallback = true;
+          } else {
+            addAssistantMessage("Something went wrong. Please try again.");
+            return;
+          }
+        } else {
+          plan = data.plan;
+        }
+      } catch {
+        // Network error → try fallback
+        usedFallback = true;
+      }
+
+      // ── Local fallback path ──
+      if (usedFallback) {
+        if (!currentHtml || !binding) {
+          addAssistantMessage("I can see your request but I don't have access to the page right now. Try refreshing the editor.");
+          return;
+        }
+
+        const pageCtx = extractPageContext(currentHtml);
+        const localPlan = parseLocalIntent(userText, pageCtx);
+
+        if (!localPlan) {
+          addAssistantMessage("I couldn't understand that request clearly enough to make a safe edit. Try being more specific, for example: change BBQ Wings price to $20, or add Jollof Rice at $15.");
+          return;
+        }
+
+        plan = { ...localPlan, reply: buildLocalReply(localPlan) };
+      }
+
+      if (!plan) {
+        addAssistantMessage("Something went wrong. Please try again.");
         return;
       }
 
-      const plan: AdaMutationPlan & { reply?: string } = data.plan;
       const reply = stripAdaFormatting(plan.reply || "");
 
-      // If AI asks for clarification or says unsupported, just reply
+      // If AI asks for clarification or says unsupported
       if (plan.action === "ask_clarification") {
-        const clarification = stripAdaFormatting(plan.clarification || reply || "Which item or section should I change?");
-        addAssistantMessage(clarification);
+        addAssistantMessage(stripAdaFormatting(plan.clarification || reply || "Which item or section should I change?"));
         return;
       }
 
       if (plan.action === "unsupported") {
-        const reason = stripAdaFormatting(plan.reason || reply || "I can't handle that request from here yet.");
-        addAssistantMessage(reason);
+        addAssistantMessage(stripAdaFormatting(plan.reason || reply || "I can't handle that request from here yet."));
         return;
       }
 
@@ -125,24 +160,20 @@ export function useAdaBuilderChat() {
           break;
 
         case "html": {
-          // Apply the mutated HTML to the editor
           binding.setHtml(mutation.nextHtml);
 
           // Verify the mutation took effect
-          // Small delay to let state propagate
           await new Promise((r) => setTimeout(r, 100));
           const afterHtml = binding.getHtml();
           if (afterHtml && mutation.verify(afterHtml)) {
             addAssistantMessage(mutation.successMessage);
           } else {
-            // Mutation was applied but verification failed — still inform user
             addAssistantMessage(mutation.successMessage + " (Please check the preview to confirm.)");
           }
           break;
         }
 
         case "sections":
-          // Sections mode not yet wired for emenu HTML surfaces
           addAssistantMessage(reply || "I prepared the change but this surface uses HTML editing. The update should be visible now.");
           break;
       }
