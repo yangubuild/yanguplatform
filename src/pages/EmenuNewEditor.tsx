@@ -760,7 +760,37 @@ export default function EmenuNewEditor() {
         break;
       }
 
-      // ── Order settings ──
+      // ── Add CTA / Buy Button to selected section ──
+      case "add_cta_button": {
+        if (!doc) break;
+        // Find the selected section
+        let targetSec = doc.querySelector('.section-selected') as HTMLElement | null;
+        if (!targetSec) {
+          const el = getSelectedElement(doc);
+          if (el) {
+            let p = el.parentElement;
+            while (p && p !== doc.body) {
+              if (['SECTION','HEADER','FOOTER','NAV'].includes(p.tagName)) { targetSec = p; break; }
+              p = p.parentElement;
+            }
+          }
+        }
+        if (!targetSec) { toast.info("Click a section first, then add a CTA button."); break; }
+
+        // Find the best insertion point (last text container, or end of section)
+        const innerContainer = targetSec.querySelector('[style*="max-width"]') as HTMLElement || targetSec;
+        const ctaBtn = doc.createElement("a");
+        ctaBtn.href = "#";
+        ctaBtn.textContent = "Order Now";
+        ctaBtn.setAttribute("contenteditable", "true");
+        ctaBtn.style.cssText = "display:inline-block;padding:14px 36px;border-radius:8px;background:#22c55e;color:#fff;text-decoration:none;font-weight:600;font-size:14px;margin-top:16px;cursor:pointer;";
+        ctaBtn.setAttribute("data-yangu-node-id", "yn-cta-" + Date.now());
+        innerContainer.appendChild(ctaBtn);
+        pushUpdate(doc, iframe);
+        toast.success("CTA button added! Click it to edit the label.");
+        break;
+      }
+
       case "order_settings": {
         // Redirect to the commerce config panel instead of browser prompts
         setLeftMode("commerce");
