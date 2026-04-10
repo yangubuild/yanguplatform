@@ -195,7 +195,8 @@ export function MagicEditorToolbar({ selection, onAction, currentColor, adaMessa
             />
             <MagicBtn icon={LayoutGrid} label="Layout" onClick={() => onAction("change_layout")} />
             <MagicBtn icon={ImageIcon} label="Replace BG" onClick={() => onAction("set_section_bg_image")} />
-            <MagicBtn icon={Plus} label="Add CTA" onClick={() => onAction("add_cta_button")} />
+            <MagicBtn icon={Plus} label="Nav CTA" onClick={() => onAction("add_cta_button")} />
+            <MagicBtn icon={Plus} label="Enable Ordering" onClick={() => onAction("enable_section_ordering")} />
             <div className="w-px h-4 bg-background/20 mx-0.5" />
             <MagicBtn icon={Copy} label="Duplicate" onClick={() => onAction("duplicate_section")} />
             <MagicBtn icon={Trash2} label="Delete" onClick={() => onAction("remove_section")} />
