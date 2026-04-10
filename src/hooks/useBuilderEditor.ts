@@ -158,6 +158,63 @@ export function useBuilderEditor(surfaceId: string | undefined) {
     })();
   }, [activePageId, sections, rawSections, queryClient, queryKey]);
 
+  // ─── One-time repair: fix Yumix hero metadata for existing installs ───
+  const heroRepairedRef = useRef(false);
+  useEffect(() => {
+    if (!activePageId || heroRepairedRef.current) return;
+    if (!editorState?.surface?.metadata) return;
+    const templateFamily = (editorState.surface.metadata as any)?.template_family;
+    if (templateFamily !== "yumix") return;
+
+    const heroSection = rawSections.find(
+      (s) => s.core_slot === "hero" || s.section_type === "hero"
+    );
+    if (!heroSection) return;
+
+    const schema = heroSection.schema as Record<string, any>;
+    // Only repair if the schema still has the old broken metadata
+    const needsRepair =
+      schema.background_style === "solid_dark" ||
+      schema.layout_variant === "split" ||
+      (schema.media && !schema.media.url);
+
+    if (!needsRepair) return;
+
+    heroRepairedRef.current = true;
+    const HERO_FALLBACK_IMG = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&q=80";
+    const repairedSchema = {
+      ...schema,
+      layout_variant: "fullwidth",
+      background_style: "image",
+      media: {
+        type: "image",
+        source: "url",
+        url: schema.media?.url || HERO_FALLBACK_IMG,
+        fit: "cover",
+      },
+      overlay_opacity: schema.overlay_opacity === 0 ? 0.6 : schema.overlay_opacity,
+    };
+    // Persist silently
+    supabase
+      .rpc("builder_upsert_section", {
+        p_page_id: activePageId,
+        p_section_id: heroSection.id,
+        p_section_type: heroSection.section_type,
+        p_schema: repairedSchema as unknown as Json,
+        p_position: heroSection.position,
+        p_is_visible: heroSection.is_visible,
+        p_core_slot: heroSection.core_slot || null,
+      })
+      .then(({ error }) => {
+        if (error) {
+          console.error("Yumix hero repair failed:", error);
+        } else {
+          console.log("YUMIX_HERO_SCHEMA_REPAIRED");
+          queryClient.invalidateQueries({ queryKey });
+        }
+      });
+  }, [activePageId, editorState, rawSections, queryClient, queryKey]);
+
   // Page settings from surface metadata
   const pageSettings: PageEditSettings = useMemo(
     () => ({
