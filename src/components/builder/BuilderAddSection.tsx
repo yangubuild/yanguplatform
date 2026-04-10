@@ -5,7 +5,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Plus, Loader2, Sparkles } from "lucide-react";
+import { Plus, Loader2, Sparkles, LayoutTemplate } from "lucide-react";
 import { getGeneralSections } from "@/config/builderSectionPalettes";
 import { BuilderAIGenerateModal } from "./BuilderAIGenerateModal";
 
@@ -27,6 +27,7 @@ export function BuilderAddSection({
 }: BuilderAddSectionProps) {
   const [open, setOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
+  const [designedOpen, setDesignedOpen] = useState(false);
 
   const allSections = getGeneralSections();
   const generalSections = allowedSectionTypes
@@ -34,6 +35,7 @@ export function BuilderAddSection({
     : allSections;
 
   const handleSelectGeneral = async (type: string) => {
+    setDesignedOpen(false);
     setOpen(false);
     await onAdd(type);
   };
@@ -50,29 +52,43 @@ export function BuilderAddSection({
           </PopoverTrigger>
           <PopoverContent className="w-64 p-2" align="start">
             <div className="space-y-1">
-              <div className="px-3 py-1.5">
-                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                  <Plus className="h-3 w-3" />
-                  Add Section
-                </p>
-              </div>
-              {generalSections.map(({ type, label, icon }) => (
-                <button
-                  key={type}
-                  onClick={() => handleSelectGeneral(type)}
-                  className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors text-left">
-                  <span>{icon}</span>
-                  <span>{label}</span>
-                </button>
-              ))}
+              <button
+                onClick={() => { setOpen(false); setAiOpen(true); }}
+                className="flex items-center gap-2.5 w-full px-3 py-2.5 text-sm rounded-md hover:bg-muted transition-colors text-left">
+                <Sparkles className="h-4 w-4 text-primary shrink-0" />
+                <div>
+                  <span className="font-medium">Generate with AI</span>
+                  <p className="text-[11px] text-muted-foreground">Let Ada create a section for you</p>
+                </div>
+              </button>
+              <Popover open={designedOpen} onOpenChange={setDesignedOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    className="flex items-center gap-2.5 w-full px-3 py-2.5 text-sm rounded-md hover:bg-muted transition-colors text-left">
+                    <LayoutTemplate className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <div>
+                      <span className="font-medium">Designed Section</span>
+                      <p className="text-[11px] text-muted-foreground">Pick from pre-built sections</p>
+                    </div>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56 p-2" side="right" align="start">
+                  <div className="space-y-0.5">
+                    {generalSections.map(({ type, label, icon }) => (
+                      <button
+                        key={type}
+                        onClick={() => handleSelectGeneral(type)}
+                        className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors text-left">
+                        <span>{icon}</span>
+                        <span>{label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </PopoverContent>
         </Popover>
-
-        <Button variant="outline" size="sm" className="gap-2" onClick={() => setAiOpen(true)} disabled={isAdding}>
-          <Sparkles className="h-4 w-4" />
-          Ada AI
-        </Button>
       </div>
 
       <BuilderAIGenerateModal
