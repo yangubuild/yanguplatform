@@ -159,11 +159,33 @@ const EDIT_SCRIPT = `
         }
       });
 
-      // Section hover
-      document.querySelectorAll('section, footer, nav').forEach(function(el, idx) {
+      // Section hover + Add Section pills between sections
+      var sectionEls = document.querySelectorAll('section, footer, nav');
+      sectionEls.forEach(function(el, idx) {
         el.classList.add('section-hover');
         el.dataset.sectionIdx = idx;
       });
+      // Insert "Add Section" gap pills between sections and after last
+      for (var gi = 0; gi <= sectionEls.length; gi++) {
+        var gap = document.createElement('div');
+        gap.className = 'yangu-section-gap yangu-editor-inject';
+        var pill = document.createElement('button');
+        pill.className = 'yangu-add-section-pill';
+        pill.innerHTML = '+ Add Section';
+        pill.dataset.insertIdx = String(gi);
+        pill.addEventListener('click', function(ev) {
+          ev.stopPropagation();
+          window.parent.postMessage({ type: 'add-section-at', index: Number(ev.currentTarget.dataset.insertIdx) }, '*');
+        });
+        gap.appendChild(pill);
+        if (gi < sectionEls.length) {
+          sectionEls[gi].parentElement.insertBefore(gap, sectionEls[gi]);
+        } else if (sectionEls.length > 0) {
+          var lastSec = sectionEls[sectionEls.length - 1];
+          if (lastSec.nextSibling) lastSec.parentElement.insertBefore(gap, lastSec.nextSibling);
+          else lastSec.parentElement.appendChild(gap);
+        }
+      }
 
       // Image click
       document.querySelectorAll('img').forEach(function(el) {
