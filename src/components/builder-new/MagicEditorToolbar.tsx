@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Sparkles, Link2, Bold, Italic, Underline, Strikethrough,
   AlignCenter, Type as TypeIcon, LayoutGrid, Image as ImageIcon,
-  Replace, Palette,
+  Replace, Palette, Trash2, Copy,
 } from "lucide-react";
 import type { CanvasSelection } from "@/lib/builder/selectionTypes";
 import type { ActivePopup, SelectedScope, LinkData } from "./editor-popups/EditorPopupTypes";
@@ -195,6 +195,9 @@ export function MagicEditorToolbar({ selection, onAction, currentColor, adaMessa
             />
             <MagicBtn icon={LayoutGrid} label="Layout" onClick={() => onAction("change_layout")} />
             <MagicBtn icon={ImageIcon} label="Replace BG" onClick={() => onAction("set_section_bg_image")} />
+            <div className="w-px h-4 bg-background/20 mx-0.5" />
+            <MagicBtn icon={Copy} label="Duplicate" onClick={() => onAction("duplicate_section")} />
+            <MagicBtn icon={Trash2} label="Delete" onClick={() => onAction("remove_section")} />
           </>
         )}
 
@@ -219,6 +222,9 @@ export function MagicEditorToolbar({ selection, onAction, currentColor, adaMessa
               active={activePopup === "color"}
               color={dotColor}
             />
+            <div className="w-px h-4 bg-background/20 mx-0.5" />
+            <MagicBtn icon={Copy} label="Duplicate" onClick={() => onAction("duplicate_element")} />
+            <MagicBtn icon={Trash2} label="Delete" onClick={() => onAction("delete_element")} />
           </>
         )}
       </div>

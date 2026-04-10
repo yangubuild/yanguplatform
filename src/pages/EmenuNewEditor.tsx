@@ -414,12 +414,15 @@ export default function EmenuNewEditor() {
     const getSelected = (_cls: string) => doc ? getSelectedElement(doc) : null;
 
     switch (action) {
-      // ── Section actions ──
+      // ── Section & element actions ──
       case "add_section":
       case "move_up":
       case "move_down":
       case "remove_section":
+      case "delete_section":
       case "duplicate_section":
+      case "delete_element":
+      case "duplicate_element":
         iframe?.contentWindow?.postMessage({ type: "toolbar-action", action }, "*");
         break;
 
