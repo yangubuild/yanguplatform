@@ -722,18 +722,8 @@ export default function EmenuNewEditor() {
 
       // ── Order settings ──
       case "order_settings": {
-        if (!doc) break;
-        const mode = prompt("Order mode (delivery / pickup / both):", "both");
-        const time = prompt("Estimated delivery time:", "30-45 min");
-        if (mode || time) {
-          toast.success(`Order settings: ${mode || "both"}, ${time || "30-45 min"}`);
-          // Store in a data attribute on body for template use
-          if (doc.body) {
-            doc.body.dataset.orderMode = mode || "both";
-            doc.body.dataset.deliveryTime = time || "30-45 min";
-            pushUpdate(doc, iframe);
-          }
-        }
+        // Redirect to the commerce config panel instead of browser prompts
+        setLeftMode("commerce");
         break;
       }
 
