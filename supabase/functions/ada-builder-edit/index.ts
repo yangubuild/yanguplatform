@@ -112,8 +112,9 @@ ACTIONS AVAILABLE:
 
     if (!response.ok) {
       const status = response.status;
-      if (status === 429) return new Response(JSON.stringify({ ok: false, error: "rate_limited" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      if (status === 402) return new Response(JSON.stringify({ ok: false, error: "payment_required" }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (status === 429) return new Response(JSON.stringify({ ok: false, error: "rate_limited" }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (status === 402) return new Response(JSON.stringify({ ok: false, error: "payment_required" }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (status >= 500) return new Response(JSON.stringify({ ok: false, error: "service_unavailable" }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       throw new Error(`AI gateway error: ${status}`);
     }
 
