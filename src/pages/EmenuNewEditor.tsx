@@ -879,20 +879,6 @@ export default function EmenuNewEditor() {
   const surfaceTitle = editorState.surface.title || "Untitled";
   const sellerMode = getSellerMode(surfaceType);
 
-  // Bind ADA to real editor state for verified mutations
-  useEffect(() => {
-    adaChat.bindEditor({
-      getHtml: () => liveHtmlRef.current,
-      setHtml: (html: string) => {
-        setLiveHtml(html);
-        setHasUnsavedChanges(true);
-        pushState(html);
-      },
-      surfaceType: surfaceType,
-      surfaceTitle: surfaceTitle,
-    });
-  }, [surfaceType, surfaceTitle, adaChat.bindEditor, pushState]);
-
   if (!liveHtml) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
