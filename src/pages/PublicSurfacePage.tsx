@@ -245,6 +245,38 @@ export default function PublicSurfacePage() {
   );
 }
 
+/** Emenu public view — loads commerce config for currency pass-through */
+function EmenuPublicView({
+  surfaceId, ownerId, businessName, publishedEmenuHtml, pageTitle, faviconUrl, showBadge,
+}: {
+  surfaceId: string; ownerId: string; businessName: string;
+  publishedEmenuHtml: string; pageTitle: string; faviconUrl: string | null; showBadge: boolean;
+}) {
+  const { data: commerceConfig } = usePublicCommerceConfig(surfaceId);
+  const currency = commerceConfig?.currency ?? "USD";
+  const orderingEnabled = commerceConfig?.ordering_enabled ?? true;
+
+  return (
+    <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName}>
+      <PublishedEmenuFrame
+        html={publishedEmenuHtml}
+        title={pageTitle}
+        faviconUrl={faviconUrl}
+        showBadge={showBadge}
+        orderingEnabled={orderingEnabled}
+        currency={currency}
+        onPostMessage={(msg) => {
+          if (msg.type === "yangu_add_to_cart" && msg.item) {
+            (window as any).__yangu_add_to_cart?.(msg.item);
+          } else if (msg.type === "yangu_open_cart") {
+            (window as any).__yangu_open_cart?.();
+          }
+        }}
+      />
+    </PublicCommerceShell>
+  );
+}
+
 function PublicNotFound({ host, slug, message = "Page not found" }: { host: string; slug: string; message?: string }) {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
