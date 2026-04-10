@@ -528,6 +528,10 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
         toast.info("Order settings will be available after publishing");
         break;
 
+      case "commerce_config":
+        toast.info("Commerce & Payment settings — open in the full editor for this surface type");
+        break;
+
       case "social_links":
         toast.info("Click social icons in the footer to edit links");
         break;
