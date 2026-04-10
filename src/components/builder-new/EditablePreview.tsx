@@ -323,6 +323,49 @@ const EDIT_SCRIPT = `
           document.body.style.backgroundColor = e.data.color || '';
           notifyHtmlUpdate();
         }
+
+        // ── Toolbar actions: delete/duplicate for sections and cards ──
+        if (e.data.type === 'toolbar-action') {
+          var action = e.data.action;
+          var sections = getSections();
+          var selSection = document.querySelector('.section-selected');
+
+          if (action === 'remove_section' || action === 'delete_section') {
+            if (selSection && ['SECTION','FOOTER','NAV','HEADER'].indexOf(selSection.tagName) !== -1) {
+              if (selSection.tagName === 'NAV') return; // protect nav
+              // Also remove preceding gap pill if present
+              var prev = selSection.previousElementSibling;
+              if (prev && prev.classList.contains('yangu-section-gap')) prev.remove();
+              selSection.remove();
+              notifyHtmlUpdate();
+            }
+          }
+          if (action === 'duplicate_section') {
+            if (selSection && ['SECTION','FOOTER','NAV','HEADER'].indexOf(selSection.tagName) !== -1) {
+              var clone = selSection.cloneNode(true);
+              clone.removeAttribute('id');
+              clone.classList.remove('section-selected');
+              selSection.parentElement.insertBefore(clone, selSection.nextSibling);
+              notifyHtmlUpdate();
+            }
+          }
+          if (action === 'delete_element') {
+            var cardEl = document.querySelector('.yangu-el-selected');
+            if (cardEl) {
+              cardEl.remove();
+              notifyHtmlUpdate();
+            }
+          }
+          if (action === 'duplicate_element') {
+            var cardEl2 = document.querySelector('.yangu-el-selected');
+            if (cardEl2) {
+              var dup = cardEl2.cloneNode(true);
+              dup.classList.remove('yangu-el-selected');
+              cardEl2.parentElement.insertBefore(dup, cardEl2.nextSibling);
+              notifyHtmlUpdate();
+            }
+          }
+        }
       });
     });
   </script>
