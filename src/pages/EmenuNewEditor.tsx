@@ -899,6 +899,25 @@ export default function EmenuNewEditor() {
   const sellerMode = getSellerMode(surfaceType);
 
   if (!liveHtml) {
+    // If we have saved HTML that's still being initialized, show loading — not an error
+    if (currentPageSavedHtml) {
+      return (
+        <div className="min-h-screen bg-background">
+          <header className="h-14 border-b border-white/10 flex items-center px-4 gap-4" style={{ background: "#152A20" }}>
+            <Skeleton className="h-8 w-8 rounded" />
+            <Skeleton className="h-4 w-32" />
+          </header>
+          <div className="flex">
+            <div className="w-72 border-r border-border p-4 space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-12 rounded-lg" />)}
+            </div>
+            <div className="flex-1 p-8">
+              <Skeleton className="h-96 max-w-md mx-auto rounded-xl" />
+            </div>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="max-w-md w-full p-8 text-center space-y-4">
