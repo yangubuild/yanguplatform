@@ -46,6 +46,8 @@ import { ImageCropDialog } from "@/components/builder/ImageCropDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAdaBuilderChat } from "@/components/builder-new/ada/useAdaBuilderChat";
+import { AdaBuilderPanel } from "@/components/builder-new/ada/AdaBuilderPanel";
 import {
   MobileBuilderToolbar,
   MobileBuilderSheet,
@@ -72,6 +74,7 @@ export default function SellerEditor() {
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [rightPanel, setRightPanel] = useState<RightPanel>("page_edit");
   const [leftMode, setLeftMode] = useState<LeftMode>("tools");
+  const adaChat = useAdaBuilderChat();
   const [showAiBanner, setShowAiBanner] = useState(false);
   const [liveSchemaOverride, setLiveSchemaOverride] = useState<{ sectionId: string; schema: Record<string, unknown> } | null>(null);
   const [livePageSettings, setLivePageSettings] = useState<import("@/config/builderCoreSections").PageEditSettings | null>(null);
@@ -304,33 +307,13 @@ export default function SellerEditor() {
         {/* ═══ LEFT PANEL — category-aware, switches between tools and Ada ═══ */}
         <aside className="w-72 border-r border-border flex-col bg-sidebar overflow-y-auto hidden lg:flex">
           {leftMode === "ada" ? (
-            /* ── Ada AI Chat Panel ── */
-            <div className="flex flex-col h-full">
-              <div className="p-3 border-b border-border flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-accent" />
-                  <span className="text-sm font-semibold">Ada AI</span>
-                </div>
-                <button
-                  onClick={() => setLeftMode("tools")}
-                  className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-              <div className="flex-1 flex items-center justify-center p-6">
-                <div className="text-center space-y-3">
-                  <Sparkles className="h-8 w-8 text-accent mx-auto" />
-                  <p className="text-sm font-medium">Ada AI Editor</p>
-                  <p className="text-xs text-muted-foreground">
-                    Describe changes to your {sellerMode.categoryBadge.toLowerCase()} and Ada will apply them.
-                  </p>
-                  <div className="mt-4 rounded-lg border border-border bg-muted/30 p-3">
-                    <p className="text-xs text-muted-foreground italic">Full Ada AI editing — coming soon</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <AdaBuilderPanel
+              messages={adaChat.messages}
+              isLoading={adaChat.isLoading}
+              onSend={adaChat.sendMessage}
+              onClose={() => setLeftMode("tools")}
+              category={sellerMode.categoryBadge.toLowerCase()}
+            />
           ) : (
             /* ── Category-specific Editor Tools ── */
             <>
