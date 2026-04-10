@@ -16,6 +16,8 @@ import {
   ArrowLeft, AlertTriangle, Monitor, Smartphone, Sparkles,
   Settings, ClipboardList, Rocket, X, Undo2, Redo2, Wand2,
 } from "lucide-react";
+import { useAdaBuilderChat } from "@/components/builder-new/ada/useAdaBuilderChat";
+import { AdaBuilderPanel } from "@/components/builder-new/ada/AdaBuilderPanel";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { EditablePreview } from "@/components/builder-new/EditablePreview";
 import { EditorToolsPanel } from "@/components/builder-new/EditorToolsPanel";
@@ -56,6 +58,7 @@ export default function EmenuNewEditor() {
   
   const [magicEditorOn, setMagicEditorOn] = useState(true);
   const [leftMode, setLeftMode] = useState<LeftMode>("tools");
+  const adaChat = useAdaBuilderChat();
   const [previewViewport, setPreviewViewport] = useState<PreviewViewport>("desktop");
   const [canvasSelection, setCanvasSelection] = useState<CanvasSelection | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -1011,27 +1014,13 @@ export default function EmenuNewEditor() {
               />
             </div>
           ) : leftMode === "ada" ? (
-            <div className="flex flex-col h-full">
-              <div className="p-3 border-b border-border flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-accent" />
-                  <span className="text-sm font-semibold">Ada AI</span>
-                </div>
-                <button onClick={() => setLeftMode("tools")} className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-              <div className="flex-1 flex items-center justify-center p-6">
-                <div className="text-center space-y-3">
-                  <Sparkles className="h-8 w-8 text-accent mx-auto" />
-                  <p className="text-sm font-medium">Ada AI Editor</p>
-                  <p className="text-xs text-muted-foreground">Describe changes to your menu and Ada will apply them.</p>
-                  <div className="mt-4 rounded-lg border border-border bg-muted/30 p-3">
-                    <p className="text-xs text-muted-foreground italic">Full Ada AI editing — coming soon</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <AdaBuilderPanel
+              messages={adaChat.messages}
+              isLoading={adaChat.isLoading}
+              onSend={adaChat.sendMessage}
+              onClose={() => setLeftMode("tools")}
+              category="emenu"
+            />
           ) : (
             <EditorToolsPanel
               onToggleAdaChat={() => setLeftMode((prev) => prev === "ada" ? "tools" : "ada")}
