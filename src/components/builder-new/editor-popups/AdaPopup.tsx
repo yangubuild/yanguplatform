@@ -1,11 +1,15 @@
 import { useState } from "react";
-import { X, Sparkles, Send, Mic } from "lucide-react";
+import { X, Sparkles, Send } from "lucide-react";
 import type { SelectedScope } from "./EditorPopupTypes";
+import type { AdaChatMessage } from "../ada/useAdaBuilderChat";
 
 interface AdaPopupProps {
   onClose: () => void;
   selectedScope: SelectedScope;
   onSendPrompt: (prompt: string) => void;
+  /** Shared chat state from useAdaBuilderChat — if provided, renders inline chat */
+  messages?: AdaChatMessage[];
+  isLoading?: boolean;
 }
 
 const DEFAULT_PROMPTS = [
@@ -23,25 +27,25 @@ const SCOPE_PROMPTS: Partial<Record<SelectedScope, string[]>> = {
   form: ["Improve my newsletter signup", "Add more form fields"],
 };
 
-export function AdaPopup({ onClose, selectedScope, onSendPrompt }: AdaPopupProps) {
+export function AdaPopup({ onClose, selectedScope, onSendPrompt, messages = [], isLoading = false }: AdaPopupProps) {
   const [input, setInput] = useState("");
-  const [response, setResponse] = useState<string | null>(null);
 
   const prompts = selectedScope !== "none" && selectedScope !== "page"
     ? (SCOPE_PROMPTS[selectedScope] || DEFAULT_PROMPTS)
     : DEFAULT_PROMPTS;
 
   const handleSend = (text: string) => {
-    if (!text.trim()) return;
-    setResponse("Processing...");
+    if (!text.trim() || isLoading) return;
     onSendPrompt(text.trim());
     setInput("");
   };
 
+  const hasMessages = messages.length > 0;
+
   return (
-    <div className="w-[300px] bg-background rounded-xl shadow-2xl border border-border/60 overflow-hidden">
+    <div className="w-[300px] bg-background rounded-xl shadow-2xl border border-border/60 overflow-hidden max-h-[400px] flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 pt-3 pb-1">
+      <div className="flex items-center justify-between px-4 pt-3 pb-1 shrink-0">
         <span className="text-sm font-semibold text-foreground">Ada</span>
         <button onClick={onClose} className="p-0.5 rounded hover:bg-muted transition-colors">
           <X className="h-4 w-4 text-muted-foreground" />
@@ -49,15 +53,15 @@ export function AdaPopup({ onClose, selectedScope, onSendPrompt }: AdaPopupProps
       </div>
 
       {/* Content */}
-      <div className="px-4 py-3 space-y-3">
-        {!response ? (
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-0">
+        {!hasMessages ? (
           <>
             <div className="flex flex-col items-center text-center py-2">
-              <div className="w-8 h-8 rounded-full bg-foreground flex items-center justify-center mb-2">
-                <Sparkles className="h-4 w-4 text-background" />
+              <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center mb-2">
+                <Sparkles className="h-4 w-4 text-accent" />
               </div>
-              <p className="text-sm font-medium text-primary">Hi yangu, let's work together to build your site.</p>
-              <p className="text-xs text-muted-foreground mt-1">Here are some things you can ask me:</p>
+              <p className="text-sm font-medium text-primary">What would you like to change?</p>
+              <p className="text-xs text-muted-foreground mt-1">Pick a suggestion or type your own:</p>
             </div>
 
             <div className="space-y-1.5">
@@ -67,21 +71,35 @@ export function AdaPopup({ onClose, selectedScope, onSendPrompt }: AdaPopupProps
                   onClick={() => handleSend(p)}
                   className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground bg-muted/40 rounded-lg hover:bg-muted/70 transition-colors text-left"
                 >
-                  <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <Sparkles className="h-3.5 w-3.5 text-accent shrink-0" />
                   {p}
                 </button>
               ))}
             </div>
           </>
         ) : (
-          <div className="text-sm text-foreground bg-muted/30 rounded-lg p-3 min-h-[60px]">
-            {response}
+          messages.slice(-6).map((msg) => (
+            <div
+              key={msg.id}
+              className={`text-sm rounded-lg px-3 py-2 max-w-[95%] whitespace-pre-wrap ${
+                msg.role === "user"
+                  ? "bg-accent/20 text-foreground ml-auto"
+                  : "bg-muted/30 text-foreground"
+              }`}
+            >
+              {msg.content}
+            </div>
+          ))
+        )}
+        {isLoading && (
+          <div className="bg-muted/30 rounded-lg px-3 py-2 text-sm text-muted-foreground">
+            <span className="animate-pulse">Ada is thinking…</span>
           </div>
         )}
       </div>
 
       {/* Input */}
-      <div className="px-4 pb-3">
+      <div className="px-4 pb-3 shrink-0">
         <div className="flex items-center gap-2 bg-muted/30 rounded-lg border border-border px-3 py-2">
           <input
             value={input}
@@ -89,9 +107,14 @@ export function AdaPopup({ onClose, selectedScope, onSendPrompt }: AdaPopupProps
             onKeyDown={e => e.key === "Enter" && handleSend(input)}
             placeholder="Ask me anything..."
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            disabled={isLoading}
           />
-          <button onClick={() => handleSend(input)} className="p-1 rounded hover:bg-muted transition-colors">
-            <Send className="h-3.5 w-3.5 text-muted-foreground" />
+          <button
+            onClick={() => handleSend(input)}
+            disabled={!input.trim() || isLoading}
+            className="p-1.5 rounded-full bg-accent text-accent-foreground disabled:opacity-40 transition-opacity"
+          >
+            <Send className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>

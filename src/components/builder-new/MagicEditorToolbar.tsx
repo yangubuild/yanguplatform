@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import type { CanvasSelection } from "@/lib/builder/selectionTypes";
 import type { ActivePopup, SelectedScope, LinkData } from "./editor-popups/EditorPopupTypes";
+import type { AdaChatMessage } from "./ada/useAdaBuilderChat";
 import { LinkPopup } from "./editor-popups/LinkPopup";
 import { AdaPopup } from "./editor-popups/AdaPopup";
 import { TypographyPopup } from "./editor-popups/TypographyPopup";
@@ -18,6 +19,10 @@ interface MagicEditorToolbarProps {
   position?: { top: number; left: number };
   /** Current color of the selected element, read from iframe */
   currentColor?: string;
+  /** Shared ADA chat state — enables unified assistant */
+  adaMessages?: AdaChatMessage[];
+  adaIsLoading?: boolean;
+  onAdaSend?: (text: string) => void;
 }
 
 function mapKindToScope(kind: string): SelectedScope {
@@ -30,7 +35,7 @@ function mapKindToScope(kind: string): SelectedScope {
   return "none";
 }
 
-export function MagicEditorToolbar({ selection, onAction, currentColor }: MagicEditorToolbarProps) {
+export function MagicEditorToolbar({ selection, onAction, currentColor, adaMessages, adaIsLoading, onAdaSend }: MagicEditorToolbarProps) {
   const kind = selection.kind;
   const scope = mapKindToScope(kind);
   const [activePopup, setActivePopup] = useState<ActivePopup>(null);
@@ -104,8 +109,12 @@ export function MagicEditorToolbar({ selection, onAction, currentColor }: MagicE
   }, [onAction]);
 
   const handleAdaPrompt = useCallback((prompt: string) => {
-    onAction("ada_prompt", { prompt, scope });
-  }, [onAction, scope]);
+    if (onAdaSend) {
+      onAdaSend(prompt);
+    } else {
+      onAction("ada_prompt", { prompt, scope });
+    }
+  }, [onAction, onAdaSend, scope]);
 
   const dotColor = currentColor || undefined;
 
@@ -221,7 +230,7 @@ export function MagicEditorToolbar({ selection, onAction, currentColor }: MagicE
             <LinkPopup onClose={() => setActivePopup(null)} onApply={handleLinkApply} />
           )}
           {activePopup === "ada" && (
-            <AdaPopup onClose={() => setActivePopup(null)} selectedScope={scope} onSendPrompt={handleAdaPrompt} />
+            <AdaPopup onClose={() => setActivePopup(null)} selectedScope={scope} onSendPrompt={handleAdaPrompt} messages={adaMessages} isLoading={adaIsLoading} />
           )}
           {activePopup === "typography" && (
             <TypographyPopup onClose={() => setActivePopup(null)} onApply={handleTypographyApply} />
