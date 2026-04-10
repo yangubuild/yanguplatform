@@ -6135,6 +6135,8 @@ export type Database = {
           currency: string
           id: string
           notes: string | null
+          order_type: string | null
+          owner_id: string | null
           payment_method: string | null
           status: string
           surface_id: string
@@ -6151,6 +6153,8 @@ export type Database = {
           currency?: string
           id?: string
           notes?: string | null
+          order_type?: string | null
+          owner_id?: string | null
           payment_method?: string | null
           status?: string
           surface_id: string
@@ -6167,6 +6171,8 @@ export type Database = {
           currency?: string
           id?: string
           notes?: string | null
+          order_type?: string | null
+          owner_id?: string | null
           payment_method?: string | null
           status?: string
           surface_id?: string
@@ -8850,6 +8856,89 @@ export type Database = {
           reason?: string
         }
         Relationships: []
+      }
+      surface_commerce_config: {
+        Row: {
+          created_at: string
+          currency: string
+          delivery_fee_cents: number | null
+          id: string
+          metadata: Json | null
+          min_order_value_cents: number | null
+          mobile_money_country: string | null
+          mobile_money_phone: string | null
+          mobile_money_provider: string | null
+          order_types: string[]
+          ordering_enabled: boolean
+          owner_id: string
+          payment_methods: string[]
+          paypal_enabled: boolean
+          stripe_enabled: boolean
+          support_email: string | null
+          support_phone: string | null
+          support_whatsapp: string | null
+          surface_id: string
+          updated_at: string
+          whatsapp_default_message: string | null
+          whatsapp_enabled: boolean
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          delivery_fee_cents?: number | null
+          id?: string
+          metadata?: Json | null
+          min_order_value_cents?: number | null
+          mobile_money_country?: string | null
+          mobile_money_phone?: string | null
+          mobile_money_provider?: string | null
+          order_types?: string[]
+          ordering_enabled?: boolean
+          owner_id: string
+          payment_methods?: string[]
+          paypal_enabled?: boolean
+          stripe_enabled?: boolean
+          support_email?: string | null
+          support_phone?: string | null
+          support_whatsapp?: string | null
+          surface_id: string
+          updated_at?: string
+          whatsapp_default_message?: string | null
+          whatsapp_enabled?: boolean
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          delivery_fee_cents?: number | null
+          id?: string
+          metadata?: Json | null
+          min_order_value_cents?: number | null
+          mobile_money_country?: string | null
+          mobile_money_phone?: string | null
+          mobile_money_provider?: string | null
+          order_types?: string[]
+          ordering_enabled?: boolean
+          owner_id?: string
+          payment_methods?: string[]
+          paypal_enabled?: boolean
+          stripe_enabled?: boolean
+          support_email?: string | null
+          support_phone?: string | null
+          support_whatsapp?: string | null
+          surface_id?: string
+          updated_at?: string
+          whatsapp_default_message?: string | null
+          whatsapp_enabled?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "surface_commerce_config_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: true
+            referencedRelation: "builder_surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       surface_domains: {
         Row: {
