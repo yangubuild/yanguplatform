@@ -107,10 +107,12 @@ const EDIT_SCRIPT = `
       function classifyEl(el) {
         var t = el.tagName.toUpperCase();
         var cl = Array.from(el.classList || []);
-        if (t === 'BUTTON' || (t === 'A' && cl.some(function(c) { return c.includes('btn') || c.includes('button') || c.includes('cta'); }))) return 'button';
+        if (t === 'BUTTON' || (t === 'A' && cl.some(function(c) { return c.includes('btn') || c.includes('button') || c.includes('cta') || c.includes('order'); }))) return 'button';
         if (t === 'IMG') return 'image';
         if (['H1','H2','H3','H4','H5','H6','P','SPAN','LI','LABEL'].indexOf(t) !== -1) return 'text';
         if (t === 'A') return 'button';
+        // Inline button-like elements (div styled as button)
+        if (t === 'DIV' && cl.some(function(c) { return c.includes('btn') || c.includes('button') || c.includes('cta'); })) return 'button';
         if (['SECTION','FOOTER','NAV','HEADER'].indexOf(t) !== -1) return 'section';
         // Card detection: class-based or structural (div with img + text children inside a grid/flex parent)
         if (t === 'DIV') {
@@ -258,10 +260,17 @@ const EDIT_SCRIPT = `
         if (el.tagName === 'IMG') return;
 
         var kind = classifyEl(el);
-        // Generic wrapper divs that aren't cards/items → deselect
+        // Generic wrapper divs → walk up to nearest section instead of deselecting
         if (kind === 'page') {
-          sendDeselect();
-          return;
+          var nearSec = getNearestSection(el);
+          if (nearSec) {
+            // Treat as section selection
+            kind = 'section';
+            el = nearSec;
+          } else {
+            sendDeselect();
+            return;
+          }
         }
         var si = findSectionIndex(el);
         var sectionEl = si >= 0 ? getSections()[si] : null;
