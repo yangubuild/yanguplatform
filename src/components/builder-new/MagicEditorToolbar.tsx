@@ -196,7 +196,7 @@ export function MagicEditorToolbar({ selection, onAction, currentColor, adaMessa
             <MagicBtn icon={LayoutGrid} label="Layout" onClick={() => onAction("change_layout")} />
             <MagicBtn icon={ImageIcon} label="Replace BG" onClick={() => onAction("set_section_bg_image")} />
             <MagicBtn icon={Plus} label="Nav CTA" onClick={() => onAction("add_cta_button")} />
-            <MagicBtn icon={Plus} label="Enable Ordering" onClick={() => onAction("enable_section_ordering")} />
+            <MagicBtn icon={ShoppingCart} label="Enable Ordering" onClick={() => onAction("enable_section_ordering")} />
             <div className="w-px h-4 bg-background/20 mx-0.5" />
             <MagicBtn icon={Copy} label="Duplicate" onClick={() => onAction("duplicate_section")} />
             <MagicBtn icon={Trash2} label="Delete" onClick={() => onAction("remove_section")} />
@@ -219,7 +219,7 @@ export function MagicEditorToolbar({ selection, onAction, currentColor, adaMessa
           <>
             <MagicBtn icon={TypeIcon} label="Edit" onClick={() => onAction("edit_text")} />
             <MagicBtn icon={ImageIcon} label="Image" onClick={() => onAction("replace_image")} />
-            <MagicBtn icon={Plus} label="Order Btn" onClick={() => onAction("add_card_order_button")} />
+            <MagicBtn icon={ShoppingCart} label="Order Btn" onClick={() => onAction("add_card_order_button")} />
             <ColorDot
               onClick={() => togglePopup("color")}
               active={activePopup === "color"}
