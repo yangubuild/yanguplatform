@@ -99,7 +99,7 @@ export const communityEngine: BuilderEngine = {
     { type: "offer", schema: { heading: "What We Offer", description: "", items: [] }, core_slot: "offer" },
     { type: "footer", schema: { heading: "Footer", email: "", phone: "", address: "", hours: [], social: {} }, core_slot: "footer" },
   ],
-  editorModules: ["hero", "about", "member_signup", "events", "programs", "resources", "private_posts", "directory", "messaging"],
+  editorModules: ["hero", "about", "member_signup", "events", "programs", "resources", "private_posts", "directory", "messaging", "commerce_config"],
   templates: [
     { key: "welcome_section", label: "Welcome Section", sectionType: "hero", schema: { headline: "", subheadline: "", cta_label: "Join Now" } },
     { key: "member_signup", label: "Member Signup", sectionType: "member_signup", schema: { heading: "Become a Member", cta_label: "Sign Up" } },
