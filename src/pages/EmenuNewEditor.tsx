@@ -36,7 +36,7 @@ import type { CanvasSelection } from "@/lib/builder/selectionTypes";
 import type { BuilderSurfaceType } from "@/types/builder";
 import { toast } from "sonner";
 
-type LeftMode = "tools" | "ada";
+type LeftMode = "tools" | "ada" | "commerce";
 type PreviewViewport = "desktop" | "mobile";
 
 function isLightHex(hex: string): boolean {
@@ -728,6 +728,11 @@ export default function EmenuNewEditor() {
         break;
       }
 
+      // ── Commerce config ──
+      case "commerce_config": {
+        setLeftMode("commerce");
+        break;
+      }
       // ── Page/settings ──
       case "page_settings":
       case "seo_meta":
