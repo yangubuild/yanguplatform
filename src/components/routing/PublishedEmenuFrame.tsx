@@ -10,7 +10,7 @@ html,body{
 body{
   min-height:100vh;
   display:flex;flex-direction:column;align-items:center;
-  background-color:#ffffff;
+  /* Inherit template body bg; fallback to white only if template sets none */
 }
 *,*::before,*::after{box-sizing:border-box;}
 img,video,canvas,svg{max-width:100%;}
