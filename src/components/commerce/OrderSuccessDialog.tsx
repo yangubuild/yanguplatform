@@ -81,14 +81,38 @@ export function OrderSuccessDialog({
               </Button>
             )}
 
-            {supportEmail && (
+          {supportEmail && (
               <Button variant="outline" className="w-full gap-2" asChild>
-                <a href={`mailto:${supportEmail}?subject=Order ${trackingCode}`}>
+                <a href={`mailto:${supportEmail}?subject=Order ${trackingCode}&body=${encodeURIComponent(`Hi${businessName ? ` ${businessName}` : ""},\n\nI just placed an order with tracking code: ${trackingCode}\n\nPlease confirm my order.\n\nThank you!`)}`}>
                   <Mail className="h-4 w-4" />
                   Email
                 </a>
               </Button>
             )}
+
+            {/* Create support ticket for order */}
+            <Button
+              variant="ghost"
+              className="w-full gap-2 text-xs"
+              onClick={async () => {
+                try {
+                  const { supabase } = await import("@/integrations/supabase/client");
+                  const { error } = await supabase.from("support_tickets").insert({
+                    subject: `Order inquiry: ${trackingCode}`,
+                    description: `Customer placed order with tracking code ${trackingCode} at ${businessName || "surface"}. Awaiting confirmation.`,
+                    category: "orders",
+                    status: "pending",
+                    priority: "normal",
+                  });
+                  if (!error) {
+                    const { toast } = await import("sonner");
+                    toast.success("Support ticket created — the seller will be notified.");
+                  }
+                } catch {}
+              }}
+            >
+              📋 Create Support Ticket
+            </Button>
           </div>
 
           <Button onClick={onClose} className="w-full mt-2">
