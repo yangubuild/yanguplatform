@@ -90,28 +90,15 @@ export function OrderSuccessDialog({
               </Button>
             )}
 
-            {/* Create support ticket for order */}
+            {/* Route order inquiry to platform support via email */}
             <Button
               variant="ghost"
-              className="w-full gap-2 text-xs"
-              onClick={async () => {
-                try {
-                  const { supabase } = await import("@/integrations/supabase/client");
-                  const { error } = await supabase.from("support_tickets").insert({
-                    subject: `Order inquiry: ${trackingCode}`,
-                    description: `Customer placed order with tracking code ${trackingCode} at ${businessName || "surface"}. Awaiting confirmation.`,
-                    category: "orders",
-                    status: "pending",
-                    priority: "normal",
-                  });
-                  if (!error) {
-                    const { toast } = await import("sonner");
-                    toast.success("Support ticket created — the seller will be notified.");
-                  }
-                } catch {}
-              }}
+              className="w-full gap-2 text-xs text-muted-foreground"
+              asChild
             >
-              📋 Create Support Ticket
+              <a href={`mailto:support@yangu.io?subject=${encodeURIComponent(`Order Support: ${trackingCode}`)}&body=${encodeURIComponent(`Order tracking code: ${trackingCode}\nBusiness: ${businessName || "N/A"}\n\nPlease describe your issue:\n`)}`}>
+                📋 Contact Platform Support
+              </a>
             </Button>
           </div>
 
