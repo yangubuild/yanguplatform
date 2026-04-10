@@ -251,6 +251,15 @@ export default function EmenuNewEditor() {
     setCanvasSelection(sel);
   }, []);
 
+  // Escape key deselects in parent window
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setCanvasSelection(null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const handleHtmlChange = useCallback((html: string) => {
     setLiveHtml(html);
     setHasUnsavedChanges(true);
