@@ -1,6 +1,7 @@
 /**
- * CommerceConfigPanel — Editor left panel section for configuring
- * ordering, payment methods, contact, and WhatsApp chat.
+ * CommerceConfigPanel — Unified editor panel for configuring
+ * ordering, delivery, payment methods, contact, and WhatsApp chat.
+ * Replaces the old "Order Settings" + "Commerce & Payments" split.
  */
 
 import { useState, useEffect } from "react";
@@ -11,10 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  ShoppingCart, CreditCard, MessageCircle, Phone, Save, Loader2,
+  ShoppingCart, CreditCard, MessageCircle, Phone, Save, Loader2, Truck,
 } from "lucide-react";
 import { useSurfaceCommerceConfig, type CommerceConfig } from "@/hooks/useSurfaceCommerceConfig";
-import { toast } from "sonner";
 
 interface CommerceConfigPanelProps {
   surfaceId: string;
@@ -35,15 +35,32 @@ const CURRENCIES = [
   { value: "AED", label: "AED — UAE Dirham" },
 ];
 
+// Currencies that are typically whole-number (no decimals)
+const WHOLE_NUMBER_CURRENCIES = ["UGX", "KES", "NGN", "TZS", "GHS"];
+
+function centsToAmount(cents: number | null, currency: string): string {
+  if (!cents) return "0";
+  if (WHOLE_NUMBER_CURRENCIES.includes(currency)) {
+    return String(cents / 100);
+  }
+  return (cents / 100).toFixed(2);
+}
+
+function amountToCents(amount: string, currency: string): number {
+  const num = parseFloat(amount);
+  if (isNaN(num)) return 0;
+  return Math.round(num * 100);
+}
+
 export function CommerceConfigPanel({ surfaceId, ownerId, onClose }: CommerceConfigPanelProps) {
   const { config, isLoading, defaults, upsert, isSaving } = useSurfaceCommerceConfig(surfaceId);
 
-  // Local form state
   const [form, setForm] = useState<Omit<CommerceConfig, "id" | "surface_id" | "owner_id">>({
     ...defaults,
   });
+  const [freeDelivery, setFreeDelivery] = useState(true);
+  const [deliveryAmount, setDeliveryAmount] = useState("0");
 
-  // Init from config when loaded
   useEffect(() => {
     if (config) {
       setForm({
@@ -64,6 +81,9 @@ export function CommerceConfigPanel({ surfaceId, ownerId, onClose }: CommerceCon
         min_order_value_cents: config.min_order_value_cents,
         delivery_fee_cents: config.delivery_fee_cents,
       });
+      const fee = config.delivery_fee_cents ?? 0;
+      setFreeDelivery(fee === 0);
+      setDeliveryAmount(centsToAmount(fee, config.currency || "UGX"));
     }
   }, [config]);
 
@@ -87,10 +107,12 @@ export function CommerceConfigPanel({ surfaceId, ownerId, onClose }: CommerceCon
 
   const handleSave = async () => {
     try {
+      const deliveryCents = freeDelivery ? 0 : amountToCents(deliveryAmount, form.currency);
       await upsert({
         surface_id: surfaceId,
         owner_id: ownerId,
         ...form,
+        delivery_fee_cents: deliveryCents,
       });
     } catch {
       // Error handled in hook
@@ -105,9 +127,11 @@ export function CommerceConfigPanel({ surfaceId, ownerId, onClose }: CommerceCon
     );
   }
 
+  const currencyLabel = CURRENCIES.find(c => c.value === form.currency)?.value || form.currency;
+
   return (
     <div className="space-y-6 p-4 overflow-y-auto max-h-[calc(100vh-120px)]">
-      {/* Ordering Toggle */}
+      {/* ── Ordering Toggle ── */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <ShoppingCart className="h-4 w-4 text-muted-foreground" />
@@ -121,9 +145,12 @@ export function CommerceConfigPanel({ surfaceId, ownerId, onClose }: CommerceCon
 
       {form.ordering_enabled && (
         <>
-          {/* Order Types */}
+          {/* ── Order Types ── */}
           <div>
-            <Label className="text-sm font-semibold mb-2 block">Order Types</Label>
+            <div className="flex items-center gap-2 mb-2">
+              <Truck className="h-4 w-4 text-muted-foreground" />
+              <Label className="text-sm font-semibold">Order Types</Label>
+            </div>
             <div className="space-y-2">
               {[
                 { key: "dine_in", label: "Dine In" },
@@ -141,7 +168,7 @@ export function CommerceConfigPanel({ surfaceId, ownerId, onClose }: CommerceCon
             </div>
           </div>
 
-          {/* Currency */}
+          {/* ── Currency ── */}
           <div>
             <Label className="text-sm font-semibold mb-2 block">Currency</Label>
             <Select value={form.currency} onValueChange={(v) => setForm((p) => ({ ...p, currency: v }))}>
@@ -154,7 +181,38 @@ export function CommerceConfigPanel({ surfaceId, ownerId, onClose }: CommerceCon
             </Select>
           </div>
 
-          {/* Payment Methods */}
+          {/* ── Delivery Fee ── */}
+          {form.order_types.includes("delivery") && (
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold block">Delivery Fee</Label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox
+                  checked={freeDelivery}
+                  onCheckedChange={(v) => {
+                    setFreeDelivery(!!v);
+                    if (v) setDeliveryAmount("0");
+                  }}
+                />
+                <span className="text-sm">Free delivery</span>
+              </label>
+              {!freeDelivery && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-muted-foreground">{currencyLabel}</span>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    min="0"
+                    step={WHOLE_NUMBER_CURRENCIES.includes(form.currency) ? "100" : "0.01"}
+                    value={deliveryAmount}
+                    onChange={(e) => setDeliveryAmount(e.target.value)}
+                    className="flex-1"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Payment Methods ── */}
           <div>
             <div className="flex items-center gap-2 mb-2">
               <CreditCard className="h-4 w-4 text-muted-foreground" />
@@ -199,23 +257,10 @@ export function CommerceConfigPanel({ surfaceId, ownerId, onClose }: CommerceCon
               />
             </div>
           )}
-
-          {/* Delivery Fee */}
-          {form.order_types.includes("delivery") && (
-            <div>
-              <Label className="text-sm font-semibold mb-2 block">Delivery Fee (cents)</Label>
-              <Input
-                type="number"
-                placeholder="0"
-                value={form.delivery_fee_cents || 0}
-                onChange={(e) => setForm((p) => ({ ...p, delivery_fee_cents: parseInt(e.target.value) || 0 }))}
-              />
-            </div>
-          )}
         </>
       )}
 
-      {/* WhatsApp Chat */}
+      {/* ── WhatsApp Chat ── */}
       <div className="border-t pt-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -243,7 +288,7 @@ export function CommerceConfigPanel({ surfaceId, ownerId, onClose }: CommerceCon
         )}
       </div>
 
-      {/* Support Contact */}
+      {/* ── Support Contact ── */}
       <div className="border-t pt-4">
         <div className="flex items-center gap-2 mb-3">
           <Phone className="h-4 w-4 text-muted-foreground" />
