@@ -695,6 +695,43 @@ export default function EmenuNewEditor() {
         handleEditorAction("set_layout", { mode: "grid" });
         break;
 
+      // ── Link (from Magic Bar) ──
+      case "set_link": {
+        if (!doc) break;
+        const linkEl = getSelectedElement(doc);
+        if (linkEl && payload) {
+          if (linkEl.tagName === "A") {
+            (linkEl as HTMLAnchorElement).href = payload.value || "#";
+            if (payload.openInNewTab) (linkEl as HTMLAnchorElement).target = "_blank";
+            else (linkEl as HTMLAnchorElement).removeAttribute("target");
+          } else {
+            // Wrap in an anchor
+            const a = doc.createElement("a");
+            a.href = payload.value || "#";
+            if (payload.openInNewTab) a.target = "_blank";
+            linkEl.parentElement?.insertBefore(a, linkEl);
+            a.appendChild(linkEl);
+          }
+          pushUpdate(doc, iframe);
+          toast.success("Link applied!");
+        }
+        break;
+      }
+
+      // ── Ada prompt (from Magic Bar) ──
+      case "ada_prompt": {
+        toast.info(`Ada: "${payload?.prompt || "..."}" — processing coming soon`);
+        break;
+      }
+
+      // ── Change layout (from Magic Bar section context) ──
+      case "change_layout": {
+        if (!doc) break;
+        const sec = getSelectedElement(doc);
+        if (sec) toast.info("Use the right panel to change section layout");
+        break;
+      }
+
       default:
         toast.info(`${action} — coming soon`);
         break;
