@@ -410,6 +410,14 @@ export default function EmenuNewEditor() {
         setEditorColorTarget("page");
         setEditorColorPickerOpen(true);
         break;
+      case "set_page_bg_color": {
+        if (!doc) break;
+        if (payload?.color) {
+          doc.body.style.backgroundColor = payload.color;
+          pushUpdate(doc, iframe);
+        }
+        break;
+      }
 
       // ── Text style with toggle support ──
       case "set_text_style": {
