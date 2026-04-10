@@ -495,7 +495,7 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
           ref={iframeRef}
           srcDoc={getEditableHtml(html)}
           key="emenu-preview-stable"
-          className={`bg-white border-0 transition-all duration-300 ${
+          className={`border-0 transition-all duration-300 ${
             viewportMode === "mobile"
               ? "w-[390px] h-full shadow-2xl rounded-xl border border-border mx-auto"
               : "w-full h-full"

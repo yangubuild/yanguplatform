@@ -64,8 +64,8 @@ function baseStyles(isDark: boolean, pageText: string, pageBg: string): string {
   return `
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Inter', sans-serif; background: ${pageBg}; color: ${pageText}; line-height: 1.6; }
+    html { scroll-behavior: smooth; background: ${pageBg}; }
+    body { font-family: 'Inter', sans-serif; background: ${pageBg}; color: ${pageText}; line-height: 1.6; min-height: 100vh; }
     img { max-width: 100%; }
     @media (max-width: 768px) {
       section[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
