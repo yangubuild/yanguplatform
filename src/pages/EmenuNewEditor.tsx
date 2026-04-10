@@ -26,6 +26,7 @@ import { SectionEditorPanel } from "@/components/builder-new/SectionEditorPanel"
 import { ImageEditorPanel } from "@/components/builder-new/ImageEditorPanel";
 import { MagicEditorToolbar } from "@/components/builder-new/MagicEditorToolbar";
 import { BuilderPublishModal } from "@/components/builder/BuilderPublishModal";
+import { CommerceConfigPanel } from "@/components/commerce/CommerceConfigPanel";
 import { BuilderSettingsDrawer, getThemeFromMetadata } from "@/components/builder/BuilderSettingsDrawer";
 import { BuilderPagesDropdown } from "@/components/builder/BuilderPagesDropdown";
 import { useBuilderEditor } from "@/hooks/useBuilderEditor";
@@ -36,7 +37,7 @@ import type { CanvasSelection } from "@/lib/builder/selectionTypes";
 import type { BuilderSurfaceType } from "@/types/builder";
 import { toast } from "sonner";
 
-type LeftMode = "tools" | "ada";
+type LeftMode = "tools" | "ada" | "commerce";
 type PreviewViewport = "desktop" | "mobile";
 
 function isLightHex(hex: string): boolean {
@@ -60,8 +61,16 @@ export default function EmenuNewEditor() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showLeaveWarning, setShowLeaveWarning] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string>("");
   const pendingNavRef = useRef<string | null>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Get current user ID for commerce config
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.id) setCurrentUserId(session.user.id);
+    });
+  }, []);
 
   const {
     editorState, isLoading, error, sections, activePage, activePageId,
@@ -728,6 +737,11 @@ export default function EmenuNewEditor() {
         break;
       }
 
+      // ── Commerce config ──
+      case "commerce_config": {
+        setLeftMode("commerce");
+        break;
+      }
       // ── Page/settings ──
       case "page_settings":
       case "seo_meta":
@@ -991,7 +1005,22 @@ export default function EmenuNewEditor() {
       <div className="flex flex-1 overflow-hidden">
         {/* ═══ LEFT PANEL ═══ */}
         <aside className="w-72 border-r border-border flex-col bg-sidebar overflow-y-auto hidden lg:flex">
-          {leftMode === "ada" ? (
+          {leftMode === "commerce" ? (
+            <div className="flex flex-col h-full">
+              <div className="p-3 border-b border-border flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold">Commerce & Payments</span>
+                </div>
+                <button onClick={() => setLeftMode("tools")} className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <CommerceConfigPanel
+                surfaceId={surfaceId!}
+                ownerId={currentUserId}
+              />
+            </div>
+          ) : leftMode === "ada" ? (
             <div className="flex flex-col h-full">
               <div className="p-3 border-b border-border flex items-center justify-between">
                 <div className="flex items-center gap-2">

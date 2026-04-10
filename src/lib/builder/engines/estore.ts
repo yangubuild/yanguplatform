@@ -82,7 +82,7 @@ export const estoreEngine: BuilderEngine = {
     { type: "offer", schema: { heading: "What We Offer", description: "", items: [] }, core_slot: "offer" },
     { type: "footer", schema: { heading: "Footer", email: "", phone: "", address: "", hours: [], social: {} }, core_slot: "footer" },
   ],
-  editorModules: ["products", "catalog", "bulk_pricing", "quote_request", "large_inventory", "supplier_info", "contact"],
+  editorModules: ["products", "catalog", "bulk_pricing", "quote_request", "large_inventory", "commerce_config", "supplier_info", "contact"],
   templates: [
     { key: "hero_store", label: "Hero Store", sectionType: "hero", schema: { headline: "", subheadline: "", cta_label: "Request Quote" } },
     { key: "catalog_grid", label: "Product Catalog", sectionType: "products", schema: { heading: "Catalog", items: [], layout: "grid", filters: true } },
