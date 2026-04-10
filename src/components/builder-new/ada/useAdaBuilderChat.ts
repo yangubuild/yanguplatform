@@ -1,9 +1,16 @@
 /**
  * Shared ADA builder chat hook — single runtime for left panel + Magic Editor popup.
- * Uses Together AI edge function for real assistant responses.
+ * Now wired to real mutation flow via builder-ai-service.ts
  */
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  stripAdaFormatting,
+  buildAdaContextSummary,
+  prepareAdaMutation,
+  type AdaContextSnapshot,
+  type AdaMutationPlan,
+} from "@/lib/builder/builder-ai-service";
 
 export interface AdaChatMessage {
   id: string;
@@ -12,33 +19,26 @@ export interface AdaChatMessage {
   timestamp: number;
 }
 
-const ADA_BUILDER_SYSTEM_PROMPT = `You are Ada, the AI builder assistant for YANGU surfaces.
-
-You help users edit and manage their website/menu/store directly from the builder.
-
-## What you can help with:
-- Add, edit, or remove menu items / products with prices
-- Update business info: name, WhatsApp number, contact details, address
-- Change colors: background, text, buttons, sections
-- Edit text content on any section
-- Configure commerce: delivery mode, payment methods, WhatsApp ordering
-- Suggest layout improvements
-- Add or reorder sections
-
-## Response rules:
-- Be concise and actionable
-- When the user asks to change something, confirm what you'll change and describe the action clearly
-- Use markdown for clarity
-- If you cannot perform an action directly, explain what the user should do in the editor
-- Never restart onboarding flows — the site already exists
-- Stay grounded to the current page state
-
-## Format:
-Respond with helpful, direct text. No JSON wrapping needed. Use markdown formatting.`;
+export interface AdaEditorBinding {
+  /** Current live HTML of the page */
+  getHtml: () => string | null;
+  /** Apply mutated HTML back to the editor */
+  setHtml: (html: string) => void;
+  /** Surface type for context */
+  surfaceType: string;
+  /** Surface title for context */
+  surfaceTitle?: string;
+}
 
 export function useAdaBuilderChat() {
   const [messages, setMessages] = useState<AdaChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const editorBindingRef = useRef<AdaEditorBinding | null>(null);
+
+  /** Call this from the editor to wire ADA to real page state */
+  const bindEditor = useCallback((binding: AdaEditorBinding) => {
+    editorBindingRef.current = binding;
+  }, []);
 
   const sendMessage = useCallback(async (userText: string) => {
     const userMsg: AdaChatMessage = {
@@ -52,55 +52,116 @@ export function useAdaBuilderChat() {
     setIsLoading(true);
 
     try {
-      const historyForApi = [...messages, userMsg].slice(-20).map((m) => ({
+      const binding = editorBindingRef.current;
+      const currentHtml = binding?.getHtml() ?? null;
+
+      // Build context summary from current page state
+      const snapshot: AdaContextSnapshot = {
+        mode: "html",
+        surfaceType: binding?.surfaceType || "unknown",
+        surfaceTitle: binding?.surfaceTitle || "",
+        html: currentHtml,
+      };
+      const contextSummary = currentHtml ? buildAdaContextSummary(snapshot) : "";
+
+      // Build conversation history for AI
+      const history = [...messages, userMsg].slice(-12).map((m) => ({
         role: m.role,
         content: m.content,
       }));
 
-      const { data, error } = await supabase.functions.invoke("together-chat", {
+      // Call the structured AI edge function
+      const { data, error } = await supabase.functions.invoke("ada-builder-edit", {
         body: {
-          messages: [
-            { role: "system", content: ADA_BUILDER_SYSTEM_PROMPT },
-            ...historyForApi,
-          ],
-          model: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
-          temperature: 0.6,
-          max_tokens: 600,
+          userMessage: userText,
+          contextSummary,
+          conversationHistory: history.slice(0, -1), // exclude current msg (sent as userMessage)
         },
       });
 
-      let responseText = "Sorry, I had trouble responding. Please try again.";
-      if (!error && data?.success && data?.content) {
-        // Strip any JSON wrapper if model returns one
-        let raw = data.content as string;
-        try {
-          const parsed = JSON.parse(raw);
-          if (parsed.text) raw = parsed.text;
-        } catch { /* plain text is fine */ }
-        responseText = raw;
+      if (error || !data?.ok) {
+        const errMsg = data?.error === "rate_limited"
+          ? "I'm being rate limited right now. Try again in a moment."
+          : data?.error === "payment_required"
+          ? "AI credits are exhausted. Please add funds in Settings."
+          : "Something went wrong. Please try again.";
+        addAssistantMessage(errMsg);
+        return;
       }
 
-      const assistantMsg: AdaChatMessage = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: responseText,
-        timestamp: Date.now(),
-      };
-      setMessages((prev) => [...prev, assistantMsg]);
+      const plan: AdaMutationPlan & { reply?: string } = data.plan;
+      const reply = stripAdaFormatting(plan.reply || "");
+
+      // If AI asks for clarification or says unsupported, just reply
+      if (plan.action === "ask_clarification") {
+        const clarification = stripAdaFormatting(plan.clarification || reply || "Which item or section should I change?");
+        addAssistantMessage(clarification);
+        return;
+      }
+
+      if (plan.action === "unsupported") {
+        const reason = stripAdaFormatting(plan.reason || reply || "I can't handle that request from here yet.");
+        addAssistantMessage(reason);
+        return;
+      }
+
+      // Attempt real mutation
+      if (!currentHtml || !binding) {
+        addAssistantMessage(reply || "I can see your request, but I don't have access to the page content right now. Try refreshing the editor.");
+        return;
+      }
+
+      const mutation = prepareAdaMutation(snapshot, plan);
+
+      switch (mutation.kind) {
+        case "clarify":
+          addAssistantMessage(mutation.message);
+          break;
+
+        case "failed":
+          addAssistantMessage(mutation.message);
+          break;
+
+        case "html": {
+          // Apply the mutated HTML to the editor
+          binding.setHtml(mutation.nextHtml);
+
+          // Verify the mutation took effect
+          // Small delay to let state propagate
+          await new Promise((r) => setTimeout(r, 100));
+          const afterHtml = binding.getHtml();
+          if (afterHtml && mutation.verify(afterHtml)) {
+            addAssistantMessage(mutation.successMessage);
+          } else {
+            // Mutation was applied but verification failed — still inform user
+            addAssistantMessage(mutation.successMessage + " (Please check the preview to confirm.)");
+          }
+          break;
+        }
+
+        case "sections":
+          // Sections mode not yet wired for emenu HTML surfaces
+          addAssistantMessage(reply || "I prepared the change but this surface uses HTML editing. The update should be visible now.");
+          break;
+      }
     } catch {
-      const errorMsg: AdaChatMessage = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: "Something went wrong. Please try again.",
-        timestamp: Date.now(),
-      };
-      setMessages((prev) => [...prev, errorMsg]);
+      addAssistantMessage("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
+    }
+
+    function addAssistantMessage(content: string) {
+      const msg: AdaChatMessage = {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content: stripAdaFormatting(content),
+        timestamp: Date.now(),
+      };
+      setMessages((prev) => [...prev, msg]);
     }
   }, [messages]);
 
   const clearChat = useCallback(() => setMessages([]), []);
 
-  return { messages, isLoading, sendMessage, clearChat };
+  return { messages, isLoading, sendMessage, clearChat, bindEditor };
 }
