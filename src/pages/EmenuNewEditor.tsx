@@ -1045,6 +1045,13 @@ export default function EmenuNewEditor() {
         onSelect={applyEditorColor}
       />
 
+      {/* Background Image Picker */}
+      <EditorImagePickerDialog
+        open={bgImagePickerOpen}
+        onOpenChange={setBgImagePickerOpen}
+        onSelect={applyBgImage}
+      />
+
       {/* Publish Modal — flush save before publish */}
       <BuilderPublishModal
         open={publishOpen}
