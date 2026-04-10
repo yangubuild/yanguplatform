@@ -123,6 +123,12 @@ export function MagicEditorToolbar({ selection, onAction }: MagicEditorToolbarPr
             <div className="w-px h-4 bg-background/20 mx-0.5" />
             <MagicBtn icon={TypeIcon} label="Font" onClick={() => togglePopup("typography")} active={activePopup === "typography"} />
             <MagicBtn icon={AlignCenter} label="Align" onClick={() => togglePopup("alignment")} active={activePopup === "alignment"} />
+            {selection.sectionIndex >= 0 && (
+              <>
+                <div className="w-px h-4 bg-background/20 mx-0.5" />
+                <MagicBtn icon={ImageIcon} label="Section BG" onClick={() => onAction("set_section_bg_image")} />
+              </>
+            )}
           </>
         )}
 
@@ -136,6 +142,12 @@ export function MagicEditorToolbar({ selection, onAction }: MagicEditorToolbarPr
             />
             <MagicBtn icon={TypeIcon} label="Font" onClick={() => togglePopup("typography")} active={activePopup === "typography"} />
             <MagicBtn icon={AlignCenter} label="Align" onClick={() => togglePopup("alignment")} active={activePopup === "alignment"} />
+            {selection.sectionIndex >= 0 && (
+              <>
+                <div className="w-px h-4 bg-background/20 mx-0.5" />
+                <MagicBtn icon={ImageIcon} label="Section BG" onClick={() => onAction("set_section_bg_image")} />
+              </>
+            )}
           </>
         )}
 

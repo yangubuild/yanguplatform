@@ -296,7 +296,20 @@ export default function EmenuNewEditor() {
     if (!doc) return;
 
     if (bgImageTarget === "section") {
-      const sec = getSelectedElement(doc);
+      // Always target the section-selected element (the parent section), not the child text/button
+      let sec = doc.querySelector('.section-selected') as HTMLElement | null;
+      if (!sec) sec = getSelectedElement(doc);
+      // If we got a child element, walk up to the nearest section/header/footer/nav
+      if (sec && !['SECTION','HEADER','FOOTER','NAV'].includes(sec.tagName)) {
+        let parent = sec.parentElement;
+        while (parent && parent !== doc.body) {
+          if (['SECTION','HEADER','FOOTER','NAV'].includes(parent.tagName) || parent.classList.contains('section-selected')) {
+            sec = parent;
+            break;
+          }
+          parent = parent.parentElement;
+        }
+      }
       if (sec) {
         sec.style.backgroundImage = `url('${url}')`;
         sec.style.backgroundSize = "cover";
@@ -304,6 +317,8 @@ export default function EmenuNewEditor() {
         sec.style.backgroundRepeat = "no-repeat";
         pushUpdate(doc, iframe);
         toast.success("Background image applied!");
+      } else {
+        toast.error("No section selected. Click a section first.");
       }
     } else {
       // Replace an <img> element's src
