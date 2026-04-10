@@ -146,6 +146,11 @@ export default function PublicSurfacePage() {
     fontWeight: Number(surfaceTheme.body_weight),
   };
 
+  // Determine if surface supports ordering (eshop, estore, emenu variants)
+  const ORDER_CAPABLE_TYPES = ["eshop", "estore", "live_selling", "store_listing"];
+  const isOrderCapable = ORDER_CAPABLE_TYPES.includes(pubSurfaceType || "");
+  const PRODUCT_SECTION_TYPES = ["products", "product_grid", "listings", "listing_grid", "featured"];
+
   const sectionContent = (
     <main>
       {sections.length === 0 ? (
@@ -156,18 +161,63 @@ export default function PublicSurfacePage() {
         sections.map((section: BuilderPublishedSection, i: number) => {
           const Preview = PREVIEW_MAP[section.section_type];
           const isHero = section.section_type === "hero" || section.section_type === "hero_banner";
+          const isProductSection = PRODUCT_SECTION_TYPES.includes(section.section_type);
+
+          // For order-capable surfaces, wrap product sections with click-to-add-to-cart
+          const sectionEl = Preview ? (
+            isHero
+              ? <Preview schema={section.schema} {...({ pubSurfaceType } as any)} />
+              : <Preview schema={section.schema} />
+          ) : (
+            <div className="py-4 text-sm text-muted-foreground italic">
+              [{section.section_type}]
+            </div>
+          );
+
           return (
-            <div key={`${section.section_type}-${i}`} className="w-full">
+            <div
+              key={`${section.section_type}-${i}`}
+              className="w-full"
+              {...(isOrderCapable && isProductSection ? {
+                onClick: (e: React.MouseEvent) => {
+                  // Delegate: find the closest .yangu-cta button click
+                  const target = e.target as HTMLElement;
+                  const ctaBtn = target.closest('.yangu-cta');
+                  const card = target.closest('.yangu-card');
+                  if (!ctaBtn || !card) return;
+
+                  // Extract product info from the card
+                  const nameEl = card.querySelector('p.truncate, h3, h4');
+                  const priceEl = card.querySelector('.text-primary');
+                  const imgEl = card.querySelector('img');
+                  
+                  const name = nameEl?.textContent?.trim() || "Product";
+                  const priceText = priceEl?.textContent?.trim() || "$0";
+                  const currencyMatch = priceText.match(/^([A-Z]{3}|[\$€£])/);
+                  const cur = currencyMatch?.[1] || "USD";
+                  const numStr = priceText.replace(/^[A-Z]{3}|[\$€£]/, "").replace(/,/g, "").trim();
+                  const priceCents = Math.round((parseFloat(numStr) || 0) * 100);
+                  const imageUrl = imgEl?.getAttribute("src") || null;
+                  const itemId = btoa(`${name}_${priceCents}`).replace(/=/g, "");
+
+                  (window as any).__yangu_add_to_cart?.({
+                    id: itemId,
+                    name,
+                    price_cents: priceCents,
+                    currency: cur,
+                    image_url: imageUrl,
+                    variant: null,
+                  });
+
+                  // Visual feedback on the CTA
+                  const btn = ctaBtn as HTMLElement;
+                  btn.textContent = "✓ Added";
+                  setTimeout(() => { btn.textContent = "Add to Cart"; }, 1200);
+                },
+              } : {})}
+            >
               <div className={isInfluencer ? "px-4 py-4" : "max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8 py-8 lg:py-12"}>
-                {Preview ? (
-                  isHero
-                    ? <Preview schema={section.schema} {...({ pubSurfaceType } as any)} />
-                    : <Preview schema={section.schema} />
-                ) : (
-                  <div className="py-4 text-sm text-muted-foreground italic">
-                    [{section.section_type}]
-                  </div>
-                )}
+                {sectionEl}
               </div>
             </div>
           );

@@ -81,14 +81,25 @@ export function OrderSuccessDialog({
               </Button>
             )}
 
-            {supportEmail && (
+          {supportEmail && (
               <Button variant="outline" className="w-full gap-2" asChild>
-                <a href={`mailto:${supportEmail}?subject=Order ${trackingCode}`}>
+                <a href={`mailto:${supportEmail}?subject=Order ${trackingCode}&body=${encodeURIComponent(`Hi${businessName ? ` ${businessName}` : ""},\n\nI just placed an order with tracking code: ${trackingCode}\n\nPlease confirm my order.\n\nThank you!`)}`}>
                   <Mail className="h-4 w-4" />
                   Email
                 </a>
               </Button>
             )}
+
+            {/* Route order inquiry to platform support via email */}
+            <Button
+              variant="ghost"
+              className="w-full gap-2 text-xs text-muted-foreground"
+              asChild
+            >
+              <a href={`mailto:support@yangu.io?subject=${encodeURIComponent(`Order Support: ${trackingCode}`)}&body=${encodeURIComponent(`Order tracking code: ${trackingCode}\nBusiness: ${businessName || "N/A"}\n\nPlease describe your issue:\n`)}`}>
+                📋 Contact Platform Support
+              </a>
+            </Button>
           </div>
 
           <Button onClick={onClose} className="w-full mt-2">
