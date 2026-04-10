@@ -84,7 +84,7 @@ export const influencerEngine: BuilderEngine = {
     { type: "offer", schema: { heading: "", description: "", items: [], layout_variant: "link_bio_gallery", display_mode: "link_bio_gallery", newsletter: { enabled: true, heading: "Let's stay in touch", cta_text: "Submit" } }, core_slot: "offer" },
     { type: "footer", schema: { heading: "", email: "", phone: "", address: "", hours: [], social: {}, layout_variant: "link_bio_footer", display_mode: "link_bio_footer" }, core_slot: "footer" },
   ],
-  editorModules: ["bio", "links", "media", "affiliate", "live_product_pins", "tips", "contact"],
+  editorModules: ["bio", "links", "media", "affiliate", "live_product_pins", "tips", "contact", "commerce_config"],
   templates: [
     { key: "bio_hero", label: "Bio Hero", sectionType: "hero", schema: { headline: "", subheadline: "", avatar: "" } },
     { key: "social_links", label: "Social Links", sectionType: "links", schema: { items: [] } },

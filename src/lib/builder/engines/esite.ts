@@ -81,7 +81,7 @@ export const esiteEngine: BuilderEngine = {
     { type: "offer", schema: { heading: "What We Offer", description: "", items: [] }, core_slot: "offer" },
     { type: "footer", schema: { heading: "Footer", email: "", phone: "", address: "", hours: [], social: {} }, core_slot: "footer" },
   ],
-  editorModules: ["hero", "text", "services", "team", "testimonials", "contact", "faq", "blog"],
+  editorModules: ["hero", "text", "services", "team", "testimonials", "contact", "faq", "blog", "commerce_config"],
   industryModules: {
     real_estate: ["listings", "property_filters"],
     hospitality: ["booking_calendar", "room_manager", "amenities", "date_availability"],
