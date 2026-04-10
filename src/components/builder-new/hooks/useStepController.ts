@@ -183,6 +183,73 @@ const DELIVERY_REGIONS: Record<string, DeliveryRegion> = {
       { id: "elmenus", label: "Elmenus", value: "elmenus" },
     ],
   },
+  uganda: {
+    apps: [
+      { id: "glovo", label: "Glovo", value: "glovo" },
+      { id: "jumia_food", label: "Jumia Food", value: "jumia_food" },
+      { id: "safeboda_food", label: "SafeBoda Food", value: "safeboda_food" },
+      { id: "bolt_food", label: "Bolt Food", value: "bolt_food" },
+    ],
+  },
+  kenya: {
+    apps: [
+      { id: "glovo", label: "Glovo", value: "glovo" },
+      { id: "bolt_food", label: "Bolt Food", value: "bolt_food" },
+      { id: "jumia_food", label: "Jumia Food", value: "jumia_food" },
+      { id: "uber_eats", label: "Uber Eats", value: "ubereats" },
+    ],
+  },
+  nigeria: {
+    apps: [
+      { id: "glovo", label: "Glovo", value: "glovo" },
+      { id: "bolt_food", label: "Bolt Food", value: "bolt_food" },
+      { id: "chowdeck", label: "Chowdeck", value: "chowdeck" },
+      { id: "jumia_food", label: "Jumia Food", value: "jumia_food" },
+    ],
+  },
+  south_africa: {
+    apps: [
+      { id: "uber_eats", label: "Uber Eats", value: "ubereats" },
+      { id: "mr_d_food", label: "Mr D Food", value: "mr_d_food" },
+      { id: "bolt_food", label: "Bolt Food", value: "bolt_food" },
+    ],
+  },
+  tanzania: {
+    apps: [
+      { id: "glovo", label: "Glovo", value: "glovo" },
+      { id: "bolt_food", label: "Bolt Food", value: "bolt_food" },
+      { id: "jumia_food", label: "Jumia Food", value: "jumia_food" },
+    ],
+  },
+  ghana: {
+    apps: [
+      { id: "glovo", label: "Glovo", value: "glovo" },
+      { id: "bolt_food", label: "Bolt Food", value: "bolt_food" },
+      { id: "jumia_food", label: "Jumia Food", value: "jumia_food" },
+    ],
+  },
+  uk: {
+    apps: [
+      { id: "deliveroo", label: "Deliveroo", value: "deliveroo" },
+      { id: "uber_eats", label: "Uber Eats", value: "ubereats" },
+      { id: "just_eat", label: "Just Eat", value: "just_eat" },
+    ],
+  },
+  us: {
+    apps: [
+      { id: "doordash", label: "DoorDash", value: "doordash" },
+      { id: "ubereats", label: "Uber Eats", value: "ubereats" },
+      { id: "grubhub", label: "Grubhub", value: "grubhub" },
+      { id: "postmates", label: "Postmates", value: "postmates" },
+    ],
+  },
+  india: {
+    apps: [
+      { id: "swiggy", label: "Swiggy", value: "swiggy" },
+      { id: "zomato", label: "Zomato", value: "zomato" },
+      { id: "dunzo", label: "Dunzo", value: "dunzo" },
+    ],
+  },
   global: {
     apps: [
       { id: "ubereats", label: "Uber Eats", value: "ubereats" },
@@ -203,6 +270,15 @@ function detectRegion(location: string): string {
   if (lower.includes("uae") || lower.includes("dubai") || lower.includes("abu dhabi") || lower.includes("sharjah")) return "uae";
   if (lower.includes("saudi") || lower.includes("riyadh") || lower.includes("jeddah") || lower.includes("ksa")) return "saudi";
   if (lower.includes("egypt") || lower.includes("cairo")) return "egypt";
+  if (lower.includes("uganda") || lower.includes("kampala")) return "uganda";
+  if (lower.includes("kenya") || lower.includes("nairobi")) return "kenya";
+  if (lower.includes("nigeria") || lower.includes("lagos") || lower.includes("abuja")) return "nigeria";
+  if (lower.includes("south africa") || lower.includes("johannesburg") || lower.includes("cape town")) return "south_africa";
+  if (lower.includes("tanzania") || lower.includes("dar es salaam")) return "tanzania";
+  if (lower.includes("ghana") || lower.includes("accra")) return "ghana";
+  if (lower.includes("uk") || lower.includes("london") || lower.includes("united kingdom") || lower.includes("england")) return "uk";
+  if (lower.includes("us") || lower.includes("usa") || lower.includes("united states") || lower.includes("new york") || lower.includes("california")) return "us";
+  if (lower.includes("india") || lower.includes("mumbai") || lower.includes("delhi") || lower.includes("bangalore")) return "india";
   return "global";
 }
 
