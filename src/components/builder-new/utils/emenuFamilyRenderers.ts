@@ -67,13 +67,21 @@ function baseStyles(isDark: boolean, pageText: string, pageBg: string): string {
     html { scroll-behavior: smooth; background: ${pageBg}; }
     body { font-family: 'Inter', sans-serif; background: ${pageBg}; color: ${pageText}; line-height: 1.6; min-height: 100vh; }
     img { max-width: 100%; }
+    .yangu-product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .yangu-product-grid > * { max-width: 320px; justify-self: center; width: 100%; }
+    .yangu-content-container { max-width: 1100px; margin: 0 auto; }
     @media (max-width: 768px) {
       section[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
       section[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
       [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
       [style*="grid-template-columns:repeat(3"] { grid-template-columns: repeat(2, 1fr) !important; }
+      .yangu-product-grid { grid-template-columns: 1fr !important; }
+      .yangu-product-grid > * { max-width: 100%; }
       [style*="min-height:80vh"] { min-height: 60vh !important; padding-top: 80px !important; }
       [style*="min-height:85vh"] { min-height: 60vh !important; padding-top: 80px !important; }
+    }
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .yangu-product-grid { grid-template-columns: repeat(2, 1fr) !important; }
     }
   `;
 }
@@ -188,23 +196,23 @@ export function renderPlateria(ctx: RenderContext): string {
 
   // Menu grid
   const menuHTML = `
-  <section id="menu" style="padding:80px 32px;background:${t.pageBg};">
-    <div style="max-width:1000px;margin:0 auto;text-align:center;">
+  <section id="menu" style="padding:48px 20px;background:${t.pageBg};">
+    <div class="yangu-content-container" style="text-align:center;">
       <p style="font-size:12px;text-transform:uppercase;letter-spacing:3px;color:${t.accent};margin-bottom:8px;">MENU</p>
-      <h2 style="font-family:${t.fontHeading};font-size:2rem;font-weight:700;margin-bottom:40px;color:${t.pageText};">${mainS.heading || "Our Menu"}</h2>
-      <div style="display:grid;grid-template-columns:repeat(${t.menuCols},1fr);gap:24px;">
+      <h2 style="font-family:${t.fontHeading};font-size:2rem;font-weight:700;margin-bottom:28px;color:${t.pageText};">${mainS.heading || "Our Menu"}</h2>
+      <div class="yangu-product-grid">
         ${items.map((item: any, idx: number) => {
           const imgSrc = getImageUrl(config, "menu", idx);
-          const badge = item.badges?.[0] ? `<span style="position:absolute;top:10px;left:10px;padding:4px 12px;border-radius:${t.cardStyle === "sharp" ? "2px" : "12px"};background:${t.accent};color:${t.accentText};font-size:10px;font-weight:600;text-transform:uppercase;">${item.badges[0]}</span>` : "";
-          return `<div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:${cardRadius};overflow:hidden;position:relative;">
+          const badge = item.badges?.[0] ? `<span style="position:absolute;top:8px;left:8px;padding:3px 10px;border-radius:${t.cardStyle === "sharp" ? "2px" : "12px"};background:${t.accent};color:${t.accentText};font-size:10px;font-weight:600;text-transform:uppercase;">${item.badges[0]}</span>` : "";
+          return `<div style="background:${t.cardBg};border:1px solid ${t.borderColor};border-radius:${cardRadius};overflow:hidden;position:relative;max-width:320px;width:100%;">
             ${badge}
             <img src="${imgSrc}" alt="${item.title}" style="width:100%;height:${t.cardImageHeight};object-fit:cover;"/>
-            <div style="padding:16px 18px;">
+            <div style="padding:12px 14px;">
               <div style="display:flex;justify-content:space-between;align-items:center;">
-                <span style="font-weight:600;font-size:14px;color:${t.pageText};">${item.title}</span>
-                <span style="font-weight:700;font-size:14px;color:${t.accent};">${item.price || ""}</span>
+                <span style="font-weight:600;font-size:13px;color:${t.pageText};">${item.title}</span>
+                <span style="font-weight:700;font-size:13px;color:${t.accent};">${item.price || ""}</span>
               </div>
-              ${item.description ? `<p style="font-size:12px;color:${t.pageText}66;margin-top:6px;line-height:1.5;">${item.description}</p>` : ""}
+              ${item.description ? `<p style="font-size:11px;color:${t.pageText}66;margin-top:4px;line-height:1.5;">${item.description}</p>` : ""}
             </div>
           </div>`;
         }).join("")}

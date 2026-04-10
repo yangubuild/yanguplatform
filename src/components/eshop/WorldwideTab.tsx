@@ -111,7 +111,7 @@ export default function WorldwideTab({ selectedCountry, onCountryChange, results
       )}
 
       {filteredResults.length> 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
           {filteredResults.map((item) => (
             <ProductCard
               key={`${item.provider_key || "unknown"}:${item.external_product_id}`}
