@@ -237,7 +237,7 @@ export default function ProductsTab({
                 </button>
               </div>
             )}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
               {filteredResults.map((item) => (
                 <ProductCard
                   key={`${item.provider_key || "unknown"}:${item.external_product_id}`}

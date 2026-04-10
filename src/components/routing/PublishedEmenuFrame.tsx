@@ -17,11 +17,11 @@ img,video,canvas,svg{max-width:100%;}
 
 body > *:not([data-yangu-badge]){
   width:100% !important;
-  max-width:1320px !important;
+  max-width:1100px !important;
   margin-left:auto !important;
   margin-right:auto !important;
-  padding-left:24px !important;
-  padding-right:24px !important;
+  padding-left:20px !important;
+  padding-right:20px !important;
   box-sizing:border-box !important;
 }
 
@@ -37,12 +37,25 @@ body > section:not([data-yangu-badge]) > *,
 body > header:not([data-yangu-badge]) > *,
 body > footer:not([data-yangu-badge]) > *,
 body > nav:not([data-yangu-badge]) > *{
-  max-width:1320px !important;
+  max-width:1100px !important;
   margin-left:auto !important;
   margin-right:auto !important;
-  padding-left:24px !important;
-  padding-right:24px !important;
+  padding-left:20px !important;
+  padding-right:20px !important;
   box-sizing:border-box !important;
+}
+
+/* Product/menu grid density */
+.yangu-product-grid,
+[style*="grid-template-columns:repeat("][style*="gap"]{
+  grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)) !important;
+  gap:16px !important;
+}
+.yangu-product-grid > *,
+[style*="grid-template-columns"] > div[style*="border-radius"]{
+  max-width:320px !important;
+  justify-self:center !important;
+  width:100% !important;
 }
 
 nav,.navbar,[class*="nav"]{
@@ -53,19 +66,19 @@ nav,.navbar,[class*="nav"]{
 }
 
 nav a,.nav-link,[class*="nav-item"]{
-  font-size:1rem !important;
+  font-size:0.9rem !important;
   font-weight:500 !important;
 }
 button,.btn,[class*="button"]{
-  font-size:1rem !important;
+  font-size:0.9rem !important;
   padding:10px 20px !important;
 }
 h1,.hero-title{
-  font-size:3.5rem !important;
+  font-size:3rem !important;
   line-height:1.2 !important;
 }
 h2,.section-title{
-  font-size:2rem !important;
+  font-size:1.75rem !important;
 }
 
 /* ── Mobile-first responsive ── */
@@ -80,6 +93,14 @@ h2,.section-title{
   body > nav:not([data-yangu-badge]) > * {
     padding-left:16px !important;
     padding-right:16px !important;
+  }
+  .yangu-product-grid,
+  [style*="grid-template-columns:repeat("]{
+    grid-template-columns:1fr !important;
+  }
+  .yangu-product-grid > *,
+  [style*="grid-template-columns"] > div[style*="border-radius"]{
+    max-width:100% !important;
   }
   h1,.hero-title {
     font-size:2rem !important;
@@ -97,15 +118,17 @@ h2,.section-title{
     font-size:0.875rem !important;
     padding:8px 16px !important;
   }
-  /* Stack grid items on mobile */
-  [style*="grid-template-columns"] {
-    grid-template-columns: 1fr !important;
-  }
   [style*="display: flex"][style*="gap"] {
     flex-wrap: wrap !important;
   }
-  /* Ensure images don't overflow */
   img { height: auto !important; }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .yangu-product-grid,
+  [style*="grid-template-columns:repeat("]{
+    grid-template-columns:repeat(2, 1fr) !important;
+  }
 }
 
 @media (max-width: 480px) {

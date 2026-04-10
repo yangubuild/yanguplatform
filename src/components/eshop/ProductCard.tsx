@@ -35,7 +35,7 @@ export default function ProductCard({ item, formatPrice, onClick }: Props) {
   return (
     <button
       onClick={onClick}
-      className="min-w-0 w-full text-left rounded-lg border border-border bg-card hover:border-accent/40 hover:shadow-md transition-all group overflow-hidden">
+      className="min-w-0 w-full max-w-[320px] justify-self-center text-left rounded-lg border border-border bg-card hover:border-accent/40 hover:shadow-md transition-all group overflow-hidden">
       <div className="aspect-square bg-muted overflow-hidden relative">
         {(item.thumbnail || item.thumbnail_url) ? (
           <img

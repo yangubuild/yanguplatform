@@ -214,19 +214,19 @@ const LAYOUT_CONFIGS: Record<LayoutVariant, {
   classic: {
     heroStyle: "min-height:80vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;",
     sectionStyle: (i) => i % 2 === 0 ? "alt-bg" : "",
-    itemsStyle: "grid-template-columns:repeat(auto-fill,minmax(200px,1fr));",
+    itemsStyle: "grid-template-columns:repeat(auto-fit,minmax(220px,1fr));",
     imageLayout: "block",
   },
   split: {
     heroStyle: "min-height:80vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:100px 48px 80px;gap:48px;",
     sectionStyle: (i) => i % 2 === 0 ? "reverse-grid" : "",
-    itemsStyle: "grid-template-columns:repeat(2,1fr);",
+    itemsStyle: "grid-template-columns:repeat(auto-fit,minmax(220px,1fr));",
     imageLayout: "side",
   },
   "cards-first": {
     heroStyle: "min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;text-align:center;padding:80px 24px 60px;",
     sectionStyle: () => "",
-    itemsStyle: "grid-template-columns:repeat(auto-fill,minmax(240px,1fr));",
+    itemsStyle: "grid-template-columns:repeat(auto-fit,minmax(220px,1fr));",
     imageLayout: "cards",
   },
 };
@@ -280,19 +280,19 @@ function buildSectionHTML(section: SectionContent, isHero: boolean, theme: Style
   let itemsHtml = "";
   if (section.items) {
     const hasImages = section.images && section.images.length > 0;
-    itemsHtml = `<div style="display:grid;${layoutCfg.itemsStyle}gap:16px;margin-top:24px;">
+    itemsHtml = `<div style="display:grid;${layoutCfg.itemsStyle}gap:16px;margin-top:20px;">
       ${section.items.map((item, ii) => {
         const img = hasImages && section.images![ii % section.images!.length]
           ? `<img src="${section.images![ii % section.images!.length]}" alt="${item}" style="width:100%;height:140px;object-fit:cover;border-radius:8px 8px 0 0;"/>`
           : "";
-        return `<div style="background:${theme.cardBg};border:1px solid ${theme.borderColor};border-radius:12px;overflow:hidden;transition:transform 0.2s;">
+        return `<div style="background:${theme.cardBg};border:1px solid ${theme.borderColor};border-radius:12px;overflow:hidden;transition:transform 0.2s;max-width:320px;width:100%;justify-self:center;">
           ${img}
-          <div style="padding:${img ? "12px 16px" : "20px 16px"};text-align:center;font-weight:500;">${item}</div>
+          <div style="padding:${img ? "10px 14px" : "16px 14px"};text-align:center;font-weight:500;font-size:14px;">${item}</div>
         </div>`;
       }).join("")}
     </div>`;
   } else if (section.images && section.images.length > 0) {
-    itemsHtml = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:24px;">
+    itemsHtml = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:20px;">
       ${section.images.map(src => `<div style="border-radius:12px;overflow:hidden;aspect-ratio:4/3;"><img src="${src}" alt="" style="width:100%;height:100%;object-fit:cover;"/></div>`).join("")}
     </div>`;
   }
@@ -305,10 +305,10 @@ function buildSectionHTML(section: SectionContent, isHero: boolean, theme: Style
   }
 
   return `
-  <section id="${section.key}" style="padding:72px 24px;${altBg}">
-    <div style="max-width:900px;margin:0 auto;text-align:center;">
-      <h2 style="font-family:${theme.fontHeading};font-size:1.8rem;font-weight:700;margin-bottom:12px;color:${theme.text};">${section.title}</h2>
-      <p style="font-size:0.95rem;color:${theme.text}bb;margin-bottom:24px;line-height:1.7;">${section.subtitle.replace(/\n/g, "<br/>")}</p>
+  <section id="${section.key}" style="padding:48px 20px;${altBg}">
+    <div style="max-width:1100px;margin:0 auto;text-align:center;">
+      <h2 style="font-family:${theme.fontHeading};font-size:1.8rem;font-weight:700;margin-bottom:10px;color:${theme.text};">${section.title}</h2>
+      <p style="font-size:0.95rem;color:${theme.text}bb;margin-bottom:20px;line-height:1.7;">${section.subtitle.replace(/\n/g, "<br/>")}</p>
       ${itemsHtml}
     </div>
   </section>`;
@@ -357,6 +357,11 @@ function buildHTML(config: GeneratorConfig, theme: StyleTheme, layout: LayoutVar
     img { max-width: 100%; }
     @media (max-width: 768px) {
       section[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+      section[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+      [style*="grid-template-columns:repeat("] { grid-template-columns: 1fr !important; }
+    }
+    @media (min-width: 769px) and (max-width: 1024px) {
+      [style*="grid-template-columns:repeat(auto-fit"] { grid-template-columns: repeat(2, 1fr) !important; }
     }
   </style>
 </head>
