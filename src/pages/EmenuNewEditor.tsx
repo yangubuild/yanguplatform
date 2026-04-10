@@ -997,7 +997,22 @@ export default function EmenuNewEditor() {
       <div className="flex flex-1 overflow-hidden">
         {/* ═══ LEFT PANEL ═══ */}
         <aside className="w-72 border-r border-border flex-col bg-sidebar overflow-y-auto hidden lg:flex">
-          {leftMode === "ada" ? (
+          {leftMode === "commerce" ? (
+            <div className="flex flex-col h-full">
+              <div className="p-3 border-b border-border flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold">Commerce & Payments</span>
+                </div>
+                <button onClick={() => setLeftMode("tools")} className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <CommerceConfigPanel
+                surfaceId={surfaceId!}
+                ownerId={editorState.surface.metadata?.owner_id as string || ""}
+              />
+            </div>
+          ) : leftMode === "ada" ? (
             <div className="flex flex-col h-full">
               <div className="p-3 border-b border-border flex items-center justify-between">
                 <div className="flex items-center gap-2">
