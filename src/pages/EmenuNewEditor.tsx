@@ -1112,7 +1112,7 @@ export default function EmenuNewEditor() {
                   transform: "translateX(-50%)",
                 }}
               >
-                <MagicEditorToolbar selection={canvasSelection} onAction={handleEditorAction} currentColor={detectedColor} />
+                <MagicEditorToolbar selection={canvasSelection} onAction={handleEditorAction} currentColor={detectedColor} adaMessages={adaChat.messages} adaIsLoading={adaChat.isLoading} onAdaSend={adaChat.sendMessage} />
               </div>
             );
           })()}
