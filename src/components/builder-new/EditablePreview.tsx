@@ -32,6 +32,49 @@ const EDIT_STYLES = `
     .yangu-el-selected { outline: 2px solid #22c55e !important; outline-offset: 2px; }
     button:hover, a[class*="btn"]:hover, a[class*="cta"]:hover { outline: 2px solid #22c55e44; outline-offset: 2px; }
     .yangu-btn-selected { outline: 2px solid #22c55e !important; outline-offset: 2px; }
+    .yangu-add-section-pill {
+      display: none;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: -16px;
+      z-index: 100;
+      padding: 6px 18px;
+      border-radius: 20px;
+      background: #3b82f6;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 12px rgba(59,130,246,0.4);
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+    .yangu-section-gap {
+      position: relative;
+      height: 4px;
+      transition: height 0.15s;
+    }
+    .yangu-section-gap:hover {
+      height: 32px;
+    }
+    .yangu-section-gap:hover .yangu-add-section-pill {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .yangu-section-gap::before {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; top: 50%;
+      height: 2px;
+      background: transparent;
+      transition: background 0.15s;
+    }
+    .yangu-section-gap:hover::before {
+      background: #3b82f6;
+    }
   </style>
 `;
 
@@ -116,11 +159,33 @@ const EDIT_SCRIPT = `
         }
       });
 
-      // Section hover
-      document.querySelectorAll('section, footer, nav').forEach(function(el, idx) {
+      // Section hover + Add Section pills between sections
+      var sectionEls = document.querySelectorAll('section, footer, nav');
+      sectionEls.forEach(function(el, idx) {
         el.classList.add('section-hover');
         el.dataset.sectionIdx = idx;
       });
+      // Insert "Add Section" gap pills between sections and after last
+      for (var gi = 0; gi <= sectionEls.length; gi++) {
+        var gap = document.createElement('div');
+        gap.className = 'yangu-section-gap yangu-editor-inject';
+        var pill = document.createElement('button');
+        pill.className = 'yangu-add-section-pill';
+        pill.innerHTML = '+ Add Section';
+        pill.dataset.insertIdx = String(gi);
+        pill.addEventListener('click', function(ev) {
+          ev.stopPropagation();
+          window.parent.postMessage({ type: 'add-section-at', index: Number(ev.currentTarget.dataset.insertIdx) }, '*');
+        });
+        gap.appendChild(pill);
+        if (gi < sectionEls.length) {
+          sectionEls[gi].parentElement.insertBefore(gap, sectionEls[gi]);
+        } else if (sectionEls.length > 0) {
+          var lastSec = sectionEls[sectionEls.length - 1];
+          if (lastSec.nextSibling) lastSec.parentElement.insertBefore(gap, lastSec.nextSibling);
+          else lastSec.parentElement.appendChild(gap);
+        }
+      }
 
       // Image click
       document.querySelectorAll('img').forEach(function(el) {
@@ -255,6 +320,38 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
           sectionId: e.data.sectionId || undefined,
           elRect: e.data.elRect || undefined,
         });
+      }
+      if (e.data?.type === 'add-section-at') {
+        const doc = iframeRef.current?.contentDocument;
+        if (!doc) return;
+        const sections = Array.from(doc.querySelectorAll('section, footer, nav, header'));
+        const insertIdx = e.data.index ?? sections.length;
+        const newSec = doc.createElement('section');
+        newSec.style.cssText = 'padding:72px 24px;text-align:center;';
+        newSec.innerHTML = '<div style="max-width:900px;margin:0 auto;"><h2 style="font-size:1.8rem;font-weight:700;margin-bottom:12px;" contenteditable="true">New Section</h2><p style="color:#666;" contenteditable="true">Click to edit this section content.</p></div>';
+        newSec.classList.add('section-hover');
+        if (insertIdx < sections.length && sections[insertIdx]) {
+          sections[insertIdx].parentElement?.insertBefore(newSec, sections[insertIdx]);
+        } else {
+          const footer = doc.querySelector('footer');
+          if (footer) footer.parentElement?.insertBefore(newSec, footer);
+          else doc.body.appendChild(newSec);
+        }
+        // Remove old gap pills and re-inject would require reload, just push update
+        const clone = doc.documentElement.cloneNode(true) as HTMLElement;
+        clone.querySelectorAll('.yangu-editor-inject').forEach(el => el.remove());
+        clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected,.section-hover').forEach(el => {
+          el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected','section-hover');
+        });
+        clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+        clone.querySelectorAll('[data-yangu-node-id]').forEach(el => el.removeAttribute('data-yangu-node-id'));
+        clone.querySelectorAll('[data-section-idx]').forEach(el => el.removeAttribute('data-section-idx'));
+        clone.querySelectorAll('*').forEach(el => {
+          const ca = el.getAttribute('class');
+          if (ca !== null && !ca.trim()) el.removeAttribute('class');
+        });
+        loadedHtmlRef.current = clone.outerHTML;
+        onHtmlChange(clone.outerHTML);
       }
     };
     window.addEventListener('message', handleMessage);
