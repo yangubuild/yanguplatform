@@ -1017,7 +1017,7 @@ export default function EmenuNewEditor() {
               </div>
               <CommerceConfigPanel
                 surfaceId={surfaceId!}
-                ownerId={editorState.surface.metadata?.owner_id as string || ""}
+                ownerId={currentUserId}
               />
             </div>
           ) : leftMode === "ada" ? (
