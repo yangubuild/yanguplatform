@@ -26,6 +26,28 @@ body > *:not([data-yangu-badge]){
   box-sizing:border-box !important;
 }
 
+/* Allow sections to stretch full width for background coverage */
+body > section:not([data-yangu-badge]),
+body > header:not([data-yangu-badge]),
+body > footer:not([data-yangu-badge]),
+body > nav:not([data-yangu-badge]){
+  max-width:100% !important;
+  padding-left:0 !important;
+  padding-right:0 !important;
+}
+/* Constrain inner content of full-width sections */
+body > section:not([data-yangu-badge]) > *,
+body > header:not([data-yangu-badge]) > *,
+body > footer:not([data-yangu-badge]) > *,
+body > nav:not([data-yangu-badge]) > *{
+  max-width:1320px !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+  padding-left:24px !important;
+  padding-right:24px !important;
+  box-sizing:border-box !important;
+}
+
 /* Navigation — space-between distribution */
 nav,.navbar,[class*="nav"]{
   display:flex !important;
