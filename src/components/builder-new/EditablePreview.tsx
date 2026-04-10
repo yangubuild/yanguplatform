@@ -81,13 +81,25 @@ const EDIT_STYLES = `
 const EDIT_SCRIPT = `
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Assign stable node IDs to all editable elements
       var nodeIdCounter = 0;
       document.querySelectorAll('h1,h2,h3,h4,h5,h6,p,span,a,li,button,img,section,footer,nav,header,div').forEach(function(el) {
         if (!el.getAttribute('data-yangu-node-id')) {
           el.setAttribute('data-yangu-node-id', 'yn-' + (++nodeIdCounter));
         }
       });
+
+      function getSections() {
+        return document.querySelectorAll('section, footer, nav, header');
+      }
+
+      function getNearestSection(el) {
+        var node = el;
+        while (node && node !== document.body) {
+          if (['SECTION','FOOTER','NAV','HEADER'].indexOf(node.tagName) !== -1) return node;
+          node = node.parentElement;
+        }
+        return null;
+      }
 
       function classifyEl(el) {
         var t = el.tagName.toUpperCase();
@@ -98,19 +110,23 @@ const EDIT_SCRIPT = `
         if (t === 'A') return 'button';
         if (['SECTION','FOOTER','NAV','HEADER'].indexOf(t) !== -1) return 'section';
         if (t === 'DIV' && cl.some(function(c) { return c.includes('card') || c.includes('item') || c.includes('product') || c.includes('menu-item'); })) return 'card';
+        if (getNearestSection(el)) return 'section';
         return 'page';
       }
 
       function getPreview(el, kind) {
         if (kind === 'image') return el.src || '';
         if (kind === 'text' || kind === 'button') return (el.textContent || '').trim().substring(0, 60);
-        if (kind === 'section') return el.id || el.querySelector('h1,h2,h3')?.textContent?.trim()?.substring(0,40) || '';
+        if (kind === 'section') {
+          var sec = ['SECTION','FOOTER','NAV','HEADER'].indexOf(el.tagName) !== -1 ? el : getNearestSection(el);
+          return (sec && (sec.id || sec.querySelector('h1,h2,h3')?.textContent?.trim()?.substring(0,40))) || '';
+        }
         return '';
       }
 
       function findSectionIndex(el) {
-        var sections = document.querySelectorAll('section, footer, nav, header');
-        var node = el;
+        var sections = getSections();
+        var node = ['SECTION','FOOTER','NAV','HEADER'].indexOf(el.tagName) !== -1 ? el : getNearestSection(el);
         while (node && node !== document.body) {
           for (var i = 0; i < sections.length; i++) {
             if (sections[i] === node) return i;
@@ -141,7 +157,6 @@ const EDIT_SCRIPT = `
         clone.querySelectorAll('[data-section-idx]').forEach(function(el) {
           el.removeAttribute('data-section-idx');
         });
-        // Clean empty class attrs
         clone.querySelectorAll('*').forEach(function(el) {
           var ca = el.getAttribute('class');
           if (ca !== null && !ca.trim()) el.removeAttribute('class');
@@ -149,7 +164,6 @@ const EDIT_SCRIPT = `
         window.parent.postMessage({ type: 'html-update', html: clone.outerHTML }, '*');
       }
 
-      // Make text elements editable
       document.querySelectorAll('h1,h2,h3,h4,p,span,a,li,button').forEach(function(el) {
         if (el.children.length === 0 || el.tagName === 'A' || el.tagName === 'BUTTON') {
           el.setAttribute('contenteditable', 'true');
@@ -159,13 +173,11 @@ const EDIT_SCRIPT = `
         }
       });
 
-      // Section hover + Add Section pills between sections
-      var sectionEls = document.querySelectorAll('section, footer, nav');
+      var sectionEls = getSections();
       sectionEls.forEach(function(el, idx) {
         el.classList.add('section-hover');
         el.dataset.sectionIdx = idx;
       });
-      // Insert "Add Section" gap pills between sections and after last
       for (var gi = 0; gi <= sectionEls.length; gi++) {
         var gap = document.createElement('div');
         gap.className = 'yangu-section-gap yangu-editor-inject';
@@ -187,7 +199,6 @@ const EDIT_SCRIPT = `
         }
       }
 
-      // Image click
       document.querySelectorAll('img').forEach(function(el) {
         el.addEventListener('click', function(e) {
           e.preventDefault();
@@ -201,7 +212,6 @@ const EDIT_SCRIPT = `
         });
       });
 
-      // Global click handler
       document.addEventListener('click', function(e) {
         var el = e.target;
         if (!el || el.tagName === 'HTML' || el.tagName === 'BODY') {
@@ -213,36 +223,42 @@ const EDIT_SCRIPT = `
 
         var kind = classifyEl(el);
         var si = findSectionIndex(el);
+        var sectionEl = si >= 0 ? getSections()[si] : null;
         clearAllHighlights();
 
-        if (kind === 'section') el.classList.add('section-selected');
-        else if (kind === 'button') el.classList.add('yangu-btn-selected');
-        else if (kind === 'text') el.classList.add('yangu-el-selected');
-        else if (kind === 'card') el.classList.add('yangu-el-selected');
-
-        if (kind !== 'section' && si >= 0) {
-          var sections = document.querySelectorAll('section, footer, nav');
-          if (sections[si]) sections[si].classList.add('section-selected');
+        if (kind === 'section' && sectionEl) {
+          sectionEl.classList.add('section-selected');
+        } else if (kind === 'section') {
+          el.classList.add('section-selected');
+        } else if (kind === 'button') {
+          el.classList.add('yangu-btn-selected');
+        } else if (kind === 'text' || kind === 'card') {
+          el.classList.add('yangu-el-selected');
         }
 
-        var rect = el.getBoundingClientRect();
+        if (kind !== 'section' && sectionEl) {
+          sectionEl.classList.add('section-selected');
+        }
+
+        var rectTarget = kind === 'section' && sectionEl ? sectionEl : el;
+        var rect = rectTarget.getBoundingClientRect();
+        var nodeTarget = kind === 'section' && sectionEl ? sectionEl : el;
         window.parent.postMessage({
           type: 'canvas-select',
           kind: kind,
-          tag: el.tagName,
-          preview: getPreview(el, kind),
+          tag: (kind === 'section' && sectionEl ? sectionEl.tagName : el.tagName),
+          preview: getPreview(kind === 'section' && sectionEl ? sectionEl : el, kind),
           sectionIndex: si,
-          nodeId: el.getAttribute('data-yangu-node-id') || '',
-          sectionId: si >= 0 ? (document.querySelectorAll('section, footer, nav')[si]?.id || '') : '',
+          nodeId: nodeTarget.getAttribute('data-yangu-node-id') || '',
+          sectionId: sectionEl ? (sectionEl.id || '') : '',
           elRect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
         }, '*');
 
         if (si >= 0) {
-          window.parent.postMessage({ type: 'section-select', idx: si, tag: el.tagName }, '*');
+          window.parent.postMessage({ type: 'section-select', idx: si, tag: nodeTarget.tagName }, '*');
         }
       }, true);
 
-      // Listen for parent commands — target by stable nodeId, NOT transient classes
       window.addEventListener('message', function(e) {
         if (!e.data || !e.data.type) return;
 
@@ -279,15 +295,11 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
   const [pendingImageSrc, setPendingImageSrc] = useState<string | undefined>(undefined);
   const loadedHtmlRef = useRef<string | null>(null);
 
-  // Only inject editor chrome into initial srcDoc
   const getEditableHtml = useCallback((baseHtml: string) => {
-    // Mark injected elements so we can strip them when exporting
     const inject = `<div class="yangu-editor-inject" style="display:none!important"></div>${EDIT_STYLES.replace('<style>', '<style class="yangu-editor-inject">')}${EDIT_SCRIPT.replace('<script>', '<script class="yangu-editor-inject">')}`;
     return baseHtml.replace('</head>', inject + '</head>');
   }, []);
 
-  // Only set srcDoc when html fundamentally changes (page switch, undo/redo)
-  // We compare against what the iframe currently has loaded
   const shouldReloadIframe = html !== loadedHtmlRef.current;
 
   useEffect(() => {
@@ -299,7 +311,6 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
       if (e.data?.type === 'html-update') {
-        // Update parent state without causing iframe reload
         loadedHtmlRef.current = e.data.html;
         onHtmlChange(e.data.html);
       }
@@ -337,7 +348,6 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
           if (footer) footer.parentElement?.insertBefore(newSec, footer);
           else doc.body.appendChild(newSec);
         }
-        // Remove old gap pills and re-inject would require reload, just push update
         const clone = doc.documentElement.cloneNode(true) as HTMLElement;
         clone.querySelectorAll('.yangu-editor-inject').forEach(el => el.remove());
         clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected,.section-hover').forEach(el => {
@@ -357,8 +367,6 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [onHtmlChange, onSelectionChange]);
-
-  // ─── Toolbar actions ──────────────────────────────────────────
 
   const getDoc = useCallback(() => iframeRef.current?.contentDocument, []);
 
@@ -427,7 +435,7 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
     if (!selectedSection) { toast.info("Click a section first."); return; }
     const doc = getDoc();
     if (!doc) return;
-    const allSections = Array.from(doc.querySelectorAll("section, footer, nav"));
+    const allSections = Array.from(doc.querySelectorAll("section, footer, nav, header"));
     const idx = parseInt(selectedSection);
     const el = allSections[idx];
     if (!el || !el.previousElementSibling || el.previousElementSibling.tagName === "NAV") { toast.info("Can't move further up."); return; }
@@ -440,7 +448,7 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
     if (!selectedSection) { toast.info("Click a section first."); return; }
     const doc = getDoc();
     if (!doc) return;
-    const allSections = Array.from(doc.querySelectorAll("section, footer, nav"));
+    const allSections = Array.from(doc.querySelectorAll("section, footer, nav, header"));
     const idx = parseInt(selectedSection);
     const el = allSections[idx];
     if (!el || !el.nextElementSibling) { toast.info("Can't move further down."); return; }
@@ -453,7 +461,7 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
     if (!selectedSection) { toast.info("Click a section first."); return; }
     const doc = getDoc();
     if (!doc) return;
-    const allSections = Array.from(doc.querySelectorAll("section, footer, nav"));
+    const allSections = Array.from(doc.querySelectorAll("section, footer, nav, header"));
     const idx = parseInt(selectedSection);
     const el = allSections[idx];
     if (!el || el.tagName === "NAV") { toast.info("Can't remove navigation."); return; }
@@ -464,12 +472,8 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
     toast.success("Section removed!");
   }, [selectedSection, getDoc, pushHtmlUpdate]);
 
-  // Only compute srcDoc when we actually need to reload
-  const processedHtml = shouldReloadIframe ? getEditableHtml(html) : undefined;
-
   return (
     <div className="flex flex-col h-full">
-      {/* Toolbar */}
       <div className="flex items-center justify-between px-3 py-1.5 border-b border-border shrink-0">
         <div className="flex items-center gap-2">
           <div className="flex gap-1.5">
@@ -489,7 +493,6 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
         </div>
       </div>
 
-      {/* Preview iframe — stable key prevents remounting on edits */}
       <div className="flex-1 w-full flex items-start justify-center overflow-auto bg-muted/30">
         <iframe
           ref={iframeRef}
@@ -519,17 +522,14 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
   );
 }
 
-const ToolButton = forwardRef<HTMLButtonElement, { icon: any; label: string; active?: boolean; onClick: () => void }>(function ToolButton({ icon: Icon, label, active, onClick }, ref) {
+function ToolButton({ icon: Icon, label, onClick }: { icon: any; label: string; onClick: () => void }) {
   return (
     <button
-      ref={ref}
       onClick={onClick}
       title={label}
-      className={`p-1.5 rounded-lg transition-colors ${
-        active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-muted"
-      }`}
+      className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
     >
-      <Icon className="h-3.5 w-3.5" />
+      <Icon className="h-4 w-4" />
     </button>
   );
-});
+}
