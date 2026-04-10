@@ -120,7 +120,7 @@ export const emenuEngine: BuilderEngine = {
     { type: "hours", schema: { heading: "Opening Hours", items: [] } },
     { type: "footer", schema: { heading: "Footer", email: "", phone: "", address: "", hours: [], social: {} }, core_slot: "footer" },
   ],
-  editorModules: ["menu_categories", "menu_items", "food_image_ai", "hours", "order_settings", "commerce_config", "contact", "social"],
+  editorModules: ["menu_categories", "menu_items", "food_image_ai", "hours", "commerce_config", "contact", "social"],
   templates: [
     { key: "hero_restaurant", label: "Hero Restaurant", sectionType: "hero", schema: { headline: "", subheadline: "", logo: "", logo_position: "left", banner: "" } },
     { key: "menu_categories", label: "Menu Categories", sectionType: "menu", schema: { heading: "Menu", categories: [], layout_style: "grid", show_images: true, show_badges: true, show_dietary: true, columns_desktop: 2 } },
