@@ -52,7 +52,7 @@ const MENU_MODE: SellerModeConfig = {
     { label: "Set Hours", icon: "Clock", action: "set_hours" },
   ],
   prioritySections: ["menu", "featured", "hours", "offers", "hero", "gallery", "reviews", "qr"],
-  relevantModules: ["menu_categories", "menu_items", "food_image_ai", "hours", "order_settings", "contact", "social"],
+  relevantModules: ["menu_categories", "menu_items", "food_image_ai", "hours", "commerce_config", "contact", "social"],
 };
 
 const SHOP_MODE: SellerModeConfig = {
