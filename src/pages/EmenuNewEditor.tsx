@@ -226,6 +226,10 @@ export default function EmenuNewEditor() {
   }, [navigate]);
 
   const handleCanvasSelection = useCallback((sel: CanvasSelection) => {
+    if (sel.kind === "page" && sel.sectionIndex !== undefined) {
+      setCanvasSelection({ ...sel, kind: "section", tag: "SECTION", nodeId: undefined });
+      return;
+    }
     setCanvasSelection(sel);
   }, []);
 
