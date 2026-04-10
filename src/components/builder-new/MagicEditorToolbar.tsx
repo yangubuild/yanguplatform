@@ -230,7 +230,7 @@ export function MagicEditorToolbar({ selection, onAction, currentColor, adaMessa
             <LinkPopup onClose={() => setActivePopup(null)} onApply={handleLinkApply} />
           )}
           {activePopup === "ada" && (
-            <AdaPopup onClose={() => setActivePopup(null)} selectedScope={scope} onSendPrompt={handleAdaPrompt} />
+            <AdaPopup onClose={() => setActivePopup(null)} selectedScope={scope} onSendPrompt={handleAdaPrompt} messages={adaMessages} isLoading={adaIsLoading} />
           )}
           {activePopup === "typography" && (
             <TypographyPopup onClose={() => setActivePopup(null)} onApply={handleTypographyApply} />
