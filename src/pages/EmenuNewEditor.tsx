@@ -26,6 +26,7 @@ import { SectionEditorPanel } from "@/components/builder-new/SectionEditorPanel"
 import { ImageEditorPanel } from "@/components/builder-new/ImageEditorPanel";
 import { MagicEditorToolbar } from "@/components/builder-new/MagicEditorToolbar";
 import { BuilderPublishModal } from "@/components/builder/BuilderPublishModal";
+import { CommerceConfigPanel } from "@/components/commerce/CommerceConfigPanel";
 import { BuilderSettingsDrawer, getThemeFromMetadata } from "@/components/builder/BuilderSettingsDrawer";
 import { BuilderPagesDropdown } from "@/components/builder/BuilderPagesDropdown";
 import { useBuilderEditor } from "@/hooks/useBuilderEditor";
