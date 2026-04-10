@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
 import { sanitizeEditorHtml } from "@/lib/builder/editorHtml";
 import { EditorColorPickerDialog } from "@/components/builder-new/EditorColorPickerDialog";
+import { EditorImagePickerDialog } from "@/components/builder-new/EditorImagePickerDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
@@ -285,6 +286,36 @@ export default function EmenuNewEditor() {
   const [editorColorPickerOpen, setEditorColorPickerOpen] = useState(false);
   const [editorColorTarget, setEditorColorTarget] = useState<"text" | "button" | "section" | "page">("text");
 
+  // ─── Background image picker state ───
+  const [bgImagePickerOpen, setBgImagePickerOpen] = useState(false);
+  const [bgImageTarget, setBgImageTarget] = useState<"section" | "image">("section");
+
+  const applyBgImage = useCallback((url: string) => {
+    const iframe = getIframe();
+    const doc = iframe?.contentDocument;
+    if (!doc) return;
+
+    if (bgImageTarget === "section") {
+      const sec = getSelectedElement(doc);
+      if (sec) {
+        sec.style.backgroundImage = `url('${url}')`;
+        sec.style.backgroundSize = "cover";
+        sec.style.backgroundPosition = "center";
+        sec.style.backgroundRepeat = "no-repeat";
+        pushUpdate(doc, iframe);
+        toast.success("Background image applied!");
+      }
+    } else {
+      // Replace an <img> element's src
+      const img = getSelectedElement(doc);
+      if (img && img.tagName === "IMG") {
+        (img as HTMLImageElement).src = url;
+        pushUpdate(doc, iframe);
+        toast.success("Image replaced!");
+      }
+    }
+  }, [getIframe, pushUpdate, bgImageTarget, getSelectedElement]);
+
   const applyEditorColor = useCallback((color: string) => {
     const iframe = getIframe();
     const doc = iframe?.contentDocument;
@@ -336,7 +367,8 @@ export default function EmenuNewEditor() {
       case "upload_image":
       case "stock_image":
       case "ai_generate_image":
-        iframe?.contentWindow?.postMessage({ type: "open-image-picker" }, "*");
+        setBgImageTarget("image");
+        setBgImagePickerOpen(true);
         break;
 
       // ── Color pickers — open dialog in parent, NOT postMessage ──
@@ -449,7 +481,8 @@ export default function EmenuNewEditor() {
         break;
       }
       case "set_section_bg_image": {
-        iframe?.contentWindow?.postMessage({ type: "open-image-picker" }, "*");
+        setBgImageTarget("section");
+        setBgImagePickerOpen(true);
         break;
       }
 
