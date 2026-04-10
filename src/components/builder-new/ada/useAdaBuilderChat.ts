@@ -80,10 +80,12 @@ export function useAdaBuilderChat() {
       });
 
       if (error || !data?.ok) {
-        const errMsg = data?.error === "rate_limited"
+        // supabase.functions.invoke puts non-2xx response body in data even when error is set
+        const errorCode = data?.error || (error as Record<string, unknown>)?.error;
+        const errMsg = errorCode === "rate_limited"
           ? "I'm being rate limited right now. Try again in a moment."
-          : data?.error === "payment_required"
-          ? "AI credits are exhausted. Please add funds in Settings."
+          : errorCode === "payment_required"
+          ? "AI credits are exhausted. Please check your plan or add funds."
           : "Something went wrong. Please try again.";
         addAssistantMessage(errMsg);
         return;
