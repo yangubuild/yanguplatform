@@ -24,7 +24,7 @@ import { BookingEditor } from "./editors/BookingEditor";
 import { AiTextField } from "./AiTextField";
 import { InfluencerLinksEditor } from "./editors/InfluencerLinksEditor";
 import { InfluencerShowcaseEditor } from "./editors/InfluencerShowcaseEditor";
-import { ItemCtaSelector } from "./editors/ItemCtaSelector";
+import { ItemCtaSelector, getDefaultCtaForSurface } from "./editors/ItemCtaSelector";
 
 interface BuilderSectionEditorProps {
   section: EditorSection;
@@ -117,6 +117,7 @@ function ListEditor<T extends Record<string, string>>({
 interface FormProps {
   schema: Record<string, unknown>;
   update: (partial: Record<string, unknown>) => void;
+  surfaceType?: string;
 }
 
 function HeroForm({ schema, update, surfaceId }: FormProps & { surfaceId?: string }) {
@@ -586,6 +587,7 @@ interface MenuItem {
   description: string;
   price: string;
   image_url: string;
+  media: MediaAsset[];
   is_available: boolean;
   category_index: number;
   cta_action: string;
@@ -595,24 +597,33 @@ interface MenuItem {
   stock?: string;
 }
 
-function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: string }) {
+function MenuForm({ schema, update, surfaceId, surfaceType }: FormProps & { surfaceId?: string }) {
+  const stDefaults = getDefaultCtaForSurface(surfaceType);
   const categories = ((schema.categories as any[]) || []).map((c: any, i: number) => ({
     name: c.name || "",
     icon: c.icon || "🍽",
     order: c.order ?? i,
-    items: (c.items || []).map((item: any) => ({
-      name: item.name || "",
-      description: item.description || "",
-      price: item.price || "",
-      image_url: item.image_url || "",
-      is_available: item.is_available !== false,
-      category_index: i,
-      cta_action: item.cta_action || "order_now",
-      button_text: item.button_text || "",
-      action_type: item.action_type || "checkout",
-      action_url: item.action_url || "",
-      stock: item.stock || "",
-    })),
+    items: (c.items || []).map((item: any) => {
+      const legacyUrl = item.image_url || "";
+      const existingMedia: MediaAsset[] = (item.media as MediaAsset[]) || [];
+      const media: MediaAsset[] = existingMedia.length > 0
+        ? existingMedia
+        : legacyUrl ? [{ type: "image" as const, src: legacyUrl, provider: "url" as const }] : [];
+      return {
+        name: item.name || "",
+        description: item.description || "",
+        price: item.price || "",
+        image_url: legacyUrl,
+        media,
+        is_available: item.is_available !== false,
+        category_index: i,
+        cta_action: item.cta_action || stDefaults.ctaAction,
+        button_text: item.button_text || stDefaults.buttonText,
+        action_type: item.action_type || stDefaults.actionType,
+        action_url: item.action_url || "",
+        stock: item.stock || "",
+      };
+    }),
   })) as MenuCategory[];
 
   const currency = (schema.currency as string) || "$";
@@ -631,6 +642,7 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
   const [itemDesc, setItemDesc] = useState("");
   const [itemPrice, setItemPrice] = useState("");
   const [itemPhoto, setItemPhoto] = useState("");
+  const [itemMedia, setItemMedia] = useState<MediaAsset[]>([]);
   const [itemAvailable, setItemAvailable] = useState(true);
   const [itemCatSelect, setItemCatSelect] = useState<number>(0);
   const [itemCtaAction, setItemCtaAction] = useState("order_now");
@@ -679,11 +691,12 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
     setItemDesc("");
     setItemPrice("");
     setItemPhoto("");
+    setItemMedia([]);
     setItemAvailable(true);
     setItemCatSelect(catIdx);
-    setItemCtaAction("order_now");
-    setItemButtonText("");
-    setItemActionType("checkout");
+    setItemCtaAction(stDefaults.ctaAction);
+    setItemButtonText(stDefaults.buttonText);
+    setItemActionType(stDefaults.actionType);
     setItemActionUrl("");
     setItemStock("");
     setShowItemDialog(true);
@@ -697,6 +710,7 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
     setItemDesc(item.description);
     setItemPrice(item.price);
     setItemPhoto(item.image_url);
+    setItemMedia(item.media || []);
     setItemAvailable(item.is_available);
     setItemCatSelect(catIdx);
     setItemCtaAction(item.cta_action || "order_now");
@@ -709,7 +723,7 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
 
   const saveItem = () => {
     const updated = [...categories];
-    const newItem: MenuItem = { name: itemName, description: itemDesc, price: itemPrice, image_url: itemPhoto, is_available: itemAvailable, category_index: itemCatSelect, cta_action: itemCtaAction, button_text: itemButtonText, action_type: itemActionType, action_url: itemActionUrl, stock: itemStock };
+    const newItem: MenuItem = { name: itemName, description: itemDesc, price: itemPrice, image_url: itemMedia[0]?.src || itemPhoto, media: itemMedia, is_available: itemAvailable, category_index: itemCatSelect, cta_action: itemCtaAction, button_text: itemButtonText, action_type: itemActionType, action_url: itemActionUrl, stock: itemStock };
 
     // If category changed during edit, move the item
     if (editItemIndex !== null) {
@@ -893,23 +907,18 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm font-medium">Item Photo</Label>
-              {itemPhoto && (
-                <div className="rounded-lg overflow-hidden border border-border mb-2">
-                  <img src={itemPhoto} alt={itemName} className="w-full h-40 object-cover" />
-                </div>
-              )}
-              <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" size="sm" className="gap-1.5" disabled>
-                  <span className="text-sm">✨</span> AI Image
-                </Button>
-                <BuilderMediaPicker
-                  value={{ type: itemPhoto ? "image" : "none", source: "url", url: itemPhoto, alt: itemName, fit: "cover" }}
-                  onChange={(v) => setItemPhoto(v.url || "")}
-                  surfaceId={surfaceId || ""}
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">Choose AI generation or upload your own (min 800x600px, max 5MB)</p>
+              <Label className="text-sm font-medium">Item Images</Label>
+              <MediaPickerList
+                items={itemMedia}
+                onChange={(next) => {
+                  setItemMedia(next);
+                  setItemPhoto(next[0]?.src || "");
+                }}
+                surfaceId={surfaceId || ""}
+                label="Images"
+                max={10}
+              />
+              <p className="text-xs text-muted-foreground">Add multiple images. First image is used as thumbnail.</p>
             </div>
             <div className="space-y-1.5">
               <Label className="text-sm font-medium">Stock</Label>
@@ -925,6 +934,7 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
                 onActionTypeChange={setItemActionType}
                 actionUrl={itemActionUrl}
                 onActionUrlChange={setItemActionUrl}
+                surfaceType={surfaceType}
               />
             </div>
             <div className="flex items-center gap-2">
@@ -1235,7 +1245,7 @@ export function BuilderSectionEditor({
       {/* Form */}
       <div className="flex-1 p-4 space-y-4">
         {FormComponent ? (
-          <FormComponent schema={localSchema} update={update} surfaceId={surfaceId} />
+          <FormComponent schema={localSchema} update={update} surfaceId={surfaceId} surfaceType={surfaceType} />
         ) : (
           /* GenericSectionEditor fallback — detect media fields automatically */
           <>

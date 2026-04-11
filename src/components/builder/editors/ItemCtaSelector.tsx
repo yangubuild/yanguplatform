@@ -38,6 +38,30 @@ export function ctaLabel(value: string | undefined): string {
   return CTA_OPTIONS.find((o) => o.value === value)?.label || value;
 }
 
+/** Returns default CTA value, button text, and action for a given surface type */
+export function getDefaultCtaForSurface(surfaceType?: string): {
+  ctaAction: string;
+  buttonText: string;
+  actionType: string;
+} {
+  switch (surfaceType) {
+    case "emenu":
+      return { ctaAction: "add_to_cart", buttonText: "+ Add", actionType: "checkout" };
+    case "eshop":
+      return { ctaAction: "add_to_cart", buttonText: "+ Add", actionType: "checkout" };
+    case "estore":
+      return { ctaAction: "add_to_cart", buttonText: "+ Add", actionType: "checkout" };
+    case "community":
+      return { ctaAction: "join_now", buttonText: "+ Join", actionType: "checkout" };
+    case "influencer":
+      return { ctaAction: "buy_now", buttonText: "Buy", actionType: "external_url" };
+    case "esite":
+      return { ctaAction: "book_now", buttonText: "+ Book", actionType: "checkout" };
+    default:
+      return { ctaAction: "add_to_cart", buttonText: "+ Add", actionType: "checkout" };
+  }
+}
+
 interface ItemCtaSelectorProps {
   value: string;
   onChange: (value: string) => void;
@@ -48,6 +72,7 @@ interface ItemCtaSelectorProps {
   actionUrl?: string;
   onActionUrlChange?: (url: string) => void;
   className?: string;
+  surfaceType?: string;
 }
 
 export function ItemCtaSelector({
@@ -56,8 +81,10 @@ export function ItemCtaSelector({
   actionType, onActionTypeChange,
   actionUrl, onActionUrlChange,
   className,
+  surfaceType,
 }: ItemCtaSelectorProps) {
   const showButtonConfig = value && value !== "none";
+  const defaults = getDefaultCtaForSurface(surfaceType);
 
   return (
     <div className={`space-y-3 ${className || ""}`}>
@@ -85,10 +112,10 @@ export function ItemCtaSelector({
               <Input
                 value={buttonText || ctaLabel(value)}
                 onChange={(e) => onButtonTextChange(e.target.value)}
-                placeholder="e.g. Buy Now, Add, Order"
+                placeholder={defaults.buttonText || "e.g. Buy Now, Add, Order"}
               />
               <p className="text-xs text-muted-foreground">
-                Edit the button text your buyers will see
+                Edit the button text your buyers will see (e.g. Buy Now, Add, Order, Join)
               </p>
             </div>
           )}
