@@ -117,6 +117,7 @@ function ListEditor<T extends Record<string, string>>({
 interface FormProps {
   schema: Record<string, unknown>;
   update: (partial: Record<string, unknown>) => void;
+  surfaceType?: string;
 }
 
 function HeroForm({ schema, update, surfaceId }: FormProps & { surfaceId?: string }) {
@@ -586,6 +587,7 @@ interface MenuItem {
   description: string;
   price: string;
   image_url: string;
+  media: MediaAsset[];
   is_available: boolean;
   category_index: number;
   cta_action: string;
@@ -595,24 +597,33 @@ interface MenuItem {
   stock?: string;
 }
 
-function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: string }) {
+function MenuForm({ schema, update, surfaceId, surfaceType }: FormProps & { surfaceId?: string }) {
+  const stDefaults = getDefaultCtaForSurface(surfaceType);
   const categories = ((schema.categories as any[]) || []).map((c: any, i: number) => ({
     name: c.name || "",
     icon: c.icon || "🍽",
     order: c.order ?? i,
-    items: (c.items || []).map((item: any) => ({
-      name: item.name || "",
-      description: item.description || "",
-      price: item.price || "",
-      image_url: item.image_url || "",
-      is_available: item.is_available !== false,
-      category_index: i,
-      cta_action: item.cta_action || "order_now",
-      button_text: item.button_text || "",
-      action_type: item.action_type || "checkout",
-      action_url: item.action_url || "",
-      stock: item.stock || "",
-    })),
+    items: (c.items || []).map((item: any) => {
+      const legacyUrl = item.image_url || "";
+      const existingMedia: MediaAsset[] = (item.media as MediaAsset[]) || [];
+      const media: MediaAsset[] = existingMedia.length > 0
+        ? existingMedia
+        : legacyUrl ? [{ type: "image" as const, src: legacyUrl, provider: "url" as const }] : [];
+      return {
+        name: item.name || "",
+        description: item.description || "",
+        price: item.price || "",
+        image_url: legacyUrl,
+        media,
+        is_available: item.is_available !== false,
+        category_index: i,
+        cta_action: item.cta_action || stDefaults.ctaAction,
+        button_text: item.button_text || stDefaults.buttonText,
+        action_type: item.action_type || stDefaults.actionType,
+        action_url: item.action_url || "",
+        stock: item.stock || "",
+      };
+    }),
   })) as MenuCategory[];
 
   const currency = (schema.currency as string) || "$";
