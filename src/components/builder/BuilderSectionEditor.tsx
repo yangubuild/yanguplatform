@@ -608,6 +608,10 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
       is_available: item.is_available !== false,
       category_index: i,
       cta_action: item.cta_action || "order_now",
+      button_text: item.button_text || "",
+      action_type: item.action_type || "checkout",
+      action_url: item.action_url || "",
+      stock: item.stock || "",
     })),
   })) as MenuCategory[];
 
