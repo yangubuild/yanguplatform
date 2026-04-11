@@ -50,55 +50,29 @@ const EDIT_SCRIPT = `
 
       function classifyEl(el) {
         var t = el.tagName.toUpperCase();
-        var cl = Array.from(el.classList || []);
-        if (t === 'BUTTON' || (t === 'A' && cl.some(function(c) { return c.includes('btn') || c.includes('button') || c.includes('cta') || c.includes('order'); }))) return 'button';
-        if (t === 'IMG') return 'image';
         if (['H1','H2','H3','H4','H5','H6','P','SPAN','LI','LABEL'].indexOf(t) !== -1) return 'text';
-        if (t === 'A') return 'button';
-        if (t === 'DIV' && cl.some(function(c) { return c.includes('btn') || c.includes('button') || c.includes('cta'); })) return 'button';
         if (['SECTION','FOOTER','NAV','HEADER'].indexOf(t) !== -1) return 'section';
-        if (t === 'DIV') {
-          if (cl.some(function(c) { return c.includes('card') || c.includes('item') || c.includes('product') || c.includes('menu-item'); })) return 'card';
-          var parent = el.parentElement;
-          if (parent) {
-            var ps = window.getComputedStyle(parent);
-            var isGrid = ps.display === 'grid' || ps.display === 'inline-grid' || ps.display === 'flex' || ps.display === 'inline-flex';
-            if (isGrid && el.querySelector('img') && el.querySelector('h3,h4,p,span')) return 'card';
-          }
-        }
         return 'page';
       }
 
-      /**
-       * Detect if a div is a purely visual overlay (gradient, backdrop, etc.)
-       * that should pass clicks through to the underlying image.
-       */
       function isOverlayDiv(el) {
         if (el.tagName !== 'DIV') return false;
         var s = window.getComputedStyle(el);
         if (s.position !== 'absolute' && s.position !== 'fixed') return false;
-        // Has a background gradient or semi-transparent bg but no meaningful content
         var bg = s.backgroundImage || '';
         var bgColor = s.backgroundColor || '';
         var hasGradient = bg.includes('gradient');
         var hasTransparentBg = bgColor.includes('rgba') || bgColor === 'transparent' || bgColor === '';
-        // No text content and no interactive children
         var text = (el.textContent || '').trim();
         var hasInteractive = el.querySelector('a, button, input, img, h1, h2, h3, h4, h5, h6, p, span');
         if ((hasGradient || hasTransparentBg) && !text && !hasInteractive) return true;
-        // Empty div used as overlay
         if (el.children.length === 0 && !text) return true;
         return false;
       }
 
-      /**
-       * Find the hero/section background image near an overlay div.
-       * Looks in sibling divs and the parent section for an <img>.
-       */
       function findNearbyImage(overlayEl) {
         var parent = overlayEl.parentElement;
         if (!parent) return null;
-        // Check siblings
         var siblings = parent.children;
         for (var i = 0; i < siblings.length; i++) {
           var sib = siblings[i];
@@ -121,7 +95,7 @@ const EDIT_SCRIPT = `
 
       function getPreview(el, kind) {
         if (kind === 'image') return el.src || '';
-        if (kind === 'text' || kind === 'button') return (el.textContent || '').trim().substring(0, 60);
+        if (kind === 'text') return (el.textContent || '').trim().substring(0, 60);
         if (kind === 'section') {
           var sec = ['SECTION','FOOTER','NAV','HEADER'].indexOf(el.tagName) !== -1 ? el : getNearestSection(el);
           return (sec && (sec.id || sec.querySelector('h1,h2,h3')?.textContent?.trim()?.substring(0,40))) || '';
@@ -142,16 +116,16 @@ const EDIT_SCRIPT = `
       }
 
       function clearAllHighlights() {
-        document.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected').forEach(function(s) {
-          s.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected');
+        document.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected').forEach(function(s) {
+          s.classList.remove('section-selected','yangu-img-selected','yangu-el-selected');
         });
       }
 
       function notifyHtmlUpdate() {
         var clone = document.documentElement.cloneNode(true);
         clone.querySelectorAll('.yangu-editor-inject').forEach(function(el) { el.remove(); });
-        clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected,.section-hover').forEach(function(el) {
-          el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected','section-hover');
+        clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.section-hover').forEach(function(el) {
+          el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','section-hover');
         });
         clone.querySelectorAll('[contenteditable]').forEach(function(el) {
           el.removeAttribute('contenteditable');
@@ -183,27 +157,8 @@ const EDIT_SCRIPT = `
         el.classList.add('section-hover');
         el.dataset.sectionIdx = idx;
       });
-      for (var gi = 0; gi <= sectionEls.length; gi++) {
-        var gap = document.createElement('div');
-        gap.className = 'yangu-section-gap yangu-editor-inject';
-        var pill = document.createElement('button');
-        pill.className = 'yangu-add-section-pill';
-        pill.innerHTML = '+ Add Section';
-        pill.dataset.insertIdx = String(gi);
-        pill.addEventListener('click', function(ev) {
-          ev.stopPropagation();
-          window.parent.postMessage({ type: 'add-section-at', index: Number(ev.currentTarget.dataset.insertIdx) }, '*');
-        });
-        gap.appendChild(pill);
-        if (gi < sectionEls.length) {
-          sectionEls[gi].parentElement.insertBefore(gap, sectionEls[gi]);
-        } else if (sectionEls.length > 0) {
-          var lastSec = sectionEls[sectionEls.length - 1];
-          if (lastSec.nextSibling) lastSec.parentElement.insertBefore(gap, lastSec.nextSibling);
-          else lastSec.parentElement.appendChild(gap);
-        }
-      }
 
+      // Hero image click — still allow image replacement via image-click message
       document.querySelectorAll('img').forEach(function(el) {
         el.addEventListener('click', function(e) {
           e.preventDefault();
@@ -228,7 +183,7 @@ const EDIT_SCRIPT = `
           return;
         }
 
-        // If clicking on an overlay div, find the underlying image
+        // Overlay div → find underlying image for replacement
         if (isOverlayDiv(el)) {
           var underlyingImg = findNearbyImage(el);
           if (underlyingImg) {
@@ -237,26 +192,23 @@ const EDIT_SCRIPT = `
             selectImage(underlyingImg);
             return;
           }
-          // No image found — treat as section click
           var nearSec = getNearestSection(el);
           if (nearSec) {
             el = nearSec;
-            // fall through to section selection below
           } else {
             sendDeselect();
             return;
           }
         }
 
-        // Clicking directly on a section/footer/nav/header = select that section
+        // Direct section click
         if (['SECTION','FOOTER','NAV','HEADER'].indexOf(el.tagName) !== -1 && e.target === el) {
-          var kind = 'section';
           var si = findSectionIndex(el);
           clearAllHighlights();
           el.classList.add('section-selected');
           var rect = el.getBoundingClientRect();
           window.parent.postMessage({
-            type: 'canvas-select', kind: kind, tag: el.tagName,
+            type: 'canvas-select', kind: 'section', tag: el.tagName,
             preview: (el.id || el.querySelector('h1,h2,h3')?.textContent?.trim()?.substring(0,40)) || '',
             sectionIndex: si, nodeId: el.getAttribute('data-yangu-node-id') || '',
             sectionId: el.id || '', elRect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
@@ -267,11 +219,10 @@ const EDIT_SCRIPT = `
         if (el.tagName === 'IMG') return;
 
         var kind = classifyEl(el);
-        // Generic wrapper divs → walk up to nearest section instead of deselecting
+        // Non-text elements → walk up to section
         if (kind === 'page') {
           var nearSec = getNearestSection(el);
           if (nearSec) {
-            // Treat as section selection
             kind = 'section';
             el = nearSec;
           } else {
@@ -287,9 +238,7 @@ const EDIT_SCRIPT = `
           sectionEl.classList.add('section-selected');
         } else if (kind === 'section') {
           el.classList.add('section-selected');
-        } else if (kind === 'button') {
-          el.classList.add('yangu-btn-selected');
-        } else if (kind === 'text' || kind === 'card') {
+        } else if (kind === 'text') {
           el.classList.add('yangu-el-selected');
         }
 
@@ -325,7 +274,7 @@ const EDIT_SCRIPT = `
             target = document.querySelector('[data-yangu-node-id="' + e.data.nodeId + '"]');
           }
           if (!target) {
-            target = document.querySelector('.yangu-el-selected') || document.querySelector('.yangu-btn-selected') || document.querySelector('.section-selected');
+            target = document.querySelector('.yangu-el-selected') || document.querySelector('.section-selected');
           }
           if (target && e.data.styles) {
             Object.keys(e.data.styles).forEach(function(k) {
@@ -340,18 +289,13 @@ const EDIT_SCRIPT = `
           notifyHtmlUpdate();
         }
 
-        // ── Toolbar actions: delete/duplicate for sections and cards ──
         if (e.data.type === 'toolbar-action') {
           var action = e.data.action;
-          var sections = getSections();
           var selSection = document.querySelector('.section-selected');
 
           if (action === 'remove_section' || action === 'delete_section') {
             if (selSection && ['SECTION','FOOTER','NAV','HEADER'].indexOf(selSection.tagName) !== -1) {
-              if (selSection.tagName === 'NAV') return; // protect nav
-              // Also remove preceding gap pill if present
-              var prev = selSection.previousElementSibling;
-              if (prev && prev.classList.contains('yangu-section-gap')) prev.remove();
+              if (selSection.tagName === 'NAV') return;
               selSection.remove();
               notifyHtmlUpdate();
             }
@@ -362,22 +306,6 @@ const EDIT_SCRIPT = `
               clone.removeAttribute('id');
               clone.classList.remove('section-selected');
               selSection.parentElement.insertBefore(clone, selSection.nextSibling);
-              notifyHtmlUpdate();
-            }
-          }
-          if (action === 'delete_element') {
-            var cardEl = document.querySelector('.yangu-el-selected');
-            if (cardEl) {
-              cardEl.remove();
-              notifyHtmlUpdate();
-            }
-          }
-          if (action === 'duplicate_element') {
-            var cardEl2 = document.querySelector('.yangu-el-selected');
-            if (cardEl2) {
-              var dup = cardEl2.cloneNode(true);
-              dup.classList.remove('yangu-el-selected');
-              cardEl2.parentElement.insertBefore(dup, cardEl2.nextSibling);
               notifyHtmlUpdate();
             }
           }
