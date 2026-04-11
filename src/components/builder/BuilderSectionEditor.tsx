@@ -705,7 +705,7 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
 
   const saveItem = () => {
     const updated = [...categories];
-    const newItem: MenuItem = { name: itemName, description: itemDesc, price: itemPrice, image_url: itemPhoto, is_available: itemAvailable, category_index: itemCatSelect, cta_action: itemCtaAction };
+    const newItem: MenuItem = { name: itemName, description: itemDesc, price: itemPrice, image_url: itemPhoto, is_available: itemAvailable, category_index: itemCatSelect, cta_action: itemCtaAction, button_text: itemButtonText, action_type: itemActionType, action_url: itemActionUrl, stock: itemStock };
 
     // If category changed during edit, move the item
     if (editItemIndex !== null) {
