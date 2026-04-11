@@ -760,111 +760,12 @@ export default function EmenuNewEditor() {
         break;
       }
 
-      // ── Add CTA / Navigation Button to selected section (NOT for ordering) ──
-      case "add_cta_button": {
-        if (!doc) break;
-        let targetSec = doc.querySelector('.section-selected') as HTMLElement | null;
-        if (!targetSec) {
-          const el = getSelectedElement(doc);
-          if (el) {
-            let p = el.parentElement;
-            while (p && p !== doc.body) {
-              if (['SECTION','HEADER','FOOTER','NAV'].includes(p.tagName)) { targetSec = p; break; }
-              p = p.parentElement;
-            }
-          }
-        }
-        if (!targetSec) { toast.info("Click a section first, then add a CTA button."); break; }
-        const innerContainer = targetSec.querySelector('[style*="max-width"]') as HTMLElement || targetSec;
-        const ctaBtn = doc.createElement("a");
-        ctaBtn.href = "#menu";
-        ctaBtn.textContent = "View Menu";
-        ctaBtn.setAttribute("contenteditable", "true");
-        ctaBtn.style.cssText = "display:inline-block;padding:14px 36px;border-radius:8px;background:#22c55e;color:#fff;text-decoration:none;font-weight:600;font-size:14px;margin-top:16px;cursor:pointer;";
-        ctaBtn.setAttribute("data-yangu-node-id", "yn-cta-" + Date.now());
-        innerContainer.appendChild(ctaBtn);
-        pushUpdate(doc, iframe);
-        toast.success("Navigation CTA added! Click it to edit the label.");
+      // CTA and ordering buttons are now managed via product popups, not Magic Editor
+      case "add_cta_button":
+      case "add_card_order_button":
+      case "enable_section_ordering":
+        toast.info("Product buttons are managed via the product edit popup.");
         break;
-      }
-
-      // ── Add order button INSIDE a specific product card ──
-      case "add_card_order_button": {
-        if (!doc) break;
-        const cardEl = getSelectedElement(doc);
-        if (!cardEl) { toast.info("Click a product card first."); break; }
-        // Find card container — walk up if needed
-        let card = cardEl;
-        const isCard = (el: HTMLElement) => {
-          const cl = Array.from(el.classList || []);
-          if (cl.some(c => c.includes('card') || c.includes('item') || c.includes('product') || c.includes('menu-item'))) return true;
-          const parent = el.parentElement;
-          if (parent) {
-            const ps = iframe?.contentWindow?.getComputedStyle(parent);
-            const isGrid = ps && (ps.display === 'grid' || ps.display === 'flex');
-            if (isGrid && el.querySelector('img') && el.querySelector('h3,h4,p')) return true;
-          }
-          return false;
-        };
-        // Walk up to find the card container
-        while (card && card !== doc.body && !isCard(card)) {
-          card = card.parentElement as HTMLElement;
-        }
-        if (!card || card === doc.body) { toast.info("Select a product card first."); break; }
-        // Check if card already has an order button
-        const existingBtn = card.querySelector('[data-yangu-order-btn]');
-        if (existingBtn) { toast.info("This card already has an order button."); break; }
-        // Create order button
-        const orderBtn = doc.createElement("button");
-        orderBtn.textContent = "+ Add";
-        orderBtn.setAttribute("data-yangu-order-btn", "true");
-        orderBtn.setAttribute("data-yangu-node-id", "yn-order-" + Date.now());
-        orderBtn.setAttribute("contenteditable", "true");
-        orderBtn.style.cssText = "display:inline-block;padding:8px 18px;border-radius:6px;background:#22c55e;color:#fff;border:none;font-weight:600;font-size:13px;margin-top:8px;cursor:pointer;width:100%;text-align:center;";
-        // Insert inside the card's text container or at the end
-        const textWrap = card.querySelector('[style*="padding"]') as HTMLElement || card;
-        textWrap.appendChild(orderBtn);
-        pushUpdate(doc, iframe);
-        toast.success("Order button added to card!");
-        break;
-      }
-
-      // ── Enable ordering on ALL cards in a section ──
-      case "enable_section_ordering": {
-        if (!doc) break;
-        let sec = doc.querySelector('.section-selected') as HTMLElement | null;
-        if (!sec) { toast.info("Select a section first."); break; }
-        // Find all card-like elements in this section
-        const cards = sec.querySelectorAll('[class*="card"], [class*="item"], [class*="product"], [class*="menu-item"]');
-        let structuralCards: HTMLElement[] = [];
-        if (cards.length === 0) {
-          // Structural detection: grid/flex children with img+text
-          const grids = sec.querySelectorAll('[style*="grid"], [style*="flex"]');
-          grids.forEach(g => {
-            Array.from(g.children).forEach(child => {
-              const el = child as HTMLElement;
-              if (el.querySelector('img') && el.querySelector('h3,h4,p,span')) structuralCards.push(el);
-            });
-          });
-        } else {
-          cards.forEach(c => structuralCards.push(c as HTMLElement));
-        }
-        if (structuralCards.length === 0) { toast.info("No product cards found in this section."); break; }
-        let added = 0;
-        structuralCards.forEach(card => {
-          if (card.querySelector('[data-yangu-order-btn]')) return; // already has one
-          const btn = doc.createElement("button");
-          btn.textContent = "+ Add";
-          btn.setAttribute("data-yangu-order-btn", "true");
-          btn.setAttribute("data-yangu-node-id", "yn-order-" + Date.now() + "-" + (added++));
-          btn.style.cssText = "display:inline-block;padding:8px 18px;border-radius:6px;background:#22c55e;color:#fff;border:none;font-weight:600;font-size:13px;margin-top:8px;cursor:pointer;width:100%;text-align:center;";
-          const textWrap = card.querySelector('[style*="padding"]') as HTMLElement || card;
-          textWrap.appendChild(btn);
-        });
-        pushUpdate(doc, iframe);
-        toast.success(`Order buttons added to ${added} cards!`);
-        break;
-      }
 
       case "order_settings": {
         // Redirect to the commerce config panel instead of browser prompts
