@@ -26,6 +26,7 @@ import { TextEditorPanel } from "@/components/builder-new/TextEditorPanel";
 import { SectionEditorPanel } from "@/components/builder-new/SectionEditorPanel";
 import { MagicEditorToolbar } from "@/components/builder-new/MagicEditorToolbar";
 import { ProductCardEditorModal, ProductDeleteConfirmModal } from "@/components/builder-new/ProductCardEditorModal";
+import { ButtonStylePanel } from "@/components/builder-new/ButtonStylePanel";
 import { BuilderPublishModal } from "@/components/builder/BuilderPublishModal";
 import { CommerceConfigPanel } from "@/components/commerce/CommerceConfigPanel";
 import { BuilderSettingsDrawer, getThemeFromMetadata } from "@/components/builder/BuilderSettingsDrawer";
@@ -931,6 +932,27 @@ export default function EmenuNewEditor() {
         toast.info("Product buttons are managed via the product edit popup.");
         break;
 
+      case "set_product_button_style": {
+        if (!doc) break;
+        const btns = doc.querySelectorAll('.yangu-product-cta');
+        if (btns.length === 0) {
+          toast.info("No product buttons found. Add products first.");
+          break;
+        }
+        btns.forEach((btn: Element) => {
+          const el = btn as HTMLElement;
+          if (payload?.color) {
+            el.style.borderColor = payload.color;
+            el.style.color = payload.color;
+          }
+          if (payload?.borderRadius) el.style.borderRadius = payload.borderRadius;
+          if (payload?.padding) el.style.padding = payload.padding;
+          if (payload?.fontSize) el.style.fontSize = payload.fontSize;
+        });
+        toast.success("Button style updated!");
+        break;
+      }
+
       case "order_settings": {
         // Redirect to the commerce config panel instead of browser prompts
         setLeftMode("commerce");
@@ -1348,8 +1370,15 @@ export default function EmenuNewEditor() {
             <TextEditorPanel onAction={handleEditorAction} preview={canvasSelection.preview} />
           ) : canvasSelection?.kind === "section" ? (
             <SectionEditorPanel onAction={handleEditorAction} preview={canvasSelection.preview} sectionIndex={canvasSelection.sectionIndex} />
+          ) : canvasSelection?.kind === "button" || canvasSelection?.kind === "card" ? (
+            <ButtonStylePanel onAction={handleEditorAction} />
           ) : (
-            <EmenuEditorPanel businessName={surfaceTitle} category="emenu" onAction={handleEditorAction} />
+            <div className="flex flex-col h-full">
+              <EmenuEditorPanel businessName={surfaceTitle} category="emenu" onAction={handleEditorAction} />
+              <div className="border-t border-border">
+                <ButtonStylePanel onAction={handleEditorAction} />
+              </div>
+            </div>
           )}
         </div>
       </div>
@@ -1371,6 +1400,7 @@ export default function EmenuNewEditor() {
       <ProductCardEditorModal
         open={!!editingProduct}
         product={editingProduct}
+        surfaceType={surfaceType}
         onClose={() => {
           setEditingProduct(null);
           clearIframeEditorDecorations();

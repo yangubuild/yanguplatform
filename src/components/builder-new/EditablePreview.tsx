@@ -210,40 +210,75 @@ const EDIT_SCRIPT = `
           if (!isLikelyProductCard(card)) return;
 
           card.classList.add('yangu-product-card');
-          if (card.querySelector('.yangu-product-controls')) return;
 
-          var controls = document.createElement('div');
-          controls.className = 'yangu-product-controls yangu-editor-inject';
+          // Inject edit/delete controls (top-right)
+          if (!card.querySelector('.yangu-product-controls')) {
+            var controls = document.createElement('div');
+            controls.className = 'yangu-product-controls yangu-editor-inject';
 
-          var editBtn = document.createElement('button');
-          editBtn.type = 'button';
-          editBtn.className = 'yangu-product-control';
-          editBtn.title = 'Edit product';
-          editBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
-          editBtn.addEventListener('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            clearAllHighlights();
-            card.classList.add('yangu-card-selected');
-            window.parent.postMessage({ type: 'product-edit-request', product: getProductPayload(card) }, '*');
-          });
+            var editBtn = document.createElement('button');
+            editBtn.type = 'button';
+            editBtn.className = 'yangu-product-control';
+            editBtn.title = 'Edit product';
+            editBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+            editBtn.addEventListener('click', function(event) {
+              event.preventDefault();
+              event.stopPropagation();
+              clearAllHighlights();
+              card.classList.add('yangu-card-selected');
+              window.parent.postMessage({ type: 'product-edit-request', product: getProductPayload(card) }, '*');
+            });
 
-          var deleteBtn = document.createElement('button');
-          deleteBtn.type = 'button';
-          deleteBtn.className = 'yangu-product-control delete';
-          deleteBtn.title = 'Delete product';
-          deleteBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
-          deleteBtn.addEventListener('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            clearAllHighlights();
-            card.classList.add('yangu-card-selected');
-            window.parent.postMessage({ type: 'product-delete-request', product: getProductPayload(card) }, '*');
-          });
+            var deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'yangu-product-control delete';
+            deleteBtn.title = 'Delete product';
+            deleteBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
+            deleteBtn.addEventListener('click', function(event) {
+              event.preventDefault();
+              event.stopPropagation();
+              clearAllHighlights();
+              card.classList.add('yangu-card-selected');
+              window.parent.postMessage({ type: 'product-delete-request', product: getProductPayload(card) }, '*');
+            });
 
-          controls.appendChild(editBtn);
-          controls.appendChild(deleteBtn);
-          card.appendChild(controls);
+            controls.appendChild(editBtn);
+            controls.appendChild(deleteBtn);
+            card.appendChild(controls);
+          }
+
+          // Inject CTA button (bottom of card) if not already present
+          if (!card.querySelector('.yangu-product-cta')) {
+            var priceEl = getProductPriceEl(card);
+            var nameEl = getProductNameEl(card);
+            if (!nameEl) return;
+
+            var ctaBtn = document.createElement('button');
+            ctaBtn.type = 'button';
+            ctaBtn.className = 'yangu-product-cta yangu-editor-inject';
+            ctaBtn.textContent = '+ Add';
+            ctaBtn.style.cssText = 'margin-top:8px;padding:8px 0;border-radius:8px;border:2px solid #10b981;background:transparent;color:#10b981;font-size:13px;font-weight:700;cursor:pointer;width:100%;transition:all 0.2s;letter-spacing:0.02em;display:block;';
+            ctaBtn.onmouseover = function() { ctaBtn.style.background = '#10b981'; ctaBtn.style.color = '#fff'; };
+            ctaBtn.onmouseout = function() { ctaBtn.style.background = 'transparent'; ctaBtn.style.color = '#10b981'; };
+            ctaBtn.onclick = function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              ctaBtn.textContent = '\\u2713 Added';
+              ctaBtn.style.background = '#059669';
+              ctaBtn.style.color = '#fff';
+              ctaBtn.style.borderColor = '#059669';
+              setTimeout(function() {
+                ctaBtn.textContent = '+ Add';
+                ctaBtn.style.background = 'transparent';
+                ctaBtn.style.color = '#10b981';
+                ctaBtn.style.borderColor = '#10b981';
+              }, 1200);
+            };
+
+            // Insert after price or at end of content container
+            var insertTarget = priceEl ? (priceEl.parentElement || card) : (nameEl.parentElement || card);
+            insertTarget.appendChild(ctaBtn);
+          }
         });
       }
 
@@ -287,6 +322,7 @@ const EDIT_SCRIPT = `
       function notifyHtmlUpdate() {
         var clone = document.documentElement.cloneNode(true);
         clone.querySelectorAll('.yangu-editor-inject').forEach(function(el) { el.remove(); });
+        clone.querySelectorAll('.yangu-product-cta').forEach(function(el) { el.remove(); });
         clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.section-hover,.yangu-card-selected,.yangu-product-card').forEach(function(el) {
           el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','section-hover','yangu-card-selected','yangu-product-card');
         });
