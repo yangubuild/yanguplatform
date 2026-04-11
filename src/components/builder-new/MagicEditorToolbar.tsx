@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Sparkles, Link2, Bold, Italic, Underline, Strikethrough,
   AlignCenter, Type as TypeIcon, LayoutGrid, Image as ImageIcon,
-  Replace, Palette, Trash2, Copy, MousePointer, Plus, ShoppingCart,
+  Palette, Trash2, Copy,
 } from "lucide-react";
 import type { CanvasSelection } from "@/lib/builder/selectionTypes";
 import type { ActivePopup, SelectedScope, LinkData } from "./editor-popups/EditorPopupTypes";
@@ -17,9 +17,7 @@ interface MagicEditorToolbarProps {
   selection: CanvasSelection;
   onAction: (action: string, payload?: any) => void;
   position?: { top: number; left: number };
-  /** Current color of the selected element, read from iframe */
   currentColor?: string;
-  /** Shared ADA chat state — enables unified assistant */
   adaMessages?: AdaChatMessage[];
   adaIsLoading?: boolean;
   onAdaSend?: (text: string) => void;
@@ -27,10 +25,7 @@ interface MagicEditorToolbarProps {
 
 function mapKindToScope(kind: string): SelectedScope {
   if (kind === "text") return "text";
-  if (kind === "button") return "button";
-  if (kind === "image") return "image";
   if (kind === "section") return "section";
-  if (kind === "card") return "text"; // fallback scope for popups
   if (kind === "page") return "page";
   return "none";
 }
@@ -41,7 +36,6 @@ export function MagicEditorToolbar({ selection, onAction, currentColor, adaMessa
   const [activePopup, setActivePopup] = useState<ActivePopup>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Close popup when selection target changes (e.g. clicking in iframe)
   const prevNodeRef = useRef(selection.nodeId);
   useEffect(() => {
     if (selection.nodeId !== prevNodeRef.current) {
@@ -50,7 +44,6 @@ export function MagicEditorToolbar({ selection, onAction, currentColor, adaMessa
     }
   }, [selection.nodeId]);
 
-  // Close popups on outside click
   useEffect(() => {
     if (!activePopup) return;
     const handler = (e: MouseEvent) => {
@@ -62,7 +55,6 @@ export function MagicEditorToolbar({ selection, onAction, currentColor, adaMessa
     return () => document.removeEventListener("mousedown", handler, true);
   }, [activePopup]);
 
-  // Close on escape
   useEffect(() => {
     if (!activePopup) return;
     const handler = (e: KeyboardEvent) => {
@@ -76,7 +68,6 @@ export function MagicEditorToolbar({ selection, onAction, currentColor, adaMessa
 
   const getColorLabel = () => {
     if (kind === "text") return "Text Color";
-    if (kind === "button") return "Button Color";
     if (kind === "section") return "Section BG";
     return "Page BG";
   };
@@ -84,11 +75,9 @@ export function MagicEditorToolbar({ selection, onAction, currentColor, adaMessa
   const handleColorApply = useCallback((color: string) => {
     if (kind === "text") {
       onAction("set_text_style", { color });
-    } else if (kind === "button") {
-      onAction("set_button_color", { color });
     } else if (kind === "section") {
       onAction("set_section_style", { backgroundColor: color });
-    } else if (kind === "page" || kind === "card") {
+    } else if (kind === "page") {
       onAction("set_page_bg_color", { color });
     }
     setActivePopup(null);
@@ -118,9 +107,11 @@ export function MagicEditorToolbar({ selection, onAction, currentColor, adaMessa
 
   const dotColor = currentColor || undefined;
 
+  // Magic Editor only shows for text and section scopes
+  if (kind !== "text" && kind !== "section") return null;
+
   return (
     <div ref={containerRef} className="relative">
-      {/* Main bar */}
       <div className="flex items-center gap-0.5 px-2 py-1.5 bg-foreground/95 backdrop-blur-sm rounded-lg shadow-xl border border-border/50 animate-in fade-in-0 slide-in-from-bottom-2 duration-200">
         {/* Ask Ada — ALWAYS FIRST */}
         <MagicBtn
@@ -157,34 +148,6 @@ export function MagicEditorToolbar({ selection, onAction, currentColor, adaMessa
           </>
         )}
 
-        {/* === BUTTON CONTEXT === */}
-        {kind === "button" && (
-          <>
-            <MagicBtn icon={Link2} label="Link" onClick={() => togglePopup("link")} active={activePopup === "link"} />
-            <ColorDot
-              onClick={() => togglePopup("color")}
-              active={activePopup === "color"}
-              color={dotColor}
-            />
-            <MagicBtn icon={TypeIcon} label="Font" onClick={() => togglePopup("typography")} active={activePopup === "typography"} />
-            <MagicBtn icon={AlignCenter} label="Align" onClick={() => togglePopup("alignment")} active={activePopup === "alignment"} />
-            {selection.sectionIndex >= 0 && (
-              <>
-                <div className="w-px h-4 bg-background/20 mx-0.5" />
-                <MagicBtn icon={ImageIcon} label="Section BG" onClick={() => onAction("set_section_bg_image")} />
-              </>
-            )}
-          </>
-        )}
-
-        {/* === IMAGE CONTEXT === */}
-        {kind === "image" && (
-          <>
-            <MagicBtn icon={Replace} label="Replace" onClick={() => onAction("replace_image")} />
-            <MagicBtn icon={ImageIcon} label="Stock" onClick={() => onAction("stock_image")} />
-          </>
-        )}
-
         {/* === SECTION CONTEXT === */}
         {kind === "section" && (
           <>
@@ -195,44 +158,14 @@ export function MagicEditorToolbar({ selection, onAction, currentColor, adaMessa
             />
             <MagicBtn icon={LayoutGrid} label="Layout" onClick={() => onAction("change_layout")} />
             <MagicBtn icon={ImageIcon} label="Replace BG" onClick={() => onAction("set_section_bg_image")} />
-            <MagicBtn icon={Plus} label="Nav CTA" onClick={() => onAction("add_cta_button")} />
-            <MagicBtn icon={ShoppingCart} label="Enable Ordering" onClick={() => onAction("enable_section_ordering")} />
             <div className="w-px h-4 bg-background/20 mx-0.5" />
             <MagicBtn icon={Copy} label="Duplicate" onClick={() => onAction("duplicate_section")} />
             <MagicBtn icon={Trash2} label="Delete" onClick={() => onAction("remove_section")} />
           </>
         )}
-
-        {/* === PAGE CONTEXT === */}
-        {kind === "page" && (
-          <>
-            <ColorDot
-              onClick={() => togglePopup("color")}
-              active={activePopup === "color"}
-              color={dotColor}
-            />
-          </>
-        )}
-
-        {/* === CARD CONTEXT === */}
-        {kind === "card" && (
-          <>
-            <MagicBtn icon={TypeIcon} label="Edit" onClick={() => onAction("edit_text")} />
-            <MagicBtn icon={ImageIcon} label="Image" onClick={() => onAction("replace_image")} />
-            <MagicBtn icon={ShoppingCart} label="Order Btn" onClick={() => onAction("add_card_order_button")} />
-            <ColorDot
-              onClick={() => togglePopup("color")}
-              active={activePopup === "color"}
-              color={dotColor}
-            />
-            <div className="w-px h-4 bg-background/20 mx-0.5" />
-            <MagicBtn icon={Copy} label="Duplicate" onClick={() => onAction("duplicate_element")} />
-            <MagicBtn icon={Trash2} label="Delete" onClick={() => onAction("delete_element")} />
-          </>
-        )}
       </div>
 
-      {/* Popups — positioned above the bar */}
+      {/* Popups */}
       {activePopup && (
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50">
           {activePopup === "link" && (

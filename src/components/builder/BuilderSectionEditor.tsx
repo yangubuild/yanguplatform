@@ -589,6 +589,10 @@ interface MenuItem {
   is_available: boolean;
   category_index: number;
   cta_action: string;
+  button_text?: string;
+  action_type?: string;
+  action_url?: string;
+  stock?: string;
 }
 
 function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: string }) {
@@ -604,6 +608,10 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
       is_available: item.is_available !== false,
       category_index: i,
       cta_action: item.cta_action || "order_now",
+      button_text: item.button_text || "",
+      action_type: item.action_type || "checkout",
+      action_url: item.action_url || "",
+      stock: item.stock || "",
     })),
   })) as MenuCategory[];
 
@@ -626,8 +634,10 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
   const [itemAvailable, setItemAvailable] = useState(true);
   const [itemCatSelect, setItemCatSelect] = useState<number>(0);
   const [itemCtaAction, setItemCtaAction] = useState("order_now");
-
-  // ─── Category dialog helpers ───
+  const [itemButtonText, setItemButtonText] = useState("");
+  const [itemActionType, setItemActionType] = useState("checkout");
+  const [itemActionUrl, setItemActionUrl] = useState("");
+  const [itemStock, setItemStock] = useState("");
   const openCreateCat = () => {
     setEditCatIndex(null);
     setCatName("");
@@ -672,6 +682,10 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
     setItemAvailable(true);
     setItemCatSelect(catIdx);
     setItemCtaAction("order_now");
+    setItemButtonText("");
+    setItemActionType("checkout");
+    setItemActionUrl("");
+    setItemStock("");
     setShowItemDialog(true);
   };
 
@@ -686,12 +700,16 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
     setItemAvailable(item.is_available);
     setItemCatSelect(catIdx);
     setItemCtaAction(item.cta_action || "order_now");
+    setItemButtonText(item.button_text || "");
+    setItemActionType(item.action_type || "checkout");
+    setItemActionUrl(item.action_url || "");
+    setItemStock(item.stock || "");
     setShowItemDialog(true);
   };
 
   const saveItem = () => {
     const updated = [...categories];
-    const newItem: MenuItem = { name: itemName, description: itemDesc, price: itemPrice, image_url: itemPhoto, is_available: itemAvailable, category_index: itemCatSelect, cta_action: itemCtaAction };
+    const newItem: MenuItem = { name: itemName, description: itemDesc, price: itemPrice, image_url: itemPhoto, is_available: itemAvailable, category_index: itemCatSelect, cta_action: itemCtaAction, button_text: itemButtonText, action_type: itemActionType, action_url: itemActionUrl, stock: itemStock };
 
     // If category changed during edit, move the item
     if (editItemIndex !== null) {
@@ -893,7 +911,22 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
               </div>
               <p className="text-xs text-muted-foreground">Choose AI generation or upload your own (min 800x600px, max 5MB)</p>
             </div>
-            <ItemCtaSelector value={itemCtaAction} onChange={setItemCtaAction} />
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">Stock</Label>
+              <Input value={itemStock} onChange={(e) => setItemStock(e.target.value)} placeholder="e.g. 50 (leave empty for unlimited)" />
+            </div>
+            <div className="border border-border rounded-lg p-3">
+              <ItemCtaSelector
+                value={itemCtaAction}
+                onChange={setItemCtaAction}
+                buttonText={itemButtonText}
+                onButtonTextChange={setItemButtonText}
+                actionType={itemActionType}
+                onActionTypeChange={setItemActionType}
+                actionUrl={itemActionUrl}
+                onActionUrlChange={setItemActionUrl}
+              />
+            </div>
             <div className="flex items-center gap-2">
               <Checkbox
                 id="item-available"
