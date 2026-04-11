@@ -932,6 +932,27 @@ export default function EmenuNewEditor() {
         toast.info("Product buttons are managed via the product edit popup.");
         break;
 
+      case "set_product_button_style": {
+        if (!doc) break;
+        const btns = doc.querySelectorAll('.yangu-product-cta');
+        if (btns.length === 0) {
+          toast.info("No product buttons found. Add products first.");
+          break;
+        }
+        btns.forEach((btn: Element) => {
+          const el = btn as HTMLElement;
+          if (payload?.color) {
+            el.style.borderColor = payload.color;
+            el.style.color = payload.color;
+          }
+          if (payload?.borderRadius) el.style.borderRadius = payload.borderRadius;
+          if (payload?.padding) el.style.padding = payload.padding;
+          if (payload?.fontSize) el.style.fontSize = payload.fontSize;
+        });
+        toast.success("Button style updated!");
+        break;
+      }
+
       case "order_settings": {
         // Redirect to the commerce config panel instead of browser prompts
         setLeftMode("commerce");
