@@ -907,7 +907,22 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
               </div>
               <p className="text-xs text-muted-foreground">Choose AI generation or upload your own (min 800x600px, max 5MB)</p>
             </div>
-            <ItemCtaSelector value={itemCtaAction} onChange={setItemCtaAction} />
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">Stock</Label>
+              <Input value={itemStock} onChange={(e) => setItemStock(e.target.value)} placeholder="e.g. 50 (leave empty for unlimited)" />
+            </div>
+            <div className="border border-border rounded-lg p-3">
+              <ItemCtaSelector
+                value={itemCtaAction}
+                onChange={setItemCtaAction}
+                buttonText={itemButtonText}
+                onButtonTextChange={setItemButtonText}
+                actionType={itemActionType}
+                onActionTypeChange={setItemActionType}
+                actionUrl={itemActionUrl}
+                onActionUrlChange={setItemActionUrl}
+              />
+            </div>
             <div className="flex items-center gap-2">
               <Checkbox
                 id="item-available"
