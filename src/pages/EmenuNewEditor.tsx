@@ -1104,8 +1104,8 @@ export default function EmenuNewEditor() {
             viewportMode={previewViewport}
           />
 
-          {/* Magic Editor floating toolbar — positioned near selected element */}
-          {magicEditorOn && canvasSelection && canvasSelection.kind !== "page" && canvasSelection.elRect && (() => {
+          {/* Magic Editor floating toolbar — only for text and section */}
+          {magicEditorOn && canvasSelection && (canvasSelection.kind === "text" || canvasSelection.kind === "section") && canvasSelection.elRect && (() => {
             const iframe = getIframe();
             const iframeRect = iframe?.getBoundingClientRect();
             if (!iframeRect) return null;
@@ -1114,22 +1114,18 @@ export default function EmenuNewEditor() {
             const toolbarTop = iframeRect.top - mainRect.top + canvasSelection.elRect.top - 48;
             const toolbarLeft = iframeRect.left - mainRect.left + canvasSelection.elRect.left + canvasSelection.elRect.width / 2;
 
-            // Read current color from iframe element
             let detectedColor: string | undefined;
             try {
               const doc = iframe?.contentDocument;
               if (doc) {
                 const el = canvasSelection.nodeId
                   ? doc.querySelector(`[data-yangu-node-id="${canvasSelection.nodeId}"]`) as HTMLElement | null
-                  : doc.querySelector('.yangu-el-selected, .yangu-btn-selected, .section-selected') as HTMLElement | null;
+                  : doc.querySelector('.yangu-el-selected, .section-selected') as HTMLElement | null;
                 if (el && iframe?.contentWindow) {
                   const cs = iframe.contentWindow.getComputedStyle(el);
                   if (canvasSelection.kind === "text") {
                     detectedColor = cs.color;
-                  } else if (canvasSelection.kind === "button") {
-                    detectedColor = cs.backgroundColor;
                   } else if (canvasSelection.kind === "section") {
-                    // For section, try to get the section-selected element
                     const sec = doc.querySelector('.section-selected') as HTMLElement | null;
                     if (sec) detectedColor = iframe.contentWindow.getComputedStyle(sec).backgroundColor;
                     else detectedColor = cs.backgroundColor;
@@ -1140,7 +1136,6 @@ export default function EmenuNewEditor() {
               }
             } catch {}
 
-            // Resolve transparent/invisible colors by walking up the DOM
             if (detectedColor) {
               const isTransparent = (c: string) =>
                 !c || c === 'transparent' || c === 'rgba(0, 0, 0, 0)' || c === 'rgba(0,0,0,0)';
@@ -1150,7 +1145,7 @@ export default function EmenuNewEditor() {
                   if (iDoc && iframe?.contentWindow) {
                     let walkEl: HTMLElement | null = canvasSelection.nodeId
                       ? iDoc.querySelector(`[data-yangu-node-id="${canvasSelection.nodeId}"]`) as HTMLElement | null
-                      : iDoc.querySelector('.yangu-el-selected, .yangu-btn-selected, .section-selected') as HTMLElement | null;
+                      : iDoc.querySelector('.yangu-el-selected, .section-selected') as HTMLElement | null;
                     while (walkEl && walkEl !== iDoc.body) {
                       const bg = iframe.contentWindow!.getComputedStyle(walkEl).backgroundColor;
                       if (!isTransparent(bg)) { detectedColor = bg; break; }
