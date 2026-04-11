@@ -1175,16 +1175,12 @@ export default function EmenuNewEditor() {
           })()}
         </main>
 
-        {/* ═══ RIGHT PANEL — context-aware ═══ */}
+        {/* ═══ RIGHT PANEL — context-aware (text/section only) ═══ */}
         <div className="w-[260px] shrink-0 hidden md:block overflow-hidden">
-          {canvasSelection?.kind === "button" ? (
-            <ButtonEditorPanel onAction={handleEditorAction} preview={canvasSelection.preview} />
-          ) : canvasSelection?.kind === "text" ? (
+          {canvasSelection?.kind === "text" ? (
             <TextEditorPanel onAction={handleEditorAction} preview={canvasSelection.preview} />
           ) : canvasSelection?.kind === "section" ? (
             <SectionEditorPanel onAction={handleEditorAction} preview={canvasSelection.preview} sectionIndex={canvasSelection.sectionIndex} />
-          ) : canvasSelection?.kind === "image" ? (
-            <ImageEditorPanel onAction={handleEditorAction} preview={canvasSelection.preview} />
           ) : (
             <EmenuEditorPanel businessName={surfaceTitle} category="emenu" onAction={handleEditorAction} />
           )}
