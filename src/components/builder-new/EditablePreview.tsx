@@ -3,12 +3,15 @@ import { Image, Trash2, Plus, Palette, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
 import { EditorImagePickerDialog } from "./EditorImagePickerDialog";
 import { EditorColorPickerDialog } from "./EditorColorPickerDialog";
-import type { CanvasSelection } from "@/lib/builder/selectionTypes";
+import type { CanvasSelection, ProductCardData } from "@/lib/builder/selectionTypes";
 
 interface EditablePreviewProps {
   html: string;
   onHtmlChange: (html: string) => void;
   onSelectionChange?: (selection: CanvasSelection) => void;
+  onProductEditRequest?: (product: ProductCardData) => void;
+  onProductDeleteRequest?: (product: ProductCardData) => void;
+  showAddSectionControl?: boolean;
   viewportMode?: "desktop" | "mobile";
 }
 
@@ -22,6 +25,38 @@ const EDIT_STYLES = `
     .section-selected { outline: 2px solid #22c55e !important; outline-offset: -2px; border-radius: 8px; }
     .yangu-el-selected { outline: 2px solid #22c55e !important; outline-offset: 2px; }
     img.yangu-img-selected { outline: 2px solid #22c55e !important; }
+    .yangu-card-selected { outline: 2px solid hsl(152 61% 40%) !important; outline-offset: 2px; }
+    .yangu-product-card { position: relative !important; }
+    .yangu-product-controls {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 6px;
+      z-index: 40;
+    }
+    .yangu-product-control {
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: hsl(154 30% 12% / 0.92);
+      color: hsl(0 0% 100%);
+      box-shadow: 0 4px 18px hsl(154 50% 5% / 0.28);
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+    }
+    .yangu-product-control:hover { background: hsl(152 61% 35% / 0.96); }
+    .yangu-product-control.delete:hover { background: hsl(0 72% 51% / 0.96); }
+    .yangu-product-control svg {
+      width: 14px;
+      height: 14px;
+      pointer-events: none;
+      stroke: currentColor;
+    }
   </style>
 `;
 
@@ -29,7 +64,7 @@ const EDIT_SCRIPT = `
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       var nodeIdCounter = 0;
-      document.querySelectorAll('h1,h2,h3,h4,h5,h6,p,span,a,li,button,img,section,footer,nav,header,div').forEach(function(el) {
+      document.querySelectorAll('h1,h2,h3,h4,h5,h6,p,span,a,li,button,img,section,footer,nav,header,div,article').forEach(function(el) {
         if (!el.getAttribute('data-yangu-node-id')) {
           el.setAttribute('data-yangu-node-id', 'yn-' + (++nodeIdCounter));
         }
@@ -84,6 +119,134 @@ const EDIT_SCRIPT = `
         return null;
       }
 
+      function isPriceText(text) {
+        var compact = (text || '').replace(/\s+/g, ' ').trim();
+        if (!compact || compact.length > 24) return false;
+        return /[$€£₦]|\b(?:UGX|USD|EUR|GBP|KES|TZS|AED|R)\b/i.test(compact) && /\d/.test(compact);
+      }
+
+      function getProductNameEl(card) {
+        var candidates = card.querySelectorAll('h1,h2,h3,h4,h5,h6,strong,[style*="font-weight:700"],[style*="font-weight:600"],[style*="font-weight: 700"],[style*="font-weight: 600"]');
+        for (var i = 0; i < candidates.length; i++) {
+          var text = (candidates[i].textContent || '').replace(/\s+/g, ' ').trim();
+          if (text && !isPriceText(text)) return candidates[i];
+        }
+        return null;
+      }
+
+      function getProductPriceEl(card) {
+        var candidates = card.querySelectorAll('span,p,div,strong');
+        for (var i = 0; i < candidates.length; i++) {
+          var candidate = candidates[i];
+          if (candidate.closest('.yangu-product-controls')) continue;
+          if (candidate.querySelector('button,a,h1,h2,h3,h4,h5,h6,img')) continue;
+          var text = (candidate.textContent || '').replace(/\s+/g, ' ').trim();
+          if (isPriceText(text)) return candidate;
+        }
+        return null;
+      }
+
+      function getProductDescriptionEl(card, nameEl, priceEl) {
+        var nameText = (nameEl && nameEl.textContent ? nameEl.textContent : '').replace(/\s+/g, ' ').trim();
+        var candidates = card.querySelectorAll('p,span,div');
+        for (var i = 0; i < candidates.length; i++) {
+          var candidate = candidates[i];
+          if (candidate === nameEl || candidate === priceEl) continue;
+          if (candidate.closest('.yangu-product-controls')) continue;
+          if (candidate.querySelector('button,a,h1,h2,h3,h4,h5,h6,img')) continue;
+          var text = (candidate.textContent || '').replace(/\s+/g, ' ').trim();
+          if (!text || text === nameText || isPriceText(text) || text.length > 220) continue;
+          return candidate;
+        }
+        return null;
+      }
+
+      function isLikelyProductCard(el) {
+        if (!window.__YANGU_ENABLE_PRODUCT_CONTROLS) return false;
+        if (!el || ['DIV', 'ARTICLE', 'LI'].indexOf(el.tagName) === -1) return false;
+        if (el.closest('nav,header,footer')) return false;
+        if (el.querySelector('.yangu-product-controls')) return true;
+
+        var imageEl = el.querySelector('img');
+        var nameEl = getProductNameEl(el);
+        var priceEl = getProductPriceEl(el);
+        if (!imageEl || !nameEl || !priceEl) return false;
+
+        var nestedMatches = 0;
+        var descendants = el.querySelectorAll('div,article,li');
+        for (var i = 0; i < descendants.length; i++) {
+          var descendant = descendants[i];
+          if (descendant === el) continue;
+          if (descendant.querySelector('img') && getProductNameEl(descendant) && getProductPriceEl(descendant)) {
+            nestedMatches++;
+            if (nestedMatches > 1) return false;
+          }
+        }
+
+        var rect = el.getBoundingClientRect();
+        return rect.width >= 140 && rect.height >= 140;
+      }
+
+      function getProductPayload(card) {
+        var nameEl = getProductNameEl(card);
+        var priceEl = getProductPriceEl(card);
+        var descEl = getProductDescriptionEl(card, nameEl, priceEl);
+        var imageEl = card.querySelector('img');
+
+        return {
+          nodeId: card.getAttribute('data-yangu-node-id') || '',
+          sectionIndex: findSectionIndex(card),
+          name: nameEl ? (nameEl.textContent || '').replace(/\s+/g, ' ').trim() : '',
+          description: descEl ? (descEl.textContent || '').replace(/\s+/g, ' ').trim() : '',
+          price: priceEl ? (priceEl.textContent || '').replace(/\s+/g, ' ').trim() : '',
+          imageSrc: imageEl ? imageEl.src : '',
+        };
+      }
+
+      function injectProductControls() {
+        if (!window.__YANGU_ENABLE_PRODUCT_CONTROLS) return;
+
+        document.querySelectorAll('div,article,li').forEach(function(card) {
+          if (!isLikelyProductCard(card)) return;
+
+          card.classList.add('yangu-product-card');
+          if (card.querySelector('.yangu-product-controls')) return;
+
+          var controls = document.createElement('div');
+          controls.className = 'yangu-product-controls yangu-editor-inject';
+
+          var editBtn = document.createElement('button');
+          editBtn.type = 'button';
+          editBtn.className = 'yangu-product-control';
+          editBtn.title = 'Edit product';
+          editBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+          editBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            clearAllHighlights();
+            card.classList.add('yangu-card-selected');
+            window.parent.postMessage({ type: 'product-edit-request', product: getProductPayload(card) }, '*');
+          });
+
+          var deleteBtn = document.createElement('button');
+          deleteBtn.type = 'button';
+          deleteBtn.className = 'yangu-product-control delete';
+          deleteBtn.title = 'Delete product';
+          deleteBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
+          deleteBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            clearAllHighlights();
+            card.classList.add('yangu-card-selected');
+            window.parent.postMessage({ type: 'product-delete-request', product: getProductPayload(card) }, '*');
+          });
+
+          controls.appendChild(editBtn);
+          controls.appendChild(deleteBtn);
+          card.appendChild(controls);
+        });
+      }
+
       function selectImage(el) {
         clearAllHighlights();
         el.classList.add('yangu-img-selected');
@@ -116,16 +279,16 @@ const EDIT_SCRIPT = `
       }
 
       function clearAllHighlights() {
-        document.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected').forEach(function(s) {
-          s.classList.remove('section-selected','yangu-img-selected','yangu-el-selected');
+        document.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-card-selected').forEach(function(s) {
+          s.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-card-selected');
         });
       }
 
       function notifyHtmlUpdate() {
         var clone = document.documentElement.cloneNode(true);
         clone.querySelectorAll('.yangu-editor-inject').forEach(function(el) { el.remove(); });
-        clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.section-hover').forEach(function(el) {
-          el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','section-hover');
+        clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.section-hover,.yangu-card-selected,.yangu-product-card').forEach(function(el) {
+          el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','section-hover','yangu-card-selected','yangu-product-card');
         });
         clone.querySelectorAll('[contenteditable]').forEach(function(el) {
           el.removeAttribute('contenteditable');
@@ -158,6 +321,14 @@ const EDIT_SCRIPT = `
         el.dataset.sectionIdx = idx;
       });
 
+      if (window.__YANGU_ENABLE_PRODUCT_CONTROLS) {
+        injectProductControls();
+        var productObserver = new MutationObserver(function() {
+          injectProductControls();
+        });
+        productObserver.observe(document.body, { childList: true, subtree: true });
+      }
+
       // Hero image click — still allow image replacement via image-click message
       document.querySelectorAll('img').forEach(function(el) {
         el.addEventListener('click', function(e) {
@@ -181,6 +352,20 @@ const EDIT_SCRIPT = `
         if (!el || el.tagName === 'HTML' || el.tagName === 'BODY') {
           sendDeselect();
           return;
+        }
+
+        if (window.__YANGU_ENABLE_PRODUCT_CONTROLS && el.closest) {
+          if (el.closest('.yangu-product-control')) return;
+
+          var productCard = el.closest('.yangu-product-card');
+          if (productCard) {
+            e.preventDefault();
+            e.stopPropagation();
+            clearAllHighlights();
+            productCard.classList.add('yangu-card-selected');
+            window.parent.postMessage({ type: 'canvas-select', kind: 'page', tag: productCard.tagName, preview: '', sectionIndex: -1, nodeId: '' }, '*');
+            return;
+          }
         }
 
         // Overlay div → find underlying image for replacement
@@ -268,6 +453,11 @@ const EDIT_SCRIPT = `
       window.addEventListener('message', function(e) {
         if (!e.data || !e.data.type) return;
 
+        if (e.data.type === 'clear-editor-selection') {
+          clearAllHighlights();
+          return;
+        }
+
         if (e.data.type === 'apply-style') {
           var target = null;
           if (e.data.nodeId) {
@@ -316,6 +506,7 @@ const EDIT_SCRIPT = `
 `;
 
 export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewportMode = "desktop" }: EditablePreviewProps) {
+export function EditablePreview({ html, onHtmlChange, onSelectionChange, onProductEditRequest, onProductDeleteRequest, showAddSectionControl = true, viewportMode = "desktop" }: EditablePreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [imagePickerOpen, setImagePickerOpen] = useState(false);
@@ -324,9 +515,10 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
   const loadedHtmlRef = useRef<string | null>(null);
 
   const getEditableHtml = useCallback((baseHtml: string) => {
-    const inject = `<div class="yangu-editor-inject" style="display:none!important"></div>${EDIT_STYLES.replace('<style>', '<style class="yangu-editor-inject">')}${EDIT_SCRIPT.replace('<script>', '<script class="yangu-editor-inject">')}`;
+    const productControlsEnabled = Boolean(onProductEditRequest || onProductDeleteRequest);
+    const inject = `<div class="yangu-editor-inject" style="display:none!important"></div>${EDIT_STYLES.replace('<style>', '<style class="yangu-editor-inject">')}${EDIT_SCRIPT.replace('<script>', `<script class="yangu-editor-inject">window.__YANGU_ENABLE_PRODUCT_CONTROLS = ${productControlsEnabled ? "true" : "false"};`)}`;
     return baseHtml.replace('</head>', inject + '</head>');
-  }, []);
+  }, [onProductDeleteRequest, onProductEditRequest]);
 
   const shouldReloadIframe = html !== loadedHtmlRef.current;
 
@@ -360,6 +552,12 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
           elRect: e.data.elRect || undefined,
         });
       }
+      if (e.data?.type === 'product-edit-request' && onProductEditRequest) {
+        onProductEditRequest(e.data.product as ProductCardData);
+      }
+      if (e.data?.type === 'product-delete-request' && onProductDeleteRequest) {
+        onProductDeleteRequest(e.data.product as ProductCardData);
+      }
       if (e.data?.type === 'add-section-at') {
         const doc = iframeRef.current?.contentDocument;
         if (!doc) return;
@@ -378,8 +576,8 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
         }
         const clone = doc.documentElement.cloneNode(true) as HTMLElement;
         clone.querySelectorAll('.yangu-editor-inject').forEach(el => el.remove());
-        clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected,.section-hover').forEach(el => {
-          el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected','section-hover');
+        clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected,.section-hover,.yangu-card-selected,.yangu-product-card').forEach(el => {
+          el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected','section-hover','yangu-card-selected','yangu-product-card');
         });
         clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
         clone.querySelectorAll('[data-yangu-node-id]').forEach(el => el.removeAttribute('data-yangu-node-id'));
@@ -394,7 +592,7 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [onHtmlChange, onSelectionChange]);
+  }, [onHtmlChange, onProductDeleteRequest, onProductEditRequest, onSelectionChange]);
 
   const getDoc = useCallback(() => iframeRef.current?.contentDocument, []);
 
@@ -403,8 +601,8 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
     if (!doc) return;
     const clone = doc.documentElement.cloneNode(true) as HTMLElement;
     clone.querySelectorAll('.yangu-editor-inject').forEach(el => el.remove());
-    clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected,.section-hover').forEach(el => {
-      el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected','section-hover');
+    clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected,.section-hover,.yangu-card-selected,.yangu-product-card').forEach(el => {
+      el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected','section-hover','yangu-card-selected','yangu-product-card');
     });
     clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
     clone.querySelectorAll('[data-yangu-node-id]').forEach(el => el.removeAttribute('data-yangu-node-id'));
@@ -513,7 +711,7 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewpor
         </div>
         <div className="flex items-center gap-0.5">
           <ToolButton icon={Image} label="Replace Image" onClick={() => { setPendingImageSrc(undefined); setImagePickerOpen(true); }} />
-          <ToolButton icon={Plus} label="Add Section" onClick={handleAddSection} />
+          {showAddSectionControl && <ToolButton icon={Plus} label="Add Section" onClick={handleAddSection} />}
           <ToolButton icon={Palette} label="Change Style" onClick={() => setColorPickerOpen(true)} />
           <ToolButton icon={ArrowUp} label="Move Up" onClick={handleMoveUp} />
           <ToolButton icon={ArrowDown} label="Move Down" onClick={handleMoveDown} />

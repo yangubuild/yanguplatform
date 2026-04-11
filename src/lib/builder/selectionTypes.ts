@@ -28,6 +28,15 @@ export interface CanvasSelection {
   elRect?: { top: number; left: number; width: number; height: number };
 }
 
+export interface ProductCardData {
+  nodeId: string;
+  sectionIndex?: number;
+  name: string;
+  description: string;
+  price: string;
+  imageSrc?: string;
+}
+
 /** Classify an element tag + context into a SelectionKind */
 export function classifyElement(tag: string, classList: string[], parentTag: string): SelectionKind {
   const t = tag.toUpperCase();
