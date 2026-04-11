@@ -642,6 +642,7 @@ function MenuForm({ schema, update, surfaceId, surfaceType }: FormProps & { surf
   const [itemDesc, setItemDesc] = useState("");
   const [itemPrice, setItemPrice] = useState("");
   const [itemPhoto, setItemPhoto] = useState("");
+  const [itemMedia, setItemMedia] = useState<MediaAsset[]>([]);
   const [itemAvailable, setItemAvailable] = useState(true);
   const [itemCatSelect, setItemCatSelect] = useState<number>(0);
   const [itemCtaAction, setItemCtaAction] = useState("order_now");
@@ -690,6 +691,7 @@ function MenuForm({ schema, update, surfaceId, surfaceType }: FormProps & { surf
     setItemDesc("");
     setItemPrice("");
     setItemPhoto("");
+    setItemMedia([]);
     setItemAvailable(true);
     setItemCatSelect(catIdx);
     setItemCtaAction("order_now");
@@ -708,6 +710,7 @@ function MenuForm({ schema, update, surfaceId, surfaceType }: FormProps & { surf
     setItemDesc(item.description);
     setItemPrice(item.price);
     setItemPhoto(item.image_url);
+    setItemMedia(item.media || []);
     setItemAvailable(item.is_available);
     setItemCatSelect(catIdx);
     setItemCtaAction(item.cta_action || "order_now");
@@ -720,7 +723,7 @@ function MenuForm({ schema, update, surfaceId, surfaceType }: FormProps & { surf
 
   const saveItem = () => {
     const updated = [...categories];
-    const newItem: MenuItem = { name: itemName, description: itemDesc, price: itemPrice, image_url: itemPhoto, is_available: itemAvailable, category_index: itemCatSelect, cta_action: itemCtaAction, button_text: itemButtonText, action_type: itemActionType, action_url: itemActionUrl, stock: itemStock };
+    const newItem: MenuItem = { name: itemName, description: itemDesc, price: itemPrice, image_url: itemMedia[0]?.src || itemPhoto, media: itemMedia, is_available: itemAvailable, category_index: itemCatSelect, cta_action: itemCtaAction, button_text: itemButtonText, action_type: itemActionType, action_url: itemActionUrl, stock: itemStock };
 
     // If category changed during edit, move the item
     if (editItemIndex !== null) {
