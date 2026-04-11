@@ -907,23 +907,18 @@ function MenuForm({ schema, update, surfaceId, surfaceType }: FormProps & { surf
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm font-medium">Item Photo</Label>
-              {itemPhoto && (
-                <div className="rounded-lg overflow-hidden border border-border mb-2">
-                  <img src={itemPhoto} alt={itemName} className="w-full h-40 object-cover" />
-                </div>
-              )}
-              <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" size="sm" className="gap-1.5" disabled>
-                  <span className="text-sm">✨</span> AI Image
-                </Button>
-                <BuilderMediaPicker
-                  value={{ type: itemPhoto ? "image" : "none", source: "url", url: itemPhoto, alt: itemName, fit: "cover" }}
-                  onChange={(v) => setItemPhoto(v.url || "")}
-                  surfaceId={surfaceId || ""}
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">Choose AI generation or upload your own (min 800x600px, max 5MB)</p>
+              <Label className="text-sm font-medium">Item Images</Label>
+              <MediaPickerList
+                items={itemMedia}
+                onChange={(next) => {
+                  setItemMedia(next);
+                  setItemPhoto(next[0]?.src || "");
+                }}
+                surfaceId={surfaceId || ""}
+                label="Images"
+                max={10}
+              />
+              <p className="text-xs text-muted-foreground">Add multiple images. First image is used as thumbnail.</p>
             </div>
             <div className="space-y-1.5">
               <Label className="text-sm font-medium">Stock</Label>
@@ -939,6 +934,7 @@ function MenuForm({ schema, update, surfaceId, surfaceType }: FormProps & { surf
                 onActionTypeChange={setItemActionType}
                 actionUrl={itemActionUrl}
                 onActionUrlChange={setItemActionUrl}
+                surfaceType={surfaceType}
               />
             </div>
             <div className="flex items-center gap-2">
