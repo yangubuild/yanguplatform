@@ -505,7 +505,6 @@ const EDIT_SCRIPT = `
   </script>
 `;
 
-export function EditablePreview({ html, onHtmlChange, onSelectionChange, viewportMode = "desktop" }: EditablePreviewProps) {
 export function EditablePreview({ html, onHtmlChange, onSelectionChange, onProductEditRequest, onProductDeleteRequest, showAddSectionControl = true, viewportMode = "desktop" }: EditablePreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
