@@ -26,6 +26,7 @@ import { TextEditorPanel } from "@/components/builder-new/TextEditorPanel";
 import { SectionEditorPanel } from "@/components/builder-new/SectionEditorPanel";
 import { MagicEditorToolbar } from "@/components/builder-new/MagicEditorToolbar";
 import { ProductCardEditorModal, ProductDeleteConfirmModal } from "@/components/builder-new/ProductCardEditorModal";
+import { ButtonStylePanel } from "@/components/builder-new/ButtonStylePanel";
 import { BuilderPublishModal } from "@/components/builder/BuilderPublishModal";
 import { CommerceConfigPanel } from "@/components/commerce/CommerceConfigPanel";
 import { BuilderSettingsDrawer, getThemeFromMetadata } from "@/components/builder/BuilderSettingsDrawer";
@@ -1371,6 +1372,7 @@ export default function EmenuNewEditor() {
       <ProductCardEditorModal
         open={!!editingProduct}
         product={editingProduct}
+        surfaceType={surfaceType}
         onClose={() => {
           setEditingProduct(null);
           clearIframeEditorDecorations();
