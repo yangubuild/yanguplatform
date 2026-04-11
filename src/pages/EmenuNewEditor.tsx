@@ -25,6 +25,7 @@ import { EmenuEditorPanel } from "@/components/builder-new/EmenuEditorPanel";
 import { TextEditorPanel } from "@/components/builder-new/TextEditorPanel";
 import { SectionEditorPanel } from "@/components/builder-new/SectionEditorPanel";
 import { MagicEditorToolbar } from "@/components/builder-new/MagicEditorToolbar";
+import { ProductCardEditorModal, ProductDeleteConfirmModal } from "@/components/builder-new/ProductCardEditorModal";
 import { BuilderPublishModal } from "@/components/builder/BuilderPublishModal";
 import { CommerceConfigPanel } from "@/components/commerce/CommerceConfigPanel";
 import { BuilderSettingsDrawer, getThemeFromMetadata } from "@/components/builder/BuilderSettingsDrawer";
@@ -33,7 +34,7 @@ import { useBuilderEditor } from "@/hooks/useBuilderEditor";
 import { useEditorHistory } from "@/hooks/useEditorHistory";
 import { useDebounce } from "@/hooks/useDebounce";
 import { getSellerMode } from "@/lib/builder/sellerModes";
-import type { CanvasSelection } from "@/lib/builder/selectionTypes";
+import type { CanvasSelection, ProductCardData } from "@/lib/builder/selectionTypes";
 import type { BuilderSurfaceType } from "@/types/builder";
 import { toast } from "sonner";
 
@@ -48,6 +49,63 @@ function isLightHex(hex: string): boolean {
   return (r * 299 + g * 587 + b * 114) / 1000 > 155;
 }
 
+const PRODUCT_PRICE_TOKEN_PATTERN = /[$€£₦]|\b(?:UGX|USD|EUR|GBP|KES|TZS|AED|R)\b/i;
+
+function isProductPriceText(text: string): boolean {
+  const compact = text.replace(/\s+/g, " ").trim();
+  return compact.length > 0 && compact.length < 24 && PRODUCT_PRICE_TOKEN_PATTERN.test(compact) && /\d/.test(compact);
+}
+
+function getProductNameElement(card: ParentNode): HTMLElement | null {
+  const candidates = Array.from(card.querySelectorAll<HTMLElement>("h1,h2,h3,h4,h5,h6,strong,[style*='font-weight:700'],[style*='font-weight:600'],[style*='font-weight: 700'],[style*='font-weight: 600']"));
+  return candidates.find((candidate) => {
+    const text = candidate.textContent?.replace(/\s+/g, " ").trim() || "";
+    return Boolean(text) && !isProductPriceText(text);
+  }) || null;
+}
+
+function getProductPriceElement(card: ParentNode): HTMLElement | null {
+  const candidates = Array.from(card.querySelectorAll<HTMLElement>("span,p,div,strong"));
+  return candidates.find((candidate) => {
+    if (candidate.closest(".yangu-product-controls")) return false;
+    if (candidate.querySelector("button,a,h1,h2,h3,h4,h5,h6,img")) return false;
+    const text = candidate.textContent?.replace(/\s+/g, " ").trim() || "";
+    return isProductPriceText(text);
+  }) || null;
+}
+
+function getProductDescriptionElement(
+  card: ParentNode,
+  nameElement?: Element | null,
+  priceElement?: Element | null,
+): HTMLElement | null {
+  const nameText = nameElement?.textContent?.replace(/\s+/g, " ").trim() || "";
+  const candidates = Array.from(card.querySelectorAll<HTMLElement>("p,span,div"));
+
+  return candidates.find((candidate) => {
+    if (candidate === nameElement || candidate === priceElement) return false;
+    if (candidate.closest(".yangu-product-controls")) return false;
+    if (candidate.querySelector("button,a,h1,h2,h3,h4,h5,h6,img")) return false;
+    const text = candidate.textContent?.replace(/\s+/g, " ").trim() || "";
+    if (!text || text === nameText || isProductPriceText(text) || text.length > 220) return false;
+    return true;
+  }) || null;
+}
+
+function formatProductPrice(nextPrice: string, existingPrice: string): string {
+  const trimmed = nextPrice.trim();
+  if (!trimmed) return "";
+  if (isProductPriceText(trimmed)) return trimmed;
+
+  const existing = existingPrice.trim();
+  const prefix = existing.match(/^[^\d]+/)?.[0] || "";
+  const suffix = existing.match(/[A-Za-z]{2,4}$/)?.[0] || "";
+
+  if (prefix) return `${prefix}${trimmed}`;
+  if (suffix) return `${trimmed} ${suffix}`;
+  return trimmed;
+}
+
 export default function EmenuNewEditor() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
   const navigate = useNavigate();
@@ -59,6 +117,8 @@ export default function EmenuNewEditor() {
   const adaChat = useAdaBuilderChat();
   const [previewViewport, setPreviewViewport] = useState<PreviewViewport>("desktop");
   const [canvasSelection, setCanvasSelection] = useState<CanvasSelection | null>(null);
+  const [editingProduct, setEditingProduct] = useState<ProductCardData | null>(null);
+  const [pendingProductDelete, setPendingProductDelete] = useState<ProductCardData | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showLeaveWarning, setShowLeaveWarning] = useState(false);
@@ -309,6 +369,12 @@ export default function EmenuNewEditor() {
       || null;
   }, [canvasSelection?.nodeId]);
 
+  const clearIframeEditorDecorations = useCallback(() => {
+    const iframe = getIframe();
+    iframe?.contentWindow?.postMessage({ type: "clear-editor-selection" }, "*");
+    setCanvasSelection(null);
+  }, [getIframe]);
+
   const pushUpdate = useCallback((doc: Document, _iframe: HTMLIFrameElement | null) => {
     if (!doc) return;
     const clone = doc.documentElement.cloneNode(true) as HTMLElement;
@@ -328,6 +394,95 @@ export default function EmenuNewEditor() {
     setHasUnsavedChanges(true);
     pushState(html);
   }, [pushState]);
+
+  const openProductEditor = useCallback((product: ProductCardData) => {
+    setCanvasSelection(null);
+    setPendingProductDelete(null);
+    setEditingProduct(product);
+  }, []);
+
+  const openProductDeleteConfirm = useCallback((product: ProductCardData) => {
+    setCanvasSelection(null);
+    setEditingProduct(null);
+    setPendingProductDelete(product);
+  }, []);
+
+  const handleProductSave = useCallback((product: ProductCardData) => {
+    const iframe = getIframe();
+    const doc = iframe?.contentDocument;
+    if (!doc) return;
+
+    const card = doc.querySelector(`[data-yangu-node-id="${product.nodeId}"]`) as HTMLElement | null;
+    if (!card) {
+      toast.error("Product card not found.");
+      return;
+    }
+
+    const nameElement = getProductNameElement(card);
+    if (!nameElement) {
+      toast.error("This product card cannot be edited yet.");
+      return;
+    }
+
+    nameElement.textContent = product.name.trim() || nameElement.textContent || "Product";
+
+    const priceElement = getProductPriceElement(card);
+    if (priceElement) {
+      if (product.price.trim()) {
+        priceElement.textContent = formatProductPrice(product.price, priceElement.textContent || product.price);
+      }
+    } else if (product.price.trim() && nameElement.parentElement) {
+      const createdPrice = doc.createElement("span");
+      createdPrice.textContent = formatProductPrice(product.price, product.price);
+      createdPrice.style.fontWeight = "700";
+      createdPrice.style.display = "inline-block";
+      createdPrice.style.marginTop = "8px";
+      nameElement.parentElement.appendChild(createdPrice);
+    }
+
+    const descriptionElement = getProductDescriptionElement(card, nameElement, priceElement);
+    const trimmedDescription = product.description.trim();
+    if (descriptionElement) {
+      if (trimmedDescription) descriptionElement.textContent = trimmedDescription;
+      else descriptionElement.remove();
+    } else if (trimmedDescription && nameElement.parentElement) {
+      const createdDescription = doc.createElement("p");
+      createdDescription.textContent = trimmedDescription;
+      createdDescription.style.fontSize = "0.85rem";
+      createdDescription.style.opacity = "0.74";
+      createdDescription.style.lineHeight = "1.6";
+      createdDescription.style.marginTop = "8px";
+
+      if (priceElement && priceElement.parentElement === nameElement.parentElement) {
+        nameElement.parentElement.insertBefore(createdDescription, priceElement);
+      } else {
+        nameElement.parentElement.appendChild(createdDescription);
+      }
+    }
+
+    pushUpdate(doc, iframe);
+    setEditingProduct(null);
+    clearIframeEditorDecorations();
+    toast.success("Product updated.");
+  }, [clearIframeEditorDecorations, getIframe, pushUpdate]);
+
+  const handleProductDelete = useCallback((product: ProductCardData) => {
+    const iframe = getIframe();
+    const doc = iframe?.contentDocument;
+    if (!doc) return;
+
+    const card = doc.querySelector(`[data-yangu-node-id="${product.nodeId}"]`) as HTMLElement | null;
+    if (!card) {
+      toast.error("Product card not found.");
+      return;
+    }
+
+    card.remove();
+    pushUpdate(doc, iframe);
+    setPendingProductDelete(null);
+    clearIframeEditorDecorations();
+    toast.success("Product removed.");
+  }, [clearIframeEditorDecorations, getIframe, pushUpdate]);
 
 
   // ─── Color picker state (opened from actions, applies to selected element) ───
@@ -414,6 +569,17 @@ export default function EmenuNewEditor() {
     switch (action) {
       // ── Section & element actions ──
       case "add_section":
+        if (!doc) break;
+        const newSection = doc.createElement("section");
+        newSection.style.cssText = "padding:72px 24px;text-align:center;";
+        newSection.innerHTML = `<div style="max-width:900px;margin:0 auto;"><h2 style="font-size:1.8rem;font-weight:700;margin-bottom:12px;" contenteditable="true">New Section</h2><p style="color:#666;" contenteditable="true">Click to edit this section content.</p></div>`;
+        newSection.classList.add("section-hover");
+        const footer = doc.querySelector("footer");
+        if (footer) footer.parentElement?.insertBefore(newSection, footer);
+        else doc.body.appendChild(newSection);
+        pushUpdate(doc, iframe);
+        toast.success("Section added!");
+        break;
       case "move_up":
       case "move_down":
       case "remove_section":
@@ -1099,6 +1265,9 @@ export default function EmenuNewEditor() {
             html={liveHtml}
             onHtmlChange={handleHtmlChange}
             onSelectionChange={handleCanvasSelection}
+            onProductEditRequest={openProductEditor}
+            onProductDeleteRequest={openProductDeleteConfirm}
+            showAddSectionControl={false}
             viewportMode={previewViewport}
           />
 
@@ -1197,6 +1366,26 @@ export default function EmenuNewEditor() {
         open={bgImagePickerOpen}
         onOpenChange={setBgImagePickerOpen}
         onSelect={applyBgImage}
+      />
+
+      <ProductCardEditorModal
+        open={!!editingProduct}
+        product={editingProduct}
+        onClose={() => {
+          setEditingProduct(null);
+          clearIframeEditorDecorations();
+        }}
+        onSave={handleProductSave}
+      />
+
+      <ProductDeleteConfirmModal
+        open={!!pendingProductDelete}
+        product={pendingProductDelete}
+        onClose={() => {
+          setPendingProductDelete(null);
+          clearIframeEditorDecorations();
+        }}
+        onConfirm={handleProductDelete}
       />
 
       {/* Publish Modal — flush save before publish */}
