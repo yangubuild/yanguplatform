@@ -678,6 +678,10 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
     setItemAvailable(true);
     setItemCatSelect(catIdx);
     setItemCtaAction("order_now");
+    setItemButtonText("");
+    setItemActionType("checkout");
+    setItemActionUrl("");
+    setItemStock("");
     setShowItemDialog(true);
   };
 
@@ -692,6 +696,10 @@ function MenuForm({ schema, update, surfaceId }: FormProps & { surfaceId?: strin
     setItemAvailable(item.is_available);
     setItemCatSelect(catIdx);
     setItemCtaAction(item.cta_action || "order_now");
+    setItemButtonText(item.button_text || "");
+    setItemActionType(item.action_type || "checkout");
+    setItemActionUrl(item.action_url || "");
+    setItemStock(item.stock || "");
     setShowItemDialog(true);
   };
 
