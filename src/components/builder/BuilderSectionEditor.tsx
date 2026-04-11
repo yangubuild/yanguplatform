@@ -694,9 +694,9 @@ function MenuForm({ schema, update, surfaceId, surfaceType }: FormProps & { surf
     setItemMedia([]);
     setItemAvailable(true);
     setItemCatSelect(catIdx);
-    setItemCtaAction("order_now");
-    setItemButtonText("");
-    setItemActionType("checkout");
+    setItemCtaAction(stDefaults.ctaAction);
+    setItemButtonText(stDefaults.buttonText);
+    setItemActionType(stDefaults.actionType);
     setItemActionUrl("");
     setItemStock("");
     setShowItemDialog(true);
