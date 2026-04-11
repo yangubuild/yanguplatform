@@ -1245,7 +1245,7 @@ export function BuilderSectionEditor({
       {/* Form */}
       <div className="flex-1 p-4 space-y-4">
         {FormComponent ? (
-          <FormComponent schema={localSchema} update={update} surfaceId={surfaceId} />
+          <FormComponent schema={localSchema} update={update} surfaceId={surfaceId} surfaceType={surfaceType} />
         ) : (
           /* GenericSectionEditor fallback — detect media fields automatically */
           <>
