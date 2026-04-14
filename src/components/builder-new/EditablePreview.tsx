@@ -357,7 +357,23 @@ const EDIT_SCRIPT = `
         el.dataset.sectionIdx = idx;
       });
 
+      console.log('[YANGU] Product controls enabled:', !!window.__YANGU_ENABLE_PRODUCT_CONTROLS);
       if (window.__YANGU_ENABLE_PRODUCT_CONTROLS) {
+        var allCards = document.querySelectorAll('div,article,li');
+        console.log('[YANGU] Scanning', allCards.length, 'elements for product cards');
+        var foundCount = 0;
+        allCards.forEach(function(card) {
+          var img = card.querySelector('img');
+          var name = getProductNameEl(card);
+          var price = getProductPriceEl(card);
+          if (img && name && price) {
+            var inNav = card.closest('nav,header,footer');
+            var rect = card.getBoundingClientRect();
+            console.log('[YANGU] Candidate:', (name.textContent||'').trim(), 'inNav:', !!inNav, 'w:', rect.width, 'h:', rect.height);
+            if (!inNav && rect.width >= 140 && rect.height >= 140) foundCount++;
+          }
+        });
+        console.log('[YANGU] Found', foundCount, 'product cards');
         injectProductControls();
         var productObserver = new MutationObserver(function() {
           injectProductControls();
