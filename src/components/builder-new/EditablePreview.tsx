@@ -60,7 +60,7 @@ const EDIT_STYLES = `
   </style>
 `;
 
-const EDIT_SCRIPT = `
+const EDIT_SCRIPT = String.raw`
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       var nodeIdCounter = 0;
