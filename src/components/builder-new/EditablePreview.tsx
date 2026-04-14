@@ -373,30 +373,25 @@ const EDIT_SCRIPT = `
         el.dataset.sectionIdx = idx;
       });
 
-      console.log('[YANGU] Product controls enabled:', !!window.__YANGU_ENABLE_PRODUCT_CONTROLS);
       if (window.__YANGU_ENABLE_PRODUCT_CONTROLS) {
-        var allCards = document.querySelectorAll('div,article,li');
-        console.log('[YANGU] Scanning', allCards.length, 'elements for product cards');
-        var foundCount = 0;
-        allCards.forEach(function(card) {
-          var img = card.querySelector('img');
-          if (!img) return;
-          var name = getProductNameEl(card);
-          var price = getProductPriceEl(card);
-          console.log('[YANGU] Card with img:', card.tagName, 'name:', !!name, 'price:', !!price, 'text:', (card.textContent||'').substring(0,60));
-          if (img && name && price) {
-            var inNav = card.closest('nav,header,footer');
-            var rect = card.getBoundingClientRect();
-            console.log('[YANGU] Candidate:', (name.textContent||'').trim(), 'inNav:', !!inNav, 'w:', rect.width, 'h:', rect.height);
-            if (!inNav && rect.width >= 140 && rect.height >= 140) foundCount++;
-          }
-        });
-        console.log('[YANGU] Found', foundCount, 'product cards');
         injectProductControls();
         var productObserver = new MutationObserver(function() {
           injectProductControls();
         });
         productObserver.observe(document.body, { childList: true, subtree: true });
+
+        // Remove legacy section-level CTA buttons (Order Now, Buy Now, etc.)
+        var legacyLabels = ['order now','buy now','order','shop now','add to cart'];
+        document.querySelectorAll('a, button').forEach(function(el) {
+          if (el.closest('.yangu-product-controls') || el.classList.contains('yangu-product-cta')) return;
+          var section = el.closest('section');
+          if (!section) return;
+          var text = (el.textContent || '').trim().toLowerCase();
+          if (legacyLabels.indexOf(text) !== -1) {
+            el.style.display = 'none';
+            el.classList.add('yangu-legacy-cta-hidden');
+          }
+        });
       }
 
       // Hero image click — still allow image replacement via image-click message
