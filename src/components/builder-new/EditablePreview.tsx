@@ -120,17 +120,16 @@ const EDIT_SCRIPT = `
       }
 
       function isPriceText(text) {
-        var compact = (text || '').replace(/\\s+/g, ' ').trim();
+        var compact = (text || '').replace(/\s+/g, ' ').trim();
         if (!compact || compact.length > 30) return false;
-        var hasCurrency = /[\\$\\€\\£\\₦]/.test(compact) || /(?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR)/i.test(compact);
-        return hasCurrency && /\\d/.test(compact);
+        var hasCurrency = /[$€£₦]/.test(compact) || /(?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR)/i.test(compact);
+        return hasCurrency && /\d/.test(compact);
       }
 
       function getProductNameEl(card) {
-        var selectors = 'h1,h2,h3,h4,h5,h6,strong';
-        var candidates = card.querySelectorAll(selectors);
+        var candidates = card.querySelectorAll('h1,h2,h3,h4,h5,h6,strong');
         for (var i = 0; i < candidates.length; i++) {
-          var text = (candidates[i].textContent || '').replace(/\\s+/g, ' ').trim();
+          var text = (candidates[i].textContent || '').replace(/\s+/g, ' ').trim();
           if (text && text.length > 1 && !isPriceText(text)) return candidates[i];
         }
         var styled = card.querySelectorAll('span,div,p');
@@ -140,7 +139,7 @@ const EDIT_SCRIPT = `
           var cs = window.getComputedStyle(el);
           var fw = parseInt(cs.fontWeight, 10);
           if (fw < 600) continue;
-          var t = (el.textContent || '').replace(/\\s+/g, ' ').trim();
+          var t = (el.textContent || '').replace(/\s+/g, ' ').trim();
           if (t && t.length > 1 && t.length < 60 && !isPriceText(t)) return el;
         }
         return null;
@@ -153,9 +152,9 @@ const EDIT_SCRIPT = `
           var candidate = candidates[i];
           if (candidate.closest('.yangu-product-controls')) continue;
           if (candidate.querySelector('img')) continue;
-          var text = (candidate.textContent || '').replace(/\\s+/g, ' ').trim();
+          var text = (candidate.textContent || '').replace(/\s+/g, ' ').trim();
           if (!isPriceText(text)) continue;
-          if (!best || text.length < (best.textContent || '').replace(/\\s+/g, ' ').trim().length) {
+          if (!best || text.length < (best.textContent || '').replace(/\s+/g, ' ').trim().length) {
             best = candidate;
           }
         }
