@@ -262,38 +262,7 @@ const EDIT_SCRIPT = String.raw`
             card.appendChild(controls);
           }
 
-          // Inject CTA button (bottom of card) if not already present
-          if (!card.querySelector('.yangu-product-cta')) {
-            var priceEl = getProductPriceEl(card);
-            var nameEl = getProductNameEl(card);
-            if (!nameEl) return;
-
-            var ctaBtn = document.createElement('button');
-            ctaBtn.type = 'button';
-            ctaBtn.className = 'yangu-product-cta yangu-editor-inject';
-            ctaBtn.textContent = '+ Add';
-            ctaBtn.style.cssText = 'margin-top:8px;padding:8px 0;border-radius:8px;border:2px solid #10b981;background:transparent;color:#10b981;font-size:13px;font-weight:700;cursor:pointer;width:100%;transition:all 0.2s;letter-spacing:0.02em;display:block;';
-            ctaBtn.onmouseover = function() { ctaBtn.style.background = '#10b981'; ctaBtn.style.color = '#fff'; };
-            ctaBtn.onmouseout = function() { ctaBtn.style.background = 'transparent'; ctaBtn.style.color = '#10b981'; };
-            ctaBtn.onclick = function(e) {
-              e.preventDefault();
-              e.stopPropagation();
-              ctaBtn.textContent = '\\u2713 Added';
-              ctaBtn.style.background = '#059669';
-              ctaBtn.style.color = '#fff';
-              ctaBtn.style.borderColor = '#059669';
-              setTimeout(function() {
-                ctaBtn.textContent = '+ Add';
-                ctaBtn.style.background = 'transparent';
-                ctaBtn.style.color = '#10b981';
-                ctaBtn.style.borderColor = '#10b981';
-              }, 1200);
-            };
-
-            // Insert after price or at end of content container
-            var insertTarget = priceEl ? (priceEl.parentElement || card) : (nameEl.parentElement || card);
-            insertTarget.appendChild(ctaBtn);
-          }
+          // No CTA button in editor — buyer-facing buttons belong on the live/public page only
         });
       }
 

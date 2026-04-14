@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { ChevronLeft, ChevronRight, Plus, Trash2, ImageIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Trash2, ImageIcon, Sparkles, Upload, Search, Loader2, X } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ItemCtaSelector, getDefaultCtaForSurface } from "@/components/builder/editors/ItemCtaSelector";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import type { ProductCardData } from "@/lib/builder/selectionTypes";
 
 interface ProductCardEditorModalProps {
@@ -22,6 +25,14 @@ interface ProductDeleteConfirmModalProps {
   onConfirm: (product: ProductCardData) => void;
 }
 
+interface StockResult {
+  id: string;
+  thumbUrl: string;
+  fullUrl: string;
+  author: string;
+  sourceUrl: string;
+}
+
 export function ProductCardEditorModal({ open, product, onClose, onSave, surfaceType }: ProductCardEditorModalProps) {
   const [draft, setDraft] = useState<ProductCardData | null>(product);
   const [images, setImages] = useState<string[]>([]);
@@ -32,6 +43,12 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
   const [actionUrl, setActionUrl] = useState("");
   const [stock, setStock] = useState("");
 
+  // AI description state
+  const [generatingDesc, setGeneratingDesc] = useState(false);
+
+  // Image picker state
+  const [imagePickerOpen, setImagePickerOpen] = useState(false);
+
   useEffect(() => {
     setDraft(product);
     if (product?.imageSrc) {
@@ -40,8 +57,6 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
       setImages([]);
     }
     setActiveImageIdx(0);
-
-    // Set surface-aware defaults
     const defaults = getDefaultCtaForSurface(surfaceType);
     setCtaValue(defaults.ctaAction);
     setButtonText(defaults.buttonText);
@@ -61,16 +76,42 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
 
   if (!open || !draft) return null;
 
-  const handleAddImage = () => {
-    const url = prompt("Image URL:");
-    if (url?.trim()) {
-      setImages((prev) => [...prev, url.trim()]);
-    }
+  const handleAddImage = (url: string) => {
+    if (images.length >= 10) { toast.info("Max 10 images"); return; }
+    setImages((prev) => [...prev, url]);
+    setActiveImageIdx(images.length); // show new image
+    setImagePickerOpen(false);
   };
 
   const handleRemoveImage = (idx: number) => {
     setImages((prev) => prev.filter((_, i) => i !== idx));
     if (activeImageIdx >= images.length - 1) setActiveImageIdx(Math.max(0, images.length - 2));
+  };
+
+  const handleGenerateDescription = async () => {
+    if (!draft.name.trim()) { toast.info("Enter a product name first"); return; }
+    setGeneratingDesc(true);
+    try {
+      const res = await supabase.functions.invoke("ada-chat", {
+        body: {
+          messages: [
+            { role: "system", content: "You are a product copywriter. Write a short, appealing 1-2 sentence product description. Return ONLY the description text, no quotes." },
+            { role: "user", content: `Write a short product description for: ${draft.name}${draft.price ? ` priced at ${draft.price}` : ""}` },
+          ],
+        },
+      });
+      const text = res.data?.choices?.[0]?.message?.content || res.data?.content || "";
+      if (text.trim()) {
+        setDraft((prev) => prev ? { ...prev, description: text.trim() } : prev);
+        toast.success("Description generated!");
+      } else {
+        toast.error("No description returned");
+      }
+    } catch {
+      toast.error("Failed to generate description");
+    } finally {
+      setGeneratingDesc(false);
+    }
   };
 
   const handleSave = () => {
@@ -82,83 +123,95 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
-      <div
-        className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-background shadow-2xl"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="border-b border-border px-6 py-4">
-          <h2 className="text-lg font-semibold text-foreground">Edit Product</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Update product details, images, and button settings.</p>
-        </div>
-
-        <div className="space-y-4 px-6 py-5">
-          {/* Image Gallery */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Images</Label>
-            {images.length > 0 ? (
-              <div className="relative overflow-hidden rounded-xl border border-border bg-muted/20">
-                <img
-                  src={images[activeImageIdx] || images[0]}
-                  alt={draft.name || "Product"}
-                  className="h-40 w-full object-cover"
-                />
-                {images.length > 1 && (
-                  <>
-                    <button
-                      onClick={() => setActiveImageIdx((prev) => (prev - 1 + images.length) % images.length)}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 p-1 rounded-lg bg-black/50 text-white hover:bg-black/70"
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => setActiveImageIdx((prev) => (prev + 1) % images.length)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-lg bg-black/50 text-white hover:bg-black/70"
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </button>
-                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-                      {images.map((_, idx) => (
-                        <span
-                          key={idx}
-                          className={`w-2 h-2 rounded-full ${idx === activeImageIdx ? "bg-white" : "bg-white/40"}`}
-                        />
-                      ))}
-                    </div>
-                  </>
-                )}
-                <button
-                  onClick={() => handleRemoveImage(activeImageIdx)}
-                  className="absolute top-2 right-2 p-1 rounded-lg bg-black/50 text-white hover:bg-destructive"
-                  title="Remove image"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ) : (
-              <div className="h-28 rounded-xl border-2 border-dashed border-border flex items-center justify-center text-muted-foreground">
-                <ImageIcon className="h-6 w-6 mr-2" /> No images
-              </div>
-            )}
-            <Button variant="outline" size="sm" onClick={handleAddImage} className="gap-1">
-              <Plus className="h-3.5 w-3.5" /> Add Image
-            </Button>
+    <>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
+        <div
+          className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-background shadow-2xl"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="border-b border-border px-6 py-4">
+            <h2 className="text-lg font-semibold text-foreground">Edit Product</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Update product details, images, and button settings.</p>
           </div>
 
-          {/* Name */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Item Name</Label>
-            <Input
-              value={draft.name}
-              onChange={(e) => setDraft((prev) => prev ? { ...prev, name: e.target.value } : prev)}
-              placeholder="Product name"
-            />
-          </div>
-
-          {/* Description + Price */}
-          <div className="grid gap-4 md:grid-cols-[1fr_140px]">
+          <div className="space-y-4 px-6 py-5">
+            {/* Image Gallery */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Description</Label>
+              <Label className="text-sm font-medium">Images</Label>
+              {images.length > 0 ? (
+                <div className="relative overflow-hidden rounded-xl border border-border bg-muted/20">
+                  <img
+                    src={images[activeImageIdx] || images[0]}
+                    alt={draft.name || "Product"}
+                    className="h-40 w-full object-cover"
+                  />
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        onClick={() => setActiveImageIdx((prev) => (prev - 1 + images.length) % images.length)}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 p-1 rounded-lg bg-black/50 text-white hover:bg-black/70"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => setActiveImageIdx((prev) => (prev + 1) % images.length)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-lg bg-black/50 text-white hover:bg-black/70"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                        {images.map((_, idx) => (
+                          <span
+                            key={idx}
+                            className={`w-2 h-2 rounded-full ${idx === activeImageIdx ? "bg-white" : "bg-white/40"}`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                  <button
+                    onClick={() => handleRemoveImage(activeImageIdx)}
+                    className="absolute top-2 right-2 p-1 rounded-lg bg-black/50 text-white hover:bg-destructive"
+                    title="Remove image"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <div className="h-28 rounded-xl border-2 border-dashed border-border flex items-center justify-center text-muted-foreground">
+                  <ImageIcon className="h-6 w-6 mr-2" /> No images
+                </div>
+              )}
+              <Button variant="outline" size="sm" onClick={() => setImagePickerOpen(true)} className="gap-1">
+                <Plus className="h-3.5 w-3.5" /> Add Image
+              </Button>
+            </div>
+
+            {/* Name */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Item Name</Label>
+              <Input
+                value={draft.name}
+                onChange={(e) => setDraft((prev) => prev ? { ...prev, name: e.target.value } : prev)}
+                placeholder="Product name"
+              />
+            </div>
+
+            {/* Description + AI */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Description</Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleGenerateDescription}
+                  disabled={generatingDesc}
+                  className="h-7 text-xs gap-1 text-accent hover:text-accent"
+                >
+                  {generatingDesc ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                  Generate with AI
+                </Button>
+              </div>
               <Textarea
                 value={draft.description}
                 onChange={(e) => setDraft((prev) => prev ? { ...prev, description: e.target.value } : prev)}
@@ -166,50 +219,237 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
                 rows={3}
               />
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Price</Label>
-              <Input
-                value={draft.price}
-                onChange={(e) => setDraft((prev) => prev ? { ...prev, price: e.target.value } : prev)}
-                placeholder="Price"
-              />
-              <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Stock</Label>
+
+            {/* Price + Stock */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Price</Label>
+                <Input
+                  value={draft.price}
+                  onChange={(e) => setDraft((prev) => prev ? { ...prev, price: e.target.value } : prev)}
+                  placeholder="Price"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Stock</Label>
                 <Input
                   value={stock}
                   onChange={(e) => setStock(e.target.value)}
                   placeholder="Unlimited"
-                  className="h-8 text-xs"
                 />
               </div>
             </div>
+
+            {/* Button Config Section */}
+            <div className="space-y-2 rounded-xl border border-border bg-muted/20 p-4">
+              <h4 className="text-sm font-semibold text-foreground">Button Config</h4>
+              <ItemCtaSelector
+                value={ctaValue}
+                onChange={setCtaValue}
+                buttonText={buttonText}
+                onButtonTextChange={setButtonText}
+                actionType={actionType}
+                onActionTypeChange={setActionType}
+                actionUrl={actionUrl}
+                onActionUrlChange={setActionUrl}
+                surfaceType={surfaceType}
+              />
+            </div>
           </div>
 
-          {/* Button Config Section */}
-          <div className="space-y-2 rounded-xl border border-border bg-muted/20 p-4">
-            <h4 className="text-sm font-semibold text-foreground">Button Config</h4>
-            <ItemCtaSelector
-              value={ctaValue}
-              onChange={setCtaValue}
-              buttonText={buttonText}
-              onButtonTextChange={setButtonText}
-              actionType={actionType}
-              onActionTypeChange={setActionType}
-              actionUrl={actionUrl}
-              onActionUrlChange={setActionUrl}
-              surfaceType={surfaceType}
-            />
+          <div className="flex items-center justify-end gap-2 border-t border-border px-6 py-4">
+            <Button variant="outline" onClick={onClose}>Cancel</Button>
+            <Button onClick={handleSave} disabled={!draft.name.trim()}>Save Item</Button>
           </div>
         </div>
+      </div>
 
-        <div className="flex items-center justify-end gap-2 border-t border-border px-6 py-4">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave} disabled={!draft.name.trim()}>Save Item</Button>
+      {/* Image Picker Overlay */}
+      {imagePickerOpen && (
+        <ProductImagePicker
+          onSelect={handleAddImage}
+          onClose={() => setImagePickerOpen(false)}
+          productName={draft.name}
+        />
+      )}
+    </>
+  );
+}
+
+/* ─── Image Picker (AI / Upload / Stock) ─── */
+
+function ProductImagePicker({ onSelect, onClose, productName }: { onSelect: (url: string) => void; onClose: () => void; productName: string }) {
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+      <div className="w-full max-w-lg max-h-[80vh] flex flex-col rounded-2xl border border-border bg-background shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between border-b border-border px-5 py-3">
+          <h3 className="text-sm font-semibold text-foreground">Add Product Image</h3>
+          <button onClick={onClose} className="p-1 rounded hover:bg-muted"><X className="h-4 w-4 text-muted-foreground" /></button>
         </div>
+        <Tabs defaultValue="ai" className="flex-1 flex flex-col min-h-0 p-4">
+          <TabsList className="w-full h-9 shrink-0">
+            <TabsTrigger value="ai" className="text-xs gap-1.5 flex-1">
+              <Sparkles className="h-3.5 w-3.5" /> AI Generate
+            </TabsTrigger>
+            <TabsTrigger value="upload" className="text-xs gap-1.5 flex-1">
+              <Upload className="h-3.5 w-3.5" /> Upload
+            </TabsTrigger>
+            <TabsTrigger value="stock" className="text-xs gap-1.5 flex-1">
+              <Search className="h-3.5 w-3.5" /> Stock
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="ai" className="mt-3 flex-1">
+            <AiImagePane onSelect={onSelect} defaultPrompt={productName} />
+          </TabsContent>
+          <TabsContent value="upload" className="mt-3 flex-1">
+            <UploadImagePane onSelect={onSelect} />
+          </TabsContent>
+          <TabsContent value="stock" className="mt-3 flex-1 flex flex-col min-h-0">
+            <StockImagePane onSelect={onSelect} defaultQuery={productName} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
 }
+
+function AiImagePane({ onSelect, defaultPrompt }: { onSelect: (url: string) => void; defaultPrompt: string }) {
+  const [prompt, setPrompt] = useState(defaultPrompt ? `Professional photo of ${defaultPrompt}` : "");
+  const [generating, setGenerating] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+
+  const generate = async () => {
+    if (!prompt.trim()) return;
+    setGenerating(true);
+    setPreview(null);
+    try {
+      const res = await supabase.functions.invoke("ada-generate-image", { body: { prompt: prompt.trim(), model: "google/gemini-2.5-flash-image" } });
+      if (res.error) throw new Error(res.error.message);
+      const data = res.data as any;
+      let url: string | null = data?.image_url || data?.url || data?.images?.[0]?.url || null;
+      if (!url && data?.choices?.[0]?.message?.images?.[0]?.image_url?.url) {
+        url = data.choices[0].message.images[0].image_url.url;
+      }
+      if (!url) throw new Error("No image returned");
+      setPreview(url);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Generation failed");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-2">
+        <Input value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Describe the image..." className="flex-1 text-sm" onKeyDown={(e) => e.key === "Enter" && generate()} />
+        <Button size="sm" onClick={generate} disabled={generating || !prompt.trim()} className="gap-1.5">
+          {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+        </Button>
+      </div>
+      {generating && <div className="flex items-center justify-center py-10"><Loader2 className="h-8 w-8 animate-spin text-accent" /></div>}
+      {preview && !generating && (
+        <div className="space-y-2">
+          <img src={preview} alt="AI generated" className="w-full max-h-[250px] object-contain rounded-lg border border-border" />
+          <div className="flex gap-2 justify-end">
+            <Button variant="outline" size="sm" onClick={generate}>Regenerate</Button>
+            <Button size="sm" onClick={() => onSelect(preview)}>Use This</Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function UploadImagePane({ onSelect }: { onSelect: (url: string) => void }) {
+  const [uploading, setUploading] = useState(false);
+
+  const handleFile = useCallback(async (file: File) => {
+    setUploading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { toast.error("Please sign in"); return; }
+      const path = `${session.user.id}/editor/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+      const { error } = await supabase.storage.from("builder-media").upload(path, file, { contentType: file.type });
+      if (error) throw error;
+      const { data: pub } = supabase.storage.from("builder-media").getPublicUrl(path);
+      onSelect(pub.publicUrl);
+      toast.success("Uploaded!");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }, [onSelect]);
+
+  return (
+    <div className="border-2 border-dashed border-border rounded-xl p-8 text-center">
+      {uploading ? (
+        <Loader2 className="h-8 w-8 animate-spin mx-auto text-accent" />
+      ) : (
+        <>
+          <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-3" />
+          <label className="cursor-pointer">
+            <span className="text-sm font-medium text-accent hover:underline">Choose image</span>
+            <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
+          </label>
+          <p className="text-xs text-muted-foreground mt-2">PNG, JPG, WebP · Max 20MB</p>
+        </>
+      )}
+    </div>
+  );
+}
+
+function StockImagePane({ onSelect, defaultQuery }: { onSelect: (url: string) => void; defaultQuery: string }) {
+  const [query, setQuery] = useState(defaultQuery || "");
+  const [results, setResults] = useState<StockResult[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const search = async (q: string) => {
+    if (!q.trim()) return;
+    setLoading(true);
+    setQuery(q);
+    try {
+      const { data, error } = await supabase.functions.invoke("builder-stock-search", { body: { query: q, mediaType: "image", page: 1 } });
+      if (error) throw error;
+      if (data?.ok) setResults(data.results || []);
+      else toast.error("Search failed");
+    } catch { toast.error("Could not search"); }
+    finally { setLoading(false); }
+  };
+
+  return (
+    <div className="flex flex-col gap-3 min-h-0">
+      <div className="relative shrink-0">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <input value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && search(query)} placeholder="Search stock photos..." className="w-full pl-9 pr-4 py-2.5 text-sm bg-muted/50 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-accent text-foreground placeholder:text-muted-foreground" />
+      </div>
+      <div className="flex-1 overflow-y-auto min-h-[150px]">
+        {loading ? (
+          <div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin text-accent" /></div>
+        ) : results.length > 0 ? (
+          <div className="grid grid-cols-3 gap-2">
+            {results.map((r) => (
+              <button key={r.id} onClick={() => onSelect(r.fullUrl)} className="relative group rounded-lg overflow-hidden aspect-square bg-muted">
+                <img src={r.thumbUrl} alt={r.author} className="w-full h-full object-cover" loading="lazy" />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                  <ImageIcon className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-sm text-muted-foreground">{query ? "No results" : "Search for photos"}</p>
+            {query && !loading && <Button variant="outline" size="sm" className="mt-2" onClick={() => search(query)}>Search</Button>}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Delete Confirm Modal ─── */
 
 export function ProductDeleteConfirmModal({ open, product, onClose, onConfirm }: ProductDeleteConfirmModalProps) {
   useEffect(() => {

@@ -461,6 +461,14 @@ export default function EmenuNewEditor() {
       }
     }
 
+    // Update image
+    if (product.imageSrc) {
+      const imgEl = card.querySelector("img") as HTMLImageElement | null;
+      if (imgEl && imgEl.src !== product.imageSrc) {
+        imgEl.src = product.imageSrc;
+      }
+    }
+
     pushUpdate(doc, iframe);
     setEditingProduct(null);
     clearIframeEditorDecorations();
