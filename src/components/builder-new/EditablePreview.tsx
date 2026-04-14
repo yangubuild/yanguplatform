@@ -364,8 +364,10 @@ const EDIT_SCRIPT = `
         var foundCount = 0;
         allCards.forEach(function(card) {
           var img = card.querySelector('img');
+          if (!img) return;
           var name = getProductNameEl(card);
           var price = getProductPriceEl(card);
+          console.log('[YANGU] Card with img:', card.tagName, 'name:', !!name, 'price:', !!price, 'text:', (card.textContent||'').substring(0,60));
           if (img && name && price) {
             var inNav = card.closest('nav,header,footer');
             var rect = card.getBoundingClientRect();
