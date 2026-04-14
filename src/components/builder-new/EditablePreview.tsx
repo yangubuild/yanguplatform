@@ -60,7 +60,7 @@ const EDIT_STYLES = `
   </style>
 `;
 
-const EDIT_SCRIPT = `
+const EDIT_SCRIPT = String.raw`
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       var nodeIdCounter = 0;
@@ -121,29 +121,44 @@ const EDIT_SCRIPT = `
 
       function isPriceText(text) {
         var compact = (text || '').replace(/\s+/g, ' ').trim();
-        if (!compact || compact.length > 24) return false;
-        return /[$€£₦]|\b(?:UGX|USD|EUR|GBP|KES|TZS|AED|R)\b/i.test(compact) && /\d/.test(compact);
+        if (!compact || compact.length > 30) return false;
+        var hasCurrency = /[$€£₦]/.test(compact) || /(?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR)/i.test(compact);
+        return hasCurrency && /\d/.test(compact);
       }
 
       function getProductNameEl(card) {
-        var candidates = card.querySelectorAll('h1,h2,h3,h4,h5,h6,strong,[style*="font-weight:700"],[style*="font-weight:600"],[style*="font-weight: 700"],[style*="font-weight: 600"]');
+        var candidates = card.querySelectorAll('h1,h2,h3,h4,h5,h6,strong');
         for (var i = 0; i < candidates.length; i++) {
           var text = (candidates[i].textContent || '').replace(/\s+/g, ' ').trim();
-          if (text && !isPriceText(text)) return candidates[i];
+          if (text && text.length > 1 && !isPriceText(text)) return candidates[i];
+        }
+        var styled = card.querySelectorAll('span,div,p');
+        for (var j = 0; j < styled.length; j++) {
+          var el = styled[j];
+          if (el.children.length > 2) continue;
+          var cs = window.getComputedStyle(el);
+          var fw = parseInt(cs.fontWeight, 10);
+          if (fw < 600) continue;
+          var t = (el.textContent || '').replace(/\s+/g, ' ').trim();
+          if (t && t.length > 1 && t.length < 60 && !isPriceText(t)) return el;
         }
         return null;
       }
 
       function getProductPriceEl(card) {
-        var candidates = card.querySelectorAll('span,p,div,strong');
+        var candidates = card.querySelectorAll('span,p,div,strong,b');
+        var best = null;
         for (var i = 0; i < candidates.length; i++) {
           var candidate = candidates[i];
           if (candidate.closest('.yangu-product-controls')) continue;
-          if (candidate.querySelector('button,a,h1,h2,h3,h4,h5,h6,img')) continue;
+          if (candidate.querySelector('img')) continue;
           var text = (candidate.textContent || '').replace(/\s+/g, ' ').trim();
-          if (isPriceText(text)) return candidate;
+          if (!isPriceText(text)) continue;
+          if (!best || text.length < (best.textContent || '').replace(/\s+/g, ' ').trim().length) {
+            best = candidate;
+          }
         }
-        return null;
+        return best;
       }
 
       function getProductDescriptionEl(card, nameEl, priceEl) {
@@ -363,6 +378,19 @@ const EDIT_SCRIPT = `
           injectProductControls();
         });
         productObserver.observe(document.body, { childList: true, subtree: true });
+
+        // Remove legacy section-level CTA buttons (Order Now, Buy Now, etc.)
+        var legacyLabels = ['order now','buy now','order','shop now','add to cart'];
+        document.querySelectorAll('a, button').forEach(function(el) {
+          if (el.closest('.yangu-product-controls') || el.classList.contains('yangu-product-cta')) return;
+          var section = el.closest('section');
+          if (!section) return;
+          var text = (el.textContent || '').trim().toLowerCase();
+          if (legacyLabels.indexOf(text) !== -1) {
+            el.style.display = 'none';
+            el.classList.add('yangu-legacy-cta-hidden');
+          }
+        });
       }
 
       // Hero image click — still allow image replacement via image-click message
