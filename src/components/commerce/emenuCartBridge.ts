@@ -110,7 +110,7 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
         var digits = normalizeText(src).replace(/[^\\d.]/g, '');
         if (digits) priceNum = parseFloat(digits);
       }
-      if (isNaN(priceNum) || priceNum <= 0) return;
+      if (isNaN(priceNum) || priceNum <= 0) priceNum = 0;
 
       // Only mark processed AFTER confirming valid price parse
       card.setAttribute('data-cart-processed', 'true');
@@ -194,7 +194,7 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
         }, 1200);
       };
 
-      var lastChild = priceEl.parentElement || card;
+      var lastChild = (priceEl && priceEl.parentElement) ? priceEl.parentElement : card;
       lastChild.appendChild(btn);
     });
 
