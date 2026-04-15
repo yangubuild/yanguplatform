@@ -8,9 +8,9 @@
  * Reads global button styles from data-product-button-color etc.
  */
 
-export function buildCartBridgeScript(configuredCurrency: string = "USD"): string {
+/** Returns the raw JavaScript code (no <script> wrapper) for the cart bridge */
+export function buildCartBridgeCode(configuredCurrency: string = "USD"): string {
   return `
-<script>
 (function() {
   var CONFIGURED_CURRENCY = ${JSON.stringify(configuredCurrency)};
 
@@ -288,8 +288,11 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
   setTimeout(initCartBridge, 2000);
   setTimeout(initCartBridge, 5000);
 })();
-</script>
 `;
+}
+
+export function buildCartBridgeScript(configuredCurrency: string = "USD"): string {
+  return `<script>${buildCartBridgeCode(configuredCurrency)}</script>`;
 }
 
 // Keep backward compat export for any non-currency-aware callers
