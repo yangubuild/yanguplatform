@@ -118,7 +118,7 @@ h2,.section-title{
   nav a,.nav-link,[class*="nav-item"] {
     font-size:0.875rem !important;
   }
-  button,.btn,[class*="button"] {
+  button:not(.yangu-live-cta),.btn,[class*="button"]:not(.yangu-live-cta) {
     font-size:0.875rem !important;
     padding:8px 16px !important;
   }
