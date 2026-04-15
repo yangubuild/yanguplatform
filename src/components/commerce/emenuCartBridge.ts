@@ -149,7 +149,7 @@ export function buildCartBridgeCode(configuredCurrency: string = "USD"): string 
       var btn = document.createElement('button');
       btn.textContent = buttonText;
       btn.className = 'yangu-live-cta';
-      btn.style.cssText = 'margin-top:8px;padding:' + style.padding + ';border-radius:' + style.radius + ';border:2px solid ' + style.color + ';background:transparent;color:' + style.color + ';font-size:' + style.fontSize + ';font-weight:700;cursor:pointer;width:100%;transition:all 0.2s;letter-spacing:0.02em;';
+      btn.style.cssText = 'padding:6px 16px;border-radius:' + style.radius + ';border:2px solid ' + style.color + ';background:transparent;color:' + style.color + ';font-size:' + style.fontSize + ';font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:0.02em;white-space:nowrap;flex-shrink:0;';
       btn.onmouseover = function() { btn.style.background = style.color; btn.style.color = '#fff'; };
       btn.onmouseout = function() { btn.style.background = 'transparent'; btn.style.color = style.color; };
 
@@ -194,8 +194,26 @@ export function buildCartBridgeCode(configuredCurrency: string = "USD"): string 
         }, 1200);
       };
 
-      // Insert button at the bottom of the card's content area
-      // Try to find the text content container (parent of title/price), else use card itself
+      // Create a price + button row at the bottom of the card content
+      var priceButtonRow = document.createElement('div');
+      priceButtonRow.className = 'yangu-price-row';
+      priceButtonRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-top:10px;gap:8px;width:100%;';
+
+      // Move or clone price into the row
+      var priceDisplay = document.createElement('span');
+      priceDisplay.style.cssText = 'font-weight:700;font-size:' + style.fontSize + ';color:inherit;';
+      if (priceEl) {
+        priceDisplay.textContent = normalizeText(priceEl.textContent);
+        // Hide original price to avoid duplication
+        priceEl.style.display = 'none';
+      } else {
+        priceDisplay.textContent = priceText || '';
+      }
+
+      priceButtonRow.appendChild(priceDisplay);
+      priceButtonRow.appendChild(btn);
+
+      // Insert the row at the bottom of the card's text content area
       var contentArea = null;
       if (nameEl && nameEl.parentElement && nameEl.parentElement !== card) {
         contentArea = nameEl.parentElement;
@@ -203,7 +221,7 @@ export function buildCartBridgeCode(configuredCurrency: string = "USD"): string 
         contentArea = priceEl.parentElement;
       }
       if (!contentArea) contentArea = card;
-      contentArea.appendChild(btn);
+      contentArea.appendChild(priceButtonRow);
     });
 
     // Also wire up any pre-existing order buttons added via the editor
@@ -250,14 +268,21 @@ export function buildCartBridgeCode(configuredCurrency: string = "USD"): string 
 
     var btn = document.createElement('button');
     btn.id = 'yangu-cart-btn';
-    btn.innerHTML = '\\uD83D\\uDED2 Cart';
-    btn.style.cssText = 'position:fixed;bottom:20px;left:20px;z-index:9999;padding:12px 24px;border-radius:30px;border:none;background:#10b981;color:white;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);transition:transform 0.2s;';
-    btn.onmouseover = function() { btn.style.transform = 'scale(1.05)'; };
+    btn.innerHTML = '\\uD83D\\uDED2 Cart (0)';
+    btn.style.cssText = 'position:fixed;top:16px;right:16px;z-index:9999;padding:10px 20px;border-radius:8px;border:1px solid rgba(128,128,128,0.3);background:rgba(255,255,255,0.95);color:#1a1a1a;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.12);transition:transform 0.2s;backdrop-filter:blur(8px);';
+    btn.onmouseover = function() { btn.style.transform = 'scale(1.03)'; };
     btn.onmouseout = function() { btn.style.transform = 'scale(1)'; };
     btn.onclick = function() {
       window.parent.postMessage({ type: 'yangu_open_cart' }, '*');
     };
     document.body.appendChild(btn);
+
+    // Listen for cart count updates from parent
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'yangu_cart_count') {
+        btn.innerHTML = '\\uD83D\\uDED2 Cart (' + (e.data.count || 0) + ')';
+      }
+    });
   }
 
   // Smooth scroll for anchor links
