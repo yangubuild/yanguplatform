@@ -360,6 +360,31 @@ const EDIT_SCRIPT = String.raw`
         };
       }
 
+      function inferSiblingCardStyles(card) {
+        var parent = card.parentElement;
+        if (!parent) return null;
+        var siblings = parent.children;
+        for (var i = 0; i < siblings.length; i++) {
+          var sib = siblings[i];
+          if (sib === card) continue;
+          var sibTitle = sib.querySelector('[data-product-role="title"]');
+          var sibPrice = sib.querySelector('[data-product-role="price"]');
+          var sibDesc = sib.querySelector('[data-product-role="description"]');
+          if (sibTitle && sibPrice) {
+            var ts = window.getComputedStyle(sibTitle);
+            var ps = window.getComputedStyle(sibPrice);
+            var ds = sibDesc ? window.getComputedStyle(sibDesc) : null;
+            return {
+              titleCss: 'font-weight:' + ts.fontWeight + ';font-size:' + ts.fontSize + ';color:' + ts.color + ';',
+              priceCss: 'font-weight:' + ps.fontWeight + ';font-size:' + ps.fontSize + ';color:' + ps.color + ';',
+              descCss: ds ? 'font-size:' + ds.fontSize + ';color:' + ds.color + ';margin-top:6px;line-height:1.5;' : 'margin-top:6px;line-height:1.5;opacity:0.72;font-size:12px;',
+              containerPadding: sibTitle.closest('div[style*="padding"]') ? sibTitle.closest('div[style*="padding"]').style.cssText.match(/padding[^;]+;/)?.[0] || 'padding:16px 18px;' : 'padding:16px 18px;'
+            };
+          }
+        }
+        return null;
+      }
+
       function normalizeLegacyProductCard(card) {
         var currentTitle = getProductRoleEl(card, 'title');
         var currentPrice = getProductRoleEl(card, 'price');
@@ -382,14 +407,16 @@ const EDIT_SCRIPT = String.raw`
         var row = document.createElement('div');
         row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:12px;';
 
+        var sibStyles = inferSiblingCardStyles(card);
+
         var nameEl = ensureNodeId(document.createElement('span'));
         nameEl.textContent = legacy.titleText;
-        nameEl.style.cssText = 'font-weight:600;';
+        nameEl.style.cssText = sibStyles ? sibStyles.titleCss : 'font-weight:600;font-size:14px;';
         nameEl.setAttribute('data-product-role', 'title');
 
         var priceEl = ensureNodeId(document.createElement('span'));
         priceEl.textContent = legacy.priceText;
-        priceEl.style.cssText = 'font-weight:700;';
+        priceEl.style.cssText = sibStyles ? sibStyles.priceCss : 'font-weight:700;font-size:14px;';
         priceEl.setAttribute('data-product-role', 'price');
 
         row.appendChild(nameEl);
@@ -400,9 +427,13 @@ const EDIT_SCRIPT = String.raw`
         if (legacy.descriptionText) {
           descEl = ensureNodeId(document.createElement('p'));
           descEl.textContent = legacy.descriptionText;
-          descEl.style.cssText = 'margin-top:6px;line-height:1.5;opacity:0.72;';
+          descEl.style.cssText = sibStyles ? sibStyles.descCss : 'font-size:12px;margin-top:6px;line-height:1.5;opacity:0.72;';
           descEl.setAttribute('data-product-role', 'description');
           contentContainer.appendChild(descEl);
+        }
+
+        if (sibStyles && sibStyles.containerPadding && contentContainer.style) {
+          contentContainer.style.cssText = (contentContainer.style.cssText || '') + sibStyles.containerPadding;
         }
 
         if (legacy.badgeEl) {
