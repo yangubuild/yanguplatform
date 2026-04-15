@@ -786,11 +786,8 @@ const EDIT_SCRIPT = String.raw`
           // No CTA button in editor — buyer-facing buttons belong on the live/public page only
         });
 
-        if (repairedAny) {
-          setTimeout(function() {
-            notifyHtmlUpdate();
-          }, 0);
-        }
+        // Repairs are cosmetic normalization — do NOT push html-update to parent
+        // which would trigger an iframe reload loop.
       }
 
       function selectImage(el) {
@@ -870,8 +867,11 @@ const EDIT_SCRIPT = String.raw`
 
       if (window.__YANGU_ENABLE_PRODUCT_CONTROLS) {
         injectProductControls();
+        var _yanguInjecting = false;
         var productObserver = new MutationObserver(function() {
-          injectProductControls();
+          if (_yanguInjecting) return;
+          _yanguInjecting = true;
+          try { injectProductControls(); } finally { _yanguInjecting = false; }
         });
         productObserver.observe(document.body, { childList: true, subtree: true });
 
@@ -923,7 +923,7 @@ const EDIT_SCRIPT = String.raw`
             e.stopPropagation();
             clearAllHighlights();
             productCard.classList.add('yangu-card-selected');
-            window.parent.postMessage({ type: 'canvas-select', kind: 'page', tag: productCard.tagName, preview: '', sectionIndex: -1, nodeId: productCard.getAttribute('data-yangu-node-id') || '' }, '*');
+            window.parent.postMessage({ type: 'product-edit-request', product: getProductPayload(productCard) }, '*');
             return;
           }
         }

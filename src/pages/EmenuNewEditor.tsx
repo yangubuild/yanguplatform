@@ -120,12 +120,46 @@ function getProductDescriptionElement(
   }) || null;
 }
 
-function formatProductPrice(nextPrice: string, existingPrice: string): string {
+function getSiblingCurrencyAffix(card: Element | null): { prefix: string; suffix: string } {
+  if (!card?.parentElement) return { prefix: "", suffix: "" };
+  const siblings = card.parentElement.querySelectorAll('[data-product-role="price"]');
+  for (let i = 0; i < siblings.length; i++) {
+    const sib = siblings[i];
+    if (sib.closest('[data-product-card]') === card) continue;
+    const text = sib.textContent?.replace(/\s+/g, " ").trim() || "";
+    if (!text) continue;
+    const affix = getRecognizedCurrencyAffix(text);
+    if (affix.prefix || affix.suffix) return affix;
+  }
+  return { prefix: "", suffix: "" };
+}
+
+const CURRENCY_SYMBOL_MAP: Record<string, string> = {
+  USD: "$", EUR: "€", GBP: "£", NGN: "₦",
+  UGX: "UGX ", KES: "KES ", TZS: "TZS ", AED: "AED ", ZAR: "R",
+};
+
+function formatProductPrice(nextPrice: string, existingPrice: string, card?: Element | null, surfaceCurrency?: string): string {
   const trimmed = nextPrice.trim();
   if (!trimmed) return "";
   if (isProductPriceText(trimmed)) return trimmed;
 
-  const { prefix, suffix } = getRecognizedCurrencyAffix(existingPrice);
+  // Step 1: current card affix
+  let { prefix, suffix } = getRecognizedCurrencyAffix(existingPrice);
+
+  // Step 2: sibling cards
+  if (!prefix && !suffix && card) {
+    const sib = getSiblingCurrencyAffix(card);
+    prefix = sib.prefix;
+    suffix = sib.suffix;
+  }
+
+  // Step 3: surface configured currency
+  if (!prefix && !suffix && surfaceCurrency) {
+    const sym = CURRENCY_SYMBOL_MAP[surfaceCurrency.toUpperCase()];
+    if (sym) prefix = sym;
+    else prefix = surfaceCurrency.toUpperCase() + " ";
+  }
 
   if (prefix) return `${prefix}${trimmed}`;
   if (suffix) return `${trimmed} ${suffix}`;
@@ -511,7 +545,7 @@ export default function EmenuNewEditor() {
 
     if (priceElement) {
       if (product.price.trim()) {
-        priceElement.textContent = formatProductPrice(product.price, priceElement.textContent || product.price);
+        priceElement.textContent = formatProductPrice(product.price, priceElement.textContent || product.price, card, editorState?.surface?.metadata && (editorState.surface.metadata as any)?.currency);
         priceElement.setAttribute("data-product-role", "price");
       } else {
         priceElement.remove();
@@ -519,7 +553,7 @@ export default function EmenuNewEditor() {
       }
     } else if (product.price.trim() && contentParent) {
       const createdPrice = doc.createElement("span");
-      createdPrice.textContent = formatProductPrice(product.price, product.price);
+      createdPrice.textContent = formatProductPrice(product.price, product.price, card, editorState?.surface?.metadata && (editorState.surface.metadata as any)?.currency);
       createdPrice.style.fontWeight = "700";
       createdPrice.style.display = "inline-block";
       createdPrice.style.marginTop = "8px";
