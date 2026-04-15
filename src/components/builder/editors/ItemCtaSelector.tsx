@@ -20,6 +20,7 @@ export const CTA_OPTIONS = [
   { value: "access", label: "Access" },
   { value: "download", label: "Download" },
   { value: "view", label: "View" },
+  { value: "custom", label: "Custom" },
 ] as const;
 
 export const ACTION_OPTIONS = [
@@ -32,10 +33,33 @@ export const ACTION_OPTIONS = [
 export type CtaValue = (typeof CTA_OPTIONS)[number]["value"];
 export type ActionValue = (typeof ACTION_OPTIONS)[number]["value"];
 
+const CTA_BUTTON_TEXT: Record<string, string> = {
+  add_to_cart: "+ Add",
+  buy_now: "Buy Now",
+  order_now: "Order Now",
+  book_now: "Book Now",
+  join_now: "+ Join",
+  contact_seller: "Contact Seller",
+  reserve: "Reserve",
+  access: "Access",
+  download: "Download",
+  view: "View",
+};
+
 /** Resolves a CTA value to its display label */
 export function ctaLabel(value: string | undefined): string {
   if (!value || value === "none") return "";
   return CTA_OPTIONS.find((o) => o.value === value)?.label || value;
+}
+
+/** Resolves the buyer-facing button text for a CTA type */
+export function resolveButtonTextForCta(value: string | undefined, surfaceType?: string): string {
+  if (!value || value === "none" || value === "custom") return "";
+
+  const defaults = getDefaultCtaForSurface(surfaceType);
+  if (value === defaults.ctaAction && defaults.buttonText) return defaults.buttonText;
+
+  return CTA_BUTTON_TEXT[value] || ctaLabel(value);
 }
 
 /** Returns default CTA value, button text, and action for a given surface type */
@@ -84,13 +108,25 @@ export function ItemCtaSelector({
   surfaceType,
 }: ItemCtaSelectorProps) {
   const showButtonConfig = value && value !== "none";
+  const isCustomButton = value === "custom";
   const defaults = getDefaultCtaForSurface(surfaceType);
+  const resolvedButtonText = isCustomButton
+    ? (buttonText || "")
+    : resolveButtonTextForCta(value, surfaceType) || buttonText || defaults.buttonText;
 
   return (
     <div className={`space-y-3 ${className || ""}`}>
       <div className="space-y-1.5">
         <Label className="text-sm font-medium">Button Type</Label>
-        <Select value={value || "none"} onValueChange={onChange}>
+        <Select
+          value={value || "none"}
+          onValueChange={(nextValue) => {
+            onChange(nextValue);
+            if (onButtonTextChange && nextValue !== "custom") {
+              onButtonTextChange(resolveButtonTextForCta(nextValue, surfaceType));
+            }
+          }}
+        >
           <SelectTrigger className="text-sm">
             <SelectValue />
           </SelectTrigger>
@@ -110,12 +146,15 @@ export function ItemCtaSelector({
             <div className="space-y-1.5">
               <Label className="text-sm font-medium">Button Text</Label>
               <Input
-                value={buttonText || ctaLabel(value)}
+                value={resolvedButtonText}
                 onChange={(e) => onButtonTextChange(e.target.value)}
-                placeholder={defaults.buttonText || "e.g. Buy Now, Add, Order"}
+                placeholder={isCustomButton ? "Enter custom button text" : (resolveButtonTextForCta(value, surfaceType) || defaults.buttonText || "")}
+                disabled={!isCustomButton}
               />
               <p className="text-xs text-muted-foreground">
-                Edit the button text your buyers will see (e.g. Buy Now, Add, Order, Join)
+                {isCustomButton
+                  ? "Enter the exact button text your buyers will see."
+                  : "Button text is auto-filled from the selected Button Type."}
               </p>
             </div>
           )}

@@ -58,6 +58,9 @@ function isProductPriceText(text: string): boolean {
 }
 
 function getProductNameElement(card: ParentNode): HTMLElement | null {
+  const persisted = card.querySelector<HTMLElement>('[data-product-role="title"]');
+  if (persisted) return persisted;
+
   const candidates = Array.from(card.querySelectorAll<HTMLElement>("h1,h2,h3,h4,h5,h6,strong,[style*='font-weight:700'],[style*='font-weight:600'],[style*='font-weight: 700'],[style*='font-weight: 600']"));
   return candidates.find((candidate) => {
     const text = candidate.textContent?.replace(/\s+/g, " ").trim() || "";
@@ -66,6 +69,9 @@ function getProductNameElement(card: ParentNode): HTMLElement | null {
 }
 
 function getProductPriceElement(card: ParentNode): HTMLElement | null {
+  const persisted = card.querySelector<HTMLElement>('[data-product-role="price"]');
+  if (persisted) return persisted;
+
   const candidates = Array.from(card.querySelectorAll<HTMLElement>("span,p,div,strong"));
   return candidates.find((candidate) => {
     if (candidate.closest(".yangu-product-controls")) return false;
@@ -80,6 +86,9 @@ function getProductDescriptionElement(
   nameElement?: Element | null,
   priceElement?: Element | null,
 ): HTMLElement | null {
+  const persisted = card.querySelector<HTMLElement>('[data-product-role="description"]');
+  if (persisted) return persisted;
+
   const nameText = nameElement?.textContent?.replace(/\s+/g, " ").trim() || "";
   const candidates = Array.from(card.querySelectorAll<HTMLElement>("p,span,div"));
 
@@ -105,6 +114,32 @@ function formatProductPrice(nextPrice: string, existingPrice: string): string {
   if (prefix) return `${prefix}${trimmed}`;
   if (suffix) return `${trimmed} ${suffix}`;
   return trimmed;
+}
+
+function getProductScopedElement(card: ParentNode, role: "title" | "description" | "price" | "badge", nodeId?: string): HTMLElement | null {
+  if (nodeId) {
+    const byNode = card.querySelector<HTMLElement>(`[data-yangu-node-id="${nodeId}"]`);
+    if (byNode) return byNode;
+  }
+
+  return card.querySelector<HTMLElement>(`[data-product-role="${role}"]`);
+}
+
+function createProductBadgeElement(doc: Document, text: string): HTMLSpanElement {
+  const badge = doc.createElement("span");
+  badge.textContent = text;
+  badge.setAttribute("data-product-role", "badge");
+  badge.style.display = "inline-flex";
+  badge.style.alignItems = "center";
+  badge.style.padding = "0.25rem 0.625rem";
+  badge.style.borderRadius = "0.625rem";
+  badge.style.background = "hsl(43 96% 56% / 0.16)";
+  badge.style.color = "hsl(32 95% 44%)";
+  badge.style.fontSize = "0.75rem";
+  badge.style.fontWeight = "600";
+  badge.style.lineHeight = "1.1";
+  badge.style.marginBottom = "0.5rem";
+  return badge;
 }
 
 export default function EmenuNewEditor() {
@@ -380,8 +415,8 @@ export default function EmenuNewEditor() {
     if (!doc) return;
     const clone = doc.documentElement.cloneNode(true) as HTMLElement;
     clone.querySelectorAll('.yangu-editor-inject').forEach(el => el.remove());
-    clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected,.section-hover').forEach(el => {
-      el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected','section-hover');
+    clone.querySelectorAll('.section-selected,.yangu-img-selected,.yangu-el-selected,.yangu-btn-selected,.section-hover,.yangu-card-selected,.yangu-product-card').forEach(el => {
+      el.classList.remove('section-selected','yangu-img-selected','yangu-el-selected','yangu-btn-selected','section-hover','yangu-card-selected','yangu-product-card');
     });
     clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
     clone.querySelectorAll('[data-yangu-node-id]').forEach(el => el.removeAttribute('data-yangu-node-id'));
@@ -419,47 +454,130 @@ export default function EmenuNewEditor() {
       return;
     }
 
-    const nameElement = getProductNameElement(card);
-    if (!nameElement) {
-      toast.error("This product card cannot be edited yet.");
-      return;
+    card.setAttribute("data-product-card", "true");
+
+    let nameElement = getProductScopedElement(card, "title", product.titleNodeId) || getProductNameElement(card);
+    let priceElement = getProductScopedElement(card, "price", product.priceNodeId) || getProductPriceElement(card);
+    let badgeElement = getProductScopedElement(card, "badge", product.badgeNodeId);
+    let descriptionElement = getProductScopedElement(card, "description", product.descriptionNodeId) || getProductDescriptionElement(card, nameElement, priceElement);
+
+    const contentAnchor = nameElement || descriptionElement || priceElement || badgeElement;
+    const contentParent = contentAnchor?.parentElement || card;
+    const trimmedName = product.name.trim();
+
+    if (nameElement) {
+      nameElement.textContent = trimmedName || nameElement.textContent || "Product";
+      nameElement.setAttribute("data-product-role", "title");
+    } else {
+      const createdTitle = doc.createElement("h3");
+      createdTitle.textContent = trimmedName || "Product";
+      createdTitle.style.fontWeight = "700";
+      createdTitle.style.margin = "0";
+      createdTitle.style.lineHeight = "1.25";
+      createdTitle.setAttribute("data-product-role", "title");
+
+      if (descriptionElement && descriptionElement.parentElement === contentParent) {
+        contentParent.insertBefore(createdTitle, descriptionElement);
+      } else if (priceElement && priceElement.parentElement === contentParent) {
+        contentParent.insertBefore(createdTitle, priceElement);
+      } else {
+        contentParent.appendChild(createdTitle);
+      }
+
+      nameElement = createdTitle;
     }
 
-    nameElement.textContent = product.name.trim() || nameElement.textContent || "Product";
-
-    const priceElement = getProductPriceElement(card);
     if (priceElement) {
       if (product.price.trim()) {
         priceElement.textContent = formatProductPrice(product.price, priceElement.textContent || product.price);
+        priceElement.setAttribute("data-product-role", "price");
+      } else {
+        priceElement.remove();
+        priceElement = null;
       }
-    } else if (product.price.trim() && nameElement.parentElement) {
+    } else if (product.price.trim() && contentParent) {
       const createdPrice = doc.createElement("span");
       createdPrice.textContent = formatProductPrice(product.price, product.price);
       createdPrice.style.fontWeight = "700";
       createdPrice.style.display = "inline-block";
       createdPrice.style.marginTop = "8px";
-      nameElement.parentElement.appendChild(createdPrice);
+      createdPrice.setAttribute("data-product-role", "price");
+
+      if (descriptionElement && descriptionElement.parentElement === contentParent) {
+        descriptionElement.insertAdjacentElement("afterend", createdPrice);
+      } else if (nameElement && nameElement.parentElement === contentParent) {
+        nameElement.insertAdjacentElement("afterend", createdPrice);
+      } else {
+        contentParent.appendChild(createdPrice);
+      }
+
+      priceElement = createdPrice;
     }
 
-    const descriptionElement = getProductDescriptionElement(card, nameElement, priceElement);
     const trimmedDescription = product.description.trim();
     if (descriptionElement) {
-      if (trimmedDescription) descriptionElement.textContent = trimmedDescription;
-      else descriptionElement.remove();
-    } else if (trimmedDescription && nameElement.parentElement) {
+      if (trimmedDescription) {
+        descriptionElement.textContent = trimmedDescription;
+        descriptionElement.setAttribute("data-product-role", "description");
+      } else {
+        descriptionElement.remove();
+        descriptionElement = null;
+      }
+    } else if (trimmedDescription && contentParent) {
       const createdDescription = doc.createElement("p");
       createdDescription.textContent = trimmedDescription;
       createdDescription.style.fontSize = "0.85rem";
       createdDescription.style.opacity = "0.74";
       createdDescription.style.lineHeight = "1.6";
       createdDescription.style.marginTop = "8px";
+      createdDescription.setAttribute("data-product-role", "description");
 
-      if (priceElement && priceElement.parentElement === nameElement.parentElement) {
-        nameElement.parentElement.insertBefore(createdDescription, priceElement);
+      if (priceElement && priceElement.parentElement === contentParent) {
+        contentParent.insertBefore(createdDescription, priceElement);
       } else {
-        nameElement.parentElement.appendChild(createdDescription);
+        contentParent.appendChild(createdDescription);
       }
+
+      descriptionElement = createdDescription;
     }
+
+    const trimmedBadgeText = (product.badgeText || "").trim();
+    const shouldShowBadge = Boolean(product.badgeEnabled && trimmedBadgeText);
+    if (shouldShowBadge) {
+      if (badgeElement) {
+        badgeElement.textContent = trimmedBadgeText;
+        badgeElement.setAttribute("data-product-role", "badge");
+      } else {
+        const createdBadge = createProductBadgeElement(doc, trimmedBadgeText);
+        const badgeParent = nameElement?.parentElement || contentParent;
+
+        if (nameElement && badgeParent === nameElement.parentElement) {
+          badgeParent.insertBefore(createdBadge, nameElement);
+        } else {
+          badgeParent.appendChild(createdBadge);
+        }
+
+        badgeElement = createdBadge;
+      }
+
+      card.setAttribute("data-product-badge-enabled", "true");
+      card.setAttribute("data-product-badge-text", trimmedBadgeText);
+    } else {
+      if (badgeElement) {
+        badgeElement.remove();
+        badgeElement = null;
+      }
+      card.setAttribute("data-product-badge-enabled", "false");
+      card.removeAttribute("data-product-badge-text");
+    }
+
+    card.setAttribute("data-product-cta", product.ctaAction?.trim() || "none");
+    if (product.buttonText?.trim()) card.setAttribute("data-product-button-text", product.buttonText.trim());
+    else card.removeAttribute("data-product-button-text");
+
+    card.setAttribute("data-product-action-type", product.actionType?.trim() || "checkout");
+    if (product.actionUrl?.trim()) card.setAttribute("data-product-action-url", product.actionUrl.trim());
+    else card.removeAttribute("data-product-action-url");
 
     // Update image
     if (product.imageSrc) {

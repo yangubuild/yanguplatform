@@ -35,6 +35,16 @@ export interface ProductCardData {
   description: string;
   price: string;
   imageSrc?: string;
+  badgeEnabled?: boolean;
+  badgeText?: string;
+  ctaAction?: string;
+  buttonText?: string;
+  actionType?: string;
+  actionUrl?: string;
+  titleNodeId?: string;
+  descriptionNodeId?: string;
+  priceNodeId?: string;
+  badgeNodeId?: string;
 }
 
 /** Classify an element tag + context into a SelectionKind */
