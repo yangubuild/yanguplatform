@@ -494,6 +494,41 @@ const EDIT_SCRIPT = String.raw`
         var currentDesc = getProductRoleEl(card, 'description') || getProductDescriptionEl(card, currentTitle, currentPrice, currentBadge);
         var titleText = normalizeProductText(card.getAttribute('data-product-title') || currentTitle.textContent || '');
         var cleanedPrice = sanitizeLoosePriceText(currentPrice.textContent);
+
+        // If price element is corrupted, try to recover from description or sibling cards
+        if (!cleanedPrice || !isPriceText(cleanedPrice)) {
+          // Try extracting a price from the description text
+          if (currentDesc) {
+            var descRecovered = extractPriceText(currentDesc.textContent);
+            if (descRecovered) {
+              cleanedPrice = descRecovered;
+            }
+          }
+          // If still no luck, try sibling cards
+          if (!cleanedPrice || !isPriceText(cleanedPrice)) {
+            var sibCards = card.parentElement ? card.parentElement.querySelectorAll('[data-product-card="true"]') : [];
+            for (var sc = 0; sc < sibCards.length; sc++) {
+              if (sibCards[sc] === card) continue;
+              var sibPrice = getProductRoleEl(sibCards[sc], 'price');
+              if (sibPrice) {
+                var sibAffix = sanitizeLoosePriceText(sibPrice.textContent);
+                if (sibAffix && isPriceText(sibAffix)) {
+                  // Extract just the currency symbol/code from sibling
+                  var sibCurrMatch = sibAffix.match(/^([$€£₦]|(?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR|R)\s*)/i);
+                  if (sibCurrMatch) {
+                    // Use sibling currency + any digits from our corrupted price
+                    var ourDigits = normalizeProductText(currentPrice.textContent).replace(/[^\d.,]/g, '').replace(/^[,.\s]+|[,.\s]+$/g, '');
+                    if (ourDigits && /\d/.test(ourDigits)) {
+                      cleanedPrice = sibCurrMatch[1] + ourDigits;
+                    }
+                  }
+                  break;
+                }
+              }
+            }
+          }
+        }
+
         var cleanedDescription = currentDesc ? sanitizeDescriptionText(currentDesc.textContent, titleText, cleanedPrice) : '';
         var contentScope = getProductContentScope(card, currentTitle, currentPrice, currentDesc);
         var repairNeeded = false;
