@@ -132,12 +132,12 @@ const EDIT_SCRIPT = String.raw`
       function isPriceText(text) {
         var compact = normalizeProductText(text);
         if (!compact || compact.length > 30) return false;
-        var hasCurrency = /[$€£₦]/.test(compact) || /(?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR)/i.test(compact);
+        var hasCurrency = /[$€£₦]/.test(compact) || /(?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR)/i.test(compact) || /^R\s*\d/.test(compact) || /\d\s*R$/.test(compact);
         return hasCurrency && /\d/.test(compact);
       }
 
       function extractPriceText(text) {
-        var matches = normalizeProductText(text).match(/(?:[A-Z]{3}\s*[\d,]+(?:\.\d+)?|[\$€£₦]\s*[\d,]+(?:\.\d+)?)/ig);
+        var matches = normalizeProductText(text).match(/(?:[A-Z]{3}\s*[\d,]+(?:\.\d+)?|[\$€£₦]\s*[\d,]+(?:\.\d+)?|R\s*[\d,]+(?:\.\d+)?)/ig);
         return matches && matches.length ? normalizeProductText(matches[matches.length - 1]) : '';
       }
 
@@ -161,8 +161,8 @@ const EDIT_SCRIPT = String.raw`
         var extracted = extractPriceText(compact);
         if (extracted) return extracted;
 
-        var prefixMatch = compact.match(/^([$€£₦]|(?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR))\s*/i);
-        var suffixMatch = compact.match(/\s((?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR))$/i);
+        var prefixMatch = compact.match(/^([$€£₦R]|(?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR))\s*/i);
+        var suffixMatch = compact.match(/\s((?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR)|R)$/i);
         var numeric = compact
           .replace(/[^\d.,]/g, '')
           .replace(/,{2,}/g, ',')

@@ -19,7 +19,7 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
   function isPriceText(text) {
     var compact = normalizeText(text);
     if (!compact || compact.length > 30) return false;
-    var hasCurrency = /[\\$€£₦]/.test(compact) || /(?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR)/i.test(compact);
+    var hasCurrency = /[\\$€£₦]/.test(compact) || /(?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR)/i.test(compact) || /^R\\s*\\d/.test(compact) || /\\d\\s*R$/.test(compact);
     return hasCurrency && /\\d/.test(compact);
   }
 
@@ -73,7 +73,7 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
       if (!nameEl || !priceEl) return;
 
       var priceText = normalizeText(priceEl.textContent);
-      var numStr = priceText.replace(/^[A-Z]{3}|[\\$€£₦\\s]/g, '').replace(/,/g, '').trim();
+      var numStr = priceText.replace(/^(?:[A-Z]{3}|R)\\s*|[\\$€£₦\\s]/g, '').replace(/,/g, '').trim();
       var priceNum = parseFloat(numStr);
       if (isNaN(priceNum)) return;
 
@@ -175,7 +175,7 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
       if (!nameEl || !priceEl2) return;
 
       var pText = normalizeText(priceEl2.textContent);
-      var nStr = pText.replace(/^[A-Z]{3}|[\\$€£₦\\s]/g, '').replace(/,/g, '').trim();
+      var nStr = pText.replace(/^(?:[A-Z]{3}|R)\\s*|[\\$€£₦\\s]/g, '').replace(/,/g, '').trim();
       var pNum = parseFloat(nStr);
       if (isNaN(pNum)) return;
       var pCents = Math.round(pNum * 100);

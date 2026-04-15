@@ -650,7 +650,7 @@ export default function EmenuNewEditor() {
     setEditingProduct(null);
     clearIframeEditorDecorations();
     toast.success("Product updated.");
-  }, [clearIframeEditorDecorations, getIframe, pushUpdate]);
+  }, [clearIframeEditorDecorations, getIframe, pushUpdate, editorState]);
 
   const handleProductDelete = useCallback((product: ProductCardData) => {
     const iframe = getIframe();
