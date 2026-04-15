@@ -545,7 +545,7 @@ export default function EmenuNewEditor() {
 
     if (priceElement) {
       if (product.price.trim()) {
-        priceElement.textContent = formatProductPrice(product.price, priceElement.textContent || product.price);
+        priceElement.textContent = formatProductPrice(product.price, priceElement.textContent || product.price, card, editorState?.surface?.metadata && (editorState.surface.metadata as any)?.currency);
         priceElement.setAttribute("data-product-role", "price");
       } else {
         priceElement.remove();
@@ -553,7 +553,7 @@ export default function EmenuNewEditor() {
       }
     } else if (product.price.trim() && contentParent) {
       const createdPrice = doc.createElement("span");
-      createdPrice.textContent = formatProductPrice(product.price, product.price);
+      createdPrice.textContent = formatProductPrice(product.price, product.price, card, editorState?.surface?.metadata && (editorState.surface.metadata as any)?.currency);
       createdPrice.style.fontWeight = "700";
       createdPrice.style.display = "inline-block";
       createdPrice.style.marginTop = "8px";
