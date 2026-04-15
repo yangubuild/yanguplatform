@@ -360,6 +360,16 @@ const EDIT_SCRIPT = String.raw`
         };
       }
 
+      function getInlineStyle(el) {
+        var s = el.getAttribute('style') || '';
+        var result = {};
+        s.split(';').forEach(function(part) {
+          var kv = part.split(':');
+          if (kv.length >= 2) result[kv[0].trim()] = kv.slice(1).join(':').trim();
+        });
+        return result;
+      }
+
       function inferSiblingCardStyles(card) {
         var parent = card.parentElement;
         if (!parent) return null;
@@ -374,10 +384,17 @@ const EDIT_SCRIPT = String.raw`
             var ts = window.getComputedStyle(sibTitle);
             var ps = window.getComputedStyle(sibPrice);
             var ds = sibDesc ? window.getComputedStyle(sibDesc) : null;
+            var titleInline = getInlineStyle(sibTitle);
+            var priceInline = getInlineStyle(sibPrice);
+            var descInline = sibDesc ? getInlineStyle(sibDesc) : {};
+            var titleColor = titleInline['color'] || ts.color;
+            var priceColor = priceInline['color'] || ps.color;
+            var descColor = descInline['color'] || (ds ? ds.color : '');
+            var descFontSize = descInline['font-size'] || (ds ? ds.fontSize : '12px');
             return {
-              titleCss: 'font-weight:' + ts.fontWeight + ';font-size:' + ts.fontSize + ';color:' + ts.color + ';',
-              priceCss: 'font-weight:' + ps.fontWeight + ';font-size:' + ps.fontSize + ';color:' + ps.color + ';',
-              descCss: ds ? 'font-size:' + ds.fontSize + ';color:' + ds.color + ';margin-top:6px;line-height:1.5;' : 'margin-top:6px;line-height:1.5;opacity:0.72;font-size:12px;',
+              titleCss: 'font-weight:' + ts.fontWeight + ';font-size:' + ts.fontSize + ';color:' + titleColor + ';',
+              priceCss: 'font-weight:' + ps.fontWeight + ';font-size:' + ps.fontSize + ';color:' + priceColor + ';',
+              descCss: 'font-size:' + descFontSize + ';color:' + (descColor || titleColor) + ';margin-top:6px;line-height:1.5;opacity:0.72;',
               containerPadding: sibTitle.closest('div[style*="padding"]') ? sibTitle.closest('div[style*="padding"]').style.cssText.match(/padding[^;]+;/)?.[0] || 'padding:16px 18px;' : 'padding:16px 18px;'
             };
           }
