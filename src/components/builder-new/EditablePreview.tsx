@@ -564,11 +564,29 @@ const EDIT_SCRIPT = String.raw`
       function injectProductControls() {
         if (!window.__YANGU_ENABLE_PRODUCT_CONTROLS) return;
 
+        var allCards = [];
         document.querySelectorAll('div,article,li').forEach(function(card) {
           if (!isLikelyProductCard(card)) return;
+          allCards.push(card);
+        });
 
+        // First pass: mark roles on all NON-legacy cards so siblings have data-product-role
+        allCards.forEach(function(card) {
+          var hasTitle = getProductRoleEl(card, 'title');
+          var hasPrice = getProductRoleEl(card, 'price');
+          if (hasTitle && hasPrice) {
+            // Already structured, just ensure roles are set
+            setProductRole(card, 'title', hasTitle);
+            setProductRole(card, 'price', hasPrice);
+            card.setAttribute('data-product-card', 'true');
+          }
+        });
+
+        // Second pass: normalize legacy cards (now siblings have roles for style inference)
+        allCards.forEach(function(card) {
           markProductRoles(card);
           card.classList.add('yangu-product-card');
+          ensureNodeId(card);
 
           // Inject edit/delete controls (top-right)
           if (!card.querySelector('.yangu-product-controls')) {
