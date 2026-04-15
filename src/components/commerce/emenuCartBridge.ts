@@ -105,7 +105,12 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
         var cardExtracted = extractPrice(card.textContent);
         if (cardExtracted) { priceText = cardExtracted; priceNum = parsePriceNum(priceText); }
       }
-      if (isNaN(priceNum)) return;
+      // Last resort: just try to parse any digits from the price element
+      if (isNaN(priceNum)) {
+        var digits = normalizeText(priceEl.textContent).replace(/[^\\d.]/g, '');
+        if (digits) priceNum = parseFloat(digits);
+      }
+      if (isNaN(priceNum) || priceNum <= 0) return;
 
       // Only mark processed AFTER confirming valid price parse
       card.setAttribute('data-cart-processed', 'true');
