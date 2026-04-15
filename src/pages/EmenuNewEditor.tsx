@@ -465,6 +465,12 @@ export default function EmenuNewEditor() {
     const contentParent = contentAnchor?.parentElement || card;
     const trimmedName = product.name.trim();
 
+    if (trimmedName) {
+      card.setAttribute("data-product-title", trimmedName);
+    } else {
+      card.removeAttribute("data-product-title");
+    }
+
     if (nameElement) {
       nameElement.textContent = trimmedName || nameElement.textContent || "Product";
       nameElement.setAttribute("data-product-role", "title");
@@ -584,6 +590,9 @@ export default function EmenuNewEditor() {
       const imgEl = card.querySelector("img") as HTMLImageElement | null;
       if (imgEl && imgEl.src !== product.imageSrc) {
         imgEl.src = product.imageSrc;
+      }
+      if (imgEl && trimmedName) {
+        imgEl.alt = trimmedName;
       }
     }
 
@@ -1060,21 +1069,26 @@ export default function EmenuNewEditor() {
 
       case "set_product_button_style": {
         if (!doc) break;
-        const btns = doc.querySelectorAll('.yangu-product-cta');
-        if (btns.length === 0) {
-          toast.info("No product buttons found. Add products first.");
+        const cards = Array.from(
+          doc.querySelectorAll<HTMLElement>('[data-product-card="true"], .yangu-product-card')
+        );
+
+        if (cards.length === 0) {
+          toast.info("No product cards found.");
           break;
         }
-        btns.forEach((btn: Element) => {
-          const el = btn as HTMLElement;
-          if (payload?.color) {
-            el.style.borderColor = payload.color;
-            el.style.color = payload.color;
-          }
-          if (payload?.borderRadius) el.style.borderRadius = payload.borderRadius;
-          if (payload?.padding) el.style.padding = payload.padding;
-          if (payload?.fontSize) el.style.fontSize = payload.fontSize;
+
+        const selectedCard = doc.querySelector<HTMLElement>('.yangu-card-selected[data-product-card="true"], .yangu-card-selected.yangu-product-card');
+        const targetCards = payload?.global === false && selectedCard ? [selectedCard] : cards;
+
+        targetCards.forEach((card) => {
+          if (payload?.color) card.setAttribute("data-product-button-color", payload.color);
+          if (payload?.borderRadius) card.setAttribute("data-product-button-radius", payload.borderRadius);
+          if (payload?.padding) card.setAttribute("data-product-button-padding", payload.padding);
+          if (payload?.fontSize) card.setAttribute("data-product-button-font-size", payload.fontSize);
         });
+
+        pushUpdate(doc, iframe);
         toast.success("Button style updated!");
         break;
       }

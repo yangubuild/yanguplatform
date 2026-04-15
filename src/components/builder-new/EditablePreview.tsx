@@ -64,10 +64,16 @@ const EDIT_SCRIPT = String.raw`
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       var nodeIdCounter = 0;
-      document.querySelectorAll('h1,h2,h3,h4,h5,h6,p,span,a,li,button,img,section,footer,nav,header,div,article').forEach(function(el) {
-        if (!el.getAttribute('data-yangu-node-id')) {
+
+      function ensureNodeId(el) {
+        if (el && !el.getAttribute('data-yangu-node-id')) {
           el.setAttribute('data-yangu-node-id', 'yn-' + (++nodeIdCounter));
         }
+        return el;
+      }
+
+      document.querySelectorAll('h1,h2,h3,h4,h5,h6,p,span,a,li,button,img,section,footer,nav,header,div,article').forEach(function(el) {
+        ensureNodeId(el);
       });
 
       function getSections() {
@@ -128,6 +134,19 @@ const EDIT_SCRIPT = String.raw`
         if (!compact || compact.length > 30) return false;
         var hasCurrency = /[$€£₦]/.test(compact) || /(?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR)/i.test(compact);
         return hasCurrency && /\d/.test(compact);
+      }
+
+      function extractPriceText(text) {
+        var matches = normalizeProductText(text).match(/(?:[A-Z]{3}\s*[\d,]+(?:\.\d+)?|[\$€£₦]\s*[\d,]+(?:\.\d+)?)/ig);
+        return matches && matches.length ? normalizeProductText(matches[matches.length - 1]) : '';
+      }
+
+      function removePriceText(text, priceText) {
+        var compact = normalizeProductText(text);
+        if (!compact || !priceText) return compact;
+        var idx = compact.lastIndexOf(priceText);
+        if (idx === -1) return compact;
+        return normalizeProductText(compact.slice(0, idx) + compact.slice(idx + priceText.length));
       }
 
       function getProductRoleEl(card, role) {
@@ -280,18 +299,149 @@ const EDIT_SCRIPT = String.raw`
         return best;
       }
 
+      function getCardImageTitle(card) {
+        var imageEl = card.querySelector('img');
+        if (!imageEl) return '';
+        return normalizeProductText(card.getAttribute('data-product-title') || imageEl.getAttribute('alt') || imageEl.getAttribute('title') || '');
+      }
+
+      function inferLegacyProductData(card) {
+        var imageEl = card.querySelector('img');
+        if (!imageEl) return null;
+
+        var explicitTitle = getProductRoleEl(card, 'title');
+        var explicitPrice = getProductRoleEl(card, 'price');
+        if (explicitTitle && explicitPrice) return null;
+
+        var badgeEl = getProductBadgeEl(card, explicitTitle, explicitPrice);
+        var candidates = getProductTextCandidates(card);
+        var contentCandidate = null;
+        var bestScore = -Infinity;
+
+        for (var i = 0; i < candidates.length; i++) {
+          var candidate = candidates[i];
+          if (candidate.el === badgeEl || candidate.el === explicitTitle || candidate.el === explicitPrice) continue;
+          if (candidate.text.length < 12) continue;
+
+          var score = 0;
+          if (extractPriceText(candidate.text)) score += 8;
+          if (candidate.words >= 6) score += 3;
+          if (candidate.tag === 'DIV' || candidate.tag === 'P') score += 2;
+          if (candidate.fontWeight < 600) score += 1;
+          if (candidate.text.length >= 24) score += 1;
+
+          if (score > bestScore) {
+            bestScore = score;
+            contentCandidate = candidate;
+          }
+        }
+
+        var rawText = contentCandidate ? contentCandidate.text : '';
+        var priceText = explicitPrice
+          ? normalizeProductText(explicitPrice.textContent)
+          : extractPriceText(rawText || normalizeProductText(card.textContent));
+        var titleText = explicitTitle
+          ? normalizeProductText(explicitTitle.textContent)
+          : getCardImageTitle(card);
+
+        if (!titleText && rawText) titleText = normalizeProductText(rawText.split(/[.!?]/)[0]);
+
+        var descriptionText = contentCandidate ? removePriceText(contentCandidate.text, priceText) : '';
+
+        if (!titleText || !priceText) return null;
+
+        return {
+          imageEl: imageEl,
+          badgeEl: badgeEl,
+          contentEl: contentCandidate ? contentCandidate.el : null,
+          titleText: titleText,
+          priceText: priceText,
+          descriptionText: descriptionText
+        };
+      }
+
+      function normalizeLegacyProductCard(card) {
+        var currentTitle = getProductRoleEl(card, 'title');
+        var currentPrice = getProductRoleEl(card, 'price');
+        if (currentTitle && currentPrice) return null;
+
+        var legacy = inferLegacyProductData(card);
+        if (!legacy) return null;
+
+        var contentContainer = legacy.contentEl && ['DIV', 'P', 'ARTICLE', 'LI'].indexOf(legacy.contentEl.tagName) !== -1
+          ? legacy.contentEl
+          : null;
+
+        if (!contentContainer) {
+          contentContainer = document.createElement('div');
+          card.appendChild(contentContainer);
+        }
+
+        contentContainer.innerHTML = '';
+
+        var row = document.createElement('div');
+        row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:12px;';
+
+        var nameEl = ensureNodeId(document.createElement('span'));
+        nameEl.textContent = legacy.titleText;
+        nameEl.style.cssText = 'font-weight:600;';
+        nameEl.setAttribute('data-product-role', 'title');
+
+        var priceEl = ensureNodeId(document.createElement('span'));
+        priceEl.textContent = legacy.priceText;
+        priceEl.style.cssText = 'font-weight:700;';
+        priceEl.setAttribute('data-product-role', 'price');
+
+        row.appendChild(nameEl);
+        row.appendChild(priceEl);
+        contentContainer.appendChild(row);
+
+        var descEl = null;
+        if (legacy.descriptionText) {
+          descEl = ensureNodeId(document.createElement('p'));
+          descEl.textContent = legacy.descriptionText;
+          descEl.style.cssText = 'margin-top:6px;line-height:1.5;opacity:0.72;';
+          descEl.setAttribute('data-product-role', 'description');
+          contentContainer.appendChild(descEl);
+        }
+
+        if (legacy.badgeEl) {
+          ensureNodeId(legacy.badgeEl);
+          legacy.badgeEl.setAttribute('data-product-role', 'badge');
+          card.setAttribute('data-product-badge-enabled', 'true');
+          card.setAttribute('data-product-badge-text', normalizeProductText(legacy.badgeEl.textContent));
+        }
+
+        if (legacy.imageEl && legacy.titleText) {
+          legacy.imageEl.setAttribute('alt', legacy.titleText);
+        }
+
+        card.setAttribute('data-product-card', 'true');
+
+        return {
+          nameEl: nameEl,
+          priceEl: priceEl,
+          badgeEl: legacy.badgeEl || null,
+          descEl: descEl
+        };
+      }
+
       function setProductRole(card, role, el) {
         card.querySelectorAll('[data-product-role="' + role + '"]').forEach(function(node) {
           if (node !== el) node.removeAttribute('data-product-role');
         });
-        if (el) el.setAttribute('data-product-role', role);
+        if (el) {
+          ensureNodeId(el);
+          el.setAttribute('data-product-role', role);
+        }
       }
 
       function markProductRoles(card) {
-        var nameEl = getProductNameEl(card);
-        var priceEl = getProductPriceEl(card);
-        var badgeEl = getProductBadgeEl(card, nameEl, priceEl);
-        var descEl = getProductDescriptionEl(card, nameEl, priceEl, badgeEl);
+        var normalized = normalizeLegacyProductCard(card);
+        var nameEl = normalized && normalized.nameEl ? normalized.nameEl : getProductNameEl(card);
+        var priceEl = normalized && normalized.priceEl ? normalized.priceEl : getProductPriceEl(card);
+        var badgeEl = normalized && normalized.badgeEl ? normalized.badgeEl : getProductBadgeEl(card, nameEl, priceEl);
+        var descEl = normalized && normalized.descEl ? normalized.descEl : getProductDescriptionEl(card, nameEl, priceEl, badgeEl);
 
         card.setAttribute('data-product-card', 'true');
         setProductRole(card, 'title', nameEl);
@@ -317,7 +467,8 @@ const EDIT_SCRIPT = String.raw`
         var imageEl = el.querySelector('img');
         var nameEl = getProductNameEl(el);
         var priceEl = getProductPriceEl(el);
-        if (!imageEl || !nameEl || !priceEl) return false;
+        var legacy = inferLegacyProductData(el);
+        if (!imageEl || ((!nameEl || !priceEl) && !(legacy && legacy.titleText && legacy.priceText))) return false;
 
         var nestedMatches = 0;
         var descendants = el.querySelectorAll('div,article,li');
@@ -541,7 +692,7 @@ const EDIT_SCRIPT = String.raw`
             e.stopPropagation();
             clearAllHighlights();
             productCard.classList.add('yangu-card-selected');
-            window.parent.postMessage({ type: 'canvas-select', kind: 'page', tag: productCard.tagName, preview: '', sectionIndex: -1, nodeId: '' }, '*');
+            window.parent.postMessage({ type: 'canvas-select', kind: 'page', tag: productCard.tagName, preview: '', sectionIndex: -1, nodeId: productCard.getAttribute('data-yangu-node-id') || '' }, '*');
             return;
           }
         }
