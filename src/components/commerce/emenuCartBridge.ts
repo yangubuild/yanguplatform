@@ -23,6 +23,18 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
     return hasCurrency && /\\d/.test(compact);
   }
 
+  function extractPrice(text) {
+    var compact = normalizeText(text);
+    if (!compact) return '';
+    var matches = compact.match(/(?:[A-Z]{3}\\s*[\\d,]+(?:\\.\\d+)?|[\\$€£₦]\\s*[\\d,]+(?:\\.\\d+)?|R\\s*[\\d,]+(?:\\.\\d+)?)/ig);
+    return matches && matches.length ? normalizeText(matches[matches.length - 1]) : '';
+  }
+
+  function parsePriceNum(text) {
+    var numStr = normalizeText(text).replace(/^(?:[A-Z]{3}|R)\\s*/i, '').replace(/[\\$€£₦\\s]/g, '').replace(/,/g, '').trim();
+    return parseFloat(numStr);
+  }
+
   function findNameEl(card) {
     var el = card.querySelector('[data-product-role="title"]');
     if (el) return el;
@@ -73,8 +85,26 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
       if (!nameEl || !priceEl) return;
 
       var priceText = normalizeText(priceEl.textContent);
-      var numStr = priceText.replace(/^(?:[A-Z]{3}|R)\\s*|[\\$€£₦\\s]/g, '').replace(/,/g, '').trim();
-      var priceNum = parseFloat(numStr);
+      var priceNum = NaN;
+      if (isPriceText(priceText)) {
+        priceNum = parsePriceNum(priceText);
+      }
+      // If price element is corrupted, try extracting from description or full card text
+      if (isNaN(priceNum)) {
+        var extracted = extractPrice(priceText);
+        if (extracted) { priceText = extracted; priceNum = parsePriceNum(priceText); }
+      }
+      if (isNaN(priceNum)) {
+        var descEl = card.querySelector('[data-product-role="description"]');
+        if (descEl) {
+          var descExtracted = extractPrice(descEl.textContent);
+          if (descExtracted) { priceText = descExtracted; priceNum = parsePriceNum(priceText); }
+        }
+      }
+      if (isNaN(priceNum)) {
+        var cardExtracted = extractPrice(card.textContent);
+        if (cardExtracted) { priceText = cardExtracted; priceNum = parsePriceNum(priceText); }
+      }
       if (isNaN(priceNum)) return;
 
       // Only mark processed AFTER confirming valid price parse
@@ -175,8 +205,11 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
       if (!nameEl || !priceEl2) return;
 
       var pText = normalizeText(priceEl2.textContent);
-      var nStr = pText.replace(/^(?:[A-Z]{3}|R)\\s*|[\\$€£₦\\s]/g, '').replace(/,/g, '').trim();
-      var pNum = parseFloat(nStr);
+      var pNum = parsePriceNum(pText);
+      if (isNaN(pNum)) {
+        var pExtracted = extractPrice(pText) || extractPrice(card.textContent);
+        if (pExtracted) pNum = parsePriceNum(pExtracted);
+      }
       if (isNaN(pNum)) return;
       var pCents = Math.round(pNum * 100);
       var iName = normalizeText(nameEl.textContent);
