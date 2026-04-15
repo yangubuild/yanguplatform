@@ -119,67 +119,199 @@ const EDIT_SCRIPT = String.raw`
         return null;
       }
 
+      function normalizeProductText(text) {
+        return (text || '').replace(/\s+/g, ' ').trim();
+      }
+
       function isPriceText(text) {
-        var compact = (text || '').replace(/\s+/g, ' ').trim();
+        var compact = normalizeProductText(text);
         if (!compact || compact.length > 30) return false;
         var hasCurrency = /[$€£₦]/.test(compact) || /(?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR)/i.test(compact);
         return hasCurrency && /\d/.test(compact);
       }
 
-      function getProductNameEl(card) {
-        var candidates = card.querySelectorAll('h1,h2,h3,h4,h5,h6,strong');
-        for (var i = 0; i < candidates.length; i++) {
-          var text = (candidates[i].textContent || '').replace(/\s+/g, ' ').trim();
-          if (text && text.length > 1 && !isPriceText(text)) return candidates[i];
-        }
-        var styled = card.querySelectorAll('span,div,p');
-        for (var j = 0; j < styled.length; j++) {
-          var el = styled[j];
-          if (el.children.length > 2) continue;
-          var cs = window.getComputedStyle(el);
-          var fw = parseInt(cs.fontWeight, 10);
-          if (fw < 600) continue;
-          var t = (el.textContent || '').replace(/\s+/g, ' ').trim();
-          if (t && t.length > 1 && t.length < 60 && !isPriceText(t)) return el;
-        }
-        return null;
+      function getProductRoleEl(card, role) {
+        return card.querySelector('[data-product-role="' + role + '"]');
       }
 
-      function getProductPriceEl(card) {
-        var candidates = card.querySelectorAll('span,p,div,strong,b');
+      function getProductTextCandidates(card) {
+        var nodes = card.querySelectorAll('h1,h2,h3,h4,h5,h6,p,span,div,strong,b,small');
+        var candidates = [];
+        for (var i = 0; i < nodes.length; i++) {
+          var el = nodes[i];
+          if (el.closest('.yangu-product-controls')) continue;
+          if (el.querySelector('h1,h2,h3,h4,h5,h6,p,span,div,strong,b,small,img,button,a,svg,input,select,textarea')) continue;
+          var text = normalizeProductText(el.textContent);
+          if (!text || text.length > 220) continue;
+          var style = window.getComputedStyle(el);
+          candidates.push({
+            el: el,
+            text: text,
+            tag: el.tagName.toUpperCase(),
+            fontSize: parseFloat(style.fontSize || '0') || 0,
+            fontWeight: parseInt(style.fontWeight || '400', 10) || 400,
+            textTransform: style.textTransform || '',
+            backgroundColor: style.backgroundColor || '',
+            borderRadius: style.borderRadius || '',
+            words: text.split(/\s+/).length,
+            index: i,
+          });
+        }
+        return candidates;
+      }
+
+      function getProductNameEl(card) {
+        var persisted = getProductRoleEl(card, 'title');
+        if (persisted) return persisted;
+
+        var candidates = getProductTextCandidates(card);
         var best = null;
+        var bestScore = -Infinity;
+
         for (var i = 0; i < candidates.length; i++) {
           var candidate = candidates[i];
-          if (candidate.closest('.yangu-product-controls')) continue;
-          if (candidate.querySelector('img')) continue;
-          var text = (candidate.textContent || '').replace(/\s+/g, ' ').trim();
-          if (!isPriceText(text)) continue;
-          if (!best || text.length < (best.textContent || '').replace(/\s+/g, ' ').trim().length) {
-            best = candidate;
+          if (isPriceText(candidate.text)) continue;
+          if (candidate.text.length > 100) continue;
+
+          var score = 0;
+          if (['H1','H2','H3','H4','H5','H6','STRONG','B'].indexOf(candidate.tag) !== -1) score += 10;
+          score += candidate.fontSize;
+          score += Math.min(candidate.fontWeight, 800) / 100;
+          if (candidate.words >= 2 && candidate.words <= 8) score += 4;
+          if (candidate.text.length >= 5) score += 2;
+          if (candidate.text.length <= 24 && candidate.words <= 3) score -= 3;
+          if (/[.!?]/.test(candidate.text)) score -= 6;
+          if (candidate.textTransform === 'uppercase' && candidate.words <= 3) score -= 2;
+
+          if (score > bestScore) {
+            best = candidate.el;
+            bestScore = score;
           }
         }
+
         return best;
       }
 
-      function getProductDescriptionEl(card, nameEl, priceEl) {
-        var nameText = (nameEl && nameEl.textContent ? nameEl.textContent : '').replace(/\s+/g, ' ').trim();
-        var candidates = card.querySelectorAll('p,span,div');
+      function getProductPriceEl(card) {
+        var persisted = getProductRoleEl(card, 'price');
+        if (persisted) return persisted;
+
+        var candidates = getProductTextCandidates(card);
+        var best = null;
+        var bestScore = -Infinity;
+
         for (var i = 0; i < candidates.length; i++) {
           var candidate = candidates[i];
-          if (candidate === nameEl || candidate === priceEl) continue;
-          if (candidate.closest('.yangu-product-controls')) continue;
-          if (candidate.querySelector('button,a,h1,h2,h3,h4,h5,h6,img')) continue;
-          var text = (candidate.textContent || '').replace(/\s+/g, ' ').trim();
-          if (!text || text === nameText || isPriceText(text) || text.length > 220) continue;
-          return candidate;
+          if (!isPriceText(candidate.text)) continue;
+
+          var score = 20 - candidate.text.length;
+          if (candidate.words === 1) score += 2;
+          if (candidate.tag === 'STRONG' || candidate.tag === 'B') score += 1;
+
+          if (score > bestScore) {
+            best = candidate.el;
+            bestScore = score;
+          }
         }
-        return null;
+
+        return best;
+      }
+
+      function getProductBadgeEl(card, nameEl, priceEl) {
+        var persisted = getProductRoleEl(card, 'badge');
+        if (persisted) return persisted;
+
+        var candidates = getProductTextCandidates(card);
+        var titleFontSize = nameEl ? (parseFloat(window.getComputedStyle(nameEl).fontSize || '0') || 0) : 999;
+        var titleIndex = candidates.findIndex(function(candidate) { return candidate.el === nameEl; });
+        var best = null;
+        var bestScore = -Infinity;
+
+        for (var i = 0; i < candidates.length; i++) {
+          var candidate = candidates[i];
+          if (candidate.el === nameEl || candidate.el === priceEl) continue;
+          if (isPriceText(candidate.text)) continue;
+          if (candidate.text.length > 28 || candidate.words > 4) continue;
+
+          var score = 0;
+          if (titleIndex === -1 || candidate.index < titleIndex) score += 4;
+          if (candidate.fontSize <= titleFontSize) score += 2;
+          if (candidate.fontWeight >= 500) score += 1;
+          if (candidate.words <= 2) score += 1;
+          if (candidate.backgroundColor && candidate.backgroundColor !== 'transparent' && candidate.backgroundColor !== 'rgba(0, 0, 0, 0)') score += 2;
+          if (candidate.borderRadius && candidate.borderRadius !== '0px') score += 1;
+
+          if (score > bestScore) {
+            best = candidate.el;
+            bestScore = score;
+          }
+        }
+
+        return best;
+      }
+
+      function getProductDescriptionEl(card, nameEl, priceEl, badgeEl) {
+        var persisted = getProductRoleEl(card, 'description');
+        if (persisted) return persisted;
+
+        var candidates = getProductTextCandidates(card);
+        var titleFontSize = nameEl ? (parseFloat(window.getComputedStyle(nameEl).fontSize || '0') || 0) : 999;
+        var best = null;
+        var bestScore = -Infinity;
+
+        for (var i = 0; i < candidates.length; i++) {
+          var candidate = candidates[i];
+          if (candidate.el === nameEl || candidate.el === priceEl || candidate.el === badgeEl) continue;
+          if (isPriceText(candidate.text) || candidate.text.length < 12) continue;
+
+          var score = 0;
+          if (candidate.text.length >= 24) score += 3;
+          if (candidate.words >= 5) score += 2;
+          if (/[.!?]/.test(candidate.text)) score += 2;
+          if (candidate.fontWeight < 600) score += 1;
+          if (candidate.fontSize <= titleFontSize) score += 1;
+
+          if (score > bestScore) {
+            best = candidate.el;
+            bestScore = score;
+          }
+        }
+
+        return best;
+      }
+
+      function setProductRole(card, role, el) {
+        card.querySelectorAll('[data-product-role="' + role + '"]').forEach(function(node) {
+          if (node !== el) node.removeAttribute('data-product-role');
+        });
+        if (el) el.setAttribute('data-product-role', role);
+      }
+
+      function markProductRoles(card) {
+        var nameEl = getProductNameEl(card);
+        var priceEl = getProductPriceEl(card);
+        var badgeEl = getProductBadgeEl(card, nameEl, priceEl);
+        var descEl = getProductDescriptionEl(card, nameEl, priceEl, badgeEl);
+
+        card.setAttribute('data-product-card', 'true');
+        setProductRole(card, 'title', nameEl);
+        setProductRole(card, 'price', priceEl);
+        setProductRole(card, 'badge', badgeEl);
+        setProductRole(card, 'description', descEl);
+
+        return {
+          nameEl: nameEl,
+          priceEl: priceEl,
+          badgeEl: badgeEl,
+          descEl: descEl,
+        };
       }
 
       function isLikelyProductCard(el) {
         if (!window.__YANGU_ENABLE_PRODUCT_CONTROLS) return false;
         if (!el || ['DIV', 'ARTICLE', 'LI'].indexOf(el.tagName) === -1) return false;
         if (el.closest('nav,header,footer')) return false;
+        if (el.getAttribute('data-product-card') === 'true') return true;
         if (el.querySelector('.yangu-product-controls')) return true;
 
         var imageEl = el.querySelector('img');
@@ -203,18 +335,30 @@ const EDIT_SCRIPT = String.raw`
       }
 
       function getProductPayload(card) {
-        var nameEl = getProductNameEl(card);
-        var priceEl = getProductPriceEl(card);
-        var descEl = getProductDescriptionEl(card, nameEl, priceEl);
+        var mapping = markProductRoles(card);
+        var nameEl = mapping.nameEl;
+        var priceEl = mapping.priceEl;
+        var badgeEl = mapping.badgeEl;
+        var descEl = mapping.descEl;
         var imageEl = card.querySelector('img');
 
         return {
           nodeId: card.getAttribute('data-yangu-node-id') || '',
           sectionIndex: findSectionIndex(card),
-          name: nameEl ? (nameEl.textContent || '').replace(/\s+/g, ' ').trim() : '',
-          description: descEl ? (descEl.textContent || '').replace(/\s+/g, ' ').trim() : '',
-          price: priceEl ? (priceEl.textContent || '').replace(/\s+/g, ' ').trim() : '',
+          name: nameEl ? normalizeProductText(nameEl.textContent) : '',
+          description: descEl ? normalizeProductText(descEl.textContent) : '',
+          price: priceEl ? normalizeProductText(priceEl.textContent) : '',
           imageSrc: imageEl ? imageEl.src : '',
+          badgeEnabled: card.getAttribute('data-product-badge-enabled') === 'true' || Boolean(badgeEl),
+          badgeText: card.getAttribute('data-product-badge-text') || (badgeEl ? normalizeProductText(badgeEl.textContent) : ''),
+          ctaAction: card.getAttribute('data-product-cta') || '',
+          buttonText: card.getAttribute('data-product-button-text') || '',
+          actionType: card.getAttribute('data-product-action-type') || '',
+          actionUrl: card.getAttribute('data-product-action-url') || '',
+          titleNodeId: nameEl ? (nameEl.getAttribute('data-yangu-node-id') || '') : '',
+          descriptionNodeId: descEl ? (descEl.getAttribute('data-yangu-node-id') || '') : '',
+          priceNodeId: priceEl ? (priceEl.getAttribute('data-yangu-node-id') || '') : '',
+          badgeNodeId: badgeEl ? (badgeEl.getAttribute('data-yangu-node-id') || '') : '',
         };
       }
 
@@ -224,6 +368,7 @@ const EDIT_SCRIPT = String.raw`
         document.querySelectorAll('div,article,li').forEach(function(card) {
           if (!isLikelyProductCard(card)) return;
 
+          markProductRoles(card);
           card.classList.add('yangu-product-card');
 
           // Inject edit/delete controls (top-right)

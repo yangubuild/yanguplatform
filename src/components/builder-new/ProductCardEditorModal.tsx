@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { ChevronLeft, ChevronRight, Plus, Trash2, ImageIcon, Sparkles, Upload, Search, Loader2, X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ItemCtaSelector, getDefaultCtaForSurface } from "@/components/builder/editors/ItemCtaSelector";
+import { ItemCtaSelector, getDefaultCtaForSurface, resolveButtonTextForCta } from "@/components/builder/editors/ItemCtaSelector";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { ProductCardData } from "@/lib/builder/selectionTypes";
@@ -41,6 +42,8 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
   const [buttonText, setButtonText] = useState("+ Add");
   const [actionType, setActionType] = useState("checkout");
   const [actionUrl, setActionUrl] = useState("");
+  const [badgeEnabled, setBadgeEnabled] = useState(false);
+  const [badgeText, setBadgeText] = useState("");
   const [stock, setStock] = useState("");
 
   // AI description state
@@ -58,12 +61,24 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
     }
     setActiveImageIdx(0);
     const defaults = getDefaultCtaForSurface(surfaceType);
-    setCtaValue(defaults.ctaAction);
-    setButtonText(defaults.buttonText);
-    setActionType(defaults.actionType);
-    setActionUrl("");
+    const nextCtaValue = product?.ctaAction || defaults.ctaAction;
+    setCtaValue(nextCtaValue);
+    setButtonText(
+      nextCtaValue === "custom"
+        ? (product?.buttonText || "")
+        : (product?.buttonText || resolveButtonTextForCta(nextCtaValue, surfaceType))
+    );
+    setActionType(product?.actionType || defaults.actionType);
+    setActionUrl(product?.actionUrl || "");
+    setBadgeEnabled(product?.badgeEnabled ?? Boolean(product?.badgeText));
+    setBadgeText(product?.badgeText || "");
     setStock("");
   }, [product, surfaceType]);
+
+  useEffect(() => {
+    if (!open || ctaValue === "custom") return;
+    setButtonText(resolveButtonTextForCta(ctaValue, surfaceType));
+  }, [ctaValue, open, surfaceType]);
 
   useEffect(() => {
     if (!open) return;
@@ -116,9 +131,19 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
 
   const handleSave = () => {
     if (!draft) return;
+    const nextButtonText = ctaValue === "custom"
+      ? buttonText.trim()
+      : resolveButtonTextForCta(ctaValue, surfaceType);
+
     onSave({
       ...draft,
       imageSrc: images[0] || draft.imageSrc,
+      badgeEnabled,
+      badgeText: badgeEnabled ? badgeText.trim() : "",
+      ctaAction: ctaValue,
+      buttonText: nextButtonText,
+      actionType,
+      actionUrl: actionUrl.trim(),
     });
   };
 
@@ -238,6 +263,27 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
                   placeholder="Unlimited"
                 />
               </div>
+            </div>
+
+            <div className="space-y-3 rounded-xl border border-border bg-muted/20 p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h4 className="text-sm font-semibold text-foreground">Badge</h4>
+                  <p className="text-xs text-muted-foreground">Show an optional badge on this product card.</p>
+                </div>
+                <Switch checked={badgeEnabled} onCheckedChange={(checked) => setBadgeEnabled(Boolean(checked))} />
+              </div>
+
+              {badgeEnabled && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Badge Text</Label>
+                  <Input
+                    value={badgeText}
+                    onChange={(e) => setBadgeText(e.target.value)}
+                    placeholder="e.g. Popular"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Button Config Section */}
