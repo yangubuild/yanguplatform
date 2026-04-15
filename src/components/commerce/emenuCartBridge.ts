@@ -175,7 +175,7 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
       if (!nameEl || !priceEl2) return;
 
       var pText = normalizeText(priceEl2.textContent);
-      var nStr = pText.replace(/^[A-Z]{3}|[\\$€£₦\\s]/g, '').replace(/,/g, '').trim();
+      var nStr = pText.replace(/^(?:[A-Z]{3}|R)\\s*|[\\$€£₦\\s]/g, '').replace(/,/g, '').trim();
       var pNum = parseFloat(nStr);
       if (isNaN(pNum)) return;
       var pCents = Math.round(pNum * 100);
