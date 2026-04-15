@@ -3,7 +3,9 @@
  * Adds "Add to Cart" buttons to menu item cards and communicates with parent React shell
  * via postMessage.
  *
- * Accepts a configured currency so prices are always interpreted correctly.
+ * Uses data-product-role attributes when available, falls back to heuristics.
+ * Reads per-card CTA config from data-product-cta / data-product-button-text attributes.
+ * Reads global button styles from data-product-button-color etc.
  */
 
 export function buildCartBridgeScript(configuredCurrency: string = "USD"): string {
@@ -12,53 +14,121 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
 (function() {
   var CONFIGURED_CURRENCY = ${JSON.stringify(configuredCurrency)};
 
+  function normalizeText(t) { return (t || '').replace(/\\s+/g, ' ').trim(); }
+
+  function isPriceText(text) {
+    var compact = normalizeText(text);
+    if (!compact || compact.length > 30) return false;
+    var hasCurrency = /[\\$€£₦]/.test(compact) || /(?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR)/i.test(compact);
+    return hasCurrency && /\\d/.test(compact);
+  }
+
+  function findNameEl(card) {
+    var el = card.querySelector('[data-product-role="title"]');
+    if (el) return el;
+    var headings = card.querySelectorAll('h3, h4, h5, [style*="font-weight:700"], [style*="font-weight:600"], [style*="font-weight: 700"], [style*="font-weight: 600"]');
+    for (var i = 0; i < headings.length; i++) {
+      var text = normalizeText(headings[i].textContent);
+      if (text && !isPriceText(text)) return headings[i];
+    }
+    return null;
+  }
+
+  function findPriceEl(card) {
+    var el = card.querySelector('[data-product-role="price"]');
+    if (el) return el;
+    var spans = card.querySelectorAll('span, p, div, strong');
+    for (var i = 0; i < spans.length; i++) {
+      var text = normalizeText(spans[i].textContent);
+      if (isPriceText(text)) return spans[i];
+    }
+    return null;
+  }
+
+  function isProductCard(el) {
+    if (el.getAttribute('data-product-card') === 'true') return true;
+    if (['DIV','ARTICLE','LI'].indexOf(el.tagName) === -1) return false;
+    return Boolean(el.querySelector('img') && findNameEl(el) && findPriceEl(el));
+  }
+
+  function getButtonStyle(card) {
+    var color = card.getAttribute('data-product-button-color') || document.body.getAttribute('data-product-button-color') || '#10b981';
+    var radius = card.getAttribute('data-product-button-radius') || document.body.getAttribute('data-product-button-radius') || '8px';
+    var padding = card.getAttribute('data-product-button-padding') || document.body.getAttribute('data-product-button-padding') || '8px 0';
+    var fontSize = card.getAttribute('data-product-button-font-size') || document.body.getAttribute('data-product-button-font-size') || '14px';
+    return { color: color, radius: radius, padding: padding, fontSize: fontSize };
+  }
+
   function initCartBridge() {
-    var allCards = document.querySelectorAll('[style*="border-radius"]');
-    var pricePattern = /^([A-Z]{3}|\\$|€|£)\\s*[\\d,\\.]+$/;
-
-    allCards.forEach(function(card) {
+    document.querySelectorAll('div, article, li').forEach(function(card) {
       if (card.getAttribute('data-cart-processed')) return;
+      if (!isProductCard(card)) return;
 
-      var priceEl = null;
-      var nameEl = null;
+      var nameEl = findNameEl(card);
+      var priceEl = findPriceEl(card);
       var imageEl = card.querySelector('img');
-
-      var spans = card.querySelectorAll('span, p, div');
-      for (var i = 0; i < spans.length; i++) {
-        var text = (spans[i].textContent || '').trim();
-        if (pricePattern.test(text) && !priceEl) {
-          priceEl = spans[i];
-        }
-      }
-
-      var headings = card.querySelectorAll('h3, h4, h5, [style*="font-weight:700"], [style*="font-weight:600"], [style*="font-weight: 700"], [style*="font-weight: 600"]');
-      if (headings.length > 0) nameEl = headings[0];
-
-      if (!priceEl || !nameEl) return;
+      if (!nameEl || !priceEl) return;
 
       card.setAttribute('data-cart-processed', 'true');
 
-      var priceText = (priceEl.textContent || '').trim();
-      var numStr = priceText.replace(/^[A-Z]{3}|[\\$€£\\s]/g, '').replace(/,/g, '').trim();
+      var priceText = normalizeText(priceEl.textContent);
+      var numStr = priceText.replace(/^[A-Z]{3}|[\\$€£₦\\s]/g, '').replace(/,/g, '').trim();
       var priceNum = parseFloat(numStr);
       if (isNaN(priceNum)) return;
 
-      // Always use the configured currency, not what's parsed from text
       var priceCents = Math.round(priceNum * 100);
-      var itemName = (nameEl.textContent || '').trim();
+      var itemName = normalizeText(nameEl.textContent);
       var imageUrl = imageEl ? imageEl.src : null;
       var itemId = btoa(itemName + '_' + priceCents).replace(/=/g, '');
 
-      // Create visible "+ Add" button
+      // Determine button text from card metadata
+      var ctaAction = card.getAttribute('data-product-cta') || '';
+      var buttonText = card.getAttribute('data-product-button-text') || '';
+
+      // If CTA is explicitly "none", skip button
+      if (ctaAction === 'none') return;
+
+      // Default button text if not set
+      if (!buttonText) {
+        var ctaTextMap = {
+          'add_to_cart': '+ Add',
+          'buy_now': 'Buy Now',
+          'order_now': 'Order Now',
+          'book_now': 'Book Now',
+          'join_now': '+ Join',
+          'contact_seller': 'Contact Seller',
+          'reserve': 'Reserve',
+          'access': 'Access',
+          'download': 'Download',
+          'view': 'View'
+        };
+        buttonText = ctaTextMap[ctaAction] || '+ Add';
+      }
+
+      var style = getButtonStyle(card);
+
       var btn = document.createElement('button');
-      btn.textContent = '+ Add';
-      btn.style.cssText = 'margin-top:8px;padding:8px 0;border-radius:8px;border:2px solid #10b981;background:transparent;color:#10b981;font-size:14px;font-weight:700;cursor:pointer;width:100%;transition:all 0.2s;letter-spacing:0.02em;';
-      btn.onmouseover = function() { btn.style.background = '#10b981'; btn.style.color = '#fff'; };
-      btn.onmouseout = function() { btn.style.background = 'transparent'; btn.style.color = '#10b981'; };
+      btn.textContent = buttonText;
+      btn.className = 'yangu-live-cta';
+      btn.style.cssText = 'margin-top:8px;padding:' + style.padding + ';border-radius:' + style.radius + ';border:2px solid ' + style.color + ';background:transparent;color:' + style.color + ';font-size:' + style.fontSize + ';font-weight:700;cursor:pointer;width:100%;transition:all 0.2s;letter-spacing:0.02em;';
+      btn.onmouseover = function() { btn.style.background = style.color; btn.style.color = '#fff'; };
+      btn.onmouseout = function() { btn.style.background = 'transparent'; btn.style.color = style.color; };
+
+      var actionType = card.getAttribute('data-product-action-type') || 'checkout';
+      var actionUrl = card.getAttribute('data-product-action-url') || '';
 
       btn.onclick = function(e) {
         e.preventDefault();
         e.stopPropagation();
+
+        if (actionType === 'external_url' && actionUrl) {
+          window.open(actionUrl, '_blank');
+          return;
+        }
+        if (actionType === 'whatsapp') {
+          window.open('https://wa.me/?text=' + encodeURIComponent('I would like to order: ' + itemName), '_blank');
+          return;
+        }
 
         window.parent.postMessage({
           type: 'yangu_add_to_cart',
@@ -72,15 +142,16 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
           }
         }, '*');
 
+        var origText = btn.textContent;
         btn.textContent = '\\u2713 Added';
         btn.style.background = '#059669';
         btn.style.color = '#fff';
         btn.style.borderColor = '#059669';
         setTimeout(function() {
-          btn.textContent = '+ Add';
+          btn.textContent = origText;
           btn.style.background = 'transparent';
-          btn.style.color = '#10b981';
-          btn.style.borderColor = '#10b981';
+          btn.style.color = style.color;
+          btn.style.borderColor = style.color;
         }, 1200);
       };
 
@@ -92,24 +163,19 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
     document.querySelectorAll('[data-yangu-order-btn]').forEach(function(btn) {
       if (btn.getAttribute('data-cart-wired')) return;
       btn.setAttribute('data-cart-wired', 'true');
-      var card = btn.closest('[data-cart-processed], [class*="card"], [class*="item"], [class*="product"], [class*="menu-item"]') || btn.parentElement;
+      var card = btn.closest('[data-cart-processed], [data-product-card]') || btn.parentElement;
       if (!card) return;
 
-      var nameEl = card.querySelector('h3, h4, h5, [style*="font-weight:700"], [style*="font-weight:600"]');
-      var priceEl2 = null;
-      var spans2 = card.querySelectorAll('span, p');
-      for (var j = 0; j < spans2.length; j++) {
-        var txt = (spans2[j].textContent || '').trim();
-        if (pricePattern.test(txt)) { priceEl2 = spans2[j]; break; }
-      }
+      var nameEl = findNameEl(card);
+      var priceEl2 = findPriceEl(card);
       if (!nameEl || !priceEl2) return;
 
-      var pText = (priceEl2.textContent || '').trim();
-      var nStr = pText.replace(/^[A-Z]{3}|[\\$€£\\s]/g, '').replace(/,/g, '').trim();
+      var pText = normalizeText(priceEl2.textContent);
+      var nStr = pText.replace(/^[A-Z]{3}|[\\$€£₦\\s]/g, '').replace(/,/g, '').trim();
       var pNum = parseFloat(nStr);
       if (isNaN(pNum)) return;
       var pCents = Math.round(pNum * 100);
-      var iName = (nameEl.textContent || '').trim();
+      var iName = normalizeText(nameEl.textContent);
       var iImg = card.querySelector('img');
       var iId = btoa(iName + '_' + pCents).replace(/=/g, '');
 
@@ -144,13 +210,12 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
     document.body.appendChild(btn);
   }
 
-  // Smooth scroll for anchor links (View Menu -> #menu, etc.)
+  // Smooth scroll for anchor links
   document.addEventListener('click', function(e) {
     var link = e.target.closest('a[href^="#"]');
     if (!link) {
       var btn = e.target.closest('button, [role="button"]');
       if (btn) {
-        var onclick = btn.getAttribute('onclick') || '';
         var hrefAttr = btn.getAttribute('data-href') || btn.getAttribute('href') || '';
         if (hrefAttr.startsWith('#') && hrefAttr.length > 1) {
           e.preventDefault();

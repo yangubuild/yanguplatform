@@ -851,6 +851,11 @@ const EDIT_SCRIPT = String.raw`
           }
         }
 
+        if (e.data.type === 're-inject-product-controls') {
+          injectProductControls();
+          return;
+        }
+
         if (e.data.type === 'apply-page-bg') {
           document.body.style.backgroundColor = e.data.color || '';
           notifyHtmlUpdate();
