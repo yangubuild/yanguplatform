@@ -88,22 +88,22 @@ export function PublicCommerceShell({
     (window as any).__yangu_open_cart = () => setView("cart");
   }
 
+  // Send cart count to iframe so its Cart button can update
+  useEffect(() => {
+    const iframes = document.querySelectorAll("iframe");
+    iframes.forEach((iframe) => {
+      try {
+        iframe.contentWindow?.postMessage(
+          { type: "yangu_cart_count", count: cart.count },
+          "*"
+        );
+      } catch {}
+    });
+  }, [cart.count]);
+
   return (
     <>
       {children}
-
-      {/* Floating cart FAB — only when ordering enabled and items in cart */}
-      {orderingEnabled && cart.count > 0 && view === "none" && (
-        <button
-          onClick={() => setView("cart")}
-          className="fixed bottom-6 z-50 flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-3 shadow-lg hover:opacity-90 transition-transform hover:scale-105"
-          style={{ left: whatsappEnabled ? "24px" : undefined, right: whatsappEnabled ? undefined : "24px" }}
-          aria-label="Open cart"
-        >
-          <ShoppingCart className="h-5 w-5" />
-          <span className="font-semibold text-sm">{cart.count}</span>
-        </button>
-      )}
 
       {/* WhatsApp float */}
       {whatsappEnabled && config?.support_whatsapp && (
