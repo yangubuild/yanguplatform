@@ -59,11 +59,11 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
 
   function isProductCard(el) {
     if (['DIV','ARTICLE','LI'].indexOf(el.tagName) === -1) return false;
-    // Reject wrapper elements that contain nested product cards
     var nested = el.querySelectorAll('[data-product-card="true"]');
     if (nested.length > 0) return false;
     if (el.getAttribute('data-product-card') === 'true') return true;
-    return Boolean(el.querySelector('img') && findNameEl(el) && findPriceEl(el));
+    // Allow cards even without a valid price element — price can be recovered later
+    return Boolean(el.querySelector('img') && findNameEl(el));
   }
 
   function getButtonStyle(card) {
@@ -82,15 +82,14 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
       var nameEl = findNameEl(card);
       var priceEl = findPriceEl(card);
       var imageEl = card.querySelector('img');
-      if (!nameEl || !priceEl) return;
+      if (!nameEl) return;
 
-      var priceText = normalizeText(priceEl.textContent);
+      var priceText = priceEl ? normalizeText(priceEl.textContent) : '';
       var priceNum = NaN;
-      if (isPriceText(priceText)) {
+      if (priceText && isPriceText(priceText)) {
         priceNum = parsePriceNum(priceText);
       }
-      // If price element is corrupted, try extracting from description or full card text
-      if (isNaN(priceNum)) {
+      if (isNaN(priceNum) && priceText) {
         var extracted = extractPrice(priceText);
         if (extracted) { priceText = extracted; priceNum = parsePriceNum(priceText); }
       }
@@ -105,9 +104,10 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
         var cardExtracted = extractPrice(card.textContent);
         if (cardExtracted) { priceText = cardExtracted; priceNum = parsePriceNum(priceText); }
       }
-      // Last resort: just try to parse any digits from the price element
+      // Last resort: extract any digits from price element or full card
       if (isNaN(priceNum)) {
-        var digits = normalizeText(priceEl.textContent).replace(/[^\\d.]/g, '');
+        var src = priceEl ? priceEl.textContent : card.textContent;
+        var digits = normalizeText(src).replace(/[^\\d.]/g, '');
         if (digits) priceNum = parseFloat(digits);
       }
       if (isNaN(priceNum) || priceNum <= 0) return;
