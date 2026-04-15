@@ -360,6 +360,16 @@ const EDIT_SCRIPT = String.raw`
         };
       }
 
+      function getInlineStyle(el) {
+        var s = el.getAttribute('style') || '';
+        var result = {};
+        s.split(';').forEach(function(part) {
+          var kv = part.split(':');
+          if (kv.length >= 2) result[kv[0].trim()] = kv.slice(1).join(':').trim();
+        });
+        return result;
+      }
+
       function inferSiblingCardStyles(card) {
         var parent = card.parentElement;
         if (!parent) return null;
@@ -374,10 +384,17 @@ const EDIT_SCRIPT = String.raw`
             var ts = window.getComputedStyle(sibTitle);
             var ps = window.getComputedStyle(sibPrice);
             var ds = sibDesc ? window.getComputedStyle(sibDesc) : null;
+            var titleInline = getInlineStyle(sibTitle);
+            var priceInline = getInlineStyle(sibPrice);
+            var descInline = sibDesc ? getInlineStyle(sibDesc) : {};
+            var titleColor = titleInline['color'] || ts.color;
+            var priceColor = priceInline['color'] || ps.color;
+            var descColor = descInline['color'] || (ds ? ds.color : '');
+            var descFontSize = descInline['font-size'] || (ds ? ds.fontSize : '12px');
             return {
-              titleCss: 'font-weight:' + ts.fontWeight + ';font-size:' + ts.fontSize + ';color:' + ts.color + ';',
-              priceCss: 'font-weight:' + ps.fontWeight + ';font-size:' + ps.fontSize + ';color:' + ps.color + ';',
-              descCss: ds ? 'font-size:' + ds.fontSize + ';color:' + ds.color + ';margin-top:6px;line-height:1.5;' : 'margin-top:6px;line-height:1.5;opacity:0.72;font-size:12px;',
+              titleCss: 'font-weight:' + ts.fontWeight + ';font-size:' + ts.fontSize + ';color:' + titleColor + ';',
+              priceCss: 'font-weight:' + ps.fontWeight + ';font-size:' + ps.fontSize + ';color:' + priceColor + ';',
+              descCss: 'font-size:' + descFontSize + ';color:' + (descColor || titleColor) + ';margin-top:6px;line-height:1.5;opacity:0.72;',
               containerPadding: sibTitle.closest('div[style*="padding"]') ? sibTitle.closest('div[style*="padding"]').style.cssText.match(/padding[^;]+;/)?.[0] || 'padding:16px 18px;' : 'padding:16px 18px;'
             };
           }
@@ -547,11 +564,29 @@ const EDIT_SCRIPT = String.raw`
       function injectProductControls() {
         if (!window.__YANGU_ENABLE_PRODUCT_CONTROLS) return;
 
+        var allCards = [];
         document.querySelectorAll('div,article,li').forEach(function(card) {
           if (!isLikelyProductCard(card)) return;
+          allCards.push(card);
+        });
 
+        // First pass: mark roles on all NON-legacy cards so siblings have data-product-role
+        allCards.forEach(function(card) {
+          var hasTitle = getProductRoleEl(card, 'title');
+          var hasPrice = getProductRoleEl(card, 'price');
+          if (hasTitle && hasPrice) {
+            // Already structured, just ensure roles are set
+            setProductRole(card, 'title', hasTitle);
+            setProductRole(card, 'price', hasPrice);
+            card.setAttribute('data-product-card', 'true');
+          }
+        });
+
+        // Second pass: normalize legacy cards (now siblings have roles for style inference)
+        allCards.forEach(function(card) {
           markProductRoles(card);
           card.classList.add('yangu-product-card');
+          ensureNodeId(card);
 
           // Inject edit/delete controls (top-right)
           if (!card.querySelector('.yangu-product-controls')) {
@@ -832,6 +867,11 @@ const EDIT_SCRIPT = String.raw`
             });
             notifyHtmlUpdate();
           }
+        }
+
+        if (e.data.type === 're-inject-product-controls') {
+          injectProductControls();
+          return;
         }
 
         if (e.data.type === 'apply-page-bg') {

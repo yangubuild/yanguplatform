@@ -1069,27 +1069,46 @@ export default function EmenuNewEditor() {
 
       case "set_product_button_style": {
         if (!doc) break;
-        const cards = Array.from(
-          doc.querySelectorAll<HTMLElement>('[data-product-card="true"], .yangu-product-card')
-        );
+        // Query product cards from the iframe — they have data-product-card set during injection
+        iframe?.contentWindow?.postMessage({ type: "re-inject-product-controls" }, "*");
+        // Small delay to let injection complete, then query
+        setTimeout(() => {
+          const iDoc = iframe?.contentDocument;
+          if (!iDoc) return;
+          const cards = Array.from(
+            iDoc.querySelectorAll<HTMLElement>('[data-product-card="true"]')
+          );
 
-        if (cards.length === 0) {
-          toast.info("No product cards found.");
-          break;
-        }
+          if (cards.length === 0) {
+            // Fallback: look for any card-like elements with images and prices
+            const fallbackCards = Array.from(iDoc.querySelectorAll<HTMLElement>('div,article,li')).filter(el => {
+              return el.querySelector('img') && el.querySelector('[data-product-role="price"]');
+            });
+            if (fallbackCards.length === 0) {
+              toast.info("No product cards detected. Style preferences saved for future buttons.");
+            }
+            // Still store preferences as data attributes on body for future use
+            if (payload?.color) iDoc.body.setAttribute("data-product-button-color", payload.color);
+            if (payload?.borderRadius) iDoc.body.setAttribute("data-product-button-radius", payload.borderRadius);
+            if (payload?.padding) iDoc.body.setAttribute("data-product-button-padding", payload.padding);
+            if (payload?.fontSize) iDoc.body.setAttribute("data-product-button-font-size", payload.fontSize);
+            pushUpdate(iDoc, iframe);
+            return;
+          }
 
-        const selectedCard = doc.querySelector<HTMLElement>('.yangu-card-selected[data-product-card="true"], .yangu-card-selected.yangu-product-card');
-        const targetCards = payload?.global === false && selectedCard ? [selectedCard] : cards;
+          const selectedCard = iDoc.querySelector<HTMLElement>('.yangu-card-selected[data-product-card="true"]');
+          const targetCards = payload?.global === false && selectedCard ? [selectedCard] : cards;
 
-        targetCards.forEach((card) => {
-          if (payload?.color) card.setAttribute("data-product-button-color", payload.color);
-          if (payload?.borderRadius) card.setAttribute("data-product-button-radius", payload.borderRadius);
-          if (payload?.padding) card.setAttribute("data-product-button-padding", payload.padding);
-          if (payload?.fontSize) card.setAttribute("data-product-button-font-size", payload.fontSize);
-        });
+          targetCards.forEach((card) => {
+            if (payload?.color) card.setAttribute("data-product-button-color", payload.color);
+            if (payload?.borderRadius) card.setAttribute("data-product-button-radius", payload.borderRadius);
+            if (payload?.padding) card.setAttribute("data-product-button-padding", payload.padding);
+            if (payload?.fontSize) card.setAttribute("data-product-button-font-size", payload.fontSize);
+          });
 
-        pushUpdate(doc, iframe);
-        toast.success("Button style updated!");
+          pushUpdate(iDoc, iframe);
+          toast.success("Button style updated!");
+        }, 100);
         break;
       }
 
