@@ -72,12 +72,13 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
       var imageEl = card.querySelector('img');
       if (!nameEl || !priceEl) return;
 
-      card.setAttribute('data-cart-processed', 'true');
-
       var priceText = normalizeText(priceEl.textContent);
       var numStr = priceText.replace(/^[A-Z]{3}|[\\$€£₦\\s]/g, '').replace(/,/g, '').trim();
       var priceNum = parseFloat(numStr);
       if (isNaN(priceNum)) return;
+
+      // Only mark processed AFTER confirming valid price parse
+      card.setAttribute('data-cart-processed', 'true');
 
       var priceCents = Math.round(priceNum * 100);
       var itemName = normalizeText(nameEl.textContent);
