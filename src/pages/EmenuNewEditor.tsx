@@ -50,11 +50,29 @@ function isLightHex(hex: string): boolean {
   return (r * 299 + g * 587 + b * 114) / 1000 > 155;
 }
 
-const PRODUCT_PRICE_TOKEN_PATTERN = /[$€£₦]|\b(?:UGX|USD|EUR|GBP|KES|TZS|AED|R)\b/i;
+const PRODUCT_CURRENCY_CODE_PATTERN = /(?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR|R)/i;
+const PRODUCT_PRICE_TOKEN_PATTERN = /[$€£₦]|\b(?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR|R)\b/i;
 
 function isProductPriceText(text: string): boolean {
   const compact = text.replace(/\s+/g, " ").trim();
   return compact.length > 0 && compact.length < 24 && PRODUCT_PRICE_TOKEN_PATTERN.test(compact) && /\d/.test(compact);
+}
+
+function getRecognizedCurrencyAffix(existingPrice: string): { prefix: string; suffix: string } {
+  const compact = existingPrice.replace(/\s+/g, " ").trim();
+  if (!compact) return { prefix: "", suffix: "" };
+
+  const prefixMatch = compact.match(new RegExp(`^((?:[$€£₦]|${PRODUCT_CURRENCY_CODE_PATTERN.source})\\s*)`, "i"));
+  if (prefixMatch?.[1] && PRODUCT_PRICE_TOKEN_PATTERN.test(prefixMatch[1])) {
+    return { prefix: prefixMatch[1], suffix: "" };
+  }
+
+  const suffixMatch = compact.match(new RegExp(`(\\s*(?:${PRODUCT_CURRENCY_CODE_PATTERN.source}))$`, "i"));
+  if (suffixMatch?.[1] && PRODUCT_PRICE_TOKEN_PATTERN.test(suffixMatch[1])) {
+    return { prefix: "", suffix: suffixMatch[1].trim() };
+  }
+
+  return { prefix: "", suffix: "" };
 }
 
 function getProductNameElement(card: ParentNode): HTMLElement | null {
@@ -107,9 +125,7 @@ function formatProductPrice(nextPrice: string, existingPrice: string): string {
   if (!trimmed) return "";
   if (isProductPriceText(trimmed)) return trimmed;
 
-  const existing = existingPrice.trim();
-  const prefix = existing.match(/^[^\d]+/)?.[0] || "";
-  const suffix = existing.match(/[A-Za-z]{2,4}$/)?.[0] || "";
+  const { prefix, suffix } = getRecognizedCurrencyAffix(existingPrice);
 
   if (prefix) return `${prefix}${trimmed}`;
   if (suffix) return `${trimmed} ${suffix}`;
