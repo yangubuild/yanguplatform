@@ -867,11 +867,17 @@ const EDIT_SCRIPT = String.raw`
 
       if (window.__YANGU_ENABLE_PRODUCT_CONTROLS) {
         injectProductControls();
-        var _yanguInjecting = false;
+        var _yanguInjectQueued = false;
         var productObserver = new MutationObserver(function() {
-          if (_yanguInjecting) return;
-          _yanguInjecting = true;
-          try { injectProductControls(); } finally { _yanguInjecting = false; }
+          if (_yanguInjectQueued) return;
+          _yanguInjectQueued = true;
+          setTimeout(function() {
+            _yanguInjectQueued = false;
+            productObserver.disconnect();
+            try { injectProductControls(); } finally {
+              productObserver.observe(document.body, { childList: true, subtree: true });
+            }
+          }, 80);
         });
         productObserver.observe(document.body, { childList: true, subtree: true });
 
