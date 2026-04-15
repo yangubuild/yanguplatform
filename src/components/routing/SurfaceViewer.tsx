@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { usePublicCommerceConfig } from "@/hooks/useSurfaceCommerceConfig";
 import { Loader2, Layout } from "lucide-react";
 import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
 import { PublishedEmenuFrame } from "@/components/routing/PublishedEmenuFrame";
+import { PublicCommerceShell } from "@/components/commerce/PublicCommerceShell";
 import { YanguBadge } from "@/components/routing/YanguBadge";
 import { DEFAULT_THEME, type BuilderTheme } from "@/components/builder/BuilderSettingsDrawer";
 import { deduplicatePublishedSections } from "@/config/builderCoreSections";
@@ -108,10 +110,17 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
       );
     }
 
+    const surfaceId = surfaceMeta.id || "";
+    const ownerId = surfaceMeta.user_id || "";
+    const businessName = surfaceMeta.title || "";
+
     return (
-      <PublishedEmenuFrame
-        html={publishedEmenuHtml}
-        title={title}
+      <EmenuSurfaceView
+        surfaceId={surfaceId}
+        ownerId={ownerId}
+        businessName={businessName}
+        publishedEmenuHtml={publishedEmenuHtml}
+        pageTitle={title}
         faviconUrl={faviconUrl}
         showBadge={showBadge}
       />
@@ -206,5 +215,37 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
       {pageContent}
       {showBadge && <YanguBadge />}
     </div>
+  );
+}
+
+/** Emenu surface view with commerce wiring — mirrors PublicSurfacePage's EmenuPublicView */
+function EmenuSurfaceView({
+  surfaceId, ownerId, businessName, publishedEmenuHtml, pageTitle, faviconUrl, showBadge,
+}: {
+  surfaceId: string; ownerId: string; businessName: string;
+  publishedEmenuHtml: string; pageTitle: string; faviconUrl: string | null; showBadge: boolean;
+}) {
+  const { data: commerceConfig } = usePublicCommerceConfig(surfaceId);
+  const currency = commerceConfig?.currency ?? "USD";
+  const orderingEnabled = commerceConfig?.ordering_enabled ?? true;
+
+  return (
+    <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName}>
+      <PublishedEmenuFrame
+        html={publishedEmenuHtml}
+        title={pageTitle}
+        faviconUrl={faviconUrl}
+        showBadge={showBadge}
+        orderingEnabled={orderingEnabled}
+        currency={currency}
+        onPostMessage={(msg) => {
+          if (msg.type === "yangu_add_to_cart" && msg.item) {
+            (window as any).__yangu_add_to_cart?.(msg.item);
+          } else if (msg.type === "yangu_open_cart") {
+            (window as any).__yangu_open_cart?.();
+          }
+        }}
+      />
+    </PublicCommerceShell>
   );
 }

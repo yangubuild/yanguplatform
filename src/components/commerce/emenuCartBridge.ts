@@ -194,8 +194,16 @@ export function buildCartBridgeCode(configuredCurrency: string = "USD"): string 
         }, 1200);
       };
 
-      var lastChild = (priceEl && priceEl.parentElement) ? priceEl.parentElement : card;
-      lastChild.appendChild(btn);
+      // Insert button at the bottom of the card's content area
+      // Try to find the text content container (parent of title/price), else use card itself
+      var contentArea = null;
+      if (nameEl && nameEl.parentElement && nameEl.parentElement !== card) {
+        contentArea = nameEl.parentElement;
+      } else if (priceEl && priceEl.parentElement && priceEl.parentElement !== card) {
+        contentArea = priceEl.parentElement;
+      }
+      if (!contentArea) contentArea = card;
+      contentArea.appendChild(btn);
     });
 
     // Also wire up any pre-existing order buttons added via the editor

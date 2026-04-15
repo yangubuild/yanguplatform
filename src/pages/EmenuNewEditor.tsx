@@ -521,6 +521,12 @@ export default function EmenuNewEditor() {
       card.removeAttribute("data-product-title");
     }
 
+    // Deduplicate: remove any extra title-role nodes beyond the first
+    const allTitleNodes = card.querySelectorAll('[data-product-role="title"]');
+    for (let ti = 1; ti < allTitleNodes.length; ti++) {
+      allTitleNodes[ti].remove();
+    }
+
     if (nameElement) {
       nameElement.textContent = trimmedName || nameElement.textContent || "Product";
       nameElement.setAttribute("data-product-role", "title");
