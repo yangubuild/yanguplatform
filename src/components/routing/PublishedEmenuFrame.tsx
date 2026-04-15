@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { YANGU_BADGE_HTML } from "@/components/routing/YanguBadge";
-import { buildCartBridgeScript } from "@/components/commerce/emenuCartBridge";
+import { buildCartBridgeCode, buildCartBridgeScript } from "@/components/commerce/emenuCartBridge";
 
 const PUBLISHED_EMENU_HEAD_INJECT = `<link href="https://api.fontshare.com/v2/css?f[]=lufga@700&display=swap" rel="stylesheet">
 <style>
@@ -233,6 +233,35 @@ export function PublishedEmenuFrame({
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
   }, [onPostMessage]);
+
+  // Inject cart bridge script into iframe contentDocument after load
+  // (srcdoc inline <script> tags may not execute reliably in all browsers)
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe || !orderingEnabled) return;
+
+    const injectBridge = () => {
+      try {
+        const doc = iframe.contentDocument;
+        if (!doc || !doc.body) return;
+        // Skip if already injected
+        if (doc.getElementById("yangu-cart-btn")) return;
+        const script = doc.createElement("script");
+        script.textContent = buildCartBridgeCode(currency);
+        doc.body.appendChild(script);
+      } catch (e) {
+        console.warn("[PublishedEmenuFrame] bridge inject error:", e);
+      }
+    };
+
+    iframe.addEventListener("load", injectBridge);
+    // Also try after a delay in case load already fired
+    const timer = setTimeout(injectBridge, 1500);
+    return () => {
+      iframe.removeEventListener("load", injectBridge);
+      clearTimeout(timer);
+    };
+  }, [orderingEnabled, currency]);
 
   // Set document title/favicon in parent
   useEffect(() => {
