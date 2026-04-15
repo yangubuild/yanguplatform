@@ -150,7 +150,7 @@ const EDIT_SCRIPT = String.raw`
       }
 
       function escapeRegExp(text) {
-        return (text || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return (text || '').replace(/[.*+?^$\{\}()|[\]\\]/g, '\\$&');
       }
 
       function sanitizeLoosePriceText(text) {
