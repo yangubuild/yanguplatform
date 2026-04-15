@@ -1,160 +1,77 @@
 
-# Audit: Shared Editor Engine + Category Capability Packs + AI Intent Routing
+
+# Fix Plan: Editor Stability, Currency, Product Controls, Live CTAs
+
+## Root Causes Identified
+
+### 1. Infinite Repair Loop (Page Unresponsive)
+**File**: `EditablePreview.tsx`, lines 789-793 and 873-876
+**Cause**: `injectProductControls()` repairs DOM → calls `notifyHtmlUpdate()` → parent receives `html-update` → sets new `liveHtml` → iframe reloads → `injectProductControls()` runs again. Additionally, a `MutationObserver` on `document.body` re-triggers `injectProductControls()` on every DOM change, including the repairs themselves.
+
+### 2. Product Editor Popup Not Opening
+**File**: `EditablePreview.tsx`, lines 920-928
+**Cause**: Clicking a product card sends `canvas-select` with `kind: 'page'` — a generic deselect-level message. The parent never receives `product-edit-request`, so the modal never opens. Only the small pencil icon button triggers the edit flow.
+
+### 3. First Card Currency Corruption
+**File**: `EmenuNewEditor.tsx`, lines 123-133
+**Cause**: `formatProductPrice` calls `getRecognizedCurrencyAffix(existingPrice)` which only looks at the current card's price text. If the existing price is corrupted (e.g., "ick,20"), no valid affix is found, and the price saves as bare digits with no currency. No fallback to sibling cards or surface-configured currency.
+
+### 4. Live CTA Buttons Missing
+**File**: `emenuCartBridge.ts`, lines ~65-75
+**Cause**: `isProductCard()` marks `data-cart-processed` on the card BEFORE confirming price parsing succeeds. If `parseFloat(numStr)` returns `NaN`, the function returns early but the card is already marked processed, so the retry timeouts skip it. Also, `findNameEl`/`findPriceEl` don't check `data-product-role` attributes that the editor now sets on all cards.
+
+### 5. Duplicate Text Corruption
+**File**: `EditablePreview.tsx`, lines 488-620
+**Cause**: `cleanupStructuredProductCard` removes "extra" nodes, but `normalizeLegacyProductCard` creates new title/price/description elements without fully clearing the old flattened content node first. On subsequent loads, both the old text and new structured elements coexist.
 
 ---
 
-## 1. CURRENT STATE AUDIT
+## Exact Changes Per File
 
-### ✅ What already exists correctly
+### `src/components/builder-new/EditablePreview.tsx`
 
-| Component | Status | Notes |
-|---|---|---|
-| `BuilderEngine` type | ✅ Exists | Each category has `key`, `editorModules`, `templates`, `aiGenerationRules` |
-| 6 engine configs | ✅ Exists | `emenu`, `eshop`, `estore`, `esite`, `influencer`, `community` — all in `src/lib/builder/engines/` |
-| Engine registry | ✅ Exists | `engineRegistry.ts` with `getEngine()`, `getEngineForSurfaceType()` |
-| `editorModules` per category | ✅ Defined | Each engine declares its module list |
-| `industryModules` for esite | ✅ Defined | e.g. `real_estate: ["listings"]`, `hospitality: ["booking"]` |
-| `BuilderEditorRouter` | ✅ Exists | Routes by `surface_type` → Seller / Influencer / Community editors |
-| `SellerMode` config | ✅ Exists | Drives sidebar labels per seller subtype |
+**Fix 1 — Break the repair loop:**
+- In `injectProductControls()` (line 789-793): Remove the `notifyHtmlUpdate()` call after repairs. Repairs are cosmetic normalization for the editor canvas — they should NOT push HTML back to the parent and trigger a reload.
+- In the MutationObserver (line 873-876): Add a guard flag (`_yanguInjecting`) so mutations caused by `injectProductControls` itself don't re-trigger it.
 
-### ❌ What is MISSING
+**Fix 2 — Product card click opens editor:**
+- In the click handler (lines 920-928): Change the product card click to send `product-edit-request` with `getProductPayload(card)` instead of sending `canvas-select` with `kind: 'page'`. This makes clicking anywhere on the card open the editor popup, matching user expectation.
 
-| Gap | Impact |
-|---|---|
-| **No AI intent classification** | Builder silently builds whatever user describes inside whatever category they started in — no mismatch detection |
-| **No category switch flow** | No mechanism to warn user and offer category switch mid-onboarding |
-| **`editorModules` not wired to UI** | The module arrays exist in engine configs but are NOT consumed by the actual editor panels — editor shows same controls for all |
-| **No capability pack abstraction** | Modules are flat string arrays, not structured feature packs with UI components, permissions, and dependencies |
-| **No cross-category feature sharing** | e.g. Estore should inherit eshop features + add wholesale — currently these are independent flat lists |
-| **Community/Influencer editors are placeholders** | Only stubs exist |
+**Fix 3 — Prevent duplicate text from normalization:**
+- In `normalizeLegacyProductCard()` (line 549-620): Before creating new structured elements, fully clear the content container's innerHTML. Already done on line 566 (`contentContainer.innerHTML = ''`), but when `contentContainer` is a newly created div that's appended, the OLD `legacy.contentEl` still exists with its text. Add explicit removal of `legacy.contentEl` when a new container is created.
 
-### ⚠️ Partially correct
+### `src/pages/EmenuNewEditor.tsx`
 
-| Component | Issue |
-|---|---|
-| Emenu editor tools | Editor has emenu-specific controls (menu items, categories) but they're hardcoded in `EditorToolsPanel`, not driven by `engine.editorModules` |
-| Template system | Only emenu has real templates; other categories have schema stubs only |
+**Fix 4 — Currency recovery chain:**
+- Add `getSiblingCurrencyAffix(card)` helper that scans sibling `[data-product-role="price"]` elements for a valid currency prefix/suffix.
+- Add `getSurfaceCurrencyAffix()` that reads the surface's configured currency from the editor state.
+- Update `formatProductPrice` to use a 3-step fallback: (1) current card affix, (2) sibling affix, (3) surface currency. Never return bare digits.
+- Pass the card element and surface currency into the save handler so this chain works.
+
+### `src/components/commerce/emenuCartBridge.ts`
+
+**Fix 5 — Reliable live CTA injection:**
+- Move `card.setAttribute('data-cart-processed', 'true')` AFTER the `isNaN(priceNum)` check, so failed cards can be retried on the 2s/5s timeouts.
+- Update `findNameEl` and `findPriceEl` to check `data-product-role` attributes FIRST (matching the editor's output), falling back to heuristics only if those aren't present.
+- Add a guard in `isProductCard` to reject elements that contain nested product cards (prevent wrapper-level injection).
 
 ---
 
-## 2. CAPABILITY PACK ARCHITECTURE (Proposed)
+## No Changes To
+- Card layout or styling
+- Checkout flow
+- Currency systems beyond the broken first-card recovery
+- Any Eshop code
+- `editorHtml.ts` (not needed — the sanitize boundary is stable)
+- Any other builder systems
 
-### Definition
+## Expected PASS/FAIL Outcomes
+| Check | Expected |
+|-------|----------|
+| First card currency | PASS — fallback chain recovers from corrupted text |
+| Popup open | PASS — card click sends `product-edit-request` |
+| Edit/delete controls | PASS — pencil/trash buttons still work, card click is additive |
+| Duplicate text removed | PASS — legacy content cleared before re-creation |
+| Live CTA restored | PASS — `data-cart-processed` only set after valid parse |
+| No recursive repair loop | PASS — no `notifyHtmlUpdate` from repairs, MutationObserver guarded |
 
-A **Capability Pack** is the set of feature modules a category exposes in the editor. It maps `editorModules` strings to actual UI panel components and backend features.
-
-```
-Category → Engine Config → editorModules[] → Capability Pack → UI Panels
-```
-
-### Pack contents per category
-
-| Category | Core Modules | Extended Modules (future) |
-|---|---|---|
-| **Emenu** | menu_items, menu_categories, hours, order_settings, contact, social, food_image_ai | reservation (conditional), delivery_apps |
-| **Eshop** | products, collections, cart, checkout, discount_rules, promos, review_settings, contact | shipping, tax, inventory |
-| **Estore** | *inherits eshop* + catalog, bulk_pricing, quote_request, supplier_info, large_inventory | multi-seller, dealer, marketplace |
-| **Esite** | services, team, testimonials, contact, faq, blog + *industry modules* (bookings, listings, calendar) | Zoom/Meet integrations, appointment scheduling |
-| **Community** | member_signup, events, programs, resources, private_posts, directory, messaging | courses, ebooks, merch, bookings |
-| **Influencer** | bio, links, media, affiliate, live_product_pins, tips, contact | sponsorships, analytics |
-
-### Shared editor core (unchanged across all)
-
-- Direct in-canvas text editing
-- Side panel logic
-- Media library
-- Page/section/element controls
-- One-page scroll-first behavior
-- Selection sync
-- Context styling (Phase IV)
-
----
-
-## 3. AI INTENT ROUTING (Proposed)
-
-### Flow
-
-```
-User enters builder with category X
-  → User describes their business
-  → AI classifies intent keywords
-  → Compare classified category vs selected category
-  → If match: proceed normally
-  → If mismatch: show warning + offer switch
-```
-
-### Classification logic
-
-Use keyword matching from existing `CATEGORY_CONFIGS.keywords` + extended keyword sets:
-
-| Detected keywords | Maps to |
-|---|---|
-| restaurant, cafe, menu, food, delivery | emenu |
-| shop, retail, fashion, products, clothing | eshop |
-| wholesale, bulk, supplier, agriculture, marketplace, dealer | estore |
-| booking, hotel, consultant, agency, law, medical, portfolio, real estate | esite |
-| course, community, training, ebook, membership, group | community |
-| creator, influencer, streamer, content, vlogger | influencer |
-
-### Mismatch response
-
-```
-"It looks like you're describing a [detected type] business. 
-You started in [current category]. 
-
-Would you like to:
-→ Switch to [detected category] (recommended)
-→ Stay in [current category]
-→ Go back to dashboard"
-```
-
-### Where to implement
-
-- In the onboarding AI chat flow (`useBuilderChat` or equivalent)
-- After user's first business description message
-- Before template selection begins
-
----
-
-## 4. IMPLEMENTATION PLAN (Phased)
-
-### Phase A — Wire `editorModules` to editor UI
-- Make `EditorToolsPanel` read `engine.editorModules` and only render matching tool sections
-- Create a module→component registry (map strings like `"menu_items"` to actual panel components)
-- Current emenu tools become the first registered module components
-- **No new features added, just proper wiring**
-
-### Phase B — AI Intent Classification
-- Add `classifyUserIntent(text: string): Category` utility using keyword matching from engine configs
-- Wire into onboarding chat flow after first user message
-- Add mismatch warning UI with switch/stay/back options
-- If switch accepted: update `surface_type` in DB, reload correct engine
-
-### Phase C — Capability Pack Inheritance
-- Define pack inheritance (estore extends eshop modules)
-- Add `extends?: string` to `BuilderEngine` type
-- Merge parent + child modules at runtime
-
-### Phase D — Module Component Registry (per category)
-- Register placeholder panels for non-emenu modules (products, services, etc.)
-- Each module panel follows same shared component interface
-- Renders based on active engine's `editorModules`
-
----
-
-## 5. WHAT THIS DOES NOT TOUCH
-
-- ❌ Builder shell design
-- ❌ Reservation flow
-- ❌ Template system / registry
-- ❌ Seller → Emenu wiring
-- ❌ Eshop implementation
-- ❌ Checkout/cart systems
-
----
-
-## 6. RECOMMENDED EXECUTION ORDER
-
-1. **Phase A** first — makes the architecture honest (editor actually respects engine config)
-2. **Phase B** next — prevents wrong-category builds
-3. **Phase C + D** later — enables real multi-category editing
