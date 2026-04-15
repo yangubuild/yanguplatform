@@ -69,9 +69,13 @@ nav a,.nav-link,[class*="nav-item"]{
   font-size:0.9rem !important;
   font-weight:500 !important;
 }
-button,.btn,[class*="button"]{
+button:not(.yangu-live-cta),.btn,[class*="button"]:not(.yangu-live-cta){
   font-size:0.9rem !important;
   padding:10px 20px !important;
+}
+.yangu-live-cta {
+  padding:8px 0 !important;
+  font-size:14px !important;
 }
 h1,.hero-title{
   font-size:3rem !important;
@@ -114,7 +118,7 @@ h2,.section-title{
   nav a,.nav-link,[class*="nav-item"] {
     font-size:0.875rem !important;
   }
-  button,.btn,[class*="button"] {
+  button:not(.yangu-live-cta),.btn,[class*="button"]:not(.yangu-live-cta) {
     font-size:0.875rem !important;
     padding:8px 16px !important;
   }
