@@ -26,7 +26,7 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
   function findNameEl(card) {
     var el = card.querySelector('[data-product-role="title"]');
     if (el) return el;
-    var headings = card.querySelectorAll('h3, h4, h5, [style*="font-weight:700"], [style*="font-weight:600"], [style*="font-weight: 700"], [style*="font-weight: 600"]');
+    var headings = card.querySelectorAll('h1, h2, h3, h4, h5, [style*="font-weight:700"], [style*="font-weight:600"], [style*="font-weight: 700"], [style*="font-weight: 600"]');
     for (var i = 0; i < headings.length; i++) {
       var text = normalizeText(headings[i].textContent);
       if (text && !isPriceText(text)) return headings[i];
@@ -46,8 +46,11 @@ export function buildCartBridgeScript(configuredCurrency: string = "USD"): strin
   }
 
   function isProductCard(el) {
-    if (el.getAttribute('data-product-card') === 'true') return true;
     if (['DIV','ARTICLE','LI'].indexOf(el.tagName) === -1) return false;
+    // Reject wrapper elements that contain nested product cards
+    var nested = el.querySelectorAll('[data-product-card="true"]');
+    if (nested.length > 0) return false;
+    if (el.getAttribute('data-product-card') === 'true') return true;
     return Boolean(el.querySelector('img') && findNameEl(el) && findPriceEl(el));
   }
 
