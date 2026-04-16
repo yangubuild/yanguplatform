@@ -1215,7 +1215,9 @@ export default function EmenuNewEditor() {
 
       case "set_product_button_style": {
         if (!doc) break;
-        // Query product cards from the iframe — they have data-product-card set during injection
+        // Sync editor state so ButtonStylePanel stays in sync
+        if (payload?.color) setSavedButtonColor(payload.color);
+        if (payload?.borderRadius) setSavedButtonRadius(payload.borderRadius);
         iframe?.contentWindow?.postMessage({ type: "re-inject-product-controls" }, "*");
         // Small delay to let injection complete, then query
         setTimeout(() => {
