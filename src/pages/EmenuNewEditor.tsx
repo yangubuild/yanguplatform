@@ -1681,7 +1681,7 @@ export default function EmenuNewEditor() {
             <div className="flex flex-col h-full">
               <EmenuEditorPanel businessName={surfaceTitle} category="emenu" onAction={handleEditorAction} />
               <div className="border-t border-border">
-                <ButtonStylePanel onAction={handleEditorAction} />
+                <ButtonStylePanel onAction={handleEditorAction} initialColor={savedButtonColor} initialRadius={savedButtonRadius} />
               </div>
             </div>
           )}
