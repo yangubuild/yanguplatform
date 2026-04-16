@@ -527,6 +527,16 @@ export default function EmenuNewEditor() {
       allTitleNodes[ti].remove();
     }
 
+    // Remove untagged heading/bold elements that duplicate the product name
+    if (trimmedName) {
+      const headingDupes = card.querySelectorAll('h1, h2, h3, h4, h5, h6, strong, b');
+      headingDupes.forEach((node) => {
+        if (node !== nameElement && node.textContent?.trim() === trimmedName) {
+          node.remove();
+        }
+      });
+    }
+
     if (nameElement) {
       nameElement.textContent = trimmedName || nameElement.textContent || "Product";
       nameElement.setAttribute("data-product-role", "title");

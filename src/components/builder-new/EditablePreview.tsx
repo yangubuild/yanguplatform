@@ -619,6 +619,16 @@ const EDIT_SCRIPT = String.raw`
         row.appendChild(priceEl);
         contentContainer.appendChild(row);
 
+        // Remove original heading/bold elements that duplicate the new title
+        var dupSelectors = card.querySelectorAll('h1, h2, h3, h4, h5, h6, strong, b');
+        var normalizedTitle = normalizeProductText(legacy.titleText);
+        for (var di = 0; di < dupSelectors.length; di++) {
+          var dn = dupSelectors[di];
+          if (dn !== nameEl && !contentContainer.contains(dn) && normalizeProductText(dn.textContent) === normalizedTitle) {
+            dn.remove();
+          }
+        }
+
         var descEl = null;
         if (legacy.descriptionText) {
           descEl = ensureNodeId(document.createElement('p'));
