@@ -1,48 +1,35 @@
 
 
-## Fix: Duplicate Product Titles in Editor
+## Root Cause
 
-### Root Cause
+The cart button and "+ Add" buttons ARE being created by the bridge script — the JavaScript logic is correct. But **two CSS rules in `PublishedEmenuFrame.tsx`** override the inline styles and bloat the cart button into a full-width bar:
 
-In `EditablePreview.tsx`, `normalizeLegacyProductCard` (line 584):
+1. **Line 27-32**: `#yangu-cart-btn { padding:12px 24px !important }` — forces large padding even when placed inline in the nav
+2. **Line 78-80**: `button:not(.yangu-live-cta) { padding:10px 20px !important }` — also matches `#yangu-cart-btn` since it lacks `.yangu-live-cta` class
 
-1. It finds the original title text via `getCardImageTitle(card)` — which reads from an `<h3>` or heading element in the card
-2. It picks a `contentContainer` (a `<div>` or `<p>` inside the card) and clears it with `innerHTML = ''`
-3. It creates a **new** `<span data-product-role="title">` inside that container
-4. **But the original `<h3>` heading lives outside `contentContainer`** — it's a sibling or in a different wrapper — so it survives the `innerHTML = ''` clear
-5. Result: two elements displaying the same product name
+The cart button's inline style `padding:4px 8px` loses to both `!important` rules. The button swells, breaks the flex layout, and pushes nav links out of view.
 
-The save path in `EmenuNewEditor.tsx` (line 524-528) only deduplicates nodes with `[data-product-role="title"]` attribute, so the original untagged `<h3>` is never caught.
+The "+ Add" buttons may also be affected if they're not rendering — the same `button:not(.yangu-live-cta)` rule could interfere, though they do have `.yangu-live-cta`. Need to verify `.yangu-live-cta` class is consistently applied.
 
-### Fix — 2 files only
+## Plan (2 files)
 
-**File 1: `src/components/builder-new/EditablePreview.tsx`**
+### File 1: `src/components/routing/PublishedEmenuFrame.tsx` (CSS only)
 
-In `normalizeLegacyProductCard`, after creating the new tagged title/price nodes (after line 620, before the description block):
+- **Remove** the `#yangu-cart-btn` block (lines 27-32) entirely — the cart button styling should come from the bridge script inline styles, not from the global CSS
+- **Add** `#yangu-cart-btn` to the exclusion list on the `button:not()` rule (line 78) so it becomes `button:not(.yangu-live-cta):not(#yangu-cart-btn)`
+- Do the same for the mobile `button:not()` rule (around line 114)
 
-- Query the card for all heading elements (`h1-h6`) and bold/strong elements whose `textContent` matches the new `nameEl.textContent`
-- Remove any that are **not** the newly created `nameEl` and not inside `contentContainer`
-- This eliminates the original source heading that was left behind
+### File 2: `src/components/commerce/emenuCartBridge.ts` (safety)
 
-**File 2: `src/pages/EmenuNewEditor.tsx`**
+- In `addCartButton()` inline nav mode (line 271): add `!important` to the padding value so no stray CSS can override it
+- Wrap `addCartButton()` in try/catch so if nav detection fails, it doesn't kill `initCartBridge()` (the "+ Add" buttons)
+- Call `initCartBridge()` BEFORE `addCartButton()` (already the case, just verify)
 
-In `handleProductSave`, after the existing dedup block (after line 528):
+### No other files changed. No redesign. No behavior changes.
 
-- Query the card for any `h1-h6, strong, b` elements whose trimmed text matches `trimmedName` but are **not** the current `nameElement`
-- Remove those duplicate nodes
-- This catches any untagged legacy headings that survived into the save path
-
-### What does NOT change
-
-- No layout/styling changes
-- No cart/CTA/bridge changes
-- No publishing logic changes
-- No other files touched
-
-### Confirmation checklist
-
-- No other files changed: YES (only EditablePreview.tsx and EmenuNewEditor.tsx)
-- Duplicate titles removed at both normalization and save path: YES
-- Editor preview shows one title only per card: YES
-- PASS/FAIL: will be confirmed after implementation
+### Expected result
+- Header: Logo | Home | Menu | About | Contact | 🛒 Cart (0)
+- Cart button: small, inline, right-aligned in nav
+- "+ Add" buttons: visible on all product cards
+- Navigation fully visible
 
