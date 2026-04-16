@@ -2,7 +2,7 @@
  * ButtonStylePanel — Right-panel for global/per-button styling.
  * Controls: color, border-radius, size, with a global toggle.
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
