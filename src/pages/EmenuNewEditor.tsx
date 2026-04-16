@@ -527,11 +527,15 @@ export default function EmenuNewEditor() {
       allTitleNodes[ti].remove();
     }
 
-    // Remove untagged heading/bold elements that duplicate the product name
-    if (trimmedName) {
-      const headingDupes = card.querySelectorAll('h1, h2, h3, h4, h5, h6, strong, b');
-      headingDupes.forEach((node) => {
-        if (node !== nameElement && node.textContent?.trim() === trimmedName) {
+    // Remove ANY elements that duplicate the product name (spans, headings, bold, etc.)
+    if (trimmedName && nameElement) {
+      const allEls = card.querySelectorAll('*');
+      allEls.forEach((node) => {
+        if (node === nameElement) return;
+        if (node.closest?.('.yangu-product-controls')) return;
+        if (node.tagName === 'IMG' || node.tagName === 'BUTTON') return;
+        if (node.children.length > 0) return; // only leaf text nodes
+        if (node.textContent?.trim() === trimmedName && node !== nameElement) {
           node.remove();
         }
       });
