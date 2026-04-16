@@ -264,6 +264,8 @@ export default function EmenuNewEditor() {
   const [editingProduct, setEditingProduct] = useState<ProductCardData | null>(null);
   const [pendingProductDelete, setPendingProductDelete] = useState<ProductCardData | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [savedButtonColor, setSavedButtonColor] = useState<string | undefined>(undefined);
+  const [savedButtonRadius, setSavedButtonRadius] = useState<string | undefined>(undefined);
   const [isSaving, setIsSaving] = useState(false);
   const [showLeaveWarning, setShowLeaveWarning] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>("");
