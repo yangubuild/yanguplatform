@@ -327,8 +327,15 @@ const EDIT_SCRIPT = String.raw`
       }
 
       function getProductDescriptionEl(card, nameEl, priceEl, badgeEl) {
+        var titleText = normalizeProductText((nameEl && nameEl.textContent) || card.getAttribute('data-product-title') || '');
         var persisted = getProductRoleEl(card, 'description');
-        if (persisted) return persisted;
+        if (persisted) {
+          var persistedText = normalizeProductText(persisted.textContent);
+          if (persistedText && persistedText !== titleText && !isPriceText(persistedText)) {
+            return persisted;
+          }
+          persisted.removeAttribute('data-product-role');
+        }
 
         var candidates = getProductTextCandidates(card);
         var titleFontSize = nameEl ? (parseFloat(window.getComputedStyle(nameEl).fontSize || '0') || 0) : 999;
@@ -338,6 +345,7 @@ const EDIT_SCRIPT = String.raw`
         for (var i = 0; i < candidates.length; i++) {
           var candidate = candidates[i];
           if (candidate.el === nameEl || candidate.el === priceEl || candidate.el === badgeEl) continue;
+          if (candidate.text === titleText) continue;
           if (isPriceText(candidate.text) || candidate.text.length < 12) continue;
 
           var score = 0;
