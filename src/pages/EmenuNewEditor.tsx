@@ -108,7 +108,8 @@ function getProductDescriptionElement(
   const persisted = card.querySelector<HTMLElement>('[data-product-role="description"]');
   if (persisted) {
     const persistedText = persisted.textContent?.replace(/\s+/g, " ").trim() || "";
-    if (persistedText && persistedText !== nameText && !isProductPriceText(persistedText)) {
+    const persistedDirectText = getDirectProductText(persisted);
+    if (persistedText && persistedText !== nameText && persistedDirectText !== nameText && !isProductPriceText(persistedText)) {
       return persisted;
     }
     persisted.removeAttribute("data-product-role");
@@ -121,7 +122,7 @@ function getProductDescriptionElement(
     if (candidate.closest(".yangu-product-controls")) return false;
     if (candidate.querySelector("button,a,h1,h2,h3,h4,h5,h6,img")) return false;
     const text = candidate.textContent?.replace(/\s+/g, " ").trim() || "";
-    if (!text || text === nameText || isProductPriceText(text) || text.length > 220) return false;
+    if (!text || text === nameText || getDirectProductText(candidate) === nameText || isProductPriceText(text) || text.length > 220) return false;
     return true;
   }) || null;
 }
@@ -179,6 +180,57 @@ function getProductScopedElement(card: ParentNode, role: "title" | "description"
   }
 
   return card.querySelector<HTMLElement>(`[data-product-role="${role}"]`);
+}
+
+function normalizeProductNodeText(text: string | null | undefined): string {
+  return (text || "").replace(/\s+/g, " ").trim();
+}
+
+function getDirectProductText(element: Element): string {
+  return normalizeProductNodeText(
+    Array.from(element.childNodes)
+      .filter((node) => node.nodeType === Node.TEXT_NODE)
+      .map((node) => node.textContent || "")
+      .join(" ")
+  );
+}
+
+function removeDuplicateProductNameNodes(
+  card: HTMLElement,
+  nameText: string,
+  keepNodes: Array<Element | null | undefined>,
+): void {
+  const normalizedName = normalizeProductNodeText(nameText);
+  if (!normalizedName) return;
+
+  const protectedNodes = keepNodes.filter((node): node is Element => Boolean(node));
+  const candidates = Array.from(card.querySelectorAll<HTMLElement>("h1,h2,h3,h4,h5,h6,p,span,div,strong,b,small"));
+
+  candidates.forEach((node) => {
+    if (protectedNodes.some((protectedNode) => node === protectedNode || node.contains(protectedNode) || protectedNode.contains(node))) return;
+    if (node.closest(".yangu-product-controls")) return;
+    if (node.querySelector("img,button,a,svg,input,select,textarea")) return;
+
+    const fullText = normalizeProductNodeText(node.textContent);
+    const directText = getDirectProductText(node);
+
+    if (fullText === normalizedName) {
+      node.remove();
+      return;
+    }
+
+    if (directText !== normalizedName) return;
+
+    Array.from(node.childNodes).forEach((child) => {
+      if (child.nodeType === Node.TEXT_NODE && normalizeProductNodeText(child.textContent)) {
+        child.remove();
+      }
+    });
+
+    if (!normalizeProductNodeText(node.textContent) && node.children.length === 0) {
+      node.remove();
+    }
+  });
 }
 
 function createProductBadgeElement(doc: Document, text: string): HTMLSpanElement {
@@ -527,25 +579,14 @@ export default function EmenuNewEditor() {
       card.removeAttribute("data-product-title");
     }
 
-    // Deduplicate: remove any extra title-role nodes beyond the first
-    const allTitleNodes = card.querySelectorAll('[data-product-role="title"]');
-    for (let ti = 1; ti < allTitleNodes.length; ti++) {
-      allTitleNodes[ti].remove();
-    }
-
-    // Remove ANY elements that duplicate the product name (spans, headings, bold, etc.)
-    if (trimmedName && nameElement) {
-      const allEls = card.querySelectorAll('*');
-      allEls.forEach((node) => {
-        if (node === nameElement) return;
-        if (node.closest?.('.yangu-product-controls')) return;
-        if (node.tagName === 'IMG' || node.tagName === 'BUTTON') return;
-        if (node.children.length > 0) return; // only leaf text nodes
-        if (node.textContent?.trim() === trimmedName && node !== nameElement) {
-          node.remove();
-        }
-      });
-    }
+    const normalizedName = normalizeProductNodeText(trimmedName);
+    const allTitleNodes = Array.from(card.querySelectorAll<HTMLElement>('[data-product-role="title"]'));
+    allTitleNodes.forEach((node) => {
+      if (node === nameElement) return;
+      const nodeText = normalizeProductNodeText(node.textContent);
+      if (!normalizedName || nodeText === normalizedName) node.remove();
+      else node.removeAttribute("data-product-role");
+    });
 
     if (nameElement) {
       nameElement.textContent = trimmedName || nameElement.textContent || "Product";
@@ -652,6 +693,13 @@ export default function EmenuNewEditor() {
       card.setAttribute("data-product-badge-enabled", "false");
       card.removeAttribute("data-product-badge-text");
     }
+
+    removeDuplicateProductNameNodes(card, trimmedName || nameElement?.textContent || "", [
+      nameElement,
+      priceElement,
+      descriptionElement,
+      badgeElement,
+    ]);
 
     card.setAttribute("data-product-cta", product.ctaAction?.trim() || "none");
     if (product.buttonText?.trim()) card.setAttribute("data-product-button-text", product.buttonText.trim());
