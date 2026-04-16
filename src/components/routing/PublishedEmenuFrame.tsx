@@ -85,11 +85,44 @@ h2,.section-title{
   font-size:1.75rem !important;
 }
 
-/* ── Mobile-first responsive ── */
+/* ── Mobile-first responsive (web-app behavior) ── */
 @media (max-width: 768px) {
-  body > *:not([data-yangu-badge]) {
+  /* Web-app flow: stack everything, no desktop absolute leakage */
+  body { display:block !important; }
+  body > *:not([data-yangu-badge]):not(#yangu-cart-btn) {
+    position:relative !important;
+    float:none !important;
+    width:100% !important;
+    max-width:100% !important;
     padding-left:16px !important;
     padding-right:16px !important;
+  }
+  /* Constrain hero/nav logo images that explode on mobile */
+  nav img, header img, [class*="hero"] img, [class*="logo"] img {
+    max-width:140px !important;
+    max-height:64px !important;
+    width:auto !important;
+    height:auto !important;
+    object-fit:contain !important;
+  }
+  /* Hero sections: cap height so they don't dominate viewport */
+  section:first-of-type, [class*="hero"], [class*="Hero"] {
+    min-height:auto !important;
+    max-height:none !important;
+  }
+  section:first-of-type img:not([class*="logo"]),
+  [class*="hero"] img:not([class*="logo"]),
+  [class*="Hero"] img:not([class*="logo"]) {
+    max-height:280px !important;
+    width:100% !important;
+    object-fit:cover !important;
+  }
+  /* Nav must wrap below hero, never overlap content */
+  nav {
+    position:relative !important;
+    flex-wrap:wrap !important;
+    gap:8px !important;
+    padding:12px 16px !important;
   }
   body > section:not([data-yangu-badge]) > *,
   body > header:not([data-yangu-badge]) > *,
