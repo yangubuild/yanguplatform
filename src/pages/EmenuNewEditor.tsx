@@ -104,10 +104,16 @@ function getProductDescriptionElement(
   nameElement?: Element | null,
   priceElement?: Element | null,
 ): HTMLElement | null {
-  const persisted = card.querySelector<HTMLElement>('[data-product-role="description"]');
-  if (persisted) return persisted;
-
   const nameText = nameElement?.textContent?.replace(/\s+/g, " ").trim() || "";
+  const persisted = card.querySelector<HTMLElement>('[data-product-role="description"]');
+  if (persisted) {
+    const persistedText = persisted.textContent?.replace(/\s+/g, " ").trim() || "";
+    if (persistedText && persistedText !== nameText && !isProductPriceText(persistedText)) {
+      return persisted;
+    }
+    persisted.removeAttribute("data-product-role");
+  }
+
   const candidates = Array.from(card.querySelectorAll<HTMLElement>("p,span,div"));
 
   return candidates.find((candidate) => {
