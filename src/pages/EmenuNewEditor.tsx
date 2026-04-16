@@ -14,7 +14,7 @@ import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft, AlertTriangle, Monitor, Smartphone, Sparkles,
-  Settings, ClipboardList, Rocket, X, Undo2, Redo2, Wand2,
+  Settings, ClipboardList, Rocket, X, Undo2, Redo2, Wand2, ExternalLink,
 } from "lucide-react";
 import { useAdaBuilderChat } from "@/components/builder-new/ada/useAdaBuilderChat";
 import { AdaBuilderPanel } from "@/components/builder-new/ada/AdaBuilderPanel";
@@ -255,6 +255,30 @@ export default function EmenuNewEditor() {
   const navigate = useNavigate();
   const [publishOpen, setPublishOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  // Fetch the live published URL for this surface
+  const { data: liveUrl } = useQuery({
+    queryKey: ["live-url", surfaceId],
+    enabled: !!surfaceId,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("builder_publishes")
+        .select("slug, domain_id")
+        .eq("surface_id", surfaceId!)
+        .eq("state", "published")
+        .limit(1)
+        .maybeSingle();
+      if (!data) return null;
+      const { data: domain } = await supabase
+        .from("domains")
+        .select("host")
+        .eq("id", data.domain_id)
+        .maybeSingle();
+      if (!domain?.host) return null;
+      return `https://${domain.host}/${data.slug}`;
+    },
+    staleTime: 30_000,
+  });
   
   const [magicEditorOn, setMagicEditorOn] = useState(true);
   const [leftMode, setLeftMode] = useState<LeftMode>("tools");
@@ -1544,6 +1568,20 @@ export default function EmenuNewEditor() {
         <Button size="sm" variant="outline" onClick={() => safeNavigate("/dashboard/my-business")} className="gap-1 hidden lg:flex border-white/20 text-white/80 hover:text-white hover:bg-white/10">
           <ClipboardList className="h-4 w-4" />
         </Button>
+        {/* Live Preview — opens published page */}
+        <button
+          onClick={() => liveUrl && window.open(liveUrl, "_blank")}
+          disabled={!liveUrl}
+          title={liveUrl ? "View live page" : "Publish first to preview live"}
+          className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            liveUrl
+              ? "text-white/80 hover:text-white hover:bg-white/10"
+              : "text-white/20 cursor-not-allowed"
+          }`}
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          <span className="hidden xl:inline">{liveUrl ? "Live" : "Not published"}</span>
+        </button>
         {/* Publish button — visible on all sizes */}
         <Button size="sm" onClick={() => setPublishOpen(true)} className="gap-1" style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}>
           <Rocket className="h-4 w-4 text-white" /> <span className="text-white hidden sm:inline">Publish</span>
