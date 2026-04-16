@@ -1676,7 +1676,7 @@ export default function EmenuNewEditor() {
           ) : canvasSelection?.kind === "section" ? (
             <SectionEditorPanel onAction={handleEditorAction} preview={canvasSelection.preview} sectionIndex={canvasSelection.sectionIndex} />
           ) : canvasSelection?.kind === "button" || canvasSelection?.kind === "card" ? (
-            <ButtonStylePanel onAction={handleEditorAction} />
+            <ButtonStylePanel onAction={handleEditorAction} initialColor={savedButtonColor} initialRadius={savedButtonRadius} />
           ) : (
             <div className="flex flex-col h-full">
               <EmenuEditorPanel businessName={surfaceTitle} category="emenu" onAction={handleEditorAction} />
