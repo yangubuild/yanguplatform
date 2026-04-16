@@ -751,6 +751,22 @@ const EDIT_SCRIPT = String.raw`
           repaired = true;
         }
 
+        // DEBUG: log card structure for problematic cards
+        var debugTitle = normalizeProductText((nameEl && nameEl.textContent) || card.getAttribute('data-product-title') || '');
+        if (debugTitle && (debugTitle.indexOf('Duck') !== -1 || debugTitle.indexOf('Burrata') !== -1)) {
+          var debugNodes = [];
+          var allDebug = card.querySelectorAll('*');
+          for (var di = 0; di < allDebug.length; di++) {
+            var dn = allDebug[di];
+            if (dn.closest('.yangu-product-controls')) continue;
+            var dnText = normalizeProductText(dn.textContent);
+            if (dnText && (dnText.indexOf('Duck') !== -1 || dnText.indexOf('Burrata') !== -1)) {
+              debugNodes.push({tag: dn.tagName, role: dn.getAttribute('data-product-role'), text: dnText.substring(0, 80), children: dn.children.length, isNameEl: dn === nameEl, isDescEl: dn === descEl});
+            }
+          }
+          window.parent.postMessage({type: 'DEDUP_DEBUG', title: debugTitle, nodes: debugNodes, cardHTML: card.innerHTML.substring(0, 3000)}, '*');
+        }
+
         return {
           nameEl: nameEl,
           priceEl: priceEl,
