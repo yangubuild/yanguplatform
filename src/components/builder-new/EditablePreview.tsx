@@ -344,11 +344,17 @@ const EDIT_SCRIPT = String.raw`
 
       function getProductBadgeEl(card, nameEl, priceEl) {
         var persisted = getProductRoleEl(card, 'badge');
-        if (persisted) return persisted;
+        if (persisted) {
+          var persistedBadgeText = normalizeProductText(persisted.textContent);
+          var titleTextForBadge = normalizeProductText((nameEl && nameEl.textContent) || card.getAttribute('data-product-title') || '');
+          if (persistedBadgeText && persistedBadgeText !== titleTextForBadge) return persisted;
+          persisted.removeAttribute('data-product-role');
+        }
 
         var candidates = getProductTextCandidates(card);
         var titleFontSize = nameEl ? (parseFloat(window.getComputedStyle(nameEl).fontSize || '0') || 0) : 999;
         var titleIndex = candidates.findIndex(function(candidate) { return candidate.el === nameEl; });
+        var titleTextCheck = normalizeProductText((nameEl && nameEl.textContent) || card.getAttribute('data-product-title') || '');
         var best = null;
         var bestScore = -Infinity;
 
@@ -357,6 +363,7 @@ const EDIT_SCRIPT = String.raw`
           if (candidate.el === nameEl || candidate.el === priceEl) continue;
           if (isPriceText(candidate.text)) continue;
           if (candidate.text.length > 28 || candidate.words > 4) continue;
+          if (candidate.text === titleTextCheck) continue;
 
           var score = 0;
           if (titleIndex === -1 || candidate.index < titleIndex) score += 4;
@@ -749,22 +756,6 @@ const EDIT_SCRIPT = String.raw`
 
         if (nameEl && removeDuplicateTitleNodes(card, nameEl, priceEl, descEl, badgeEl)) {
           repaired = true;
-        }
-
-        // DEBUG: log card structure for problematic cards
-        var debugTitle = normalizeProductText((nameEl && nameEl.textContent) || card.getAttribute('data-product-title') || '');
-        if (debugTitle && (debugTitle.indexOf('Duck') !== -1 || debugTitle.indexOf('Burrata') !== -1)) {
-          var debugNodes = [];
-          var allDebug = card.querySelectorAll('*');
-          for (var di = 0; di < allDebug.length; di++) {
-            var dn = allDebug[di];
-            if (dn.closest('.yangu-product-controls')) continue;
-            var dnText = normalizeProductText(dn.textContent);
-            if (dnText && (dnText.indexOf('Duck') !== -1 || dnText.indexOf('Burrata') !== -1)) {
-              debugNodes.push({tag: dn.tagName, role: dn.getAttribute('data-product-role'), text: dnText.substring(0, 80), children: dn.children.length, isNameEl: dn === nameEl, isDescEl: dn === descEl});
-            }
-          }
-          console.log('DEDUP_DEBUG', JSON.stringify({title: debugTitle, nodes: debugNodes}));
         }
 
         return {
