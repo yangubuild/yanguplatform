@@ -503,7 +503,27 @@ export default function EmenuNewEditor() {
   // ─── Iframe helpers ───
   const getIframe = useCallback(() => document.querySelector<HTMLIFrameElement>('iframe[title="Editable Website Preview"]'), []);
 
-  /** Get the currently selected element by stable nodeId first, then fall back to highlight class */
+  // ─── Read saved button style from iframe after HTML loads ───
+  useEffect(() => {
+    if (!liveHtml) return;
+    const timer = setTimeout(() => {
+      const iframe = getIframe();
+      const iDoc = iframe?.contentDocument;
+      if (!iDoc) return;
+      const bodyColor = iDoc.body.getAttribute("data-product-button-color");
+      const bodyRadius = iDoc.body.getAttribute("data-product-button-radius");
+      const firstCard = iDoc.querySelector<HTMLElement>('[data-product-card="true"]');
+      const cardColor = firstCard?.getAttribute("data-product-button-color");
+      const cardRadius = firstCard?.getAttribute("data-product-button-radius");
+      const color = cardColor || bodyColor;
+      const radius = cardRadius || bodyRadius;
+      if (color) setSavedButtonColor(color);
+      if (radius) setSavedButtonRadius(radius);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [liveHtml, getIframe]);
+
+
   const getSelectedElement = useCallback((doc: Document): HTMLElement | null => {
     if (canvasSelection?.nodeId) {
       const el = doc.querySelector(`[data-yangu-node-id="${canvasSelection.nodeId}"]`) as HTMLElement | null;
