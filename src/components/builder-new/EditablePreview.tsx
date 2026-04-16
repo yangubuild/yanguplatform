@@ -492,6 +492,11 @@ const EDIT_SCRIPT = String.raw`
 
         var currentBadge = getProductRoleEl(card, 'badge');
         var currentDesc = getProductRoleEl(card, 'description') || getProductDescriptionEl(card, currentTitle, currentPrice, currentBadge);
+        // If "description" text is identical to the title, it's a duplicate — remove it
+        if (currentDesc && normalizeProductText(currentDesc.textContent) === normalizeProductText(currentTitle.textContent)) {
+          currentDesc.remove();
+          currentDesc = null;
+        }
         var titleText = normalizeProductText(card.getAttribute('data-product-title') || currentTitle.textContent || '');
         var cleanedPrice = sanitizeLoosePriceText(currentPrice.textContent);
 
