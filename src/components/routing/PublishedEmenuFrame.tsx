@@ -15,7 +15,7 @@ body{
 *,*::before,*::after{box-sizing:border-box;}
 img,video,canvas,svg{max-width:100%;}
 
-body > *:not([data-yangu-badge]){
+body > *:not([data-yangu-badge]):not(#yangu-cart-btn){
   width:100% !important;
   max-width:1100px !important;
   margin-left:auto !important;
@@ -23,6 +23,12 @@ body > *:not([data-yangu-badge]){
   padding-left:20px !important;
   padding-right:20px !important;
   box-sizing:border-box !important;
+}
+#yangu-cart-btn{
+  width:auto !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:12px 24px !important;
 }
 
 body > section:not([data-yangu-badge]),
