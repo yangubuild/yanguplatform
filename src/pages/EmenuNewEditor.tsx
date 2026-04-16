@@ -352,28 +352,6 @@ export default function EmenuNewEditor() {
     }
   }, [currentPageSavedHtml, activePageId]);
 
-  // ─── Read saved button style from iframe after HTML loads ───
-  useEffect(() => {
-    if (!liveHtml) return;
-    // Delay to allow iframe to render the HTML
-    const timer = setTimeout(() => {
-      const iframe = getIframe();
-      const iDoc = iframe?.contentDocument;
-      if (!iDoc) return;
-      // Read from body data attrs or first product card
-      const bodyColor = iDoc.body.getAttribute("data-product-button-color");
-      const bodyRadius = iDoc.body.getAttribute("data-product-button-radius");
-      const firstCard = iDoc.querySelector<HTMLElement>('[data-product-card="true"]');
-      const cardColor = firstCard?.getAttribute("data-product-button-color");
-      const cardRadius = firstCard?.getAttribute("data-product-button-radius");
-      const color = cardColor || bodyColor;
-      const radius = cardRadius || bodyRadius;
-      if (color) setSavedButtonColor(color);
-      if (radius) setSavedButtonRadius(radius);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [liveHtml, getIframe]);
-
 
   const saveHtml = useCallback(async (html: string) => {
     if (!surfaceId || !html) return;
