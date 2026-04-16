@@ -255,6 +255,30 @@ export default function EmenuNewEditor() {
   const navigate = useNavigate();
   const [publishOpen, setPublishOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  // Fetch the live published URL for this surface
+  const { data: liveUrl } = useQuery({
+    queryKey: ["live-url", surfaceId],
+    enabled: !!surfaceId,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("builder_publishes")
+        .select("slug, domain_id")
+        .eq("surface_id", surfaceId!)
+        .eq("state", "published")
+        .limit(1)
+        .maybeSingle();
+      if (!data) return null;
+      const { data: domain } = await supabase
+        .from("domains")
+        .select("host")
+        .eq("id", data.domain_id)
+        .maybeSingle();
+      if (!domain?.host) return null;
+      return `https://${domain.host}/${data.slug}`;
+    },
+    staleTime: 30_000,
+  });
   
   const [magicEditorOn, setMagicEditorOn] = useState(true);
   const [leftMode, setLeftMode] = useState<LeftMode>("tools");
