@@ -88,6 +88,14 @@ export function PublicCommerceShell({
     (window as any).__yangu_open_cart = () => setView("cart");
   }
 
+  // Broadcast cart count to iframe
+  useEffect(() => {
+    const iframe = document.querySelector("iframe") as HTMLIFrameElement | null;
+    if (iframe?.contentWindow) {
+      iframe.contentWindow.postMessage({ type: "yangu_cart_count", count: cart.count }, "*");
+    }
+  }, [cart.count]);
+
   return (
     <>
       {children}
