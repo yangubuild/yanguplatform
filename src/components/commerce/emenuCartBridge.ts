@@ -268,7 +268,7 @@ export function buildCartBridgeCode(configuredCurrency: string = "USD"): string 
 
     if (navContainer && header) {
       // Inline mode: place after the last nav link
-      btn.style.cssText = 'background:none;border:none;color:inherit;font-size:inherit;font-weight:600;cursor:pointer;padding:4px 8px;white-space:nowrap;opacity:0.85;transition:opacity 0.2s;';
+      btn.style.cssText = 'background:none;border:none;color:inherit;font-size:inherit;font-weight:600;cursor:pointer;padding:4px 8px !important;white-space:nowrap;opacity:0.85;transition:opacity 0.2s;width:auto !important;max-width:none !important;margin:0 !important;';
       btn.onmouseover = function() { btn.style.opacity = '1'; };
       btn.onmouseout = function() { btn.style.opacity = '0.85'; };
       navContainer.appendChild(btn);
@@ -315,11 +315,11 @@ export function buildCartBridgeCode(configuredCurrency: string = "USD"): string 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
       initCartBridge();
-      addCartButton();
+      try { addCartButton(); } catch(e) { console.warn('[yangu] cart button error:', e); }
     });
   } else {
     initCartBridge();
-    addCartButton();
+    try { addCartButton(); } catch(e) { console.warn('[yangu] cart button error:', e); }
   }
 
   setTimeout(initCartBridge, 2000);
