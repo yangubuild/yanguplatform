@@ -6,7 +6,7 @@
  * Works for both emenu (iframe) and non-emenu (React) surfaces.
  */
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/hooks/useCart";
@@ -87,14 +87,6 @@ export function PublicCommerceShell({
     (window as any).__yangu_add_to_cart = handleAddToCart;
     (window as any).__yangu_open_cart = () => setView("cart");
   }
-
-  // Broadcast cart count to iframe
-  useEffect(() => {
-    const iframe = document.querySelector("iframe") as HTMLIFrameElement | null;
-    if (iframe?.contentWindow) {
-      iframe.contentWindow.postMessage({ type: "yangu_cart_count", count: cart.count }, "*");
-    }
-  }, [cart.count]);
 
   return (
     <>

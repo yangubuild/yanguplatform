@@ -248,45 +248,16 @@ export function buildCartBridgeCode(configuredCurrency: string = "USD"): string 
     var existing = document.getElementById('yangu-cart-btn');
     if (existing) return;
 
-    // Try to place cart inline in the header nav
-    var header = document.querySelector('header') || document.querySelector('nav');
-    var navContainer = null;
-    if (header) {
-      // Find the nav links container (flex/row with multiple links)
-      var navLinks = header.querySelectorAll('a');
-      if (navLinks.length > 0) {
-        navContainer = navLinks[navLinks.length - 1].parentElement;
-      }
-    }
-
     var btn = document.createElement('button');
     btn.id = 'yangu-cart-btn';
-    btn.innerHTML = '\\uD83D\\uDED2 Cart (0)';
+    btn.innerHTML = '\\uD83D\\uDED2 Cart';
+    btn.style.cssText = 'position:fixed;bottom:20px;left:20px;z-index:9999;padding:12px 24px;border-radius:30px;border:none;background:#10b981;color:white;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);transition:transform 0.2s;';
+    btn.onmouseover = function() { btn.style.transform = 'scale(1.05)'; };
+    btn.onmouseout = function() { btn.style.transform = 'scale(1)'; };
     btn.onclick = function() {
       window.parent.postMessage({ type: 'yangu_open_cart' }, '*');
     };
-
-    if (navContainer && header) {
-      // Inline mode: place after the last nav link
-      btn.style.cssText = 'background:none;border:none;color:inherit;font-size:inherit;font-weight:600;cursor:pointer;padding:4px 8px;white-space:nowrap;opacity:0.85;transition:opacity 0.2s;';
-      btn.onmouseover = function() { btn.style.opacity = '1'; };
-      btn.onmouseout = function() { btn.style.opacity = '0.85'; };
-      navContainer.appendChild(btn);
-    } else {
-      // Fallback: fixed-position compact button at bottom-right
-      btn.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;padding:12px 24px;border-radius:30px;border:none;background:#10b981;color:white;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);transition:transform 0.2s;width:auto !important;max-width:none !important;';
-      btn.onmouseover = function() { btn.style.transform = 'scale(1.05)'; };
-      btn.onmouseout = function() { btn.style.transform = 'scale(1)'; };
-      document.body.appendChild(btn);
-    }
-
-    // Update cart count on messages from parent
-    window.addEventListener('message', function(e) {
-      if (e.data && e.data.type === 'yangu_cart_count') {
-        var el = document.getElementById('yangu-cart-btn');
-        if (el) el.innerHTML = '\\uD83D\\uDED2 Cart (' + (e.data.count || 0) + ')';
-      }
-    });
+    document.body.appendChild(btn);
   }
 
   // Smooth scroll for anchor links
