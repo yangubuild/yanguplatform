@@ -556,6 +556,15 @@ const EDIT_SCRIPT = String.raw`
         if (!currentTitle || !currentPrice) return null;
 
         var currentBadge = getProductRoleEl(card, 'badge');
+        // If the badge text matches the title, it's a misclassified duplicate — strip it
+        if (currentBadge) {
+          var badgeText = normalizeProductText(currentBadge.textContent);
+          var titleTextForBadgeCheck = normalizeProductText(currentTitle.textContent || card.getAttribute('data-product-title') || '');
+          if (badgeText === titleTextForBadgeCheck) {
+            currentBadge.removeAttribute('data-product-role');
+            currentBadge = null;
+          }
+        }
         var currentDesc = getProductRoleEl(card, 'description') || getProductDescriptionEl(card, currentTitle, currentPrice, currentBadge);
         // If "description" text is identical to the title, it's a duplicate — remove it
         if (currentDesc && normalizeProductText(currentDesc.textContent) === normalizeProductText(currentTitle.textContent)) {
