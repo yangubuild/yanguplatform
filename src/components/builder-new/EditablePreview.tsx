@@ -344,11 +344,17 @@ const EDIT_SCRIPT = String.raw`
 
       function getProductBadgeEl(card, nameEl, priceEl) {
         var persisted = getProductRoleEl(card, 'badge');
-        if (persisted) return persisted;
+        if (persisted) {
+          var persistedBadgeText = normalizeProductText(persisted.textContent);
+          var titleTextForBadge = normalizeProductText((nameEl && nameEl.textContent) || card.getAttribute('data-product-title') || '');
+          if (persistedBadgeText && persistedBadgeText !== titleTextForBadge) return persisted;
+          persisted.removeAttribute('data-product-role');
+        }
 
         var candidates = getProductTextCandidates(card);
         var titleFontSize = nameEl ? (parseFloat(window.getComputedStyle(nameEl).fontSize || '0') || 0) : 999;
         var titleIndex = candidates.findIndex(function(candidate) { return candidate.el === nameEl; });
+        var titleTextCheck = normalizeProductText((nameEl && nameEl.textContent) || card.getAttribute('data-product-title') || '');
         var best = null;
         var bestScore = -Infinity;
 
@@ -357,6 +363,7 @@ const EDIT_SCRIPT = String.raw`
           if (candidate.el === nameEl || candidate.el === priceEl) continue;
           if (isPriceText(candidate.text)) continue;
           if (candidate.text.length > 28 || candidate.words > 4) continue;
+          if (candidate.text === titleTextCheck) continue;
 
           var score = 0;
           if (titleIndex === -1 || candidate.index < titleIndex) score += 4;
@@ -549,6 +556,15 @@ const EDIT_SCRIPT = String.raw`
         if (!currentTitle || !currentPrice) return null;
 
         var currentBadge = getProductRoleEl(card, 'badge');
+        // If the badge text matches the title, it's a misclassified duplicate — strip it
+        if (currentBadge) {
+          var badgeText = normalizeProductText(currentBadge.textContent);
+          var titleTextForBadgeCheck = normalizeProductText(currentTitle.textContent || card.getAttribute('data-product-title') || '');
+          if (badgeText === titleTextForBadgeCheck) {
+            currentBadge.removeAttribute('data-product-role');
+            currentBadge = null;
+          }
+        }
         var currentDesc = getProductRoleEl(card, 'description') || getProductDescriptionEl(card, currentTitle, currentPrice, currentBadge);
         // If "description" text is identical to the title, it's a duplicate — remove it
         if (currentDesc && normalizeProductText(currentDesc.textContent) === normalizeProductText(currentTitle.textContent)) {
