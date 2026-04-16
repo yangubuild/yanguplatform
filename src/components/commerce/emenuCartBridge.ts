@@ -268,13 +268,12 @@ export function buildCartBridgeCode(configuredCurrency: string = "USD"): string 
 
     if (navContainer && header) {
       // Inline mode: place after the last nav link
-      btn.style.cssText = 'background:none;border:none;color:inherit;font-size:inherit;font-weight:600;cursor:pointer;padding:4px 8px !important;white-space:nowrap;opacity:0.85;transition:opacity 0.2s;';
+      btn.style.cssText = 'background:none;border:none;color:inherit;font-size:inherit;font-weight:600;cursor:pointer;padding:4px 8px;white-space:nowrap;opacity:0.85;transition:opacity 0.2s;';
       btn.onmouseover = function() { btn.style.opacity = '1'; };
       btn.onmouseout = function() { btn.style.opacity = '0.85'; };
       navContainer.appendChild(btn);
     } else {
       // Fallback: fixed-position compact button at bottom-right
-      btn.className = 'yangu-cart-fallback';
       btn.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;padding:12px 24px;border-radius:30px;border:none;background:#10b981;color:white;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);transition:transform 0.2s;width:auto !important;max-width:none !important;';
       btn.onmouseover = function() { btn.style.transform = 'scale(1.05)'; };
       btn.onmouseout = function() { btn.style.transform = 'scale(1)'; };
@@ -313,18 +312,14 @@ export function buildCartBridgeCode(configuredCurrency: string = "USD"): string 
     }
   });
 
-  function safeAddCartButton() {
-    try { addCartButton(); } catch(e) { console.warn('[CartBridge] addCartButton error:', e); }
-  }
-
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
       initCartBridge();
-      safeAddCartButton();
+      addCartButton();
     });
   } else {
     initCartBridge();
-    safeAddCartButton();
+    addCartButton();
   }
 
   setTimeout(initCartBridge, 2000);
