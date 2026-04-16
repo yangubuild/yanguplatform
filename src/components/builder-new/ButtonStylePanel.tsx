@@ -9,6 +9,9 @@ import { Slider } from "@/components/ui/slider";
 
 interface ButtonStylePanelProps {
   onAction: (action: string, payload?: any) => void;
+  initialColor?: string;
+  initialRadius?: string;
+  initialSizeIndex?: number;
 }
 
 const PRESET_COLORS = [
