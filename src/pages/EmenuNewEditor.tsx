@@ -264,6 +264,8 @@ export default function EmenuNewEditor() {
   const [editingProduct, setEditingProduct] = useState<ProductCardData | null>(null);
   const [pendingProductDelete, setPendingProductDelete] = useState<ProductCardData | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [savedButtonColor, setSavedButtonColor] = useState<string | undefined>(undefined);
+  const [savedButtonRadius, setSavedButtonRadius] = useState<string | undefined>(undefined);
   const [isSaving, setIsSaving] = useState(false);
   const [showLeaveWarning, setShowLeaveWarning] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>("");
@@ -350,7 +352,7 @@ export default function EmenuNewEditor() {
     }
   }, [currentPageSavedHtml, activePageId]);
 
-  // ─── AUTOSAVE — debounced 3s after last edit ───
+
   const saveHtml = useCallback(async (html: string) => {
     if (!surfaceId || !html) return;
     setIsSaving(true);
@@ -501,7 +503,27 @@ export default function EmenuNewEditor() {
   // ─── Iframe helpers ───
   const getIframe = useCallback(() => document.querySelector<HTMLIFrameElement>('iframe[title="Editable Website Preview"]'), []);
 
-  /** Get the currently selected element by stable nodeId first, then fall back to highlight class */
+  // ─── Read saved button style from iframe after HTML loads ───
+  useEffect(() => {
+    if (!liveHtml) return;
+    const timer = setTimeout(() => {
+      const iframe = getIframe();
+      const iDoc = iframe?.contentDocument;
+      if (!iDoc) return;
+      const bodyColor = iDoc.body.getAttribute("data-product-button-color");
+      const bodyRadius = iDoc.body.getAttribute("data-product-button-radius");
+      const firstCard = iDoc.querySelector<HTMLElement>('[data-product-card="true"]');
+      const cardColor = firstCard?.getAttribute("data-product-button-color");
+      const cardRadius = firstCard?.getAttribute("data-product-button-radius");
+      const color = cardColor || bodyColor;
+      const radius = cardRadius || bodyRadius;
+      if (color) setSavedButtonColor(color);
+      if (radius) setSavedButtonRadius(radius);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [liveHtml, getIframe]);
+
+
   const getSelectedElement = useCallback((doc: Document): HTMLElement | null => {
     if (canvasSelection?.nodeId) {
       const el = doc.querySelector(`[data-yangu-node-id="${canvasSelection.nodeId}"]`) as HTMLElement | null;
@@ -1193,7 +1215,9 @@ export default function EmenuNewEditor() {
 
       case "set_product_button_style": {
         if (!doc) break;
-        // Query product cards from the iframe — they have data-product-card set during injection
+        // Sync editor state so ButtonStylePanel stays in sync
+        if (payload?.color) setSavedButtonColor(payload.color);
+        if (payload?.borderRadius) setSavedButtonRadius(payload.borderRadius);
         iframe?.contentWindow?.postMessage({ type: "re-inject-product-controls" }, "*");
         // Small delay to let injection complete, then query
         setTimeout(() => {
@@ -1654,12 +1678,12 @@ export default function EmenuNewEditor() {
           ) : canvasSelection?.kind === "section" ? (
             <SectionEditorPanel onAction={handleEditorAction} preview={canvasSelection.preview} sectionIndex={canvasSelection.sectionIndex} />
           ) : canvasSelection?.kind === "button" || canvasSelection?.kind === "card" ? (
-            <ButtonStylePanel onAction={handleEditorAction} />
+            <ButtonStylePanel onAction={handleEditorAction} initialColor={savedButtonColor} initialRadius={savedButtonRadius} />
           ) : (
             <div className="flex flex-col h-full">
               <EmenuEditorPanel businessName={surfaceTitle} category="emenu" onAction={handleEditorAction} />
               <div className="border-t border-border">
-                <ButtonStylePanel onAction={handleEditorAction} />
+                <ButtonStylePanel onAction={handleEditorAction} initialColor={savedButtonColor} initialRadius={savedButtonRadius} />
               </div>
             </div>
           )}

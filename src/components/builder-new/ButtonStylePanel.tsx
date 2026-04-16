@@ -2,13 +2,16 @@
  * ButtonStylePanel — Right-panel for global/per-button styling.
  * Controls: color, border-radius, size, with a global toggle.
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 
 interface ButtonStylePanelProps {
   onAction: (action: string, payload?: any) => void;
+  initialColor?: string;
+  initialRadius?: string;
+  initialSizeIndex?: number;
 }
 
 const PRESET_COLORS = [
@@ -28,11 +31,19 @@ const SIZE_OPTIONS = [
   { label: "Large", padding: "12px 0", fontSize: "15px" },
 ];
 
-export function ButtonStylePanel({ onAction }: ButtonStylePanelProps) {
-  const [selectedColor, setSelectedColor] = useState("#10b981");
-  const [selectedRadius, setSelectedRadius] = useState("8px");
-  const [selectedSize, setSelectedSize] = useState(1);
+export function ButtonStylePanel({ onAction, initialColor, initialRadius, initialSizeIndex }: ButtonStylePanelProps) {
+  const [selectedColor, setSelectedColor] = useState(initialColor || "#10b981");
+  const [selectedRadius, setSelectedRadius] = useState(initialRadius || "8px");
+  const [selectedSize, setSelectedSize] = useState(initialSizeIndex ?? 1);
   const [applyGlobally, setApplyGlobally] = useState(true);
+
+  // Sync when initial values change (e.g. iframe loads saved data)
+  useEffect(() => {
+    if (initialColor) setSelectedColor(initialColor);
+  }, [initialColor]);
+  useEffect(() => {
+    if (initialRadius) setSelectedRadius(initialRadius);
+  }, [initialRadius]);
 
   const applyStyles = (color?: string, radius?: string, sizeIdx?: number) => {
     const c = color ?? selectedColor;
