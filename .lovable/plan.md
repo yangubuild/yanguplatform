@@ -1,48 +1,34 @@
 
 
-## Fix: Duplicate Product Titles in Editor
+## Fix: Live Header Cart & Product Buttons
 
-### Root Cause
+### Root Causes
 
-In `EditablePreview.tsx`, `normalizeLegacyProductCard` (line 584):
+1. **Cart button oversized / breaking nav**: The CSS rule `#yangu-cart-btn { padding:12px 24px !important }` (line 27-32 of `PublishedEmenuFrame.tsx`) overrides the bridge's inline `padding:4px 8px` when the cart is placed inline in the nav. The generic `button:not(.yangu-live-cta)` rule (line 78-81) also matches it, forcing `padding:10px 20px !important`.
 
-1. It finds the original title text via `getCardImageTitle(card)` — which reads from an `<h3>` or heading element in the card
-2. It picks a `contentContainer` (a `<div>` or `<p>` inside the card) and clears it with `innerHTML = ''`
-3. It creates a **new** `<span data-product-role="title">` inside that container
-4. **But the original `<h3>` heading lives outside `contentContainer`** — it's a sibling or in a different wrapper — so it survives the `innerHTML = ''` clear
-5. Result: two elements displaying the same product name
+2. **"+ Add" buttons potentially blocked**: If `addCartButton()` throws (e.g. nav structure doesn't match expectations), the error kills the entire IIFE before `initCartBridge()` can run — because `initCartBridge()` and `addCartButton()` execute sequentially with no error isolation.
 
-The save path in `EmenuNewEditor.tsx` (line 524-528) only deduplicates nodes with `[data-product-role="title"]` attribute, so the original untagged `<h3>` is never caught.
+### Changes (2 files only)
 
-### Fix — 2 files only
+**File 1: `src/components/routing/PublishedEmenuFrame.tsx`**
+- Replace `#yangu-cart-btn` block (lines 27-32) with `.yangu-cart-fallback` class — only targets the fixed-position fallback mode
+- Exclude `#yangu-cart-btn` from `button:not(.yangu-live-cta)` rules on both desktop (line 78) and mobile (line 127) by adding `:not(#yangu-cart-btn)`
 
-**File 1: `src/components/builder-new/EditablePreview.tsx`**
+**File 2: `src/components/commerce/emenuCartBridge.ts`**
+- Reorder execution: call `initCartBridge()` BEFORE `addCartButton()` (lines 317-323) so product buttons always render
+- Wrap `addCartButton()` in `try/catch` so nav placement failure can't kill product buttons
+- Add `.yangu-cart-fallback` class only in the fallback (fixed-position) branch
+- Add `!important` to inline nav mode padding (`4px 8px !important`) to win over any stray CSS
 
-In `normalizeLegacyProductCard`, after creating the new tagged title/price nodes (after line 620, before the description block):
-
-- Query the card for all heading elements (`h1-h6`) and bold/strong elements whose `textContent` matches the new `nameEl.textContent`
-- Remove any that are **not** the newly created `nameEl` and not inside `contentContainer`
-- This eliminates the original source heading that was left behind
-
-**File 2: `src/pages/EmenuNewEditor.tsx`**
-
-In `handleProductSave`, after the existing dedup block (after line 528):
-
-- Query the card for any `h1-h6, strong, b` elements whose trimmed text matches `trimmedName` but are **not** the current `nameElement`
-- Remove those duplicate nodes
-- This catches any untagged legacy headings that survived into the save path
-
-### What does NOT change
-
-- No layout/styling changes
-- No cart/CTA/bridge changes
-- No publishing logic changes
+### What is NOT changed
 - No other files touched
+- No cart behavior changes
+- No editor changes
+- No header/card redesign
+- No mobile layout changes
 
-### Confirmation checklist
-
-- No other files changed: YES (only EditablePreview.tsx and EmenuNewEditor.tsx)
-- Duplicate titles removed at both normalization and save path: YES
-- Editor preview shows one title only per card: YES
-- PASS/FAIL: will be confirmed after implementation
+### Verification checklist
+- `initCartBridge()` runs even if `addCartButton()` fails ✓ (reorder + try/catch)
+- Cart fallback CSS scoped to `.yangu-cart-fallback` only ✓
+- PASS/FAIL on live published page: + Add visible, Cart visible after Contact, Cart not oversized, nav intact
 
