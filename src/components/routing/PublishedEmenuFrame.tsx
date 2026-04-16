@@ -24,7 +24,7 @@ body > *:not([data-yangu-badge]):not(#yangu-cart-btn){
   padding-right:20px !important;
   box-sizing:border-box !important;
 }
-#yangu-cart-btn{
+.yangu-cart-fallback{
   width:auto !important;
   max-width:none !important;
   margin:0 !important;
@@ -75,7 +75,7 @@ nav a,.nav-link,[class*="nav-item"]{
   font-size:0.9rem !important;
   font-weight:500 !important;
 }
-button:not(.yangu-live-cta),.btn,[class*="button"]:not(.yangu-live-cta){
+button:not(.yangu-live-cta):not(#yangu-cart-btn),.btn,[class*="button"]:not(.yangu-live-cta):not(#yangu-cart-btn){
   font-size:0.9rem !important;
   padding:10px 20px !important;
 }
@@ -124,7 +124,7 @@ h2,.section-title{
   nav a,.nav-link,[class*="nav-item"] {
     font-size:0.875rem !important;
   }
-  button:not(.yangu-live-cta),.btn,[class*="button"]:not(.yangu-live-cta) {
+  button:not(.yangu-live-cta):not(#yangu-cart-btn),.btn,[class*="button"]:not(.yangu-live-cta):not(#yangu-cart-btn) {
     font-size:0.875rem !important;
     padding:8px 16px !important;
   }
