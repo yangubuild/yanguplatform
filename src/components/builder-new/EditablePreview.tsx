@@ -572,6 +572,24 @@ const EDIT_SCRIPT = String.raw`
           if (imageEl && titleText) imageEl.setAttribute('alt', titleText);
         }
 
+        // Final pass: remove ANY leaf element in the card whose text duplicates the title
+        var normalizedTitleForDedup = normalizeProductText(currentTitle.textContent);
+        if (normalizedTitleForDedup) {
+          var allLeafs = card.querySelectorAll('span, p, div, h1, h2, h3, h4, h5, h6, strong, b, small');
+          for (var li = 0; li < allLeafs.length; li++) {
+            var leaf = allLeafs[li];
+            if (leaf === currentTitle || leaf === currentPrice || leaf === currentDesc || leaf === currentBadge) continue;
+            if (leaf.closest && leaf.closest('.yangu-product-controls')) continue;
+            if (leaf.contains(currentTitle) || leaf.contains(currentPrice)) continue;
+            if (currentDesc && leaf.contains(currentDesc)) continue;
+            if (leaf.children.length > 0) continue; // only true leaf nodes
+            if (normalizeProductText(leaf.textContent) === normalizedTitleForDedup) {
+              leaf.remove();
+              repairNeeded = true;
+            }
+          }
+        }
+
         return {
           nameEl: currentTitle,
           priceEl: currentPrice,
