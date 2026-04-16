@@ -236,6 +236,55 @@ const EDIT_SCRIPT = String.raw`
         return candidates;
       }
 
+      function getDirectTextContent(el) {
+        var text = '';
+        Array.from(el.childNodes || []).forEach(function(node) {
+          if (node.nodeType === 3) text += ' ' + (node.textContent || '');
+        });
+        return normalizeProductText(text);
+      }
+
+      function removeDuplicateTitleNodes(card, titleEl, priceEl, descEl, badgeEl) {
+        var titleText = normalizeProductText((titleEl && titleEl.textContent) || card.getAttribute('data-product-title') || '');
+        if (!titleText) return false;
+
+        var protectedNodes = [titleEl, priceEl, descEl, badgeEl].filter(Boolean);
+        var removedAny = false;
+
+        Array.from(card.querySelectorAll('h1,h2,h3,h4,h5,h6,p,span,div,strong,b,small')).forEach(function(node) {
+          if (protectedNodes.some(function(protectedNode) {
+            return node === protectedNode || node.contains(protectedNode) || protectedNode.contains(node);
+          })) return;
+          if (node.closest('.yangu-product-controls')) return;
+          if (node.querySelector('img,button,a,svg,input,select,textarea')) return;
+
+          var fullText = normalizeProductText(node.textContent);
+          var directText = getDirectTextContent(node);
+
+          if (fullText === titleText) {
+            node.remove();
+            removedAny = true;
+            return;
+          }
+
+          if (directText !== titleText) return;
+
+          Array.from(node.childNodes || []).forEach(function(child) {
+            if (child.nodeType === 3 && normalizeProductText(child.textContent)) {
+              child.remove();
+              removedAny = true;
+            }
+          });
+
+          if (!normalizeProductText(node.textContent) && node.children.length === 0) {
+            node.remove();
+            removedAny = true;
+          }
+        });
+
+        return removedAny;
+      }
+
       function getProductNameEl(card) {
         var persisted = getProductRoleEl(card, 'title');
         if (persisted) return persisted;
@@ -331,7 +380,8 @@ const EDIT_SCRIPT = String.raw`
         var persisted = getProductRoleEl(card, 'description');
         if (persisted) {
           var persistedText = normalizeProductText(persisted.textContent);
-          if (persistedText && persistedText !== titleText && !isPriceText(persistedText)) {
+          var persistedDirectText = getDirectTextContent(persisted);
+          if (persistedText && persistedText !== titleText && persistedDirectText !== titleText && !isPriceText(persistedText)) {
             return persisted;
           }
           persisted.removeAttribute('data-product-role');
@@ -345,7 +395,7 @@ const EDIT_SCRIPT = String.raw`
         for (var i = 0; i < candidates.length; i++) {
           var candidate = candidates[i];
           if (candidate.el === nameEl || candidate.el === priceEl || candidate.el === badgeEl) continue;
-          if (candidate.text === titleText) continue;
+          if (candidate.text === titleText || getDirectTextContent(candidate.el) === titleText) continue;
           if (isPriceText(candidate.text) || candidate.text.length < 12) continue;
 
           var score = 0;
@@ -585,22 +635,8 @@ const EDIT_SCRIPT = String.raw`
           if (imageEl && titleText) imageEl.setAttribute('alt', titleText);
         }
 
-        // Final pass: remove ANY leaf element in the card whose text duplicates the title
-        var normalizedTitleForDedup = normalizeProductText(currentTitle.textContent);
-        if (normalizedTitleForDedup) {
-          var allLeafs = card.querySelectorAll('span, p, div, h1, h2, h3, h4, h5, h6, strong, b, small');
-          for (var li = 0; li < allLeafs.length; li++) {
-            var leaf = allLeafs[li];
-            if (leaf === currentTitle || leaf === currentPrice || leaf === currentDesc || leaf === currentBadge) continue;
-            if (leaf.closest && leaf.closest('.yangu-product-controls')) continue;
-            if (leaf.contains(currentTitle) || leaf.contains(currentPrice)) continue;
-            if (currentDesc && leaf.contains(currentDesc)) continue;
-            if (leaf.children.length > 0) continue; // only true leaf nodes
-            if (normalizeProductText(leaf.textContent) === normalizedTitleForDedup) {
-              leaf.remove();
-              repairNeeded = true;
-            }
-          }
+        if (titleText && removeDuplicateTitleNodes(card, currentTitle, currentPrice, currentDesc, currentBadge)) {
+          repairNeeded = true;
         }
 
         return {
@@ -650,27 +686,6 @@ const EDIT_SCRIPT = String.raw`
         row.appendChild(priceEl);
         contentContainer.appendChild(row);
 
-        // Remove ANY elements that duplicate the new title text (spans, headings, bold, etc.)
-        var normalizedTitle = normalizeProductText(legacy.titleText);
-        var allCardEls = card.querySelectorAll('*');
-        for (var di = 0; di < allCardEls.length; di++) {
-          var dn = allCardEls[di];
-          // Skip our newly created elements and their containers
-          if (dn === nameEl || dn === priceEl || dn === row || dn === contentContainer) continue;
-          // Skip elements inside the row we just created
-          if (row.contains(dn)) continue;
-          // Skip images and buttons
-          if (dn.tagName === 'IMG' || dn.tagName === 'BUTTON') continue;
-          // Skip product controls overlay
-          if (dn.classList && dn.classList.contains('yangu-product-controls')) continue;
-          if (dn.closest && dn.closest('.yangu-product-controls')) continue;
-          // Check if this element's direct text matches the title
-          var dnText = normalizeProductText(dn.textContent);
-          if (dnText === normalizedTitle && dn.children.length === 0) {
-            dn.remove();
-          }
-        }
-
         var descEl = null;
         if (legacy.descriptionText) {
           descEl = ensureNodeId(document.createElement('p'));
@@ -694,6 +709,8 @@ const EDIT_SCRIPT = String.raw`
         if (legacy.imageEl && legacy.titleText) {
           legacy.imageEl.setAttribute('alt', legacy.titleText);
         }
+
+        removeDuplicateTitleNodes(card, nameEl, priceEl, descEl, legacy.badgeEl);
 
         card.setAttribute('data-product-card', 'true');
 
@@ -722,6 +739,7 @@ const EDIT_SCRIPT = String.raw`
         var priceEl = normalized && normalized.priceEl ? normalized.priceEl : getProductPriceEl(card);
         var badgeEl = normalized && normalized.badgeEl ? normalized.badgeEl : getProductBadgeEl(card, nameEl, priceEl);
         var descEl = normalized && normalized.descEl ? normalized.descEl : getProductDescriptionEl(card, nameEl, priceEl, badgeEl);
+        var repaired = Boolean(normalized && normalized.repaired);
 
         card.setAttribute('data-product-card', 'true');
         setProductRole(card, 'title', nameEl);
@@ -729,12 +747,16 @@ const EDIT_SCRIPT = String.raw`
         setProductRole(card, 'badge', badgeEl);
         setProductRole(card, 'description', descEl);
 
+        if (nameEl && removeDuplicateTitleNodes(card, nameEl, priceEl, descEl, badgeEl)) {
+          repaired = true;
+        }
+
         return {
           nameEl: nameEl,
           priceEl: priceEl,
           badgeEl: badgeEl,
           descEl: descEl,
-          repaired: Boolean(normalized && normalized.repaired),
+          repaired: repaired,
         };
       }
 
