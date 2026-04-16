@@ -115,6 +115,20 @@ export function BuilderEditorTopBar({
 
         <TopBarButton icon={Settings} label="Settings" onClick={onOpenSettings} hideLabel />
         {showOrders && <TopBarButton icon={ShoppingBag} label="Orders" hideLabel />}
+        {/* Live Preview — opens published page in new tab */}
+        <button
+          onClick={() => liveUrl && window.open(liveUrl, "_blank")}
+          disabled={!liveUrl}
+          title={liveUrl ? "View live page" : "Publish first to preview live"}
+          className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            liveUrl
+              ? "text-background/70 hover:text-background hover:bg-background/10"
+              : "text-background/30 cursor-not-allowed"
+          }`}
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          <span className="hidden xl:inline">{liveUrl ? "Live" : "Not published"}</span>
+        </button>
         <button
           onClick={onPublish}
           className="ml-1 sm:ml-2 px-2.5 sm:px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs sm:text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-1"

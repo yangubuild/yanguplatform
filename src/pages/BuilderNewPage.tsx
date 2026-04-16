@@ -607,6 +607,7 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
           onViewportChange={setViewportMode}
           onPublish={() => setPublishOpen(true)}
           onOpenSettings={() => setSettingsOpen(true)}
+          surfaceId={ctrl.surfaceId}
         />
       )}
 
