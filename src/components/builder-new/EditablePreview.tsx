@@ -619,12 +619,23 @@ const EDIT_SCRIPT = String.raw`
         row.appendChild(priceEl);
         contentContainer.appendChild(row);
 
-        // Remove original heading/bold elements that duplicate the new title
-        var dupSelectors = card.querySelectorAll('h1, h2, h3, h4, h5, h6, strong, b');
+        // Remove ANY elements that duplicate the new title text (spans, headings, bold, etc.)
         var normalizedTitle = normalizeProductText(legacy.titleText);
-        for (var di = 0; di < dupSelectors.length; di++) {
-          var dn = dupSelectors[di];
-          if (dn !== nameEl && !contentContainer.contains(dn) && normalizeProductText(dn.textContent) === normalizedTitle) {
+        var allCardEls = card.querySelectorAll('*');
+        for (var di = 0; di < allCardEls.length; di++) {
+          var dn = allCardEls[di];
+          // Skip our newly created elements and their containers
+          if (dn === nameEl || dn === priceEl || dn === row || dn === contentContainer) continue;
+          // Skip elements inside the row we just created
+          if (row.contains(dn)) continue;
+          // Skip images and buttons
+          if (dn.tagName === 'IMG' || dn.tagName === 'BUTTON') continue;
+          // Skip product controls overlay
+          if (dn.classList && dn.classList.contains('yangu-product-controls')) continue;
+          if (dn.closest && dn.closest('.yangu-product-controls')) continue;
+          // Check if this element's direct text matches the title
+          var dnText = normalizeProductText(dn.textContent);
+          if (dnText === normalizedTitle && dn.children.length === 0) {
             dn.remove();
           }
         }
