@@ -764,7 +764,7 @@ const EDIT_SCRIPT = String.raw`
               debugNodes.push({tag: dn.tagName, role: dn.getAttribute('data-product-role'), text: dnText.substring(0, 80), children: dn.children.length, isNameEl: dn === nameEl, isDescEl: dn === descEl});
             }
           }
-          window.parent.postMessage({type: 'DEDUP_DEBUG', title: debugTitle, nodes: debugNodes, cardHTML: card.innerHTML.substring(0, 3000)}, '*');
+          console.log('DEDUP_DEBUG', JSON.stringify({title: debugTitle, nodes: debugNodes}));
         }
 
         return {
