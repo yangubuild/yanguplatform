@@ -1,51 +1,103 @@
 
 
-## Audit: What gets published — emenu vs eshop/other categories
+## What I found (verified by reading both files)
 
-### When user clicks Publish in **EMENU** editor (`EmenuNewEditor`)
-1. Opens `BuilderPublishModal` (full modal: Page Title, SEO Description, Favicon, Cover Image, domain selector, slug).
-2. Calls Supabase RPC `request_publish_surface` → creates row in `builder_publishes`.
-3. `syncPublishedRecord` (useBuilderPublish.ts L168-210) writes `published_schema.surface` with:
-   - `surface_type: "emenu"`
-   - `slug`, `favicon_url`, `show_yangu_badge`
-   - **`emenu_html`** = sanitized full-page HTML from `metadata.builder_new_html` / `pages_html` (blob URLs persisted to storage).
-4. **Live runtime** (`PublicSurfacePage` L103 / `SurfaceViewer` L98-118): detects `surface_type === "emenu"` → renders `EmenuPublicView` which mounts `PublishedEmenuFrame` (iframe `srcdoc={emenu_html}`) wrapped in `PublicCommerceShell` (cart bridge, checkout).
-5. **Result**: 1:1 pixel parity with the editor canvas — exact HTML the user designed.
+**Eshop has 6 renderers. Two of them are broken:**
 
-### When user clicks Publish in **ESHOP / ESITE / ESTORE / INFLUENCER / COMMUNITY**
-Two divergent paths exist in the codebase right now:
+### Card #1 (missing edit/delete icons) — `renderMockhub`, line 1727
+```html
+<a href="#" class="aema-card" style="...">
+  <p>${it.title}</p>            ← no data-product-role="title"
+  <span>${it.tag}</span>         ← chip on LEFT
+  <span>${it.price}</span>       ← price on RIGHT
+</a>
+```
+- No `data-product-card="true"`
+- No role markers
+- Layout violates the rule: it's `[tag-chip LEFT | price RIGHT]` with no button — and price is on the wrong side
+- The heuristic `getProductPriceEl` sometimes picks the tag chip (e.g. "New") instead of the price, so detection fails on at least one card → **no icons**
 
-**Path A — from the unified editor (`EmenuNewEditor`, reached via `/builder/:surfaceId`)**
-- Same `BuilderPublishModal` opens, same `request_publish_surface` RPC, same `syncPublishedRecord`.
-- BUT `syncPublishedRecord` L178 only writes `emenu_html` when `surfaceType === "emenu"`. For eshop/etc. it writes only: `id, slug, surface_type, favicon_url, show_yangu_badge`.
-- **No `pages_html` and no section schema is copied into `published_schema`.**
-- Live runtime (`PublicSurfacePage` L121-128) falls back to `schema.pages[0].sections` and renders via `PREVIEW_MAP` section components — which is the **legacy section-based renderer**, NOT the actual HTML the user edited in the canvas.
-- **Result**: live eshop surface shows a generic section-based render that does NOT match what the user built in the canvas (the canvas works in `pages_html` HTML, just like emenu).
+### Card #2 (duplicated name + price) — `renderLumel`, line 1997
+```html
+<article class="yangu-product-card" data-yangu-product="true"
+         data-yangu-product-name="${p.title}" data-yangu-product-price="${p.price}">
+  <h3 class="yangu-product-name">${p.title}</h3>     ← already has title
+  <span class="yangu-product-price">${p.price}</span> ← already has price
+</article>
+```
+- Uses **legacy** `data-yangu-product-*` attributes that the cart bridge / normalizer reads
+- Has NO `data-product-role` attributes
+- So `markProductRoles` runs `cleanupStructuredProductCard` AND `normalizeLegacyProductCard` on it, which inject title/price text again from the legacy attrs → **visible duplicate name + price below the originals**
 
-**Path B — from `BuilderNewPage` onboarding chat (the "Publish" button in the chat step before entering editor)**
-- Opens `BuilderPublishDialog` (`src/components/builder-new/BuilderPublishDialog.tsx`).
-- This is a **fake/stub modal**: 1.5s `setTimeout`, fires `toast.success("Website published!")`, **no RPC, no DB write, nothing published**. URL shown is hardcoded `${slug}.shop` / `.site`.
-- **Result**: nothing is actually published. Pure dead UI.
+## How emenu solved this (the working reference)
 
-### Side-by-side
+I read `emenuFamilyRenderers.ts` lines 200–220. **Emenu cards have ZERO marker attributes** — no `data-product-card`, no `data-product-role`, no `data-yangu-product`. Every emenu card uses the SAME structure:
+```html
+<div class="yangu-product-grid">
+  <div>                                          ← plain div
+    <img />
+    <div>
+      <span>title</span> <span>price</span>      ← title LEFT, price RIGHT, flex justify-between
+    </div>
+  </div>
+</div>
+```
+The heuristic `isLikelyProductCard` succeeds 100% because every card has identical clean structure: img + name + price, no legacy attrs, no half-marked roles, no chips that look like prices.
 
-| Step | Emenu | Eshop / Esite / Estore / Influencer / Community |
-|---|---|---|
-| Modal opened | `BuilderPublishModal` (real) | `BuilderPublishModal` (real, in editor) **or** `BuilderPublishDialog` (fake stub, in onboarding) |
-| RPC called | `request_publish_surface` ✅ | `request_publish_surface` ✅ (editor) / **none** (onboarding stub) |
-| `published_schema.surface.emenu_html` | ✅ full sanitized HTML written | ❌ **NEVER written** (gated by `if (surfaceType === "emenu")`) |
-| `published_schema.pages[].sections` | n/a (HTML path) | Whatever the legacy schema has — not synced from `pages_html` |
-| Live render path | iframe `srcdoc` of real HTML, with cart bridge | Legacy section renderer via `PREVIEW_MAP` — **does not match canvas HTML** |
-| Parity with editor canvas | 1:1 exact | ❌ broken — live page is a generic section render, not the user's edited HTML |
-| Fake dialog still wired anywhere | n/a | ✅ `BuilderNewPage` still imports & renders `BuilderPublishDialog` (dead UI) |
+**The fix is not to add more attributes — it's to make Mockhub and Lumel match emenu's clean structure.**
 
-### Two concrete bugs surfaced
-1. **`syncPublishedRecord` only persists HTML for emenu.** Eshop/esite/estore (which now also use the unified `pages_html` HTML editor) publish an empty/legacy schema → live surface ≠ editor canvas.
-2. **`BuilderPublishDialog` (fake stub) still exists and is rendered by `BuilderNewPage`.** Violates zero-dead-controls policy and contradicts the "single emenu publish modal globally" rule.
+## The fix (mirror emenu exactly)
 
-### Recommended fix (for approval — implementation in default mode)
-1. In `useBuilderPublish.ts` `syncPublishedRecord`, remove the `if (surfaceType === "emenu")` gate so that **all categories** persist `emenu_html` (rename internally to `published_html` later; keep field name for now to avoid runtime breakage).
-2. Update `PublicSurfacePage` and `SurfaceViewer` to render the iframe HTML path for any surface that has `published_schema.surface.emenu_html` (not just `surface_type === "emenu"`), keeping commerce shell active for `eshop / estore / store_listing`.
-3. Delete `src/components/builder-new/BuilderPublishDialog.tsx` and remove its import + render from `BuilderNewPage.tsx`. The Publish button in onboarding should either route to the real editor's publish flow or be hidden until the surface is initialized.
-4. Verify on a freshly-built eshop: edit canvas → Publish → live URL shows identical HTML with working cart.
+### Edit `src/components/builder-new/utils/eshopFamilyRenderers.ts` only
+
+**Mockhub card (line 1727–1738):** replace with emenu-style clean structure
+```html
+<a href="#" class="aema-card" style="display:block;...">
+  <div><img .../></div>
+  <div style="padding:16px 18px;">
+    <p style="font-size:14px;font-weight:600;">${it.title}</p>    ← name on top
+    ${it.tag ? `<p style="font-size:11px;color:${t.mutedText};">${it.tag}</p>` : ""}  ← optional tag as sub-line
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:13px;font-weight:700;">${it.price}</span>   ← price LEFT
+    </div>
+  </div>
+</a>
+```
+No marker attributes. Heuristic will detect it.
+
+**Lumel card (line 1997–2010):** strip ALL legacy markers, match emenu structure
+```html
+<article style="background:${t.panelBg};...;display:flex;flex-direction:column;">
+  <div><img .../></div>
+  <div style="padding:24px;">
+    ${p.volume ? `<p style="font-size:11px;...">${p.volume}</p>` : ""}
+    <h3 style="font-size:22px;">${p.title}</h3>           ← name
+    ${p.note ? `<p style="font-size:13px;...">${p.note}</p>` : ""}  ← description (kept in order: name → desc)
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto;">
+      <span style="font-size:20px;">${p.price}</span>     ← price LEFT
+    </div>
+  </div>
+</article>
+```
+Remove: `class="yangu-product-card"`, `data-yangu-product`, `data-yangu-product-id`, `data-yangu-product-name`, `data-yangu-product-price`, `class="yangu-product-name"`, `class="yangu-product-price"`, `class="yangu-product-add"`, the inline `+ Add` button.
+
+The live `+ Add` button is injected at runtime by `emenuCartBridge.ts` (already working on emenu and other eshop templates).
+
+### No changes to `EditablePreview.tsx`
+
+The detection logic already works — that's proven by emenu. The bug is template-level pollution, not detection-level. Adding more flags would just paper over the real cause.
+
+## Verification protocol (before reporting fixed)
+
+1. Read the canvas via `browser--extract` and count product cards vs edit/delete icons across all 6 eshop templates (Aema, Uncover, Kanva, Minna, Mockhub, Lumel) — must match 1:1.
+2. For each card extract title text and price text — no card may show title or price twice.
+3. Refresh once, re-verify (catches any non-idempotent damage).
+4. Switch templates and re-verify on each.
+
+Only report success if all four checks pass on all six renderers.
+
+## Files to edit
+- `src/components/builder-new/utils/eshopFamilyRenderers.ts` — Mockhub renderer (~line 1727), Lumel renderer (~line 1997)
+
+No other files. No new attributes. No detection changes. Mirror what already works in emenu.
 
