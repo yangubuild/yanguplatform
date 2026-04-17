@@ -348,7 +348,7 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
             {/* Eshop / Estore: Discount, Variants, Logistics */}
             {isCommerce && (
               <>
-                <div className="space-y-3 rounded-xl border border-orange-500/40 bg-orange-500/5 p-4">
+                <div className="space-y-3 rounded-xl border border-accent/40 bg-accent/5 p-4">
                   <h4 className="text-sm font-semibold text-foreground">Discount</h4>
                   <div className="grid gap-3 md:grid-cols-2">
                     <div className="space-y-2">
