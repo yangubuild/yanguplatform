@@ -5,7 +5,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, MessageCircle, Mail, Phone, Copy } from "lucide-react";
+import { CheckCircle2, MessageCircle, Mail, Phone, Copy, ListOrdered, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 
 interface OrderSuccessDialogProps {
@@ -16,10 +16,13 @@ interface OrderSuccessDialogProps {
   supportEmail?: string | null;
   supportWhatsapp?: string | null;
   businessName?: string;
+  onViewMyOrders?: () => void;
+  onBackToShop?: () => void;
 }
 
 export function OrderSuccessDialog({
   open, onClose, trackingCode, supportPhone, supportEmail, supportWhatsapp, businessName,
+  onViewMyOrders, onBackToShop,
 }: OrderSuccessDialogProps) {
   const copyCode = () => {
     navigator.clipboard.writeText(trackingCode);
@@ -102,9 +105,23 @@ export function OrderSuccessDialog({
             </Button>
           </div>
 
-          <Button onClick={onClose} className="w-full mt-2">
-            Done
-          </Button>
+          <div className="w-full grid grid-cols-2 gap-2 mt-2">
+            <Button
+              variant="outline"
+              className="w-full gap-2"
+              onClick={() => { onBackToShop ? onBackToShop() : onClose(); }}
+            >
+              <ShoppingBag className="h-4 w-4" />
+              Back to Shop
+            </Button>
+            <Button
+              className="w-full gap-2"
+              onClick={() => { onViewMyOrders ? onViewMyOrders() : onClose(); }}
+            >
+              <ListOrdered className="h-4 w-4" />
+              My Orders
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
