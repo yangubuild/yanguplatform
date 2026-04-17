@@ -601,16 +601,131 @@ const ESHOP_TEMPLATES: TemplatePreset[] = [
     },
   },
 
-  // ─── Kanva — Beauty / Single product (pending full rebuild) ───
+  // ─── Kanva — Natural skincare / single-brand beauty store ───
+  // Reference: https://kanva-template.framer.website
   {
     key: "eshop_kanva",
     label: "Kanva — Beauty",
-    description: "Single-product beauty brand: hero with one SKU, feature highlights, soft luxury palette, Framer Commerce ready.",
+    description: "Natural skincare storefront: pill nav with center wordmark, serif-italic image hero, 4-up feature highlights, playful ritual headline with inline ingredient images, cleanser tabs + 3-up product cards, Eco-Friendly split, 'Why Your Skin Deserves the Best' 2x2 cards with rating, featured 2-up products, newsletter band, IG 4-up, footer.",
     icon: "🧴",
     template_family: "kanva",
-    preview_url: "https://www.framer.com/marketplace/templates/kanva/",
-    reference: { source: "link", url: "https://www.framer.com/marketplace/templates/kanva/", label: "Kanva Framer template", sectionOrder: ["header", "hero", "features", "about", "footer"], layoutPatterns: ["single_product_hero", "feature_highlights_row"] },
-    patches: {},
+    preview_url: "https://kanva-template.framer.website",
+    reference: {
+      source: "link",
+      url: "https://kanva-template.framer.website",
+      label: "Kanva Framer template",
+      sectionOrder: ["header", "hero", "features", "ritual", "products", "eco", "why", "featured_pair", "newsletter", "instagram", "footer"],
+      layoutPatterns: [
+        "pill_nav_center_wordmark",
+        "image_hero_serif_italic_overlay",
+        "four_up_feature_highlights",
+        "ritual_headline_inline_circle_images",
+        "cleanser_tabs_three_up_cards_image_swap",
+        "eco_friendly_split_card_with_image",
+        "why_two_by_two_grid_with_rating_pile",
+        "featured_two_up_with_discount_chip",
+        "newsletter_centered_band",
+        "instagram_four_up",
+      ],
+    },
+    patches: {
+      header: {
+        schema: {
+          layout_variant: "pill_nav_center",
+          logo_position: "center",
+          logo_size: "small",
+          show_name: true,
+          show_cart_icon: true,
+          show_search: true,
+          menu_layout_style: "horizontal",
+          nav_items: ["Shop", "Collections", "About", "Blog", "Contact"],
+          background_style: "light",
+        },
+      },
+      hero: {
+        schema: {
+          layout_variant: "image_overlay_serif",
+          alignment: "left",
+          background_style: "image",
+          headline: "Natural",
+          headline_tail: "Skincare",
+          subheadline: "Start your day with gentle care and nourishing ingredients designed to awaken your skin naturally.",
+          cta_text: "Shop Now",
+          media: { type: "image", source: "url", url: "", fit: "cover" },
+          spacing: "spacious",
+          typography_style: "serif_italic_display",
+          text_color: "light",
+        },
+      },
+      main_content: {
+        schema: {
+          display_mode: "grid",
+          heading: "Cleansers",
+          tabs: ["Cleansers", "Lotions", "Moisturizers"],
+          filters_enabled: false,
+          sort_enabled: false,
+          cards: {
+            style: "image_top",
+            image_ratio: "square",
+            show_price: true,
+            show_title: true,
+            show_cta: false,
+            badge_enabled: true,
+            hover_effect: "image_swap",
+            card_style: "soft_radius",
+          },
+          grid: { columns_desktop: 3, columns_mobile: 2, gap: "md" },
+          spacing: "comfortable",
+          features: [
+            { title: "Natural Formula", body: "Crafted with pure, skin-loving ingredients for ultimate care." },
+            { title: "Cruelty-Free", body: "Our products are never tested on animals, guaranteed ethical." },
+            { title: "Expert Approved", body: "Carefully tested to ensure safety and visible results." },
+            { title: "Free Shipping", body: "Delivered to your doorstep with no extra costs worldwide." },
+          ],
+          items: [
+            { title: "Gentle Wash", category: "Cleansers", price: "7,90 €", original_price: "18,90 €", badge: "58% OFF", media: [] },
+            { title: "Clay Clean", category: "Cleansers", price: "8,90 €", badge: "", media: [] },
+            { title: "Citrus Foam", category: "Cleansers", price: "8,90 €", badge: "", media: [] },
+          ],
+        },
+      },
+      offer: {
+        schema: {
+          layout_variant: "luxury_skincare_blocks",
+          background_style: "soft_beige",
+          ritual_lead: "Refresh your skin,",
+          ritual_mid: "love yourself,",
+          ritual_tail: "renew your glow.",
+          eco_bullets: ["No Harsh Chemicals", "Plant-Based Goodness", "Ethically Sourced"],
+          why_heading: "Why Your Skin",
+          why_heading_tail: "Deserves the Best",
+          why_rating: "4.7",
+          why_review_count: "1,109 reviews",
+          why_cards: [
+            { eyebrow: "Proven Effectiveness", body: "Every product is carefully crafted to meet the highest quality standards." },
+            { eyebrow: "Eco-Friendly · Packaging", body: "Eco-friendly materials designed to care for the planet as much as your skin." },
+            { eyebrow: "100% Natural · 100% You", body: "No Harsh Chemicals · Plant-Based Goodness · Ethically Sourced", isBullets: true },
+            { eyebrow: "From Jennifer K.", body: "It feels healthier, smoother & more radiant than ever. I love knowing I'm using something natural and effective!", isQuote: true },
+          ],
+          featured_pair: [
+            { title: "Daily Flow", category: "Lotions", price: "7,90 €", badge: "66% OFF" },
+            { title: "Glow Milk", category: "Lotions", price: "9,90 €", badge: "57% OFF" },
+          ],
+        },
+      },
+      footer: {
+        schema: {
+          layout_variant: "multi_column_soft",
+          background_style: "cream",
+          ig_handle: "@kanva",
+          columns: [
+            { title: "Shop", links: ["All Products", "Cleansers", "Lotions", "Moisturizers"] },
+            { title: "Company", links: ["About", "Blog", "Contact"] },
+            { title: "Help", links: ["Shipping", "Returns", "FAQ"] },
+          ],
+        },
+      },
+    },
   },
 
   // ─── Minna — Clothing (pending full rebuild) ───
