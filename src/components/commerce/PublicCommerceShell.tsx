@@ -14,6 +14,7 @@ import { CartDrawer } from "@/components/commerce/CartDrawer";
 import { CheckoutDialog } from "@/components/commerce/CheckoutDialog";
 import { OrderSuccessDialog } from "@/components/commerce/OrderSuccessDialog";
 import { OrderTrackingView } from "@/components/commerce/OrderTrackingView";
+import { OrderDetailView } from "@/components/commerce/OrderDetailView";
 import { WhatsAppFloatingButton } from "@/components/commerce/WhatsAppFloatingButton";
 import { LiveShopAppShell, type LiveShopTab } from "@/components/commerce/LiveShopAppShell";
 import { MyOrdersView } from "@/components/commerce/MyOrdersView";
@@ -247,15 +248,21 @@ export function PublicCommerceShell({
         </div>
       )}
 
-      {/* Order Tracking */}
+      {/* Order Detail (buyer-side) */}
       {view === "tracking" && (
-        <div className="fixed inset-0 z-50 bg-background/95 flex flex-col">
+        <div className="fixed inset-0 z-50 bg-background flex flex-col">
           <div className="flex items-center justify-between p-4 border-b border-border">
-            <button onClick={() => setView("orders")} className="text-sm underline">← My Orders</button>
-            <button onClick={() => setView("none")} className="text-sm underline">Close</button>
+            <button onClick={() => setView("orders")} className="text-sm font-medium text-primary">← My Orders</button>
+            <button onClick={() => setView("none")} className="text-sm text-muted-foreground">Close</button>
           </div>
           <div className="flex-1 overflow-auto">
-            <OrderTrackingView initialTrackingCode={trackingCode} />
+            <OrderDetailView
+              trackingCode={trackingCode}
+              businessName={businessName || surface?.title || undefined}
+              supportPhone={config?.support_phone}
+              supportEmail={config?.support_email}
+              supportWhatsapp={config?.support_whatsapp}
+            />
           </div>
         </div>
       )}
