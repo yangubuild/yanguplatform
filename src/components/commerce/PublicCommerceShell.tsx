@@ -16,6 +16,8 @@ import { OrderSuccessDialog } from "@/components/commerce/OrderSuccessDialog";
 import { OrderTrackingView } from "@/components/commerce/OrderTrackingView";
 import { WhatsAppFloatingButton } from "@/components/commerce/WhatsAppFloatingButton";
 import { LiveShopAppShell, type LiveShopTab } from "@/components/commerce/LiveShopAppShell";
+import { MyOrdersView } from "@/components/commerce/MyOrdersView";
+import { recordBuyerOrder } from "@/lib/cart/buyerOrders";
 import { ShoppingCart } from "lucide-react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import type { CartItem } from "@/lib/cart/cartStore";
@@ -27,7 +29,7 @@ interface PublicCommerceShellProps {
   children: React.ReactNode;
 }
 
-type CommerceView = "none" | "cart" | "checkout" | "success" | "tracking";
+type CommerceView = "none" | "cart" | "checkout" | "success" | "tracking" | "orders";
 
 export function PublicCommerceShell({
   surfaceId,
@@ -94,14 +96,29 @@ export function PublicCommerceShell({
 
   const handleOrderPlaced = useCallback(
     (code: string) => {
+      // Persist a buyer-side reference so My Orders can show this order.
+      try {
+        recordBuyerOrder({
+          tracking_code: code,
+          surface_id: surfaceId,
+          business_name: businessName ?? null,
+          total_cents: cart.total,
+          currency,
+          item_count: cart.count,
+          placed_at: new Date().toISOString(),
+        });
+      } catch {
+        // non-fatal
+      }
       setTrackingCode(code);
       cart.clear();
       setView("success");
     },
-    [cart]
+    [cart, surfaceId, businessName, currency]
   );
 
-  const handleViewTracking = useCallback(() => {
+  const handleViewTracking = useCallback((code?: string) => {
+    if (code) setTrackingCode(code);
     setView("tracking");
   }, []);
 
@@ -123,14 +140,14 @@ export function PublicCommerceShell({
   const handleTabChange = useCallback((tab: LiveShopTab) => {
     if (tab === "menu") setView("none");
     else if (tab === "cart") setView("cart");
-    else if (tab === "orders") setView("tracking");
-    else if (tab === "account") setView("tracking"); // Phase 4 will add account view
+    else if (tab === "orders") setView("orders");
+    else if (tab === "account") setView("orders"); // Phase 4 will add account view
   }, []);
 
   const activeTab: LiveShopTab =
     view === "cart" || view === "checkout"
       ? "cart"
-      : view === "tracking" || view === "success"
+      : view === "tracking" || view === "success" || view === "orders"
       ? "orders"
       : "menu";
 
@@ -209,12 +226,32 @@ export function PublicCommerceShell({
         supportEmail={config?.support_email}
         supportWhatsapp={config?.support_whatsapp}
         businessName={businessName}
+        onViewMyOrders={() => setView("orders")}
+        onBackToShop={() => setView("none")}
       />
+
+      {/* My Orders (buyer-side history) */}
+      {view === "orders" && (
+        <div className="fixed inset-0 z-50 bg-background flex flex-col">
+          <div className="flex items-center justify-between p-4 border-b border-border">
+            <h2 className="font-semibold">My Orders</h2>
+            <button onClick={() => setView("none")} className="text-sm underline">Close</button>
+          </div>
+          <div className="flex-1 overflow-auto">
+            <MyOrdersView
+              surfaceId={surfaceId}
+              onTrackOrder={(code) => handleViewTracking(code)}
+              onBackToShop={() => setView("none")}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Order Tracking */}
       {view === "tracking" && (
         <div className="fixed inset-0 z-50 bg-background/95 flex flex-col">
-          <div className="flex justify-end p-4">
+          <div className="flex items-center justify-between p-4 border-b border-border">
+            <button onClick={() => setView("orders")} className="text-sm underline">← My Orders</button>
             <button onClick={() => setView("none")} className="text-sm underline">Close</button>
           </div>
           <div className="flex-1 overflow-auto">
