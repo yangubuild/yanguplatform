@@ -108,6 +108,18 @@ h2,.section-title{
 
 /* ── Mobile-first responsive (web-app behavior) ── */
 @media (max-width: 768px) {
+  /* App-shell rule: suppress template's website-style top nav on mobile.
+     The parent React app shell (LiveShopAppShell) provides the canonical
+     top bar + bottom tab bar, so the template's own <nav> must not render
+     on mobile (it caused hero/nav/logo collisions). */
+  body > nav,
+  body > header > nav,
+  header[class*="nav"],
+  header[class*="Nav"],
+  nav[class*="navbar"],
+  nav.navbar {
+    display: none !important;
+  }
   /* Web-app flow: stack everything, no desktop absolute leakage */
   body { display:block !important; }
   body > *:not([data-yangu-badge]):not(#yangu-cart-btn) {
