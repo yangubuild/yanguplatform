@@ -160,6 +160,21 @@ h2,.section-title{
   [style*="grid-template-columns"] > div[style*="border-radius"]{
     max-width:100% !important;
   }
+  /* ── Canonical product card layout (MOBILE) ──
+     One global rule: title → description → price → full-width [+ Add] */
+  *:has(> .yangu-live-cta) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+  }
+  .yangu-live-cta {
+    width: 100% !important;
+    align-self: stretch !important;
+    margin-top: 10px !important;
+    padding: 12px 16px !important;
+    font-size: 15px !important;
+  }
   h1,.hero-title {
     font-size:2rem !important;
     line-height:1.25 !important;
