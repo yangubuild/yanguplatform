@@ -282,6 +282,26 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
               />
             </div>
 
+            {/* Brand + Category (Eshop / Estore only) */}
+            {isCommerce && (
+              <>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Brand</Label>
+                    <Input value={brand} onChange={(e) => setBrand(e.target.value)} placeholder="Brand name" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Category</Label>
+                    <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="e.g. Apparel" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Subcategory</Label>
+                  <Input value={subcategory} onChange={(e) => setSubcategory(e.target.value)} placeholder="e.g. T-Shirts" />
+                </div>
+              </>
+            )}
+
             {/* Description + AI */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
