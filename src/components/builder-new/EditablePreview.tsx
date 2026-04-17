@@ -781,7 +781,7 @@ const EDIT_SCRIPT = String.raw`
         if (!el || ['DIV', 'ARTICLE', 'LI', 'A'].indexOf(el.tagName) === -1) return false;
         if (el.closest('nav,header,footer')) return false;
         var nestedMatches = 0;
-        var descendants = el.querySelectorAll('div,article,li');
+        var descendants = el.querySelectorAll('div,article,li,a');
         for (var i = 0; i < descendants.length; i++) {
           var descendant = descendants[i];
           if (descendant === el) continue;
