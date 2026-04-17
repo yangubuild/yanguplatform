@@ -30,6 +30,11 @@ import emenuQitchenImg from "@/assets/styles/emenu_qitchen.jpg";
 
 // Eshop template preview images
 import eshopAemaImg from "@/assets/styles/eshop_aema.jpg";
+import eshopUncoverImg from "@/assets/styles/eshop_uncover.jpg";
+import eshopKanvaImg from "@/assets/styles/eshop_kanva.jpg";
+import eshopMinnaImg from "@/assets/styles/eshop_minna.jpg";
+import eshopMockhubImg from "@/assets/styles/eshop_mockhub.jpg";
+import eshopLumelImg from "@/assets/styles/eshop_lumel.jpg";
 
 export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
   // Category-level
@@ -63,4 +68,9 @@ export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
   emenu_qitchen: emenuQitchenImg,
   // Eshop templates
   eshop_aema: eshopAemaImg,
+  eshop_uncover: eshopUncoverImg,
+  eshop_kanva: eshopKanvaImg,
+  eshop_minna: eshopMinnaImg,
+  eshop_mockhub: eshopMockhubImg,
+  eshop_lumel: eshopLumelImg,
 };

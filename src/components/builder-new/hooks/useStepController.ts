@@ -393,6 +393,30 @@ function getEmenuTemplateOptions(classification: MenuComplexity): StepOption[] {
   });
 }
 
+// ─── Eshop template options for template_choice step ─────────────────
+
+const ESHOP_TEMPLATE_KEYS = [
+  "eshop_aema",
+  "eshop_uncover",
+  "eshop_kanva",
+  "eshop_minna",
+  "eshop_mockhub",
+  "eshop_lumel",
+];
+
+function getEshopTemplateOptions(): StepOption[] {
+  return ESHOP_TEMPLATE_KEYS.map(key => {
+    const preset = getTemplate("eshop", key);
+    return {
+      id: key,
+      label: preset?.label || key,
+      value: key,
+      description: preset?.description || "",
+      icon: preset?.icon || "🛍️",
+    };
+  });
+}
+
 // ─── User assets state ───────────────────────────────────────────────
 
 export interface UserAssets {
@@ -583,7 +607,16 @@ export function useStepController() {
             renderAs: "carousel",
           };
         }
-        // Non-emenu categories: generic style options (unchanged for now)
+        // For eshop, show the 6 real e-commerce template previews
+        if (category === "eshop") {
+          return {
+            key: "template_choice",
+            adaMessage: "Pick a template for your shop. These are real e-commerce designs I'll use as the foundation:",
+            options: getEshopTemplateOptions(),
+            renderAs: "carousel",
+          };
+        }
+        // Other categories: generic style options
         return {
           key: "template_choice",
           adaMessage: "Pick a style direction for your brand:",

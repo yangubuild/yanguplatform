@@ -461,6 +461,66 @@ const ESHOP_TEMPLATES: TemplatePreset[] = [
       },
     },
   },
+
+  // ─── Uncover — Electronics / Tech (pending full rebuild) ───
+  {
+    key: "eshop_uncover",
+    label: "Uncover — Electronics",
+    description: "Tech/electronics storefront: discount banner, popular products grid, testimonials carousel, stats counters, about section.",
+    icon: "🎧",
+    template_family: "uncover",
+    preview_url: "https://uncovertemplatesite.framer.website",
+    reference: { source: "link", url: "https://uncovertemplatesite.framer.website", label: "Uncover Framer template", sectionOrder: ["banner", "header", "hero", "products", "testimonials", "stats", "about", "footer"], layoutPatterns: ["discount_banner_top", "popular_products_grid", "testimonials_carousel", "stats_counters"] },
+    patches: {},
+  },
+
+  // ─── Kanva — Beauty / Single product (pending full rebuild) ───
+  {
+    key: "eshop_kanva",
+    label: "Kanva — Beauty",
+    description: "Single-product beauty brand: hero with one SKU, feature highlights, soft luxury palette, Framer Commerce ready.",
+    icon: "🧴",
+    template_family: "kanva",
+    preview_url: "https://www.framer.com/marketplace/templates/kanva/",
+    reference: { source: "link", url: "https://www.framer.com/marketplace/templates/kanva/", label: "Kanva Framer template", sectionOrder: ["header", "hero", "features", "about", "footer"], layoutPatterns: ["single_product_hero", "feature_highlights_row"] },
+    patches: {},
+  },
+
+  // ─── Minna — Clothing (pending full rebuild) ───
+  {
+    key: "eshop_minna",
+    label: "Minna — Fashion",
+    description: "Fashion-focused clothing layout: editorial split hero, collection displays, hover product cards.",
+    icon: "👗",
+    template_family: "minna",
+    preview_url: "https://minna.framer.website",
+    reference: { source: "link", url: "https://minna.framer.website", label: "Minna Framer template", sectionOrder: ["header", "hero", "products", "collections", "footer"], layoutPatterns: ["editorial_split_hero", "minimal_product_cards"] },
+    patches: {},
+  },
+
+  // ─── Mockhub — Mixed merch (pending full rebuild) ───
+  {
+    key: "eshop_mockhub",
+    label: "Mockhub — Merch",
+    description: "Mixed-product merchandise store: devices + clothing + accessories with versatile product cards.",
+    icon: "🛍️",
+    template_family: "mockhub",
+    preview_url: "https://mockhub.framer.website",
+    reference: { source: "link", url: "https://mockhub.framer.website", label: "Mockhub Framer template", sectionOrder: ["header", "hero", "categories", "products", "footer"], layoutPatterns: ["collage_hero", "versatile_product_grid"] },
+    patches: {},
+  },
+
+  // ─── Lumel — Bottled products (pending full rebuild) ───
+  {
+    key: "eshop_lumel",
+    label: "Lumel — Bottled",
+    description: "Bottled products showcase for beauty, juice, spices, beverages: ingredient highlights, premium organic feel.",
+    icon: "🧃",
+    template_family: "lumel",
+    preview_url: "https://lumel-framlix.framer.website",
+    reference: { source: "link", url: "https://lumel-framlix.framer.website", label: "Lumel Framer template", sectionOrder: ["header", "hero", "products", "ingredients", "footer"], layoutPatterns: ["bottle_hero_showcase", "ingredient_highlights"] },
+    patches: {},
+  },
 ];
 // ─── Emenu Templates ───
 
