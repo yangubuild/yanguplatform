@@ -345,6 +345,121 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
               </div>
             </div>
 
+            {/* Eshop / Estore: Discount, Variants, Logistics */}
+            {isCommerce && (
+              <>
+                <div className="space-y-3 rounded-xl border border-orange-500/40 bg-orange-500/5 p-4">
+                  <h4 className="text-sm font-semibold text-foreground">Discount</h4>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Percentage (%)</Label>
+                      <Input value={discountPct} onChange={(e) => setDiscountPct(e.target.value)} placeholder="e.g. 25" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Discount Label</Label>
+                      <Input value={discountLabel} onChange={(e) => setDiscountLabel(e.target.value)} placeholder="e.g. SUMMER25" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3 rounded-xl border border-border bg-muted/20 p-4">
+                  <h4 className="text-sm font-semibold text-foreground">Variants</h4>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Available Sizes</Label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {sizes.map((s) => (
+                        <span key={s} className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-xs">
+                          {s}
+                          <button type="button" onClick={() => removeSize(s)} className="text-muted-foreground hover:text-destructive">
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        value={sizeInput}
+                        onChange={(e) => setSizeInput(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSize(); } }}
+                        placeholder="e.g. M, 32, 8.5"
+                        className="flex-1"
+                      />
+                      <Button size="sm" type="button" onClick={addSize} className="gap-1">
+                        <Plus className="h-3.5 w-3.5" /> Add
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Color Variations</Label>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {colors.map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => removeColor(c)}
+                          className="h-7 w-7 rounded-full border-2 border-border hover:scale-110 transition-transform"
+                          style={{ backgroundColor: c }}
+                          title={`Click to remove ${c}`}
+                        />
+                      ))}
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setColorPickerOpen((v) => !v)}
+                          className="h-7 w-7 rounded-full border-2 border-dashed border-border flex items-center justify-center hover:border-primary transition-colors"
+                          title="Add color"
+                        >
+                          <Plus className="h-3.5 w-3.5 text-muted-foreground" />
+                        </button>
+                        {colorPickerOpen && (
+                          <div className="absolute z-50 mt-2 left-0">
+                            <ColorPopup
+                              currentColor=""
+                              label="Pick variation color"
+                              onClose={() => setColorPickerOpen(false)}
+                              onApply={(hex) => {
+                                if (!colors.includes(hex)) setColors((prev) => [...prev, hex]);
+                                setColorPickerOpen(false);
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {colors.length > 0 && (
+                      <p className="text-[11px] text-muted-foreground">Click a swatch to remove it.</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-3 rounded-xl border border-border bg-muted/20 p-4">
+                  <h4 className="text-sm font-semibold text-foreground">Logistics</h4>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Material</Label>
+                      <Input value={material} onChange={(e) => setMaterial(e.target.value)} placeholder="e.g. 100% cotton" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Weight</Label>
+                      <Input value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="e.g. 250g" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Dimensions</Label>
+                    <Input value={dimensions} onChange={(e) => setDimensions(e.target.value)} placeholder="e.g. 30 × 20 × 5 cm" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Specifications</Label>
+                    <Textarea value={specifications} onChange={(e) => setSpecifications(e.target.value)} placeholder="Any additional product specs" rows={2} />
+                  </div>
+                  <label className="flex items-center gap-2 pt-1">
+                    <Checkbox checked={available} onCheckedChange={(v) => setAvailable(Boolean(v))} />
+                    <span className="text-sm text-foreground">Product is available</span>
+                  </label>
+                </div>
+              </>
+            )}
+
             <div className="space-y-3 rounded-xl border border-border bg-muted/20 p-4">
               <div className="flex items-center justify-between gap-4">
                 <div>
