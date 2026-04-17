@@ -28,6 +28,9 @@ import emenuGustoReservationImg from "@/assets/styles/emenu_gusto_reservation.pn
 import emenuSofraImg from "@/assets/styles/emenu_sofra.jpg";
 import emenuQitchenImg from "@/assets/styles/emenu_qitchen.jpg";
 
+// Eshop template preview images
+import eshopAemaImg from "@/assets/styles/eshop_aema.jpg";
+
 export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
   // Category-level
   bold: boldImg,
@@ -58,4 +61,6 @@ export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
   emenu_gusto_reservation: emenuGustoReservationImg,
   emenu_sofra: emenuSofraImg,
   emenu_qitchen: emenuQitchenImg,
+  // Eshop templates
+  eshop_aema: eshopAemaImg,
 };

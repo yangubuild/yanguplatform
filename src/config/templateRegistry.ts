@@ -336,6 +336,131 @@ const ESHOP_TEMPLATES: TemplatePreset[] = [
       } },
     },
   },
+
+  // ─── Aema — Minimal editorial fashion store ───
+  // Reference: https://aema-template.framer.website
+  {
+    key: "eshop_aema",
+    label: "Aema — Editorial Fashion",
+    description: "Minimal editorial clothing store: tagline marquee, sticky nav, split hero with thumb strip, category tabs, 4-col product grid with size chips & badges, 2-up collections, IG gallery, footer.",
+    icon: "👕",
+    template_family: "aema",
+    preview_url: "https://aema-template.framer.website",
+    reference: {
+      source: "link",
+      url: "https://aema-template.framer.website",
+      label: "Aema Framer template",
+      sectionOrder: ["tagline", "header", "hero", "tabs", "products", "collections", "social_gallery", "footer"],
+      layoutPatterns: [
+        "marquee_tagline_top",
+        "sticky_nav_3col",
+        "split_hero_with_thumb_strip",
+        "category_tabs_underline",
+        "product_grid_4col_with_sizes_and_badges",
+        "two_up_collection_blocks",
+        "instagram_4_up_gallery",
+        "minimal_dark_footer",
+      ],
+    },
+    patches: {
+      header: {
+        schema: {
+          layout_variant: "nav_center",
+          logo_position: "left",
+          logo_size: "small",
+          show_name: true,
+          show_cart_icon: true,
+          show_search: true,
+          menu_layout_style: "horizontal",
+          nav_items: ["Shop", "Sale", "New Arrivals", "Collections", "Blog"],
+          background_style: "light",
+          top_tagline: "FREE DELIVERY OVER 50€",
+        },
+      },
+      hero: {
+        schema: {
+          layout_variant: "split_with_thumbs",
+          alignment: "left",
+          background_style: "solid_light",
+          headline: "Basic Collection",
+          subheadline: "Timeless everyday essentials designed for comfort, simplicity, and effortless wear.",
+          cta_text: "SHOP NOW",
+          media: { type: "image", source: "url", url: "", fit: "cover" },
+          spacing: "spacious",
+          typography_style: "editorial",
+          text_color: "dark",
+        },
+      },
+      main_content: {
+        schema: {
+          display_mode: "grid",
+          heading: "Our Favorites",
+          tabs: ["Our Favorites", "Best Sellers", "Sale"],
+          filters_enabled: false,
+          sort_enabled: false,
+          cards: {
+            style: "image_top",
+            image_ratio: "portrait",
+            show_price: true,
+            show_title: true,
+            show_cta: false,
+            badge_enabled: true,
+            size_chips_enabled: true,
+            hover_effect: "image_swap",
+          },
+          grid: {
+            columns_desktop: 4,
+            columns_mobile: 2,
+            gap: "md",
+          },
+          spacing: "comfortable",
+          items: [
+            { title: "T-Shirt Black", price: "19.90 EUR", badges: ["NEW"], sizes: ["S", "M", "L", "XL"], media: [] },
+            { title: "Jeans Blue", price: "49.90 EUR", badges: [], sizes: ["30", "32", "34", "36"], media: [] },
+            { title: "Sweater Gray", price: "39.90 EUR", badges: [], sizes: ["S", "M", "L", "XL"], media: [] },
+            { title: "Hoodie Gray", price: "39.90 EUR", original_price: "49.90 EUR", badges: ["20% OFF"], sizes: ["S", "M", "L", "XL"], media: [] },
+            { title: "Polo Beige", price: "24.90 EUR", badges: ["NEW"], sizes: ["S", "M", "L", "XL"], media: [] },
+            { title: "Trousers Brown", price: "59.90 EUR", badges: [], sizes: ["30", "32", "34", "36"], media: [] },
+            { title: "T-Shirt White", price: "14.90 EUR", original_price: "19.90 EUR", badges: ["25% OFF"], sizes: ["S", "M", "L", "XL"], media: [] },
+            { title: "Jeans Light", price: "49.90 EUR", badges: ["NEW"], sizes: ["30", "32", "34", "36"], media: [] },
+          ],
+        },
+      },
+      offer: {
+        schema: {
+          layout_variant: "collections_and_social",
+          display_mode: "collection_blocks",
+          spacing: "spacious",
+          collections: [
+            { title: "Shirts", cta: "Shop Now" },
+            { title: "Pants", cta: "Shop Now" },
+          ],
+          social_gallery: {
+            enabled: true,
+            platform: "instagram",
+            handle: "@aema",
+            heading: "Follow Us on Instagram",
+            columns: 4,
+            items: [{ handle: "@aema" }, { handle: "@aema" }, { handle: "@aema" }, { handle: "@aema" }],
+          },
+        },
+      },
+      footer: {
+        schema: {
+          layout_variant: "minimal_dark",
+          display_mode: "minimal_dark",
+          tagline: "Timeless everyday essentials designed for comfort, simplicity, and effortless wear.",
+          columns: [
+            { title: "Shop", links: ["All", "New", "Sale"] },
+            { title: "Help", links: ["Contact", "Shipping", "Returns"] },
+            { title: "About", links: ["Story", "Journal", "Careers"] },
+          ],
+          copyright: `© ${new Date().getFullYear()} Your Brand — All rights reserved.`,
+          newsletter_enabled: false,
+        },
+      },
+    },
+  },
 ];
 // ─── Emenu Templates ───
 
