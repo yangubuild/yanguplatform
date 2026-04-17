@@ -48,6 +48,23 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
   const [badgeText, setBadgeText] = useState("");
   const [stock, setStock] = useState("");
 
+  // Eshop/Estore-only extended commerce fields
+  const isCommerce = surfaceType === "eshop" || surfaceType === "estore";
+  const [brand, setBrand] = useState("");
+  const [category, setCategory] = useState("");
+  const [subcategory, setSubcategory] = useState("");
+  const [discountPct, setDiscountPct] = useState("");
+  const [discountLabel, setDiscountLabel] = useState("");
+  const [sizes, setSizes] = useState<string[]>([]);
+  const [sizeInput, setSizeInput] = useState("");
+  const [colors, setColors] = useState<string[]>([]);
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
+  const [material, setMaterial] = useState("");
+  const [weight, setWeight] = useState("");
+  const [dimensions, setDimensions] = useState("");
+  const [specifications, setSpecifications] = useState("");
+  const [available, setAvailable] = useState(true);
+
   // AI description state
   const [generatingDesc, setGeneratingDesc] = useState(false);
 
@@ -75,6 +92,21 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
     setBadgeEnabled(product?.badgeEnabled ?? Boolean(product?.badgeText));
     setBadgeText(product?.badgeText || "");
     setStock("");
+    // Reset commerce extras
+    const meta = (product as any)?.meta || {};
+    setBrand(meta.brand || "");
+    setCategory(meta.category || "");
+    setSubcategory(meta.subcategory || "");
+    setDiscountPct(meta.discountPct || "");
+    setDiscountLabel(meta.discountLabel || "");
+    setSizes(Array.isArray(meta.sizes) ? meta.sizes : []);
+    setSizeInput("");
+    setColors(Array.isArray(meta.colors) ? meta.colors : []);
+    setMaterial(meta.material || "");
+    setWeight(meta.weight || "");
+    setDimensions(meta.dimensions || "");
+    setSpecifications(meta.specifications || "");
+    setAvailable(meta.available !== false);
   }, [product, surfaceType]);
 
   useEffect(() => {
