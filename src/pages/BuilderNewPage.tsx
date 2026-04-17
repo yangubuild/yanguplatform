@@ -633,7 +633,9 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
               multiSelected={
                 ctrl.currentStep === "sections" ? ctrl.selectedSections :
                 ctrl.currentStep === "delivery_apps" ? ctrl.selectedDeliveryApps :
-                []
+                ctrl.currentStep === "attributes"
+                  ? Object.entries(ctrl.eshopConfig.attributes).filter(([, v]) => v).map(([k]) => k)
+                  : []
               }
               inputAllowed={ctrl.inputAllowed}
               currentStep={ctrl.currentStep}
