@@ -28,6 +28,29 @@ function loadImage(objectUrl: string): Promise<HTMLImageElement> {
   });
 }
 
+/**
+ * Returns true if the image has meaningful transparent pixels (i.e. it's a
+ * cut-out / transparent-background logo). Opaque images (e.g. AI-generated
+ * with a solid background) should NOT be recolored via source-in, otherwise
+ * the entire frame gets painted as a flat rectangle.
+ */
+function hasTransparency(context: CanvasRenderingContext2D, width: number, height: number): boolean {
+  try {
+    const sampleSize = Math.min(64, width, height);
+    const data = context.getImageData(0, 0, sampleSize, sampleSize).data;
+    let transparentPixels = 0;
+    const total = data.length / 4;
+    for (let i = 3; i < data.length; i += 4) {
+      if (data[i] < 250) transparentPixels++;
+    }
+    // Treat as transparent if >5% of sampled pixels are non-opaque
+    return transparentPixels / total > 0.05;
+  } catch {
+    // Cross-origin or other read failure → assume opaque to avoid destroying the logo
+    return false;
+  }
+}
+
 export async function recolorLogoToBlob(sourceUrl: string, color: string): Promise<Blob> {
   if (!sourceUrl) throw new Error("Logo source is required");
 
@@ -57,6 +80,13 @@ export async function recolorLogoToBlob(sourceUrl: string, color: string): Promi
 
     context.clearRect(0, 0, width, height);
     context.drawImage(image, 0, 0, width, height);
+
+    // If the source is opaque (e.g. AI returned a logo on a solid background),
+    // skip the source-in recolor — otherwise we'd produce a flat colored rectangle.
+    if (!hasTransparency(context, width, height)) {
+      return sourceBlob;
+    }
+
     context.globalCompositeOperation = "source-in";
     context.fillStyle = normalizedColor;
     context.fillRect(0, 0, width, height);
