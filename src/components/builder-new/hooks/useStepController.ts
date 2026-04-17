@@ -623,7 +623,7 @@ export function useStepController() {
       default:
         return { key: "greeting", adaMessage: "", options: [] };
     }
-  }, [currentStep, category, isFoodCategory, businessLocation, menuClassification, selectedAssets]);
+  }, [currentStep, category, isFoodCategory, businessLocation, menuClassification, selectedAssets, businessName, selectedScope, eshopConfig.shopType]);
 
   const buildConfirmationMessage = useCallback(() => {
     const lines = ["Here's your summary:\n"];
@@ -647,9 +647,10 @@ export function useStepController() {
     setCategory(detected);
     setBusinessName(name);
     setUserIdea(text);
-    // For emenu, go to business_type step instead of scope
     if (detected === "emenu") {
       setCurrentStep("business_type");
+    } else if (detected === "eshop") {
+      setCurrentStep("shop_type");
     } else {
       setCurrentStep("scope");
     }
@@ -660,6 +661,30 @@ export function useStepController() {
       case "business_type":
         setMenuClassification(option.value as MenuComplexity);
         setCurrentStep("scope");
+        break;
+      case "shop_type": {
+        const st = option.value as ShopType;
+        const preset = SHOP_TYPE_ATTRIBUTE_MAP[st] || {};
+        setEshopConfig(prev => ({
+          ...prev,
+          shopType: st,
+          attributes: { ...DEFAULT_ATTRIBUTES, ...preset },
+        }));
+        setCurrentStep("business_mode");
+        break;
+      }
+      case "business_mode":
+        setEshopConfig(prev => ({ ...prev, businessMode: option.value as BusinessMode }));
+        setCurrentStep("attributes");
+        break;
+      case "attributes":
+        setEshopConfig(prev => ({
+          ...prev,
+          attributes: {
+            ...prev.attributes,
+            [option.value]: !prev.attributes[option.value as keyof ShopAttributes],
+          },
+        }));
         break;
       case "scope":
         setSelectedScope(option.label);
@@ -735,6 +760,8 @@ export function useStepController() {
       }
     } else if (currentStep === "delivery_apps") {
       setCurrentStep("template_choice");
+    } else if (currentStep === "attributes") {
+      setCurrentStep("scope");
     }
   }, [currentStep, isFoodCategory]);
 
@@ -753,6 +780,7 @@ export function useStepController() {
     setBusinessLocation("");
     setMenuClassification(null);
     setUserUploadedAssets({ brandColors: [], images: [] });
+    setEshopConfig({ shopType: null, businessMode: null, attributes: { ...DEFAULT_ATTRIBUTES } });
   }, []);
 
   const inputAllowed = useMemo(() => {
