@@ -320,6 +320,16 @@ export function CheckoutDialog({
           )}
         </div>
       </DialogContent>
+
+      <CommerceAuthSheet
+        open={authOpen}
+        onClose={() => setAuthOpen(false)}
+        onAuthed={async () => {
+          setAuthOpen(false);
+          // Resume order placement with cart intact
+          await submitOrder();
+        }}
+      />
     </Dialog>
   );
 }
