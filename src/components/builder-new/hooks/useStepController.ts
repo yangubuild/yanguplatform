@@ -821,6 +821,9 @@ export function useStepController() {
     menuClassification,
     userUploadedAssets,
     setUserUploadedAssets,
+    eshopConfig,
+    setEshopConfig,
+    isShopCategory,
     // Kept for backward compat
     selectedStyleCategory: selectedTemplateKey,
     selectedStyleSpecific: null as string | null,
