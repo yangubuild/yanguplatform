@@ -58,6 +58,27 @@ body > nav:not([data-yangu-badge]) > *{
   width:100% !important;
 }
 
+/* ── Canonical product card layout (DESKTOP) ──
+   Title (top) → Description → footer row: price (left) | + Add (right).
+   We target any container that holds a .yangu-live-cta button. */
+@media (min-width: 769px) {
+  /* Card content container becomes a vertical flex stack */
+  *:has(> .yangu-live-cta) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+  }
+  /* Bottom CTA: inline-right, auto width, not full-bleed */
+  .yangu-live-cta {
+    width: auto !important;
+    align-self: flex-end !important;
+    margin-top: 10px !important;
+    padding: 8px 18px !important;
+    min-width: 96px !important;
+  }
+}
+
 nav,.navbar,[class*="nav"]{
   display:flex !important;
   align-items:center !important;
