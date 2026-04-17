@@ -891,16 +891,80 @@ const ESHOP_TEMPLATES: TemplatePreset[] = [
     },
   },
 
-  // ─── Lumel — Bottled products (pending full rebuild) ───
+  // ─── Lumel — Bottled / wellness products (editorial organic premium) ───
   {
     key: "eshop_lumel",
     label: "Lumel — Bottled",
-    description: "Bottled products showcase for beauty, juice, spices, beverages: ingredient highlights, premium organic feel.",
+    description: "Editorial bottled-products store: cream + amber palette, serif wordmark, split hero, ingredient strip, 3-up product grid, story block.",
     icon: "🧃",
+    is_active: true,
     template_family: "lumel",
-    preview_url: "https://lumel-framlix.framer.website",
-    reference: { source: "link", url: "https://lumel-framlix.framer.website", label: "Lumel Framer template", sectionOrder: ["header", "hero", "products", "ingredients", "footer"], layoutPatterns: ["bottle_hero_showcase", "ingredient_highlights"] },
-    patches: {},
+    preview_url: "",
+    reference: {
+      source: "original",
+      label: "Lumel — bottled wellness editorial",
+      sectionOrder: ["promo", "header", "hero_split", "ingredients", "products", "story", "testimonial", "footer"],
+      layoutPatterns: ["thin_promo_bar", "centered_serif_wordmark_nav", "split_hero_text_bottle", "three_up_ingredient_strip", "editorial_product_grid", "image_left_story_right", "centered_press_quote", "newsletter_footer"],
+    },
+    patches: {
+      header: { schema: {
+        layout_variant: "centered_serif_split_nav",
+        background_style: "cream",
+        logo_position: "center",
+        logo_size: "medium",
+        show_name: true,
+        show_search: false,
+        show_cart_icon: true,
+        nav_items: ["Shop", "Ingredients", "Our Story", "Journal"],
+        promo_text: "Free delivery on orders over $40 — naturally sourced, small batch.",
+      } },
+      hero: { schema: {
+        layout_variant: "split_text_bottle",
+        background_style: "cream",
+        title: "Pure ingredients,\nbottled with intention.",
+        subtitle: "Cold-pressed wellness blends, crafted in small batches from organically grown botanicals.",
+        cta_label: "Shop the collection",
+        media: { type: "image", source: "url", url: "", fit: "cover" },
+        spacing: "spacious",
+      } },
+      main_content: { schema: {
+        display_mode: "grid",
+        layout_style: "editorial_three_up",
+        columns_desktop: 3,
+        columns_mobile: 2,
+        cards: { style: "image_top_volume", image_ratio: "portrait", show_price: true, show_title: true, show_cta: true, card_style: "bordered_cream" },
+        items: [
+          { title: "Golden Tonic", volume: "500ml", price: "$18", note: "Turmeric · Ginger · Honey" },
+          { title: "Verde Reset", volume: "500ml", price: "$18", note: "Spinach · Apple · Mint" },
+          { title: "Citrus Sun", volume: "500ml", price: "$16", note: "Orange · Carrot · Cayenne" },
+          { title: "Berry Glow", volume: "500ml", price: "$19", note: "Blueberry · Beet · Lemon" },
+          { title: "Roots Elixir", volume: "350ml", price: "$22", note: "Ginger · Lemon · Cayenne" },
+          { title: "Dawn Brew", volume: "350ml", price: "$20", note: "Matcha · Vanilla · Oat" },
+        ],
+      } },
+      offer: { schema: {
+        layout_variant: "ingredients_story_testimonial",
+        ingredients: [
+          { label: "100% Organic", note: "Certified sourcing" },
+          { label: "Cold-Pressed", note: "Nutrients preserved" },
+          { label: "Glass Bottled", note: "Plastic-free packaging" },
+        ],
+        story: {
+          title: "Bottled with intention.",
+          body: "Every batch begins on the farms we partner with. We work with small growers who share our standards for soil, season, and care — then press, blend, and bottle within hours of harvest. Nothing added, nothing taken away.",
+          cta: "Read our story",
+        },
+        testimonial: {
+          quote: "Genuinely the cleanest tasting cold-press I have come across. Beautifully packaged too.",
+          author: "Vogue Wellness",
+        },
+      } },
+      footer: { schema: {
+        layout_variant: "newsletter_minimal",
+        background_style: "panel",
+        copyright: "All rights reserved.",
+      } },
+    },
   },
 ];
 // ─── Emenu Templates ───

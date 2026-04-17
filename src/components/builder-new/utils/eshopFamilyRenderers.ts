@@ -1816,3 +1816,248 @@ ${testimonialsHTML}
 ${footerHTML}
 </body></html>`;
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// LUMEL — Bottled / wellness products (editorial, organic premium)
+// Reference: bottled juice / wellness tonic / spice / cold-pressed brand
+// Structure:  thin top promo → centered serif wordmark nav (left links / right cart)
+//             → editorial split hero (oversized serif headline + bottle image)
+//             → ingredient strip (3 icon+label pairs)
+//             → "Our Bottles" 3-up product grid (image, title, volume, price)
+//             → editorial story block (image-left + copy-right)
+//             → testimonial / press band
+//             → newsletter + minimal footer
+// ═══════════════════════════════════════════════════════════════════
+
+interface LumelTheme {
+  pageBg: string;
+  panelBg: string;
+  pageText: string;
+  mutedText: string;
+  border: string;
+  accent: string;
+  accentText: string;
+  promoBg: string;
+  promoText: string;
+  fontHeading: string;
+  fontBody: string;
+}
+
+const LUMEL_VARIANTS: LumelTheme[] = [
+  // 0 — Signature cream + amber (juice / wellness)
+  {
+    pageBg: "#F4EFE6",
+    panelBg: "#FFFFFF",
+    pageText: "#1A1814",
+    mutedText: "#6B6356",
+    border: "#E2DAC9",
+    accent: "#B8612A",
+    accentText: "#FFFFFF",
+    promoBg: "#1A1814",
+    promoText: "#F4EFE6",
+    fontHeading: "'Playfair Display', serif",
+    fontBody: "'Inter', sans-serif",
+  },
+  // 1 — Olive botanical
+  {
+    pageBg: "#EDEFE6",
+    panelBg: "#FFFFFF",
+    pageText: "#1F2A1A",
+    mutedText: "#5E6A52",
+    border: "#D4D9C6",
+    accent: "#4F6B3A",
+    accentText: "#FFFFFF",
+    promoBg: "#1F2A1A",
+    promoText: "#EDEFE6",
+    fontHeading: "'Playfair Display', serif",
+    fontBody: "'Inter', sans-serif",
+  },
+  // 2 — Dark apothecary
+  {
+    pageBg: "#161311",
+    panelBg: "#1F1B18",
+    pageText: "#F4EFE6",
+    mutedText: "#B0A698",
+    border: "#2E2925",
+    accent: "#D4A86A",
+    accentText: "#161311",
+    promoBg: "#D4A86A",
+    promoText: "#161311",
+    fontHeading: "'Playfair Display', serif",
+    fontBody: "'Inter', sans-serif",
+  },
+];
+
+export function renderLumel(ctx: EshopRenderContext): string {
+  const { config, preset, variantIndex } = ctx;
+  const s = preset.patches;
+  const headerS = (s.header?.schema || {}) as Record<string, any>;
+  const heroS = (s.hero?.schema || {}) as Record<string, any>;
+  const mainS = (s.main_content?.schema || {}) as Record<string, any>;
+  const offerS = (s.offer?.schema || {}) as Record<string, any>;
+  const footerS = (s.footer?.schema || {}) as Record<string, any>;
+
+  const t = { ...(LUMEL_VARIANTS[variantIndex] || LUMEL_VARIANTS[0]) };
+  if (config.userBrandColors?.[0]) t.accent = config.userBrandColors[0];
+
+  const name = config.businessName || "Lumel";
+  const promoText = (headerS.promo_text as string) || "Free delivery on orders over $40 — naturally sourced, small batch.";
+  const navItems = (headerS.nav_items as string[]) || ["Shop", "Ingredients", "Our Story", "Journal"];
+
+  const heroTitle = (heroS.title as string) || "Pure ingredients,\nbottled with intention.";
+  const heroSub = (heroS.subtitle as string) || "Cold-pressed wellness blends, crafted in small batches from organically grown botanicals.";
+  const heroCta = (heroS.cta_label as string) || "Shop the collection";
+  const heroImg = getEshopImage(config, "hero", variantIndex);
+
+  const ingredients = (offerS.ingredients as any[]) || [
+    { label: "100% Organic", note: "Certified sourcing" },
+    { label: "Cold-Pressed", note: "Nutrients preserved" },
+    { label: "Glass Bottled", note: "Plastic-free packaging" },
+  ];
+
+  const products = (mainS.items as any[]) || [
+    { title: "Golden Tonic", volume: "500ml", price: "$18", note: "Turmeric · Ginger · Honey" },
+    { title: "Verde Reset", volume: "500ml", price: "$18", note: "Spinach · Apple · Mint" },
+    { title: "Citrus Sun", volume: "500ml", price: "$16", note: "Orange · Carrot · Cayenne" },
+    { title: "Berry Glow", volume: "500ml", price: "$19", note: "Blueberry · Beet · Lemon" },
+    { title: "Roots Elixir", volume: "350ml", price: "$22", note: "Ginger · Lemon · Cayenne" },
+    { title: "Dawn Brew", volume: "350ml", price: "$20", note: "Matcha · Vanilla · Oat" },
+  ];
+
+  const story = (offerS.story as Record<string, any>) || {
+    title: "Bottled with intention.",
+    body: "Every batch begins on the farms we partner with. We work with small growers who share our standards for soil, season, and care — then press, blend, and bottle within hours of harvest. Nothing added, nothing taken away.",
+    cta: "Read our story",
+  };
+
+  const testimonial = (offerS.testimonial as Record<string, any>) || {
+    quote: "Genuinely the cleanest tasting cold-press I have come across. Beautifully packaged too.",
+    author: "Vogue Wellness",
+  };
+
+  // ─── HTML chunks ───
+  const promoHTML = `<div style="background:${t.promoBg};color:${t.promoText};font-family:${t.fontBody};font-size:12px;letter-spacing:0.08em;text-transform:uppercase;text-align:center;padding:10px 16px;">${promoText}</div>`;
+
+  const navHTML = `<header style="background:${t.pageBg};border-bottom:1px solid ${t.border};position:sticky;top:0;z-index:50;">
+    <div class="yangu-content-container" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:18px 24px;gap:16px;">
+      <nav style="display:flex;gap:24px;font-family:${t.fontBody};font-size:13px;letter-spacing:0.04em;color:${t.pageText};">
+        ${navItems.slice(0, 2).map(n => `<a href="${navHref(n)}" style="opacity:.85;">${n}</a>`).join("")}
+      </nav>
+      <a href="#hero" style="font-family:${t.fontHeading};font-size:28px;letter-spacing:0.18em;text-transform:uppercase;color:${t.pageText};text-align:center;">${name}</a>
+      <nav style="display:flex;gap:24px;justify-content:flex-end;font-family:${t.fontBody};font-size:13px;letter-spacing:0.04em;color:${t.pageText};">
+        ${navItems.slice(2).map(n => `<a href="${navHref(n)}" style="opacity:.85;">${n}</a>`).join("")}
+        <a href="#cart" style="opacity:.85;">Cart (0)</a>
+      </nav>
+    </div>
+  </header>`;
+
+  const heroHTML = `<section id="hero" style="background:${t.pageBg};padding:64px 24px 48px;">
+    <div class="yangu-content-container" data-grid="2" style="display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center;">
+      <div>
+        <p style="font-family:${t.fontBody};font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:${t.accent};margin-bottom:20px;">— New Season Collection</p>
+        <h1 style="font-family:${t.fontHeading};font-weight:500;font-size:clamp(40px, 6vw, 72px);line-height:1.04;color:${t.pageText};margin-bottom:24px;white-space:pre-line;">${heroTitle}</h1>
+        <p style="font-family:${t.fontBody};font-size:17px;line-height:1.65;color:${t.mutedText};max-width:480px;margin-bottom:32px;">${heroSub}</p>
+        <a href="#products" style="display:inline-block;background:${t.accent};color:${t.accentText};padding:16px 32px;font-family:${t.fontBody};font-size:13px;letter-spacing:0.12em;text-transform:uppercase;border-radius:8px;">${heroCta}</a>
+      </div>
+      <div style="position:relative;aspect-ratio:4/5;border-radius:12px;overflow:hidden;background:${t.panelBg};">
+        <img src="${heroImg}" alt="${name} bottles" style="width:100%;height:100%;object-fit:cover;" loading="eager"/>
+      </div>
+    </div>
+  </section>`;
+
+  const ingredientsHTML = `<section style="background:${t.panelBg};border-top:1px solid ${t.border};border-bottom:1px solid ${t.border};padding:36px 24px;">
+    <div class="yangu-content-container" data-grid="3" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:32px;text-align:center;">
+      ${ingredients.map(ing => `
+        <div>
+          <p style="font-family:${t.fontHeading};font-size:22px;color:${t.pageText};margin-bottom:6px;">${ing.label}</p>
+          <p style="font-family:${t.fontBody};font-size:13px;letter-spacing:0.05em;text-transform:uppercase;color:${t.mutedText};">${ing.note}</p>
+        </div>
+      `).join("")}
+    </div>
+  </section>`;
+
+  const productsHTML = `<section id="products" style="background:${t.pageBg};padding:80px 24px;">
+    <div class="yangu-content-container">
+      <div style="display:flex;align-items:end;justify-content:space-between;margin-bottom:40px;gap:16px;flex-wrap:wrap;">
+        <div>
+          <p style="font-family:${t.fontBody};font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:${t.accent};margin-bottom:8px;">— The Collection</p>
+          <h2 style="font-family:${t.fontHeading};font-weight:500;font-size:clamp(32px, 4vw, 48px);color:${t.pageText};">Our bottles</h2>
+        </div>
+        <a href="#products" style="font-family:${t.fontBody};font-size:13px;letter-spacing:0.08em;text-transform:uppercase;color:${t.pageText};border-bottom:1px solid ${t.pageText};padding-bottom:2px;">Shop all →</a>
+      </div>
+      <div class="yangu-product-grid" data-grid="3" style="grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:32px;">
+        ${products.map((p, i) => `
+          <article class="yangu-product-card" data-yangu-product="true" data-yangu-product-id="lumel-${i}" data-yangu-product-name="${p.title}" data-yangu-product-price="${p.price}" style="background:${t.panelBg};border:1px solid ${t.border};border-radius:12px;overflow:hidden;display:flex;flex-direction:column;">
+            <div style="aspect-ratio:4/5;background:${t.pageBg};overflow:hidden;">
+              <img src="${getEshopImage(config, "product", i)}" alt="${p.title}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"/>
+            </div>
+            <div style="padding:24px;display:flex;flex-direction:column;gap:6px;">
+              <p style="font-family:${t.fontBody};font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:${t.mutedText};">${p.volume}</p>
+              <h3 class="yangu-product-name" style="font-family:${t.fontHeading};font-weight:500;font-size:22px;color:${t.pageText};">${p.title}</h3>
+              <p style="font-family:${t.fontBody};font-size:13px;color:${t.mutedText};margin-bottom:12px;">${p.note}</p>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;">
+                <span class="yangu-product-price" style="font-family:${t.fontHeading};font-size:20px;color:${t.pageText};">${p.price}</span>
+                <button class="yangu-product-add" style="background:${t.accent};color:${t.accentText};border:none;padding:10px 18px;font-family:${t.fontBody};font-size:12px;letter-spacing:0.1em;text-transform:uppercase;border-radius:8px;cursor:pointer;">+ Add</button>
+              </div>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    </div>
+  </section>`;
+
+  const storyHTML = `<section id="about" style="background:${t.panelBg};padding:96px 24px;border-top:1px solid ${t.border};border-bottom:1px solid ${t.border};">
+    <div class="yangu-content-container" data-grid="2" style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;">
+      <div style="aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:${t.pageBg};">
+        <img src="${getEshopImage(config, "collection", 0)}" alt="${story.title}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"/>
+      </div>
+      <div>
+        <p style="font-family:${t.fontBody};font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:${t.accent};margin-bottom:16px;">— Our story</p>
+        <h2 style="font-family:${t.fontHeading};font-weight:500;font-size:clamp(32px, 4vw, 52px);line-height:1.1;color:${t.pageText};margin-bottom:24px;">${story.title}</h2>
+        <p style="font-family:${t.fontBody};font-size:16px;line-height:1.7;color:${t.mutedText};margin-bottom:28px;">${story.body}</p>
+        <a href="#about" style="display:inline-block;font-family:${t.fontBody};font-size:13px;letter-spacing:0.1em;text-transform:uppercase;color:${t.pageText};border-bottom:1px solid ${t.pageText};padding-bottom:3px;">${story.cta} →</a>
+      </div>
+    </div>
+  </section>`;
+
+  const testimonialHTML = `<section style="background:${t.pageBg};padding:80px 24px;text-align:center;">
+    <div class="yangu-content-container" style="max-width:780px;">
+      <p style="font-family:${t.fontHeading};font-style:italic;font-weight:400;font-size:clamp(24px, 3vw, 34px);line-height:1.4;color:${t.pageText};margin-bottom:24px;">"${testimonial.quote}"</p>
+      <p style="font-family:${t.fontBody};font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:${t.mutedText};">— ${testimonial.author}</p>
+    </div>
+  </section>`;
+
+  const footerHTML = `<footer id="footer" style="background:${t.panelBg};border-top:1px solid ${t.border};padding:64px 24px 32px;">
+    <div class="yangu-content-container">
+      <div data-grid="2" style="display:grid;grid-template-columns:1.2fr 1fr;gap:48px;margin-bottom:48px;align-items:start;">
+        <div>
+          <p style="font-family:${t.fontHeading};font-size:32px;letter-spacing:0.16em;text-transform:uppercase;color:${t.pageText};margin-bottom:16px;">${name}</p>
+          <p style="font-family:${t.fontBody};font-size:14px;line-height:1.6;color:${t.mutedText};max-width:380px;">Cold-pressed wellness, bottled in small batches and delivered fresh.</p>
+        </div>
+        <form style="display:flex;flex-direction:column;gap:12px;" onsubmit="event.preventDefault();">
+          <label style="font-family:${t.fontBody};font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:${t.pageText};">Join the journal</label>
+          <div style="display:flex;gap:8px;">
+            <input type="email" placeholder="your@email.com" style="flex:1;background:${t.pageBg};border:1px solid ${t.border};color:${t.pageText};padding:14px 16px;font-family:${t.fontBody};font-size:14px;border-radius:8px;outline:none;"/>
+            <button type="submit" style="background:${t.accent};color:${t.accentText};border:none;padding:14px 22px;font-family:${t.fontBody};font-size:12px;letter-spacing:0.12em;text-transform:uppercase;border-radius:8px;cursor:pointer;">Subscribe</button>
+          </div>
+        </form>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border-top:1px solid ${t.border};padding-top:24px;font-family:${t.fontBody};font-size:12px;letter-spacing:0.06em;color:${t.mutedText};">
+        <span>© ${new Date().getFullYear()} ${name}. ${footerS.copyright || "All rights reserved."}</span>
+        <div style="display:flex;gap:20px;"><a href="#">Instagram</a><a href="#">TikTok</a><a href="#">Pinterest</a></div>
+      </div>
+    </div>
+  </footer>`;
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>${name}</title>
+<style>${eshopBaseStyles(t.pageBg, t.pageText, t.accent)}</style></head><body>
+${promoHTML}
+${navHTML}
+${heroHTML}
+${ingredientsHTML}
+${productsHTML}
+${storyHTML}
+${testimonialHTML}
+${footerHTML}
+</body></html>`;
+}

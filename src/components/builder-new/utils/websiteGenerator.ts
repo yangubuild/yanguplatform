@@ -6,7 +6,7 @@ import type { Category } from "../types/builder.types";
 import { CATEGORY_CONFIGS } from "../types/builder.types";
 import { getTemplate, type TemplatePreset } from "@/config/templateRegistry";
 import { renderPlateria, renderYumix, renderZooom, renderSofra, renderQitchen } from "./emenuFamilyRenderers";
-import { renderAema, renderUncover, renderKanva, renderMinna, renderMockhub } from "./eshopFamilyRenderers";
+import { renderAema, renderUncover, renderKanva, renderMinna, renderMockhub, renderLumel } from "./eshopFamilyRenderers";
 
 export interface GeneratorConfig {
   category: Category;
@@ -710,6 +710,8 @@ export function generateWebsiteVariants(config: GeneratorConfig): string[] {
             return renderMinna(ctx);
           case "mockhub":
             return renderMockhub(ctx);
+          case "lumel":
+            return renderLumel(ctx);
           default:
             console.warn(`Unknown eshop template family "${family}", falling back to aema renderer`);
             return renderAema(ctx);
