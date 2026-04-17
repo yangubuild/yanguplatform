@@ -195,18 +195,20 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
     const selectedHtml = selected.html || "<html><body><p>Generation failed</p></body></html>";
     const cat = ctrl.category;
 
-    // For emenu: create real surface and navigate to new emenu editor
-    if (cat === "emenu" && user?.id) {
-      const engine = getEngine("emenu");
+    // GLOBAL STANDARD: All categories create a real surface and navigate to
+    // EmenuNewEditor (the unified editor shell). No category stays in
+    // BuilderNewPage's onboarding shell after variant selection.
+    if (cat && user?.id) {
+      const engine = getEngine(cat);
       if (!engine) {
-        toast.error("Emenu engine not found");
+        toast.error(`${cat} engine not found`);
         return;
       }
 
       addMsg("user", `Selected ${selected.label || `Design ${index + 1}`}`);
-      addMsg("assistant", "Creating your menu... Hang tight!");
+      addMsg("assistant", "Creating your website... Hang tight!");
 
-      const businessName = ctrl.businessName || "My Restaurant";
+      const businessName = ctrl.businessName || "My Website";
       const slug = businessName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
       const templateKey = ctrl.selectedTemplateKey || "";
       const templatePreset = templateKey ? getTemplate("emenu", templateKey) : null;
