@@ -848,7 +848,7 @@ const EDIT_SCRIPT = String.raw`
           }
         });
 
-        document.querySelectorAll('div,article,li').forEach(function(card) {
+        document.querySelectorAll('div,article,li,a').forEach(function(card) {
           if (!isLikelyProductCard(card)) return;
           allCards.push(card);
         });
