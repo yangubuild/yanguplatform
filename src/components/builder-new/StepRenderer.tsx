@@ -1,5 +1,6 @@
 import type { StepConfig, StepOption, BuilderStep } from "./hooks/useStepController";
 import type { UserAssets } from "./hooks/useStepController";
+import type { Category } from "./types/builder.types";
 import { StyleCarousel } from "./StyleCarousel";
 import { AssetUploadStep } from "./AssetUploadStep";
 import { AiLogoStep } from "./AiLogoStep";
@@ -11,6 +12,7 @@ interface StepRendererProps {
   onConfirmMulti?: () => void;
   multiSelected?: string[];
   currentStep: BuilderStep;
+  category?: Category | null;
   // Asset upload props
   userAssets?: UserAssets;
   onAssetsChange?: (assets: UserAssets) => void;
@@ -26,6 +28,7 @@ export function StepRenderer({
   onConfirmMulti,
   multiSelected = [],
   currentStep,
+  category,
   userAssets,
   onAssetsChange,
   onConfirmAssetUpload,
@@ -52,6 +55,7 @@ export function StepRenderer({
         assets={userAssets}
         onAssetsChange={onAssetsChange}
         onConfirm={onConfirmAssetUpload}
+        category={category}
       />
     );
   }
