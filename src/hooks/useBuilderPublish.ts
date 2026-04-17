@@ -174,14 +174,16 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
       show_yangu_badge: showYanguBadge,
     };
 
-    // 6. For emenu, add sanitized HTML
-    if (surfaceType === "emenu") {
+    // 6. For ALL surface types using the unified HTML editor, persist sanitized canvas HTML.
+    //    This ensures live runtime renders the exact HTML the user designed (1:1 parity),
+    //    matching the emenu publish behavior across eshop / esite / estore / influencer / community.
+    {
       const fallbackPageHtml = Object.values(metadata.pages_html || {}).find(
         (html): html is string => typeof html === "string" && html.trim().length > 0,
       );
       let resolvedHtml = metadata.builder_new_html || fallbackPageHtml || "";
 
-      // Persist blob URLs
+      // Persist blob URLs to permanent storage
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (session?.user?.id && resolvedHtml.includes("blob:")) {
@@ -202,11 +204,13 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
         console.error("[syncPublishedRecord] blob persist error:", e);
       }
 
-      const emenuHtml = sanitizeEditorHtml(resolvedHtml);
-      if (!emenuHtml) {
-        throw new Error("Couldn't find the latest Emenu page to publish.");
+      const sanitizedHtml = sanitizeEditorHtml(resolvedHtml);
+      if (!sanitizedHtml) {
+        throw new Error("Couldn't find the latest page content to publish.");
       }
-      updatedSurface.emenu_html = emenuHtml;
+      // Field name kept as `emenu_html` for runtime compatibility; semantically this is the
+      // unified published canvas HTML for any surface type.
+      updatedSurface.emenu_html = sanitizedHtml;
     }
 
     // 7. Write updated schema back
