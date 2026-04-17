@@ -253,26 +253,26 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
 
       try {
         await initAndNavigate({
-          surfaceType: "emenu",
+          surfaceType: engine.surfaceType as any,
           slug,
           title: businessName,
           seedSections,
           metadata,
         });
-        // Navigation goes to /builder/:surfaceId → BuilderEditorRouter → EmenuNewEditor
+        // Navigation goes to /builder/:surfaceId → BuilderEditorRouter → EmenuNewEditor (global standard)
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Failed to create menu surface");
+        toast.error(err instanceof Error ? err.message : "Failed to create surface");
       }
       return;
     }
 
-    // Default behavior for non-emenu categories: stay in BuilderNewPage edit mode
+    // Fallback (no auth): keep onboarding shell so unauthed preview still works.
     setChosenVariant(selectedHtml);
     ctrl.setGeneratedHtml(selectedHtml);
     setIsChoosingVariant(false);
     ctrl.setCurrentStep("refinement");
     addMsg("user", `Selected ${selected.label || `Design ${index + 1}`}`);
-    addMsg("assistant", "Your website draft is ready! Use the editor tools on the left to make changes, or switch to Ada AI for help.");
+    addMsg("assistant", "Your website draft is ready! Sign in to save and publish.");
     setLeftPanelMode("tools");
   }, [variants, ctrl, addMsg, user, initAndNavigate]);
 
