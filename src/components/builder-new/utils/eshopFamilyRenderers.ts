@@ -1281,3 +1281,233 @@ ${igHTML}
 ${footerHTML}
 </body></html>`;
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// MINNA — Editorial fashion store (centered serif wordmark)
+// Reference: https://minna.framer.website
+// Structure:  fixed nav (hamburger + Women/Men · centered MINNA wordmark · search + cart)
+//             → full-bleed edge-to-edge hero image
+//             → bright marquee strip (NEW SEASON * %20 DISCOUNT *)
+//             → "Products" heading + "See all" link
+//             → 4-column minimal product grid (image · title · price)
+//             → 2-up collection blocks
+//             → minimal centered footer
+// ═══════════════════════════════════════════════════════════════════
+
+interface MinnaTheme {
+  pageBg: string;
+  pageText: string;
+  mutedText: string;
+  marqueeBg: string;
+  marqueeText: string;
+  border: string;
+  cardBg: string;
+  fontHeading: string;
+  fontBody: string;
+  /** "bright" = signature yellow marquee, "mono" = black/white, "warm" = beige */
+  mood: "bright" | "mono" | "warm";
+}
+
+const MINNA_VARIANTS: MinnaTheme[] = [
+  // Variant 0 — Signature MINNA (white + bright yellow marquee + serif wordmark)
+  {
+    pageBg: "#FFFFFF",
+    pageText: "#0A0A0A",
+    mutedText: "#6B6B6B",
+    marqueeBg: "#F5E94A",
+    marqueeText: "#0A0A0A",
+    border: "#EDEDED",
+    cardBg: "#F7F7F5",
+    fontHeading: "'Playfair Display', serif",
+    fontBody: "'Inter', sans-serif",
+    mood: "bright",
+  },
+  // Variant 1 — Mono editorial (white + black marquee + white text)
+  {
+    pageBg: "#FFFFFF",
+    pageText: "#0A0A0A",
+    mutedText: "#6B6B6B",
+    marqueeBg: "#0A0A0A",
+    marqueeText: "#FFFFFF",
+    border: "#E5E5E5",
+    cardBg: "#F4F4F2",
+    fontHeading: "'Playfair Display', serif",
+    fontBody: "'Inter', sans-serif",
+    mood: "mono",
+  },
+  // Variant 2 — Warm beige editorial
+  {
+    pageBg: "#F4EFE7",
+    pageText: "#1A140E",
+    mutedText: "#6B5E50",
+    marqueeBg: "#D9C57A",
+    marqueeText: "#1A140E",
+    border: "#E2D9C8",
+    cardBg: "#FBF7EE",
+    fontHeading: "'Playfair Display', serif",
+    fontBody: "'Inter', sans-serif",
+    mood: "warm",
+  },
+];
+
+export function renderMinna(ctx: EshopRenderContext): string {
+  const { config, preset, variantIndex } = ctx;
+  const s = preset.patches;
+  const heroS = (s.hero?.schema || {}) as Record<string, any>;
+  const headerS = (s.header?.schema || {}) as Record<string, any>;
+  const mainS = (s.main_content?.schema || {}) as Record<string, any>;
+  const offerS = (s.offer?.schema || {}) as Record<string, any>;
+  const footerS = (s.footer?.schema || {}) as Record<string, any>;
+
+  const t = { ...MINNA_VARIANTS[variantIndex] || MINNA_VARIANTS[0] };
+  if (config.userBrandColors?.[0]) {
+    t.marqueeBg = config.userBrandColors[0];
+  }
+
+  const name = config.businessName || "MINNA";
+  const wordmark = name.toUpperCase();
+  const navLeft = (headerS.nav_left as string[]) || ["Women", "Men"];
+  const heroImg = config.userLogoUrl ? getEshopImage(config, "hero", variantIndex) : getEshopImage(config, "hero", variantIndex);
+  const marqueeWords = (heroS.marquee_words as string[]) || ["%20 DISCOUNT", "NEW SEASON", "%20 DISCOUNT", "NEW SEASON", "%20 DISCOUNT", "NEW SEASON"];
+
+  // Products
+  const productsHeading = (mainS.heading as string) || "Products";
+  const productsCta = (mainS.cta_text as string) || "See all";
+  const fallbackProducts = [
+    { title: "Pink Bucket Hat & Jacket", price: "$78" },
+    { title: "Yellow Sunglasses Look", price: "$92" },
+    { title: "Pink Sunglasses Editorial", price: "$108" },
+    { title: "Soft Curls Beauty", price: "$64" },
+  ];
+  const products = ((mainS.items as any[])?.length ? (mainS.items as any[]) : fallbackProducts).slice(0, 8);
+
+  // Collections (2-up blocks)
+  const collections = (offerS.collections as any[]) || [
+    { title: "Women", subtitle: "New Season", image: "" },
+    { title: "Men", subtitle: "Essentials", image: "" },
+  ];
+
+  // ─── Header (hamburger + nav left · centered wordmark · search + cart right) ───
+  const navHTML = `
+  <header style="position:sticky;top:0;z-index:50;background:${t.pageBg};border-bottom:1px solid ${t.border};">
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:18px 32px;gap:24px;">
+      <div style="display:flex;align-items:center;gap:24px;">
+        <button aria-label="Menu" style="background:none;border:none;cursor:pointer;padding:6px;color:${t.pageText};">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        ${navLeft.map((l) => `<a href="${navHref(l)}" style="font-size:13px;letter-spacing:0.04em;color:${t.pageText};font-weight:500;">${l}</a>`).join("")}
+      </div>
+      <a href="#hero" style="font-family:${t.fontHeading};font-size:24px;letter-spacing:0.32em;font-weight:500;color:${t.pageText};white-space:nowrap;">${wordmark}</a>
+      <div style="display:flex;align-items:center;gap:18px;justify-content:flex-end;">
+        <button aria-label="Search" style="background:none;border:none;cursor:pointer;padding:6px;color:${t.pageText};">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <button aria-label="Cart" data-yangu-cart style="background:none;border:none;cursor:pointer;padding:6px;color:${t.pageText};">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>`;
+
+  // ─── Full-bleed hero image ───
+  const heroHTML = `
+  <section id="hero" style="background:${t.pageBg};">
+    <div style="width:100%;aspect-ratio:16/9;overflow:hidden;background:${t.cardBg};">
+      <img src="${heroImg}" alt="${name} hero" style="width:100%;height:100%;object-fit:cover;display:block;"/>
+    </div>
+  </section>`;
+
+  // ─── Marquee strip ───
+  const marqueeItems = [...marqueeWords, ...marqueeWords].map(
+    (w) => `<span style="display:inline-flex;align-items:center;gap:32px;font-size:13px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:${t.marqueeText};">${w}<span style="font-size:18px;">*</span></span>`
+  ).join("");
+  const marqueeHTML = `
+  <div style="background:${t.marqueeBg};color:${t.marqueeText};overflow:hidden;padding:14px 0;border-bottom:1px solid ${t.border};">
+    <div class="aema-marquee" style="white-space:nowrap;gap:32px;">
+      ${marqueeItems}
+    </div>
+  </div>`;
+
+  // ─── Products section ───
+  const productCards = products.map((p: any, i: number) => {
+    const img = getEshopImage(config, "product", i);
+    return `
+    <a href="#" class="aema-card" style="display:block;color:${t.pageText};">
+      <div style="aspect-ratio:3/4;overflow:hidden;background:${t.cardBg};margin-bottom:12px;">
+        <img src="${img}" alt="${p.title || ""}" style="width:100%;height:100%;object-fit:cover;transition:transform .5s ease;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;padding:0 2px;">
+        <p style="font-size:13px;font-weight:500;color:${t.pageText};line-height:1.4;">${p.title || ""}</p>
+        <p style="font-size:13px;font-weight:600;color:${t.pageText};">${p.price || ""}</p>
+      </div>
+    </a>`;
+  }).join("");
+
+  const productsHTML = `
+  <section id="products" style="padding:72px 32px 48px;background:${t.pageBg};">
+    <div class="yangu-content-container">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:32px;">
+        <h2 style="font-family:${t.fontHeading};font-size:clamp(2rem, 4vw, 2.6rem);font-weight:600;color:${t.pageText};letter-spacing:-0.01em;">${productsHeading}</h2>
+        <a href="#products" style="font-size:13px;color:${t.mutedText};text-decoration:underline;text-underline-offset:4px;">${productsCta}</a>
+      </div>
+      <div data-grid="4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">
+        ${productCards}
+      </div>
+    </div>
+  </section>`;
+
+  // ─── 2-up collections ───
+  const collectionsHTML = `
+  <section id="collections" style="padding:32px 32px 72px;background:${t.pageBg};">
+    <div class="yangu-content-container">
+      <div data-grid="2" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">
+        ${collections.map((c: any, i: number) => {
+          const img = getEshopImage(config, "collection", i);
+          return `
+          <a href="#products" style="position:relative;display:block;aspect-ratio:4/5;overflow:hidden;background:${t.cardBg};color:#fff;">
+            <img src="${img}" alt="${c.title}" style="width:100%;height:100%;object-fit:cover;"/>
+            <div style="position:absolute;inset:auto 0 0 0;padding:24px;background:linear-gradient(180deg, transparent, rgba(0,0,0,0.5));">
+              <p style="font-size:12px;letter-spacing:0.16em;text-transform:uppercase;opacity:0.85;margin-bottom:6px;">${c.subtitle || ""}</p>
+              <h3 style="font-family:${t.fontHeading};font-size:28px;font-weight:500;letter-spacing:0.04em;">${c.title || ""}</h3>
+            </div>
+          </a>`;
+        }).join("")}
+      </div>
+    </div>
+  </section>`;
+
+  // ─── Footer ───
+  const footerCols = (footerS.columns as any[]) || [
+    { title: "Shop", links: ["Women", "Men", "New Arrivals", "Sale"] },
+    { title: "Help", links: ["Shipping", "Returns", "Size Guide", "Contact"] },
+    { title: "About", links: ["Our Story", "Sustainability", "Press"] },
+  ];
+  const footerHTML = `
+  <footer id="footer" style="padding:64px 32px 32px;background:${t.pageBg};color:${t.pageText};border-top:1px solid ${t.border};">
+    <div class="yangu-content-container">
+      <div style="text-align:center;margin-bottom:48px;">
+        <div style="font-family:${t.fontHeading};font-size:32px;letter-spacing:0.32em;font-weight:500;color:${t.pageText};margin-bottom:12px;">${wordmark}</div>
+        <p style="font-size:13px;color:${t.mutedText};max-width:480px;margin:0 auto;">${footerS.tagline || "New season, new you. Shop the latest editorial collection."}</p>
+      </div>
+      <div data-grid="3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-bottom:48px;">
+        ${footerCols.map((col: any) => `
+          <div style="text-align:center;">
+            <h4 style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;font-weight:600;color:${t.pageText};margin-bottom:14px;">${col.title}</h4>
+            ${(col.links as string[]).map((l: string) => `<p style="font-size:13px;color:${t.mutedText};margin-bottom:8px;">${l}</p>`).join("")}
+          </div>
+        `).join("")}
+      </div>
+      <p style="text-align:center;font-size:11px;color:${t.mutedText};letter-spacing:0.06em;border-top:1px solid ${t.border};padding-top:24px;">${footerS.copyright || `© ${new Date().getFullYear()} ${name} — All rights reserved.`}</p>
+    </div>
+  </footer>`;
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>${name}</title>
+<style>${eshopBaseStyles(t.pageBg, t.pageText, t.marqueeBg)}</style></head><body>
+${navHTML}
+${heroHTML}
+${marqueeHTML}
+${productsHTML}
+${collectionsHTML}
+${footerHTML}
+</body></html>`;
+}
