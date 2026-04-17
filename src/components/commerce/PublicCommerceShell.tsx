@@ -15,7 +15,9 @@ import { CheckoutDialog } from "@/components/commerce/CheckoutDialog";
 import { OrderSuccessDialog } from "@/components/commerce/OrderSuccessDialog";
 import { OrderTrackingView } from "@/components/commerce/OrderTrackingView";
 import { WhatsAppFloatingButton } from "@/components/commerce/WhatsAppFloatingButton";
+import { LiveShopAppShell, type LiveShopTab } from "@/components/commerce/LiveShopAppShell";
 import { ShoppingCart } from "lucide-react";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import type { CartItem } from "@/lib/cart/cartStore";
 
 interface PublicCommerceShellProps {
@@ -36,6 +38,7 @@ export function PublicCommerceShell({
   const [view, setView] = useState<CommerceView>("none");
   const [trackingCode, setTrackingCode] = useState("");
   const cart = useCart(surfaceId);
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Load commerce config
   const { data: config } = useQuery({
@@ -51,6 +54,26 @@ export function PublicCommerceShell({
       return data;
     },
   });
+
+  // Load surface (for logo / branding in app shell)
+  const { data: surface } = useQuery({
+    queryKey: ["public_surface_brand", surfaceId],
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("public_surfaces")
+        .select("id,title,metadata")
+        .eq("id", surfaceId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const logoUrl =
+    (surface?.metadata as any)?.logo_url ||
+    (surface?.metadata as any)?.brand?.logo_url ||
+    undefined;
 
   const orderingEnabled = config?.ordering_enabled ?? false;
   const whatsappEnabled = config?.whatsapp_enabled ?? false;
@@ -96,12 +119,33 @@ export function PublicCommerceShell({
     }
   }, [cart.count]);
 
+  // Map app-shell tab clicks → existing views
+  const handleTabChange = useCallback((tab: LiveShopTab) => {
+    if (tab === "menu") setView("none");
+    else if (tab === "cart") setView("cart");
+    else if (tab === "orders") setView("tracking");
+    else if (tab === "account") setView("tracking"); // Phase 4 will add account view
+  }, []);
+
+  const activeTab: LiveShopTab =
+    view === "cart" || view === "checkout"
+      ? "cart"
+      : view === "tracking" || view === "success"
+      ? "orders"
+      : "menu";
+
   return (
-    <>
+    <LiveShopAppShell
+      businessName={businessName || surface?.title}
+      logoUrl={logoUrl}
+      cartCount={cart.count}
+      activeTab={activeTab}
+      onTabChange={handleTabChange}
+    >
       {children}
 
-      {/* Floating cart FAB — only when ordering enabled and items in cart */}
-      {orderingEnabled && cart.count > 0 && view === "none" && (
+      {/* Floating cart FAB — desktop only (mobile uses bottom tab bar) */}
+      {orderingEnabled && cart.count > 0 && view === "none" && !isMobile && (
         <button
           onClick={() => setView("cart")}
           className="fixed bottom-6 z-50 flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-3 shadow-lg hover:opacity-90 transition-transform hover:scale-105"
