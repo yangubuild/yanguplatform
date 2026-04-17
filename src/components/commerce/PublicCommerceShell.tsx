@@ -222,6 +222,6 @@ export function PublicCommerceShell({
           </div>
         </div>
       )}
-    </>
+    </LiveShopAppShell>
   );
 }
