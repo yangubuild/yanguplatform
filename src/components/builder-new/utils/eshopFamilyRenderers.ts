@@ -1511,3 +1511,308 @@ ${collectionsHTML}
 ${footerHTML}
 </body></html>`;
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// MOCKHUB — Mixed-merch / digital marketplace (dark, vibrant accent)
+// Reference: https://mockhub.framer.website
+// Structure:  vibrant promo bar → dark sticky nav (logo + Device/Apparel/Product
+//             pills + search + Use For Free CTA + theme toggle + Sign in)
+//             → split hero (text-left + large rounded media-right)
+//             → category sections (Device/Apparel/Product) with 3-up image-swap cards
+//             → 2x3 features grid ("Powerful template designs.")
+//             → testimonial wall (3-col masonry-ish quotes)
+//             → centered CTA + minimal footer
+// ═══════════════════════════════════════════════════════════════════
+
+interface MockhubTheme {
+  pageBg: string;
+  panelBg: string;
+  cardBg: string;
+  pageText: string;
+  mutedText: string;
+  border: string;
+  accent: string;
+  accentText: string;
+  promoBg: string;
+  promoText: string;
+  fontHeading: string;
+  fontBody: string;
+}
+
+const MOCKHUB_VARIANTS: MockhubTheme[] = [
+  // 0 — Signature Mockhub: pure black + violet promo
+  {
+    pageBg: "#0A0A0B",
+    panelBg: "#101013",
+    cardBg: "#16171B",
+    pageText: "#FFFFFF",
+    mutedText: "#A1A1AA",
+    border: "#26272B",
+    accent: "#A855F7",
+    accentText: "#FFFFFF",
+    promoBg: "#A855F7",
+    promoText: "#FFFFFF",
+    fontHeading: "'Outfit', sans-serif",
+    fontBody: "'Inter', sans-serif",
+  },
+  // 1 — Graphite + lime accent
+  {
+    pageBg: "#111315",
+    panelBg: "#181B1F",
+    cardBg: "#1F2227",
+    pageText: "#F4F5F6",
+    mutedText: "#9AA0A6",
+    border: "#2A2E33",
+    accent: "#C6FF3D",
+    accentText: "#0A0A0B",
+    promoBg: "#C6FF3D",
+    promoText: "#0A0A0B",
+    fontHeading: "'Outfit', sans-serif",
+    fontBody: "'Inter', sans-serif",
+  },
+  // 2 — Cream light + coral accent
+  {
+    pageBg: "#F7F4EE",
+    panelBg: "#FFFFFF",
+    cardBg: "#FFFFFF",
+    pageText: "#141414",
+    mutedText: "#5C5C5C",
+    border: "#E6E1D6",
+    accent: "#FF5A4E",
+    accentText: "#FFFFFF",
+    promoBg: "#141414",
+    promoText: "#FFFFFF",
+    fontHeading: "'Outfit', sans-serif",
+    fontBody: "'Inter', sans-serif",
+  },
+];
+
+export function renderMockhub(ctx: EshopRenderContext): string {
+  const { config, preset, variantIndex } = ctx;
+  const s = preset.patches;
+  const headerS = (s.header?.schema || {}) as Record<string, any>;
+  const heroS = (s.hero?.schema || {}) as Record<string, any>;
+  const mainS = (s.main_content?.schema || {}) as Record<string, any>;
+  const offerS = (s.offer?.schema || {}) as Record<string, any>;
+  const footerS = (s.footer?.schema || {}) as Record<string, any>;
+
+  const t = { ...(MOCKHUB_VARIANTS[variantIndex] || MOCKHUB_VARIANTS[0]) };
+  if (config.userBrandColors?.[0]) {
+    t.accent = config.userBrandColors[0];
+    t.promoBg = config.userBrandColors[0];
+  }
+
+  const name = config.businessName || "Mockhub";
+  const promoText = (headerS.promo_text as string) || "Get unlimited access to all products";
+  const navPills = (headerS.nav_items as string[]) || ["Device", "Apparel", "Product", "All Assets"];
+  const ctaLabel = (headerS.cta_label as string) || "Use for Free";
+
+  const heroTitle = (heroS.title as string) || "Showcase Your Designs with Ease";
+  const heroSub = (heroS.subtitle as string) || "Discover high-quality mockups to present your work beautifully and effortlessly.";
+  const heroImg = getEshopImage(config, "hero", variantIndex);
+
+  // Three category sections, each with 3 cards
+  const categories = (mainS.categories as any[]) || [
+    {
+      title: "Device Mockup",
+      cta: "Explore Devices",
+      items: [
+        { title: "Colourful monitor", tag: "Device", price: "$32" },
+        { title: "Girl showing iPhone 13", tag: "Device", price: "$54" },
+        { title: "AI generated monitor", tag: "Device", price: "Free" },
+      ],
+    },
+    {
+      title: "Apparel Mockup",
+      cta: "Explore Apparel",
+      items: [
+        { title: "Girl wearing a t-shirt", tag: "Apparel", price: "Free" },
+        { title: "Girl wearing t-shirt and glasses", tag: "Apparel", price: "Free" },
+        { title: "Tote bag with t-shirt", tag: "Apparel", price: "$43" },
+      ],
+    },
+    {
+      title: "Product Mockup",
+      cta: "Explore Products",
+      items: [
+        { title: "Open box with bottle", tag: "Product", price: "Free" },
+        { title: "Jar and tube mockup", tag: "Product", price: "Free" },
+        { title: "Closed box", tag: "Product", price: "$54" },
+      ],
+    },
+  ];
+
+  const features = (offerS.features as any[]) || [
+    { title: "Simple To Modify", body: "Easily change layouts, fonts, and colors to match your brand." },
+    { title: "Affordable", body: "Launch a polished website for a small fraction of the cost." },
+    { title: "Quality Support", body: "Reach us instantly via live chat whenever you need help." },
+    { title: "High-Quality Mockups", body: "Meticulously crafted for stunning, high-quality visuals." },
+    { title: "Wide Variety", body: "Explore a vast collection across many categories." },
+    { title: "Instant Download", body: "Access your mockups immediately after purchase." },
+  ];
+
+  const testimonials = (offerS.testimonials as any[]) || [
+    { name: "Myron", brand: "Shoply", quote: "I adore the speed and style. Highly scalable — a complete, adjustable design system." },
+    { name: "Ezekiel", brand: "Shoply", quote: "Lovely design. Outstanding performance." },
+    { name: "Jeff", brand: "Sero", quote: "Exquisitely crafted from the inside out. Incredibly capable." },
+    { name: "Jude", brand: "Sero", quote: "Very neat and user-friendly! Helped me launch my portfolio." },
+    { name: "Kane", brand: "Shoply", quote: "It's simple to use." },
+    { name: "Jane", brand: "Shoply", quote: "Amazing template — opened my store in half the time!" },
+  ];
+
+  // ─── Promo bar ───
+  const promoHTML = `
+  <div style="background:${t.promoBg};color:${t.promoText};text-align:center;padding:10px 16px;font-size:13px;font-weight:500;letter-spacing:0.01em;">
+    ${promoText} <span style="opacity:.85;margin-left:6px;">→</span>
+  </div>`;
+
+  // ─── Header ───
+  const navHTML = `
+  <header style="position:sticky;top:0;z-index:50;background:${t.panelBg};border-bottom:1px solid ${t.border};">
+    <div style="display:flex;align-items:center;gap:18px;padding:14px 28px;max-width:1320px;margin:0 auto;">
+      <a href="#hero" style="display:flex;align-items:center;gap:10px;color:${t.pageText};">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:${t.accent};color:${t.accentText};border-radius:8px;font-family:${t.fontHeading};font-weight:800;font-size:14px;">M</span>
+        <span style="font-family:${t.fontHeading};font-weight:700;font-size:17px;color:${t.pageText};">${name}</span>
+      </a>
+      <nav class="aema-nav-links" style="display:flex;align-items:center;gap:6px;margin-left:18px;">
+        ${navPills.map((p) => `<a href="${navHref(p)}" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;background:transparent;color:${t.pageText};font-size:13px;font-weight:500;border:1px solid transparent;" onmouseover="this.style.background='${t.cardBg}';this.style.borderColor='${t.border}'" onmouseout="this.style.background='transparent';this.style.borderColor='transparent'">${p}</a>`).join("")}
+      </nav>
+      <div class="aema-nav-links" style="flex:1;display:flex;justify-content:center;">
+        <div style="display:flex;align-items:center;gap:8px;background:${t.cardBg};border:1px solid ${t.border};border-radius:10px;padding:8px 12px;min-width:280px;max-width:360px;width:100%;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${t.mutedText}" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span style="font-size:13px;color:${t.mutedText};">Search all assets</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <a href="#products" style="display:inline-flex;align-items:center;padding:9px 16px;background:${t.pageText};color:${t.pageBg};border-radius:10px;font-size:13px;font-weight:600;">${ctaLabel}</a>
+        <a href="#footer" style="display:inline-flex;align-items:center;padding:9px 16px;background:${t.cardBg};border:1px solid ${t.border};color:${t.pageText};border-radius:10px;font-size:13px;font-weight:500;">Sign in</a>
+      </div>
+    </div>
+  </header>`;
+
+  // ─── Hero (split) ───
+  const heroHTML = `
+  <section id="hero" style="background:${t.pageBg};padding:80px 28px 64px;">
+    <div class="yangu-content-container aema-hero-grid" style="display:grid;grid-template-columns:1fr 1.1fr;gap:48px;align-items:center;">
+      <div class="aema-hero-text">
+        <h1 style="font-family:${t.fontHeading};font-size:clamp(2.4rem, 5vw, 4.4rem);font-weight:700;line-height:1.05;letter-spacing:-0.02em;color:${t.pageText};margin-bottom:22px;">${heroTitle}</h1>
+        <p style="font-size:16px;color:${t.mutedText};max-width:480px;margin-bottom:32px;line-height:1.6;">${heroSub}</p>
+        <div style="display:flex;gap:10px;align-items:center;background:${t.cardBg};border:1px solid ${t.border};border-radius:12px;padding:10px 14px;max-width:440px;">
+          <span style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;background:${t.panelBg};border:1px solid ${t.border};font-size:12px;color:${t.pageText};font-weight:500;">All Assets ▾</span>
+          <span style="flex:1;font-size:13px;color:${t.mutedText};padding-left:4px;">Search all assets</span>
+          <button aria-label="Search" style="background:${t.accent};color:${t.accentText};border:none;border-radius:8px;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="aema-hero-media" style="aspect-ratio:5/4;border-radius:18px;overflow:hidden;background:${t.cardBg};border:1px solid ${t.border};">
+        <img src="${heroImg}" alt="${name} hero" style="width:100%;height:100%;object-fit:cover;display:block;"/>
+      </div>
+    </div>
+  </section>`;
+
+  // ─── Category sections ───
+  const categoriesHTML = categories.map((cat: any, ci: number) => {
+    const cardsHTML = (cat.items as any[]).map((it: any, i: number) => {
+      const img = getEshopImage(config, "product", ci * 3 + i);
+      const isFree = String(it.price).toLowerCase() === "free";
+      return `
+      <a href="#" class="aema-card" style="display:block;background:${t.cardBg};border:1px solid ${t.border};border-radius:14px;overflow:hidden;color:${t.pageText};">
+        <div style="aspect-ratio:4/3;overflow:hidden;background:${t.panelBg};">
+          <img src="${img}" alt="${it.title}" loading="lazy" style="width:100%;height:100%;object-fit:cover;transition:transform .5s ease;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/>
+        </div>
+        <div style="padding:16px 18px;display:flex;flex-direction:column;gap:8px;">
+          <p style="font-size:14px;font-weight:600;color:${t.pageText};">${it.title}</p>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:${t.mutedText};border:1px solid ${t.border};padding:4px 8px;border-radius:6px;">${it.tag}</span>
+            <span style="font-size:13px;font-weight:700;color:${isFree ? t.accent : t.pageText};">${it.price}</span>
+          </div>
+        </div>
+      </a>`;
+    }).join("");
+    return `
+    <section id="${ci === 0 ? "products" : `cat-${ci}`}" style="padding:48px 28px;background:${t.pageBg};">
+      <div class="yangu-content-container">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:24px;gap:16px;">
+          <h2 style="font-family:${t.fontHeading};font-size:clamp(1.6rem, 3vw, 2.2rem);font-weight:600;color:${t.pageText};letter-spacing:-0.01em;">${cat.title}</h2>
+          <a href="#products" style="font-size:13px;color:${t.mutedText};display:inline-flex;align-items:center;gap:4px;">${cat.cta} <span aria-hidden="true">→</span></a>
+        </div>
+        <div data-grid="3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">${cardsHTML}</div>
+      </div>
+    </section>`;
+  }).join("");
+
+  // ─── Features grid ───
+  const featuresHTML = `
+  <section id="features" style="padding:88px 28px;background:${t.panelBg};border-top:1px solid ${t.border};border-bottom:1px solid ${t.border};">
+    <div class="yangu-content-container">
+      <div style="text-align:center;max-width:760px;margin:0 auto 56px;">
+        <h2 style="font-family:${t.fontHeading};font-size:clamp(2rem, 4vw, 3rem);font-weight:700;color:${t.pageText};letter-spacing:-0.02em;margin-bottom:14px;">Powerful template designs.</h2>
+        <p style="font-size:15px;color:${t.mutedText};">We ensure that each of our templates includes everything you need to launch your brand-new, dazzling website.</p>
+      </div>
+      <div data-grid="3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+        ${features.map((f: any) => `
+          <div style="background:${t.cardBg};border:1px solid ${t.border};border-radius:14px;padding:26px 24px;">
+            <div style="width:34px;height:34px;border-radius:8px;background:${t.accent};color:${t.accentText};display:inline-flex;align-items:center;justify-content:center;font-weight:800;margin-bottom:14px;">✦</div>
+            <h3 style="font-family:${t.fontHeading};font-size:17px;font-weight:600;color:${t.pageText};margin-bottom:8px;">${f.title}</h3>
+            <p style="font-size:13.5px;color:${t.mutedText};line-height:1.55;">${f.body}</p>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  </section>`;
+
+  // ─── Testimonials wall ───
+  const testimonialsHTML = `
+  <section id="testimonials" style="padding:88px 28px;background:${t.pageBg};">
+    <div class="yangu-content-container">
+      <div style="text-align:center;max-width:680px;margin:0 auto 48px;">
+        <h2 style="font-family:${t.fontHeading};font-size:clamp(1.8rem, 3.5vw, 2.6rem);font-weight:700;color:${t.pageText};letter-spacing:-0.02em;margin-bottom:12px;">Don't only take what we say.</h2>
+        <p style="font-size:14px;color:${t.mutedText};">Our templates have helped over 1,000 people start a new website.</p>
+      </div>
+      <div data-grid="3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;">
+        ${testimonials.map((q: any, i: number) => `
+          <div style="background:${t.cardBg};border:1px solid ${t.border};border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px;">
+            <p style="font-size:14px;color:${t.pageText};line-height:1.55;">"${q.quote}"</p>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:auto;">
+              <div style="width:36px;height:36px;border-radius:50%;background:${t.accent};color:${t.accentText};display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;">${(q.name || "?").charAt(0)}</div>
+              <div>
+                <p style="font-size:13px;font-weight:600;color:${t.pageText};">${q.name}</p>
+                <p style="font-size:11px;color:${t.mutedText};letter-spacing:0.04em;text-transform:uppercase;">${q.brand}</p>
+              </div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  </section>`;
+
+  // ─── Footer CTA ───
+  const footerHTML = `
+  <footer id="footer" style="padding:64px 28px 36px;background:${t.panelBg};border-top:1px solid ${t.border};color:${t.pageText};">
+    <div class="yangu-content-container">
+      <div style="text-align:center;margin-bottom:48px;">
+        <h3 style="font-family:${t.fontHeading};font-size:clamp(1.8rem, 3.5vw, 2.4rem);font-weight:700;letter-spacing:-0.02em;margin-bottom:18px;">Ready to ship your next project?</h3>
+        <a href="#hero" style="display:inline-flex;align-items:center;padding:13px 24px;background:${t.accent};color:${t.accentText};border-radius:12px;font-size:14px;font-weight:600;">${ctaLabel}</a>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:18px;border-top:1px solid ${t.border};padding-top:24px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:${t.accent};color:${t.accentText};border-radius:7px;font-family:${t.fontHeading};font-weight:800;font-size:12px;">M</span>
+          <span style="font-family:${t.fontHeading};font-weight:600;font-size:14px;">${name}</span>
+        </div>
+        <p style="font-size:12px;color:${t.mutedText};letter-spacing:0.04em;">${footerS.copyright || `© ${new Date().getFullYear()} ${name} — All rights reserved.`}</p>
+      </div>
+    </div>
+  </footer>`;
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>${name}</title>
+<style>${eshopBaseStyles(t.pageBg, t.pageText, t.accent)}</style></head><body>
+${promoHTML}
+${navHTML}
+${heroHTML}
+${categoriesHTML}
+${featuresHTML}
+${testimonialsHTML}
+${footerHTML}
+</body></html>`;
+}

@@ -802,16 +802,93 @@ const ESHOP_TEMPLATES: TemplatePreset[] = [
     },
   },
 
-  // ─── Mockhub — Mixed merch (pending full rebuild) ───
+  // ─── Mockhub — Mixed merch / digital marketplace (dark + vibrant accent) ───
   {
     key: "eshop_mockhub",
     label: "Mockhub — Merch",
-    description: "Mixed-product merchandise store: devices + clothing + accessories with versatile product cards.",
+    description: "Dark mixed-merch marketplace: violet promo bar, sticky nav with category pills + search, split hero, and 3-up category sections.",
     icon: "🛍️",
+    is_active: true,
     template_family: "mockhub",
     preview_url: "https://mockhub.framer.website",
-    reference: { source: "link", url: "https://mockhub.framer.website", label: "Mockhub Framer template", sectionOrder: ["header", "hero", "categories", "products", "footer"], layoutPatterns: ["collage_hero", "versatile_product_grid"] },
-    patches: {},
+    reference: {
+      source: "link",
+      url: "https://mockhub.framer.website",
+      label: "Mockhub Framer template",
+      sectionOrder: ["promo", "header", "hero_split", "category_device", "category_apparel", "category_product", "features", "testimonials", "footer"],
+      layoutPatterns: ["dark_promo_bar", "sticky_nav_pills_search", "split_hero_text_media", "three_up_category_grid", "tag_price_card", "feature_grid_3x2", "testimonial_wall_3col"],
+    },
+    patches: {
+      header: { schema: {
+        layout_variant: "dark_pills_search_cta",
+        background_style: "dark",
+        logo_position: "left",
+        logo_size: "small",
+        show_name: true,
+        show_search: true,
+        show_cart_icon: false,
+        nav_items: ["Device", "Apparel", "Product", "All Assets"],
+        cta_label: "Use for Free",
+        promo_text: "Get unlimited access to all products",
+      } },
+      hero: { schema: {
+        layout_variant: "split_text_media",
+        background_style: "dark",
+        title: "Showcase Your Designs with Ease",
+        subtitle: "Discover high-quality mockups to present your work beautifully and effortlessly.",
+        media: { type: "image", source: "url", url: "", fit: "cover" },
+        spacing: "spacious",
+      } },
+      main_content: { schema: {
+        display_mode: "categorized",
+        layout_style: "three_up_per_category",
+        columns_desktop: 3,
+        columns_mobile: 2,
+        cards: { style: "image_top", image_ratio: "landscape", show_price: true, show_title: true, show_cta: false, card_style: "tagged_dark", hover_effect: "zoom" },
+        grid: { columns_desktop: 3, columns_mobile: 2, gap: "md" },
+        categories: [
+          { title: "Device Mockup", cta: "Explore Devices", items: [
+            { title: "Colourful monitor", tag: "Device", price: "$32" },
+            { title: "Girl showing iPhone 13", tag: "Device", price: "$54" },
+            { title: "AI generated monitor", tag: "Device", price: "Free" },
+          ] },
+          { title: "Apparel Mockup", cta: "Explore Apparel", items: [
+            { title: "Girl wearing a t-shirt", tag: "Apparel", price: "Free" },
+            { title: "Girl wearing t-shirt and glasses", tag: "Apparel", price: "Free" },
+            { title: "Tote bag with t-shirt", tag: "Apparel", price: "$43" },
+          ] },
+          { title: "Product Mockup", cta: "Explore Products", items: [
+            { title: "Open box with bottle", tag: "Product", price: "Free" },
+            { title: "Jar and tube mockup", tag: "Product", price: "Free" },
+            { title: "Closed box", tag: "Product", price: "$54" },
+          ] },
+        ],
+      } },
+      offer: { schema: {
+        layout_variant: "feature_grid_plus_testimonials",
+        features: [
+          { title: "Simple To Modify", body: "Easily change layouts, fonts, and colors to match your brand." },
+          { title: "Affordable", body: "Launch a polished website for a small fraction of the cost." },
+          { title: "Quality Support", body: "Reach us instantly via live chat whenever you need help." },
+          { title: "High-Quality Mockups", body: "Meticulously crafted for stunning, high-quality visuals." },
+          { title: "Wide Variety", body: "Explore a vast collection across many categories." },
+          { title: "Instant Download", body: "Access your mockups immediately after purchase." },
+        ],
+        testimonials: [
+          { name: "Myron", brand: "Shoply", quote: "I adore the speed and style. Highly scalable — a complete, adjustable design system." },
+          { name: "Ezekiel", brand: "Shoply", quote: "Lovely design. Outstanding performance." },
+          { name: "Jeff", brand: "Sero", quote: "Exquisitely crafted from the inside out. Incredibly capable." },
+          { name: "Jude", brand: "Sero", quote: "Very neat and user-friendly! Helped me launch my portfolio." },
+          { name: "Kane", brand: "Shoply", quote: "It's simple to use." },
+          { name: "Jane", brand: "Shoply", quote: "Amazing template — opened my store in half the time!" },
+        ],
+      } },
+      footer: { schema: {
+        layout_variant: "centered_cta_minimal",
+        background_style: "dark",
+        copyright: "All rights reserved.",
+      } },
+    },
   },
 
   // ─── Lumel — Bottled products (pending full rebuild) ───
