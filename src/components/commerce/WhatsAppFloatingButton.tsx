@@ -3,7 +3,7 @@
  * Shown when owner has enabled WhatsApp contact.
  */
 
-import { MessageCircle } from "lucide-react";
+import whatsappIcon from "@/assets/whatsapp-icon.png";
 
 interface WhatsAppFloatingButtonProps {
   phoneNumber: string;
@@ -20,10 +20,10 @@ export function WhatsAppFloatingButton({ phoneNumber, defaultMessage }: WhatsApp
   return (
     <button
       onClick={handleClick}
-      className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-green-500 hover:bg-green-600 text-white shadow-lg flex items-center justify-center transition-transform hover:scale-110"
+      className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 bg-transparent p-0"
       aria-label="Chat on WhatsApp"
     >
-      <MessageCircle className="h-6 w-6" />
+      <img src={whatsappIcon} alt="WhatsApp" className="w-full h-full object-contain" />
     </button>
   );
 }
