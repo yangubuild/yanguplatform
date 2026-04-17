@@ -8,19 +8,10 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, Clock, CheckCircle2, XCircle, ChefHat, Truck, Package } from "lucide-react";
+import { ShoppingBag, Clock } from "lucide-react";
 import { formatPriceCents } from "@/types/commerce";
 import { loadBuyerOrdersForSurface } from "@/lib/cart/buyerOrders";
-
-const STATUS_META: Record<string, { label: string; icon: any; tone: string }> = {
-  pending: { label: "Order Placed", icon: ShoppingBag, tone: "text-muted-foreground" },
-  confirmed: { label: "Confirmed", icon: CheckCircle2, tone: "text-primary" },
-  preparing: { label: "Preparing", icon: ChefHat, tone: "text-primary" },
-  out_for_delivery: { label: "Out for Delivery", icon: Truck, tone: "text-primary" },
-  delivered: { label: "Delivered", icon: Package, tone: "text-green-600" },
-  completed: { label: "Completed", icon: CheckCircle2, tone: "text-green-600" },
-  cancelled: { label: "Cancelled", icon: XCircle, tone: "text-destructive" },
-};
+import { STATUS_META, type OrderStatus } from "./orderStatus";
 
 interface MyOrdersViewProps {
   surfaceId: string;
