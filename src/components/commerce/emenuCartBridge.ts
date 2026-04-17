@@ -171,7 +171,8 @@ export function buildCartBridgeCode(configuredCurrency: string = "USD"): string 
       var btn = document.createElement('button');
       btn.textContent = buttonText;
       btn.className = 'yangu-live-cta';
-      btn.style.cssText = 'margin-top:8px;padding:' + style.padding + ';border-radius:' + style.radius + ';border:2px solid ' + style.color + ';background:transparent;color:' + style.color + ';font-size:' + style.fontSize + ';font-weight:700;cursor:pointer;width:100%;transition:all 0.2s;letter-spacing:0.02em;';
+      // Inline button — sits to the RIGHT of the price in the same flex row
+      btn.style.cssText = 'padding:6px 14px;border-radius:' + style.radius + ';border:2px solid ' + style.color + ';background:transparent;color:' + style.color + ';font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:0.02em;white-space:nowrap;flex-shrink:0;';
       btn.onmouseover = function() { btn.style.background = style.color; btn.style.color = '#fff'; };
       btn.onmouseout = function() { btn.style.background = 'transparent'; btn.style.color = style.color; };
 
@@ -216,16 +217,42 @@ export function buildCartBridgeCode(configuredCurrency: string = "USD"): string 
         }, 1200);
       };
 
-      // Insert button at the bottom of the card's content area
-      // Try to find the text content container (parent of title/price), else use card itself
-      var contentArea = null;
-      if (nameEl && nameEl.parentElement && nameEl.parentElement !== card) {
-        contentArea = nameEl.parentElement;
-      } else if (priceEl && priceEl.parentElement && priceEl.parentElement !== card) {
-        contentArea = priceEl.parentElement;
+      // Place button inline to the RIGHT of the price.
+      // Strategy: if the price element's parent is a flex container, append the button there.
+      // Otherwise, wrap the price in a flex justify-between row and append the button.
+      var inserted = false;
+      if (priceEl) {
+        var priceParent = priceEl.parentElement;
+        if (priceParent && priceParent !== card) {
+          var ps = window.getComputedStyle(priceParent);
+          if (ps.display === 'flex' || ps.display === 'inline-flex') {
+            // Ensure the row uses justify-between so price stays left, button right
+            priceParent.style.justifyContent = 'space-between';
+            priceParent.style.alignItems = 'center';
+            priceParent.appendChild(btn);
+            inserted = true;
+          } else {
+            // Wrap price in a new flex row
+            var wrap = document.createElement('div');
+            wrap.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;';
+            priceEl.parentNode.insertBefore(wrap, priceEl);
+            wrap.appendChild(priceEl);
+            wrap.appendChild(btn);
+            inserted = true;
+          }
+        }
       }
-      if (!contentArea) contentArea = card;
-      contentArea.appendChild(btn);
+      if (!inserted) {
+        // Fallback: append below name/price
+        var contentArea = null;
+        if (nameEl && nameEl.parentElement && nameEl.parentElement !== card) {
+          contentArea = nameEl.parentElement;
+        }
+        if (!contentArea) contentArea = card;
+        btn.style.marginTop = '8px';
+        btn.style.width = '100%';
+        contentArea.appendChild(btn);
+      }
     });
 
     // Also wire up any pre-existing order buttons added via the editor

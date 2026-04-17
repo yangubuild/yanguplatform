@@ -312,7 +312,7 @@ export function renderAema(ctx: EshopRenderContext): string {
       )
       .join("");
     return `
-    <a href="#" class="aema-card" style="display:block;background:${t.cardBg};color:${t.pageText};">
+    <a href="#" class="aema-card" data-product-card="true" style="display:block;background:${t.cardBg};color:${t.pageText};">
       <div style="position:relative;aspect-ratio:3/4;overflow:hidden;background:${t.pageBg};">
         <img src="${imgA}" alt="${item.title}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"/>
         <img class="aema-card-img-alt" src="${imgB}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:0;"/>
@@ -326,12 +326,14 @@ export function renderAema(ctx: EshopRenderContext): string {
             .join("")}
         </div>
       </div>
-      <div style="padding:14px 4px 24px;display:flex;justify-content:space-between;align-items:baseline;">
-        <span style="font-size:13px;font-weight:600;letter-spacing:0.02em;">${item.title}</span>
-        <span style="font-size:13px;font-weight:600;color:${t.pageText};">
-          ${item.price}
-          ${item.original_price ? `<span style="margin-left:6px;color:${t.pageText}66;text-decoration:line-through;font-weight:400;">${item.original_price}</span>` : ""}
-        </span>
+      <div style="padding:14px 4px 24px;">
+        <div data-product-role="title" style="font-size:13px;font-weight:600;letter-spacing:0.02em;margin-bottom:8px;">${item.title}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <span data-product-role="price" style="font-size:13px;font-weight:600;color:${t.pageText};">
+            ${item.price}
+            ${item.original_price ? `<span style="margin-left:6px;color:${t.pageText}66;text-decoration:line-through;font-weight:400;">${item.original_price}</span>` : ""}
+          </span>
+        </div>
       </div>
     </a>`;
   };
@@ -667,16 +669,16 @@ export function renderUncover(ctx: EshopRenderContext): string {
   const productCard = (item: any, idx: number): string => {
     const img = getEshopImage(config, "product", idx);
     return `
-    <a href="#" style="display:block;background:${t.cardBg};border:1px solid ${t.border};border-radius:6px;overflow:hidden;color:${t.pageText};">
+    <a href="#" data-product-card="true" style="display:block;background:${t.cardBg};border:1px solid ${t.border};border-radius:6px;overflow:hidden;color:${t.pageText};">
       <div style="position:relative;aspect-ratio:1/1;background:${t.surfaceBg};">
         <img src="${img}" alt="${item.title}" style="width:100%;height:100%;object-fit:cover;"/>
         ${item.badge ? `<span style="position:absolute;top:10px;right:10px;background:${t.accent};color:${t.accentText};font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:4px 9px;border-radius:3px;">${item.badge}</span>` : ""}
       </div>
       <div style="padding:14px 14px 16px;">
         <div style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#0F9D58;background:${t.mood === "dark" ? "#0F9D5820" : "#E8F5E9"};padding:3px 8px;border-radius:3px;margin-bottom:8px;">● ${item.stock || "In Stock"}</div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;">
-          <span style="font-size:14px;font-weight:600;letter-spacing:-0.01em;">${item.title}</span>
-          <span style="font-size:14px;font-weight:700;color:${t.pageText};">${item.price}</span>
+        <div data-product-role="title" style="font-size:14px;font-weight:600;letter-spacing:-0.01em;margin-bottom:8px;">${item.title}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <span data-product-role="price" style="font-size:14px;font-weight:700;color:${t.pageText};">${item.price}</span>
         </div>
       </div>
     </a>`;
@@ -1043,7 +1045,7 @@ export function renderKanva(ctx: EshopRenderContext): string {
     const imgA = getEshopImage(config, "product", idx + 3);
     const imgB = getEshopImage(config, "product", idx + 6);
     return `
-    <a href="#" class="aema-card" style="display:block;background:${t.cardBg};border:1px solid ${t.border};border-radius:6px;overflow:hidden;color:${t.pageText};">
+    <a href="#" class="aema-card" data-product-card="true" style="display:block;background:${t.cardBg};border:1px solid ${t.border};border-radius:6px;overflow:hidden;color:${t.pageText};">
       <div style="position:relative;aspect-ratio:1/1;background:${t.surfaceBg};">
         <img src="${imgA}" alt="${item.title}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"/>
         <img class="aema-card-img-alt" src="${imgB}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:0;"/>
@@ -1051,11 +1053,11 @@ export function renderKanva(ctx: EshopRenderContext): string {
       </div>
       <div style="padding:18px;">
         ${item.category ? `<div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:${t.mutedText};margin-bottom:6px;">${item.category}</div>` : ""}
-        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;">
-          <span style="font-family:${t.fontHeading};font-size:18px;font-weight:500;color:${t.pageText};">${item.title}</span>
-          <span style="font-size:14px;font-weight:600;color:${t.pageText};">
+        <div data-product-role="title" style="font-family:${t.fontHeading};font-size:18px;font-weight:500;color:${t.pageText};margin-bottom:8px;">${item.title}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <span data-product-role="price" style="font-size:14px;font-weight:600;color:${t.pageText};">
             ${item.price}
-            ${item.original_price ? `<span style="display:block;font-size:11px;color:${t.mutedText};text-decoration:line-through;font-weight:400;text-align:right;">${item.original_price}</span>` : ""}
+            ${item.original_price ? `<span style="display:inline-block;margin-left:6px;font-size:11px;color:${t.mutedText};text-decoration:line-through;font-weight:400;">${item.original_price}</span>` : ""}
           </span>
         </div>
       </div>
