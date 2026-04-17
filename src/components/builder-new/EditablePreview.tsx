@@ -865,10 +865,17 @@ const EDIT_SCRIPT = String.raw`
           }
         });
 
-        // Second pass: normalize legacy cards (now siblings have roles for style inference)
+        // Second pass: normalize legacy cards (now siblings have roles for style inference).
+        // For cards that already have BOTH title+price roles set by the renderer, skip the
+        // heavy normalization (which can mis-classify wrappers as "description" and trigger
+        // visible duplicates). Just ensure node id + classname so controls can attach cleanly.
         allCards.forEach(function(card) {
-          var mapping = markProductRoles(card);
-          if (mapping && mapping.repaired) repairedAny = true;
+          var hasTitle = getProductRoleEl(card, 'title');
+          var hasPrice = getProductRoleEl(card, 'price');
+          if (!(hasTitle && hasPrice)) {
+            var mapping = markProductRoles(card);
+            if (mapping && mapping.repaired) repairedAny = true;
+          }
           card.classList.add('yangu-product-card');
           ensureNodeId(card);
 
