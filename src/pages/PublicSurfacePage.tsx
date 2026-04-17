@@ -46,9 +46,9 @@ export default function PublicSurfacePage() {
   });
 
   const surfaceType = (data?.published_schema?.surface as any)?.surface_type;
-  const publishedEmenuHtml = surfaceType === "emenu"
-    ? ((data?.published_schema?.surface as any)?.emenu_html as string | null)
-    : null;
+  // Unified HTML render path: any surface that has published canvas HTML uses the iframe path.
+  const publishedEmenuHtml =
+    ((data?.published_schema?.surface as any)?.emenu_html as string | null) || null;
 
   const surfaceData = (data?.published_schema?.surface || {}) as any;
   const pageTitle = surfaceData.seo_title || surfaceData.title || "Untitled";
@@ -97,14 +97,10 @@ export default function PublicSurfacePage() {
     return <PublicNotFound host={host} slug={pathSlug} />;
   }
 
-  // ═══ EMENU: iframe + commerce shell ═══
+  // ═══ Unified HTML iframe + commerce shell (all surfaces with published canvas HTML) ═══
   const pubSurfaceType = surfaceData.surface_type;
 
-  if (pubSurfaceType === "emenu") {
-    if (!publishedEmenuHtml) {
-      return <PublicNotFound host={host} slug={pathSlug} message="This menu needs to be republished." />;
-    }
-
+  if (publishedEmenuHtml) {
     return (
       <EmenuPublicView
         surfaceId={surfaceId}
@@ -116,6 +112,10 @@ export default function PublicSurfacePage() {
         showBadge={showBadge}
       />
     );
+  }
+
+  if (pubSurfaceType === "emenu") {
+    return <PublicNotFound host={host} slug={pathSlug} message="This menu needs to be republished." />;
   }
 
   // ═══ Non-emenu surfaces ═══

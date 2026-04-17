@@ -96,20 +96,10 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   const page = schema?.pages?.[0];
   const title = pageTitle;
   const surfaceType = surfaceMeta.surface_type;
-  const publishedEmenuHtml = surfaceType === "emenu"
-    ? ((surfaceMeta.emenu_html as string | null) || null)
-    : null;
+  // Unified HTML render path: any surface that has published canvas HTML uses the iframe path.
+  const publishedEmenuHtml = (surfaceMeta.emenu_html as string | null) || null;
 
-  if (surfaceType === "emenu") {
-    if (!publishedEmenuHtml) {
-      return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
-          <Layout className="h-12 w-12 text-muted-foreground" />
-          <p className="text-muted-foreground">This menu needs to be republished.</p>
-        </div>
-      );
-    }
-
+  if (publishedEmenuHtml) {
     const surfaceId = surfaceMeta.id || "";
     const ownerId = surfaceMeta.user_id || "";
     const businessName = surfaceMeta.title || "";
@@ -124,6 +114,15 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
         faviconUrl={faviconUrl}
         showBadge={showBadge}
       />
+    );
+  }
+
+  if (surfaceType === "emenu") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
+        <Layout className="h-12 w-12 text-muted-foreground" />
+        <p className="text-muted-foreground">This menu needs to be republished.</p>
+      </div>
     );
   }
 

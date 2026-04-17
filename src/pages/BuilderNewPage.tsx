@@ -15,7 +15,7 @@ import { TextEditorPanel } from "@/components/builder-new/TextEditorPanel";
 import { SectionEditorPanel } from "@/components/builder-new/SectionEditorPanel";
 import { ImageEditorPanel } from "@/components/builder-new/ImageEditorPanel";
 import { BuilderSettingsDialog } from "@/components/builder-new/BuilderSettingsDialog";
-import { BuilderPublishDialog } from "@/components/builder-new/BuilderPublishDialog";
+
 import { useStepController } from "@/components/builder-new/hooks/useStepController";
 import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteGenerator";
 import type { StepOption } from "@/components/builder-new/hooks/useStepController";
@@ -699,12 +699,6 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
         onOpenChange={setSettingsOpen}
         businessName={ctrl.businessName}
         onBusinessNameChange={handleBusinessNameChange}
-        category={ctrl.category}
-      />
-      <BuilderPublishDialog
-        open={publishOpen}
-        onOpenChange={setPublishOpen}
-        businessName={ctrl.businessName}
         category={ctrl.category}
       />
     </div>
