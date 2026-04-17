@@ -8,12 +8,12 @@ import { CATEGORY_CONFIGS } from "@/components/builder-new/types/builder.types";
 
 /** Extended keyword sets beyond CATEGORY_CONFIGS for stronger intent detection */
 const EXTENDED_KEYWORDS: Record<Category, string[]> = {
-  emenu: ["restaurant", "cafe", "food", "burger", "pizza", "delivery", "menu", "chicken", "fries", "kitchen", "bakery", "catering", "sushi", "taco", "coffee", "juice", "diner", "grill", "bbq", "dessert", "ice cream"],
-  eshop: ["shop", "store", "sell", "products", "retail", "merchandise", "fashion", "clothing", "ecommerce", "online store", "dropship", "boutique", "accessories"],
-  estore: ["wholesale", "trader", "supermarket", "agriculture", "steel", "industrial", "bulk", "distribution", "hardware", "supplier", "marketplace", "multi-seller", "dealer", "warehouse", "b2b", "distributor"],
-  esite: ["service", "real estate", "agency", "consulting", "tour", "portfolio", "professional", "law", "medical", "booking", "hotel", "hospitality", "travel", "airbnb", "consultant", "advisor", "salon", "spa", "gym", "fitness", "clinic", "dentist", "architect", "photographer", "freelancer", "coach", "ngo", "church"],
-  community: ["community", "course", "training", "mentor", "workshop", "webinar", "event", "membership", "group", "ebook", "coaching", "certification", "academy", "school", "class", "tutorial", "forum"],
-  influencer: ["creator", "streamer", "artist", "musician", "content", "influencer", "youtuber", "tiktoker", "vlogger", "podcast", "blogger", "social media", "brand ambassador", "model"],
+  emenu: ["restaurant", "cafe", "food", "burger", "pizza", "delivery", "menu", "dine", "cuisine", "chicken", "fries", "kitchen", "bakery", "catering", "sushi", "taco", "coffee", "juice", "diner", "grill", "bbq", "dessert", "ice cream"],
+  eshop: ["shop", "store", "sell", "buy", "purchase", "products", "retail", "merchandise", "fashion", "clothing", "beauty", "electronics", "ecommerce", "online store", "dropship", "boutique", "accessories"],
+  estore: ["wholesale", "trader", "supermarket", "grocery", "agriculture", "farm", "steel", "industrial", "bulk", "distribution", "supply", "hardware", "supplier", "marketplace", "multi-seller", "dealer", "warehouse", "b2b", "distributor", "trade", "inventory"],
+  esite: ["service", "services", "real estate", "agency", "consulting", "consultant", "freelance", "freelancer", "tour", "portfolio", "professional", "law", "medical", "booking", "hotel", "hospitality", "travel", "airbnb", "advisor", "salon", "spa", "gym", "clinic", "dentist", "architect", "photographer", "coach", "ngo", "church", "studio"],
+  community: ["community", "course", "training", "mentor", "workshop", "webinar", "membership", "members", "group", "ebook", "coaching", "certification", "academy", "school", "class", "tutorial", "forum", "club", "network", "circle", "collective"],
+  influencer: ["creator", "streamer", "artist", "musician", "content", "influencer", "youtuber", "tiktoker", "vlogger", "podcast", "blogger", "blog", "social media", "youtube", "instagram", "tiktok", "brand ambassador", "model"],
 };
 
 export interface IntentResult {
@@ -74,5 +74,5 @@ export function getMismatchMessage(
   const currentLabel = CATEGORY_CONFIGS[currentCategory]?.label || currentCategory;
   const detectedLabel = CATEGORY_CONFIGS[detectedCategory]?.label || detectedCategory;
 
-  return `It looks like you're describing a **${detectedLabel}** business, but you started in **${currentLabel}**.\n\nWould you like to switch to ${detectedLabel}? This will give you the right tools and features for your business type.`;
+  return `This sounds like a **${detectedLabel}** business, but you're currently in the **${currentLabel}** builder.\n\nFor the best tools and templates, try the **${detectedLabel}** builder instead. Want me to switch you over?`;
 }

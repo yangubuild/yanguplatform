@@ -3,6 +3,7 @@ import { Send, Plus } from "lucide-react";
 import type { ChatMessage } from "./types/builder.types";
 import type { Selection } from "./types/builder.types";
 import type { StepConfig, StepOption, BuilderStep, UserAssets } from "./hooks/useStepController";
+import type { Category } from "./types/builder.types";
 import { MessageBubble } from "./MessageBubble";
 import { BuilderPinnedNotice } from "./BuilderPinnedNotice";
 import { StepRenderer } from "./StepRenderer";
@@ -20,6 +21,7 @@ interface ChatInterfaceProps {
   currentStep: BuilderStep;
   builderMode?: "new" | "edit";
   selections: Selection[];
+  category?: Category | null;
   // Asset upload props
   userAssets?: UserAssets;
   onAssetsChange?: (assets: UserAssets) => void;
@@ -28,6 +30,15 @@ interface ChatInterfaceProps {
   businessName?: string;
   onConfirmAiLogo?: (logoUrl: string, color?: string) => void;
 }
+
+const GREETING_PLACEHOLDERS: Record<Category, string> = {
+  emenu: "e.g. Burger & Co, we serve fresh burgers and fries in Dubai...",
+  eshop: "e.g. Urban Store, we sell premium clothing and accessories online...",
+  esite: "e.g. Design Studio, we offer branding and web design services...",
+  estore: "e.g. Fresh Farms, we supply wholesale produce and bulk groceries...",
+  influencer: "e.g. Lifestyle Creator, I share fashion and beauty content daily...",
+  community: "e.g. Fitness Circle, a community for health and wellness enthusiasts...",
+};
 
 export function ChatInterface({
   messages,
@@ -41,6 +52,7 @@ export function ChatInterface({
   currentStep,
   builderMode = "new",
   selections,
+  category,
   userAssets,
   onAssetsChange,
   onConfirmAssetUpload,
@@ -85,9 +97,9 @@ export function ChatInterface({
   const topPadding = noticeHeight > 0 ? noticeHeight + 28 : 16;
 
   const placeholder = currentStep === "greeting"
-    ? "e.g. EZI FOOD, we sell burgers and fries in Dubai..."
+    ? (category && GREETING_PLACEHOLDERS[category]) || GREETING_PLACEHOLDERS.emenu
     : currentStep === "refinement"
-    ? "e.g. Change the hero image, update the menu layout, make colors darker..."
+    ? "e.g. Change the hero image, update the layout, make colors darker..."
     : currentStep === "business_location"
     ? "e.g. Dubai, UAE..."
     : "Click an option above to continue";
@@ -115,6 +127,7 @@ export function ChatInterface({
               onConfirmMulti={onConfirmMulti}
               multiSelected={multiSelected}
               currentStep={currentStep}
+              category={category}
               userAssets={userAssets}
               onAssetsChange={onAssetsChange}
               onConfirmAssetUpload={onConfirmAssetUpload}

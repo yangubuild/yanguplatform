@@ -641,6 +641,7 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
               currentStep={ctrl.currentStep}
               builderMode={isEditMode ? "edit" : "new"}
               selections={selections}
+              category={ctrl.category}
               userAssets={ctrl.userUploadedAssets}
               onAssetsChange={ctrl.setUserUploadedAssets}
               onConfirmAssetUpload={handleConfirmAssetUpload}

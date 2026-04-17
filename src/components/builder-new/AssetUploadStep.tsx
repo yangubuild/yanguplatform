@@ -1,30 +1,71 @@
 import { useState, useRef, useCallback } from "react";
 import { Upload, Image, Palette, X, Check } from "lucide-react";
 import type { UserAssets } from "./hooks/useStepController";
+import type { Category } from "./types/builder.types";
 
 interface AssetUploadStepProps {
   assets: UserAssets;
   onAssetsChange: (assets: UserAssets) => void;
   onConfirm: () => void;
+  category?: Category | null;
 }
 
-const IMAGE_PURPOSES = [
-  { value: "menu", label: "Menu / Food" },
-  { value: "interior", label: "Restaurant / Interior" },
-  { value: "team", label: "Team / Staff" },
-  { value: "page", label: "Page / Banner" },
-  { value: "other", label: "Other" },
-];
+type Purpose = { value: string; label: string };
+
+const PURPOSES_BY_CATEGORY: Record<Category, Purpose[]> = {
+  emenu: [
+    { value: "menu", label: "Menu / Food" },
+    { value: "interior", label: "Restaurant / Interior" },
+    { value: "team", label: "Team / Staff" },
+    { value: "page", label: "Page / Banner" },
+  ],
+  eshop: [
+    { value: "product", label: "Product Photos" },
+    { value: "lifestyle", label: "Lifestyle / Model Shots" },
+    { value: "brand", label: "Brand / Logo Assets" },
+    { value: "store", label: "Store / Location" },
+  ],
+  esite: [
+    { value: "portfolio", label: "Services / Portfolio" },
+    { value: "team", label: "Team / Staff" },
+    { value: "office", label: "Office / Location" },
+    { value: "client_work", label: "Client Work" },
+  ],
+  estore: [
+    { value: "inventory", label: "Bulk Products / Inventory" },
+    { value: "warehouse", label: "Warehouse / Storage" },
+    { value: "transport", label: "Transport / Logistics" },
+    { value: "supplier", label: "Supplier Images" },
+  ],
+  influencer: [
+    { value: "content", label: "Content / Posts" },
+    { value: "profile", label: "Profile Photos" },
+    { value: "collab", label: "Brand Collaborations" },
+    { value: "media_kit", label: "Media Kit Assets" },
+  ],
+  community: [
+    { value: "members", label: "Member Photos" },
+    { value: "events", label: "Events / Meetups" },
+    { value: "activities", label: "Group Activities" },
+    { value: "brand", label: "Brand / Logo Assets" },
+  ],
+};
+
+const OTHER_PURPOSE: Purpose = { value: "other", label: "Other" };
 
 const PRESET_COLORS = [
   "#EF4444", "#F97316", "#F59E0B", "#10B981", "#06B6D4",
   "#3B82F6", "#8B5CF6", "#EC4899", "#1A1A1A", "#6B7280",
 ];
 
-export function AssetUploadStep({ assets, onAssetsChange, onConfirm }: AssetUploadStepProps) {
+export function AssetUploadStep({ assets, onAssetsChange, onConfirm, category }: AssetUploadStepProps) {
   const logoInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
-  const [selectedPurpose, setSelectedPurpose] = useState("menu");
+  const IMAGE_PURPOSES: Purpose[] = [
+    ...((category && PURPOSES_BY_CATEGORY[category]) || PURPOSES_BY_CATEGORY.emenu),
+    OTHER_PURPOSE,
+  ];
+  const [selectedPurpose, setSelectedPurpose] = useState(IMAGE_PURPOSES[0].value);
 
   const handleLogoUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
