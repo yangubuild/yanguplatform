@@ -1,12 +1,14 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { ChevronLeft, ChevronRight, Plus, Trash2, ImageIcon, Sparkles, Upload, Search, Loader2, X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ChevronLeft, ChevronRight, Plus, Trash2, ImageIcon, Sparkles, Upload, Search, Loader2, X, Palette } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ItemCtaSelector, getDefaultCtaForSurface, resolveButtonTextForCta } from "@/components/builder/editors/ItemCtaSelector";
+import { ColorPopup } from "@/components/builder-new/editor-popups/ColorPopup";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { ProductCardData } from "@/lib/builder/selectionTypes";
