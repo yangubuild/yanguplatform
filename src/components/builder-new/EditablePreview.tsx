@@ -801,7 +801,7 @@ const EDIT_SCRIPT = String.raw`
         if (!imageEl || ((!nameEl || !priceEl) && !(legacy && legacy.titleText && legacy.priceText))) return false;
 
         var rect = el.getBoundingClientRect();
-        return rect.width >= 140 && rect.height >= 140;
+        return rect.width >= 100 && rect.height >= 100;
       }
 
       function getProductPayload(card) {
