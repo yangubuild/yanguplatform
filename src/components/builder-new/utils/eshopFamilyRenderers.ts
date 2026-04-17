@@ -818,3 +818,466 @@ ${blogsHTML}
 ${footerHTML}
 </body></html>`;
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// KANVA — Natural skincare / single-brand beauty store
+// Reference: https://kanva-template.framer.website
+// Structure: minimal nav (Shop / Collections / About / Blog / Contact) with center wordmark
+//            → fullscreen serif-italic hero (Natural Skincare) over portrait image
+//            → 4-up feature highlights (Natural Formula / Cruelty-Free / Expert Approved / Free Shipping)
+//            → playful headline row "Refresh your skin, love yourself, renew your glow." with inline ingredient images
+//            → cleansers tab strip + 3-up product cards with % OFF chip + price
+//            → "Eco-Friendly, Skin-Friendly" 2-up split (text + bottle image)
+//            → "Why Your Skin Deserves the Best" rating + 2x2 feature cards (Proven Effectiveness / Eco-Friendly Packaging / 100% Natural / testimonial)
+//            → 2-up product (Daily Flow / Glow Milk) with discount chip
+//            → newsletter band + Instagram 4-up grid
+// ═══════════════════════════════════════════════════════════════════
+
+interface KanvaTheme {
+  pageBg: string;
+  pageText: string;
+  mutedText: string;
+  accent: string;
+  accentText: string;
+  cardBg: string;
+  surfaceBg: string;
+  border: string;
+  fontHeading: string;
+  fontBody: string;
+  /** "cream" = default beige skincare, "sage" = green natural, "blush" = pink soft luxury */
+  mood: "cream" | "sage" | "blush";
+}
+
+const KANVA_VARIANTS: KanvaTheme[] = [
+  // Variant 0 — Cream (signature Kanva: warm beige + cream + soft brown)
+  {
+    pageBg: "#E8E1D5",
+    surfaceBg: "#F2EDE3",
+    pageText: "#2A241C",
+    mutedText: "#6B6155",
+    accent: "#3F3528",
+    accentText: "#F2EDE3",
+    cardBg: "#F7F2E9",
+    border: "#D8CFBE",
+    fontHeading: "'Playfair Display', serif",
+    fontBody: "'Inter', sans-serif",
+    mood: "cream",
+  },
+  // Variant 1 — Sage (eco-natural green palette)
+  {
+    pageBg: "#E5E8DD",
+    surfaceBg: "#EFF1E7",
+    pageText: "#1F2A1B",
+    mutedText: "#5D6A55",
+    accent: "#3C5234",
+    accentText: "#EFF1E7",
+    cardBg: "#F4F6EE",
+    border: "#CFD6BF",
+    fontHeading: "'Playfair Display', serif",
+    fontBody: "'Inter', sans-serif",
+    mood: "sage",
+  },
+  // Variant 2 — Blush (soft pink luxury)
+  {
+    pageBg: "#F1E4DE",
+    surfaceBg: "#F8EDE7",
+    pageText: "#2C1F1B",
+    mutedText: "#7A5A52",
+    accent: "#8A4A3A",
+    accentText: "#F8EDE7",
+    cardBg: "#FBF3EF",
+    border: "#E5CFC5",
+    fontHeading: "'Playfair Display', serif",
+    fontBody: "'Inter', sans-serif",
+    mood: "blush",
+  },
+];
+
+export function renderKanva(ctx: EshopRenderContext): string {
+  const { config, preset, variantIndex } = ctx;
+  const s = preset.patches;
+  const heroS = (s.hero?.schema || {}) as Record<string, any>;
+  const headerS = (s.header?.schema || {}) as Record<string, any>;
+  const mainS = (s.main_content?.schema || {}) as Record<string, any>;
+  const offerS = (s.offer?.schema || {}) as Record<string, any>;
+  const footerS = (s.footer?.schema || {}) as Record<string, any>;
+
+  const t = { ...KANVA_VARIANTS[variantIndex] || KANVA_VARIANTS[0] };
+  if (config.userBrandColors?.[0]) {
+    t.accent = config.userBrandColors[0];
+  }
+
+  const name = config.businessName || "kanva";
+  const navItems = (headerS.nav_items as string[]) || ["Shop", "Collections", "About", "Blog", "Contact"];
+  const headlineLead = (heroS.headline as string) || "Natural";
+  const headlineTail = (heroS.headline_tail as string) || "Skincare";
+  const heroSub = (heroS.subheadline as string) || "Start your day with gentle care and nourishing ingredients designed to awaken your skin naturally.";
+  const ctaText = (heroS.cta_text as string) || "Shop Now";
+  const heroImg = getEshopImage(config, "hero", variantIndex);
+
+  // Features
+  const features = (mainS.features as any[]) || [
+    { title: "Natural Formula", body: "Crafted with pure, skin-loving ingredients for ultimate care." },
+    { title: "Cruelty-Free", body: "Our products are never tested on animals, guaranteed ethical." },
+    { title: "Expert Approved", body: "Carefully tested to ensure safety and visible results." },
+    { title: "Free Shipping", body: "Delivered to your doorstep with no extra costs worldwide." },
+  ];
+
+  // Headline marquee row words
+  const ritualLead = (offerS.ritual_lead as string) || "Refresh your skin,";
+  const ritualMid = (offerS.ritual_mid as string) || "love yourself,";
+  const ritualTail = (offerS.ritual_tail as string) || "renew your glow.";
+
+  // Product tabs + cleansers
+  const productTabs = (mainS.tabs as string[]) || ["Cleansers", "Lotions", "Moisturizers"];
+  const fallbackProducts = [
+    { title: "Gentle Wash", category: "Cleansers", price: "7,90 €", original_price: "18,90 €", badge: "58% OFF" },
+    { title: "Clay Clean", category: "Cleansers", price: "8,90 €", badge: "" },
+    { title: "Citrus Foam", category: "Cleansers", price: "8,90 €", badge: "" },
+  ];
+  const items = ((mainS.items as any[])?.length ? (mainS.items as any[]) : fallbackProducts);
+
+  // Eco-Friendly section bullet points
+  const ecoBullets = (offerS.eco_bullets as string[]) || ["No Harsh Chemicals", "Plant-Based Goodness", "Ethically Sourced"];
+
+  // "Why Your Skin Deserves the Best" — 2x2 cards
+  const whyHeading = (offerS.why_heading as string) || "Why Your Skin";
+  const whyHeadingTail = (offerS.why_heading_tail as string) || "Deserves the Best";
+  const whyRating = (offerS.why_rating as string) || "4.7";
+  const whyReviewCount = (offerS.why_review_count as string) || "1,109 reviews";
+  const whyCards = (offerS.why_cards as any[]) || [
+    { eyebrow: "Proven Effectiveness", body: "Every product is carefully crafted to meet the highest quality standards." },
+    { eyebrow: "Eco-Friendly Packaging", body: "Eco-friendly materials designed to care for the planet as much as your skin." },
+    { eyebrow: "100% Natural · 100% You", body: "No Harsh Chemicals · Plant-Based Goodness · Ethically Sourced", isBullets: true },
+    { eyebrow: "From Jennifer K.", body: "It feels healthier, smoother & more radiant than ever. I love knowing I'm using something natural and effective!", isQuote: true },
+  ];
+
+  // Featured 2-up products at bottom
+  const featuredPair = (offerS.featured_pair as any[]) || [
+    { title: "Daily Flow", category: "Lotions", price: "7,90 €", badge: "66% OFF" },
+    { title: "Glow Milk", category: "Lotions", price: "9,90 €", badge: "57% OFF" },
+  ];
+
+  // Instagram
+  const igHandle = (footerS.ig_handle as string) || `@${name.toLowerCase().replace(/\s+/g, "")}`;
+
+  // ─── Logo: parenthesized wordmark like "(kanva)" ───
+  const logoHTML = config.userLogoUrl
+    ? `<img src="${config.userLogoUrl}" alt="${name}" style="height:24px;width:auto;"/>`
+    : `<span style="font-family:${t.fontHeading};font-style:italic;font-weight:500;font-size:22px;color:${t.pageText};letter-spacing:-0.01em;">(${name.toLowerCase()})</span>`;
+
+  // ─── Sticky pill nav ───
+  const navHTML = `
+  <nav style="position:sticky;top:16px;z-index:80;margin:16px 24px 0;padding:14px 24px;background:${t.surfaceBg}f5;backdrop-filter:blur(10px);border:1px solid ${t.border};border-radius:6px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;">
+    <div class="aema-nav-links" style="justify-self:start;display:flex;gap:24px;align-items:center;">
+      ${navItems
+        .slice(0, 3)
+        .map((n) => `<a href="${navHref(n)}" style="font-size:13px;font-weight:500;color:${t.pageText};">${n}</a>`)
+        .join("")}
+    </div>
+    <div style="justify-self:center;">${logoHTML}</div>
+    <div class="aema-nav-links" style="justify-self:end;display:flex;gap:18px;align-items:center;font-size:13px;color:${t.pageText};">
+      ${navItems
+        .slice(3)
+        .map((n) => `<a href="${navHref(n)}" style="font-weight:500;color:${t.pageText};">${n}</a>`)
+        .join("")}
+      <a href="#products" aria-label="Search" style="opacity:0.85;">⌕</a>
+      <a href="#cart" aria-label="Cart" style="opacity:0.85;">⛬ 0</a>
+    </div>
+  </nav>`;
+
+  // ─── Hero: portrait image with serif-italic two-line headline overlay ───
+  const heroHTML = `
+  <section id="hero" style="position:relative;margin:16px 24px 0;border-radius:6px;overflow:hidden;min-height:78vh;display:flex;align-items:flex-end;background:${t.surfaceBg};">
+    <img src="${heroImg}" alt="${headlineLead} ${headlineTail}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"/>
+    <div style="position:relative;z-index:2;width:100%;padding:60px 56px;color:${t.surfaceBg};background:linear-gradient(to top, ${t.pageText}80, transparent 60%);">
+      <h1 style="font-family:${t.fontHeading};font-weight:400;line-height:0.95;letter-spacing:-0.02em;margin-bottom:24px;">
+        <span style="display:block;font-size:clamp(3rem,9vw,7rem);font-style:normal;">${headlineLead}</span>
+        <span style="display:block;font-size:clamp(3rem,9vw,7rem);font-style:italic;opacity:0.92;margin-left:clamp(20px,6vw,80px);">${headlineTail}</span>
+      </h1>
+      <p style="font-size:0.95rem;line-height:1.55;max-width:420px;margin-bottom:24px;opacity:0.92;">${heroSub}</p>
+      <a href="#products" style="display:inline-block;font-size:13px;font-weight:500;letter-spacing:0.04em;color:${t.surfaceBg};border-bottom:1px solid ${t.surfaceBg};padding-bottom:4px;">${ctaText}</a>
+    </div>
+  </section>`;
+
+  // ─── 4-up feature highlights ───
+  const featuresHTML = `
+  <section style="padding:72px 32px 32px;background:${t.pageBg};">
+    <div class="yangu-content-container">
+      <div data-grid="4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:32px;">
+        ${features
+          .slice(0, 4)
+          .map(
+            (f: any, i: number) => `
+          <div style="text-align:left;padding-right:12px;${i < 3 ? `border-right:1px solid ${t.border};` : ""}">
+            <div style="width:32px;height:32px;border-radius:50%;background:${t.accent};color:${t.accentText};display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:14px;">✦</div>
+            <h4 style="font-family:${t.fontHeading};font-size:1.1rem;font-weight:500;color:${t.pageText};margin-bottom:6px;">${f.title}</h4>
+            <p style="font-size:13px;color:${t.mutedText};line-height:1.55;">${f.body}</p>
+          </div>`,
+          )
+          .join("")}
+      </div>
+    </div>
+  </section>`;
+
+  // ─── Playful headline row with inline ingredient images ───
+  const ritualHTML = `
+  <section style="padding:64px 32px;background:${t.pageBg};text-align:center;">
+    <div class="yangu-content-container">
+      <h2 style="font-family:${t.fontHeading};font-style:italic;font-weight:400;font-size:clamp(2rem,5.5vw,4rem);line-height:1.05;letter-spacing:-0.02em;color:${t.pageText};">
+        ${ritualLead}
+        <span style="display:inline-block;width:clamp(48px,7vw,90px);height:clamp(48px,7vw,90px);border-radius:50%;overflow:hidden;vertical-align:middle;margin:0 8px;">
+          <img src="${getEshopImage(config, "product", 1)}" alt="" style="width:100%;height:100%;object-fit:cover;"/>
+        </span>
+        ${ritualMid}
+        <span style="display:inline-block;width:clamp(48px,7vw,90px);height:clamp(48px,7vw,90px);border-radius:50%;overflow:hidden;vertical-align:middle;margin:0 8px;">
+          <img src="${getEshopImage(config, "product", 2)}" alt="" style="width:100%;height:100%;object-fit:cover;"/>
+        </span>
+        ${ritualTail}
+      </h2>
+    </div>
+  </section>`;
+
+  // ─── Cleansers tab strip + 3-up product cards ───
+  const productCard = (item: any, idx: number): string => {
+    const imgA = getEshopImage(config, "product", idx + 3);
+    const imgB = getEshopImage(config, "product", idx + 6);
+    return `
+    <a href="#" class="aema-card" style="display:block;background:${t.cardBg};border:1px solid ${t.border};border-radius:6px;overflow:hidden;color:${t.pageText};">
+      <div style="position:relative;aspect-ratio:1/1;background:${t.surfaceBg};">
+        <img src="${imgA}" alt="${item.title}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"/>
+        <img class="aema-card-img-alt" src="${imgB}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:0;"/>
+        ${item.badge ? `<span style="position:absolute;top:12px;left:12px;background:${t.pageText};color:${t.surfaceBg};font-size:10px;font-weight:600;letter-spacing:0.08em;padding:5px 10px;border-radius:3px;">${item.badge}</span>` : ""}
+      </div>
+      <div style="padding:18px;">
+        ${item.category ? `<div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:${t.mutedText};margin-bottom:6px;">${item.category}</div>` : ""}
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;">
+          <span style="font-family:${t.fontHeading};font-size:18px;font-weight:500;color:${t.pageText};">${item.title}</span>
+          <span style="font-size:14px;font-weight:600;color:${t.pageText};">
+            ${item.price}
+            ${item.original_price ? `<span style="display:block;font-size:11px;color:${t.mutedText};text-decoration:line-through;font-weight:400;text-align:right;">${item.original_price}</span>` : ""}
+          </span>
+        </div>
+      </div>
+    </a>`;
+  };
+
+  const productsHTML = `
+  <section id="products" style="padding:24px 32px 80px;background:${t.pageBg};">
+    <div class="yangu-content-container">
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:32px;background:${t.surfaceBg};border:1px solid ${t.border};padding:6px;border-radius:6px;width:fit-content;margin-left:auto;margin-right:auto;">
+        ${productTabs
+          .map(
+            (tab, i) => `
+          <button style="background:${i === 0 ? t.pageText : "transparent"};color:${i === 0 ? t.surfaceBg : t.pageText};border:none;cursor:pointer;font-size:13px;font-weight:500;padding:8px 18px;border-radius:4px;font-family:${t.fontBody};">${tab}</button>`,
+          )
+          .join("")}
+      </div>
+      <div data-grid="3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:32px;">
+        ${items.slice(0, 3).map((p: any, i: number) => productCard(p, i)).join("")}
+      </div>
+      <div style="text-align:center;">
+        <a href="#" style="display:inline-block;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;font-weight:600;color:${t.pageText};border-bottom:1px solid ${t.pageText};padding-bottom:4px;">Shop ${productTabs[0] || "Cleansers"}</a>
+      </div>
+    </div>
+  </section>`;
+
+  // ─── Eco-Friendly, Skin-Friendly split ───
+  const ecoHTML = `
+  <section style="padding:32px;background:${t.pageBg};">
+    <div class="yangu-content-container" data-grid="2" style="display:grid;grid-template-columns:1.05fr 1fr;gap:24px;align-items:stretch;">
+      <div style="background:${t.accent};color:${t.accentText};border-radius:8px;padding:56px 48px;display:flex;flex-direction:column;justify-content:space-between;">
+        <h2 style="font-family:${t.fontHeading};font-weight:400;font-size:clamp(2rem,4.4vw,3.4rem);line-height:1.0;letter-spacing:-0.02em;">
+          <span style="display:block;">Eco-Friendly,</span>
+          <span style="display:block;font-style:italic;opacity:0.9;">Skin-Friendly</span>
+        </h2>
+        <div style="margin-top:32px;">
+          <p style="font-size:14px;line-height:1.6;opacity:0.85;margin-bottom:24px;max-width:420px;">100% natural means every ingredient is carefully selected from nature to provide safe, effective, and gentle care for your skin.</p>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;">
+            ${ecoBullets
+              .map(
+                (b) =>
+                  `<li style="display:flex;align-items:center;gap:10px;font-size:13px;letter-spacing:0.04em;"><span style="width:18px;height:1px;background:${t.accentText};opacity:0.6;"></span>${b}</li>`,
+              )
+              .join("")}
+          </ul>
+        </div>
+      </div>
+      <div style="border-radius:8px;overflow:hidden;background:${t.surfaceBg};">
+        <img src="${getEshopImage(config, "collection", 0)}" alt="Eco friendly" style="width:100%;height:100%;object-fit:cover;min-height:380px;"/>
+      </div>
+    </div>
+  </section>`;
+
+  // ─── Why Your Skin Deserves the Best ───
+  const whyHTML = `
+  <section style="padding:80px 32px;background:${t.pageBg};">
+    <div class="yangu-content-container">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px;margin-bottom:36px;">
+        <h2 style="font-family:${t.fontHeading};font-weight:400;font-size:clamp(2rem,4.4vw,3.4rem);line-height:1.0;letter-spacing:-0.02em;color:${t.pageText};max-width:680px;">
+          <span style="display:block;">${whyHeading}</span>
+          <span style="display:block;font-style:italic;">${whyHeadingTail}</span>
+        </h2>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="display:flex;">
+            ${[0, 1, 2]
+              .map(
+                (i) =>
+                  `<div style="width:36px;height:36px;border-radius:50%;overflow:hidden;border:2px solid ${t.pageBg};margin-left:${i === 0 ? "0" : "-10px"};background:${t.surfaceBg};"><img src="${getEshopImage(config, "product", i + 5)}" alt="" style="width:100%;height:100%;object-fit:cover;"/></div>`,
+              )
+              .join("")}
+          </div>
+          <div style="font-size:13px;color:${t.pageText};line-height:1.3;">
+            <div style="font-weight:600;">${whyRating} <span style="color:${t.accent};">★★★★★</span></div>
+            <div style="color:${t.mutedText};font-size:12px;">(${whyReviewCount})</div>
+          </div>
+        </div>
+      </div>
+      <div data-grid="2" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+        ${whyCards
+          .slice(0, 4)
+          .map((c: any, i: number) => {
+            const isImage = i === 0 || i === 2;
+            const bgImg = i === 0 ? getEshopImage(config, "hero", 2) : i === 2 ? getEshopImage(config, "collection", 1) : null;
+            if (bgImg) {
+              return `
+              <div style="position:relative;border-radius:8px;overflow:hidden;aspect-ratio:5/4;background:${t.surfaceBg};">
+                <img src="${bgImg}" alt="${c.eyebrow}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"/>
+                <div style="position:absolute;inset:0;background:linear-gradient(to top, ${t.pageText}b3, transparent 55%);"></div>
+                <div style="position:absolute;left:0;right:0;bottom:0;padding:28px;color:${t.surfaceBg};">
+                  <h4 style="font-family:${t.fontHeading};font-size:1.4rem;font-weight:500;margin-bottom:6px;line-height:1.1;"><span style="display:block;">${c.eyebrow.split("·")[0]?.trim()}</span>${c.eyebrow.includes("·") ? `<span style="display:block;font-style:italic;opacity:0.92;">${c.eyebrow.split("·")[1].trim()}</span>` : ""}</h4>
+                  <p style="font-size:13px;line-height:1.55;opacity:0.9;max-width:340px;">${c.body}</p>
+                </div>
+              </div>`;
+            }
+            if (c.isQuote) {
+              return `
+              <div style="background:${t.cardBg};border:1px solid ${t.border};border-radius:8px;padding:32px;display:flex;flex-direction:column;justify-content:space-between;aspect-ratio:5/4;">
+                <p style="font-family:${t.fontHeading};font-size:1.25rem;font-weight:400;line-height:1.35;color:${t.pageText};font-style:italic;">"${c.body}"</p>
+                <div style="display:flex;align-items:center;gap:12px;margin-top:20px;">
+                  <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;background:${t.surfaceBg};"><img src="${getEshopImage(config, "product", 7)}" alt="" style="width:100%;height:100%;object-fit:cover;"/></div>
+                  <div>
+                    <div style="font-size:13px;font-weight:600;color:${t.pageText};">${c.eyebrow.replace(/^From\s+/i, "")}</div>
+                    <div style="font-size:12px;color:${t.mutedText};">Verified Buyer</div>
+                  </div>
+                </div>
+              </div>`;
+            }
+            // bullet card
+            return `
+            <div style="background:${t.cardBg};border:1px solid ${t.border};border-radius:8px;padding:32px;display:flex;flex-direction:column;justify-content:center;aspect-ratio:5/4;">
+              <h4 style="font-family:${t.fontHeading};font-size:1.4rem;font-weight:500;color:${t.pageText};margin-bottom:18px;line-height:1.1;"><span style="display:block;">${c.eyebrow.split("·")[0]?.trim()}</span>${c.eyebrow.includes("·") ? `<span style="display:block;font-style:italic;">${c.eyebrow.split("·")[1].trim()}</span>` : ""}</h4>
+              <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;">
+                ${c.body.split("·").map((b: string) => `<li style="display:flex;align-items:center;gap:10px;font-size:13px;color:${t.pageText};"><span style="width:18px;height:1px;background:${t.pageText};opacity:0.4;"></span>${b.trim()}</li>`).join("")}
+              </ul>
+            </div>`;
+          })
+          .join("")}
+      </div>
+    </div>
+  </section>`;
+
+  // ─── Featured 2-up product pair ───
+  const featuredPairHTML = `
+  <section style="padding:24px 32px 64px;background:${t.pageBg};">
+    <div class="yangu-content-container" data-grid="2" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+      ${featuredPair
+        .slice(0, 2)
+        .map(
+          (p: any, i: number) => `
+        <a href="#" style="display:block;background:${t.cardBg};border:1px solid ${t.border};border-radius:8px;overflow:hidden;color:${t.pageText};">
+          <div style="position:relative;aspect-ratio:4/3;background:${t.surfaceBg};">
+            <img src="${getEshopImage(config, "product", i)}" alt="${p.title}" style="width:100%;height:100%;object-fit:cover;"/>
+            ${p.badge ? `<span style="position:absolute;top:14px;left:14px;background:${t.pageText};color:${t.surfaceBg};font-size:10px;font-weight:600;letter-spacing:0.08em;padding:5px 10px;border-radius:3px;">${p.badge}</span>` : ""}
+          </div>
+          <div style="padding:20px 22px;display:flex;justify-content:space-between;align-items:baseline;">
+            <div>
+              ${p.category ? `<div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:${t.mutedText};margin-bottom:6px;">${p.category}</div>` : ""}
+              <span style="font-family:${t.fontHeading};font-size:20px;font-weight:500;color:${t.pageText};">${p.title}</span>
+            </div>
+            <span style="font-size:15px;font-weight:600;color:${t.pageText};">${p.price}</span>
+          </div>
+        </a>`,
+        )
+        .join("")}
+    </div>
+  </section>`;
+
+  // ─── Newsletter band ───
+  const newsletterHTML = `
+  <section id="newsletter" style="padding:64px 32px;background:${t.pageBg};text-align:center;border-top:1px solid ${t.border};">
+    <div class="yangu-content-container">
+      <h2 style="font-family:${t.fontHeading};font-weight:400;font-size:clamp(2rem,4.4vw,3rem);line-height:1.05;letter-spacing:-0.02em;color:${t.pageText};margin-bottom:8px;">
+        <span style="display:block;">Stay Updated,</span>
+        <span style="display:block;font-style:italic;">Stay Radiant</span>
+      </h2>
+      <p style="font-size:14px;color:${t.mutedText};margin-bottom:28px;">Be the first to know about new products, offers, and skincare tips.</p>
+      <form style="display:flex;gap:8px;max-width:440px;margin:0 auto;flex-wrap:wrap;justify-content:center;" onsubmit="event.preventDefault();">
+        <input type="email" placeholder="Email" style="flex:1;min-width:220px;background:${t.surfaceBg};border:1px solid ${t.border};color:${t.pageText};padding:12px 16px;font-size:14px;border-radius:4px;outline:none;font-family:${t.fontBody};"/>
+        <button type="submit" style="background:${t.accent};color:${t.accentText};border:none;cursor:pointer;padding:12px 24px;font-size:14px;font-weight:600;border-radius:4px;font-family:${t.fontBody};">Subscribe</button>
+      </form>
+    </div>
+  </section>`;
+
+  // ─── Instagram 4-up ───
+  const igHTML = `
+  <section style="padding:64px 32px;background:${t.pageBg};">
+    <div class="yangu-content-container" style="text-align:center;">
+      <h3 style="font-family:${t.fontHeading};font-weight:400;font-size:clamp(1.6rem,3.2vw,2.4rem);color:${t.pageText};margin-bottom:8px;"><span style="font-style:italic;">Follow On</span> Instagram</h3>
+      <p style="font-size:13px;color:${t.mutedText};margin-bottom:28px;">${igHandle}</p>
+      <div data-grid="4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+        ${[0, 1, 2, 3]
+          .map(
+            (i) => `
+          <a href="#" style="display:block;position:relative;aspect-ratio:1/1;overflow:hidden;border-radius:6px;background:${t.surfaceBg};">
+            <img src="${getEshopImage(config, "product", i + 2)}" alt="" style="width:100%;height:100%;object-fit:cover;"/>
+          </a>`,
+          )
+          .join("")}
+      </div>
+    </div>
+  </section>`;
+
+  // ─── Footer ───
+  const footerCols = (footerS.columns as any[]) || [
+    { title: "Shop", links: ["All Products", "Cleansers", "Lotions", "Moisturizers"] },
+    { title: "Company", links: ["About", "Blog", "Contact"] },
+    { title: "Help", links: ["Shipping", "Returns", "FAQ"] },
+  ];
+  const footerHTML = `
+  <footer id="footer" style="padding:64px 32px 28px;background:${t.surfaceBg};color:${t.pageText};border-top:1px solid ${t.border};">
+    <div class="yangu-content-container" data-grid="2" style="display:grid;grid-template-columns:1.2fr 2fr;gap:48px;align-items:start;margin-bottom:48px;">
+      <div>
+        <div style="font-family:${t.fontHeading};font-style:italic;font-weight:500;font-size:28px;color:${t.pageText};margin-bottom:12px;">(${name.toLowerCase()})</div>
+        <p style="font-size:13px;color:${t.mutedText};line-height:1.6;max-width:320px;">${footerS.tagline || heroSub}</p>
+      </div>
+      <div data-grid="3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
+        ${footerCols
+          .map(
+            (col: any) => `
+          <div>
+            <h4 style="font-size:11px;letter-spacing:0.16em;text-transform:uppercase;font-weight:600;color:${t.pageText};margin-bottom:14px;">${col.title}</h4>
+            ${(col.links as string[]).map((l: string) => `<p style="font-size:13px;color:${t.mutedText};margin-bottom:8px;">${l}</p>`).join("")}
+          </div>`,
+          )
+          .join("")}
+      </div>
+    </div>
+    <p style="text-align:center;font-size:11px;color:${t.mutedText};letter-spacing:0.06em;border-top:1px solid ${t.border};padding-top:24px;">${footerS.copyright || `© ${new Date().getFullYear()} ${name} — All rights reserved.`}</p>
+  </footer>`;
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>${name}</title>
+<style>${eshopBaseStyles(t.pageBg, t.pageText, t.accent)}</style></head><body>
+${navHTML}
+${heroHTML}
+${featuresHTML}
+${ritualHTML}
+${productsHTML}
+${ecoHTML}
+${whyHTML}
+${featuredPairHTML}
+${newsletterHTML}
+${igHTML}
+${footerHTML}
+</body></html>`;
+}
