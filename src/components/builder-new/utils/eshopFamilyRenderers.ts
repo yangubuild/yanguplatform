@@ -1366,8 +1366,11 @@ export function renderMinna(ctx: EshopRenderContext): string {
 
   const name = config.businessName || "MINNA";
   const wordmark = name.toUpperCase();
+  const logoHTML = config.userLogoUrl
+    ? `<img src="${config.userLogoUrl}" alt="${name}" style="height:32px;width:auto;object-fit:contain;display:block;"/>`
+    : `<span style="font-family:${t.fontHeading};font-size:24px;letter-spacing:0.32em;font-weight:500;color:${t.pageText};white-space:nowrap;">${wordmark}</span>`;
   const navLeft = (headerS.nav_left as string[]) || ["Women", "Men"];
-  const heroImg = config.userLogoUrl ? getEshopImage(config, "hero", variantIndex) : getEshopImage(config, "hero", variantIndex);
+  const heroImg = getEshopImage(config, "hero", variantIndex);
   const marqueeWords = (heroS.marquee_words as string[]) || ["%20 DISCOUNT", "NEW SEASON", "%20 DISCOUNT", "NEW SEASON", "%20 DISCOUNT", "NEW SEASON"];
 
   // Products
