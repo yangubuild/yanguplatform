@@ -421,8 +421,14 @@ export function useStepController() {
     brandColors: [],
     images: [],
   });
+  const [eshopConfig, setEshopConfig] = useState<EshopConfig>({
+    shopType: null,
+    businessMode: null,
+    attributes: { ...DEFAULT_ATTRIBUTES },
+  });
 
   const isFoodCategory = useMemo(() => category === "emenu", [category]);
+  const isShopCategory = useMemo(() => category === "eshop", [category]);
 
   // Classify emenu on greeting
   const classifyOnGreeting = useCallback((text: string, detectedCategory: Category) => {
@@ -437,8 +443,14 @@ export function useStepController() {
 
   const getNextStep = useCallback((step: BuilderStep): BuilderStep => {
     switch (step) {
-      case "greeting": return isFoodCategory ? "business_type" : "scope";
+      case "greeting":
+        if (isFoodCategory) return "business_type";
+        if (isShopCategory) return "shop_type";
+        return "scope";
       case "business_type": return "scope";
+      case "shop_type": return "business_mode";
+      case "business_mode": return "attributes";
+      case "attributes": return "scope";
       case "scope": return "assets";
       case "assets":
         if (selectedAssets === "ai_generated") return "ai_logo";
