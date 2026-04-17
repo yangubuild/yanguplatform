@@ -9,6 +9,9 @@ import type { MenuComplexity } from "@/lib/builder/emenu/types";
 export type BuilderStep =
   | "greeting"
   | "business_type"
+  | "shop_type"
+  | "business_mode"
+  | "attributes"
   | "scope"
   | "assets"
   | "asset_upload"
@@ -20,6 +23,90 @@ export type BuilderStep =
   | "confirmation"
   | "generation"
   | "refinement";
+
+// ─── eShop config types ──────────────────────────────────────────────
+
+export type ShopType = "clothing" | "electronics" | "beauty" | "food" | "merch" | "single";
+export type BusinessMode = "ordering" | "showcase";
+
+export interface ShopAttributes {
+  size: boolean;
+  color: boolean;
+  volume: boolean;
+  weight: boolean;
+  variant: boolean;
+}
+
+export interface EshopConfig {
+  shopType: ShopType | null;
+  businessMode: BusinessMode | null;
+  attributes: ShopAttributes;
+}
+
+const DEFAULT_ATTRIBUTES: ShopAttributes = {
+  size: false,
+  color: false,
+  volume: false,
+  weight: false,
+  variant: false,
+};
+
+const SHOP_TYPE_ATTRIBUTE_MAP: Record<ShopType, Partial<ShopAttributes>> = {
+  clothing: { size: true, color: true },
+  electronics: { variant: true },
+  beauty: { volume: true, variant: true },
+  food: { weight: true },
+  merch: { variant: true },
+  single: { variant: true },
+};
+
+const SHOP_TYPE_OPTIONS: StepOption[] = [
+  { id: "clothing", label: "Clothing & Fashion", value: "clothing", icon: "👕", description: "Apparel, footwear, accessories" },
+  { id: "electronics", label: "Electronics & Devices", value: "electronics", icon: "💻", description: "Phones, gadgets, accessories" },
+  { id: "beauty", label: "Beauty & Bottled Products", value: "beauty", icon: "🧴", description: "Skincare, perfumes, cosmetics" },
+  { id: "food", label: "Food / Spices / Bulk Goods", value: "food", icon: "🥗", description: "Sold by weight or quantity" },
+  { id: "merch", label: "Merchandise / Mixed Products", value: "merch", icon: "🎁", description: "General mixed inventory" },
+  { id: "single", label: "Single Product Store", value: "single", icon: "🧩", description: "One hero product" },
+];
+
+const BUSINESS_MODE_OPTIONS: StepOption[] = [
+  { id: "ordering", label: "Sell Online", value: "ordering", icon: "🛒", description: "Accept orders & checkout" },
+  { id: "showcase", label: "Showcase Only", value: "showcase", icon: "🔗", description: "Display products, no checkout" },
+];
+
+interface AttributeOption {
+  key: keyof ShopAttributes;
+  label: string;
+  description: string;
+}
+
+const ATTRIBUTE_OPTIONS_BY_TYPE: Record<ShopType, AttributeOption[]> = {
+  clothing: [
+    { key: "size", label: "Sizes", description: "S, M, L, XL, etc." },
+    { key: "color", label: "Colors", description: "Color variants per item" },
+    { key: "variant", label: "Other Variants", description: "Material, fit, style" },
+  ],
+  electronics: [
+    { key: "variant", label: "Variants", description: "Storage, model, edition" },
+    { key: "color", label: "Colors", description: "Color options" },
+  ],
+  beauty: [
+    { key: "volume", label: "Volume", description: "ml / L sizes" },
+    { key: "variant", label: "Variants", description: "Scent, type, formula" },
+  ],
+  food: [
+    { key: "weight", label: "Weight", description: "g / kg portions" },
+    { key: "variant", label: "Variants", description: "Flavor, type" },
+  ],
+  merch: [
+    { key: "variant", label: "Variants", description: "Generic options" },
+    { key: "size", label: "Sizes", description: "If applicable" },
+    { key: "color", label: "Colors", description: "If applicable" },
+  ],
+  single: [
+    { key: "variant", label: "Variants", description: "Editions or options" },
+  ],
+};
 
 export interface StepOption {
   id: string;
@@ -334,8 +421,14 @@ export function useStepController() {
     brandColors: [],
     images: [],
   });
+  const [eshopConfig, setEshopConfig] = useState<EshopConfig>({
+    shopType: null,
+    businessMode: null,
+    attributes: { ...DEFAULT_ATTRIBUTES },
+  });
 
   const isFoodCategory = useMemo(() => category === "emenu", [category]);
+  const isShopCategory = useMemo(() => category === "eshop", [category]);
 
   // Classify emenu on greeting
   const classifyOnGreeting = useCallback((text: string, detectedCategory: Category) => {
@@ -350,8 +443,14 @@ export function useStepController() {
 
   const getNextStep = useCallback((step: BuilderStep): BuilderStep => {
     switch (step) {
-      case "greeting": return isFoodCategory ? "business_type" : "scope";
+      case "greeting":
+        if (isFoodCategory) return "business_type";
+        if (isShopCategory) return "shop_type";
+        return "scope";
       case "business_type": return "scope";
+      case "shop_type": return "business_mode";
+      case "business_mode": return "attributes";
+      case "attributes": return "scope";
       case "scope": return "assets";
       case "assets":
         if (selectedAssets === "ai_generated") return "ai_logo";
@@ -384,6 +483,37 @@ export function useStepController() {
           options: EMENU_BUSINESS_TYPE_OPTIONS,
           renderAs: "cards",
         };
+      case "shop_type":
+        return {
+          key: "shop_type",
+          adaMessage: `Great, **${businessName}**! What type of shop are you creating?`,
+          options: SHOP_TYPE_OPTIONS,
+          renderAs: "cards",
+        };
+      case "business_mode":
+        return {
+          key: "business_mode",
+          adaMessage: "How do you want to use your shop?",
+          options: BUSINESS_MODE_OPTIONS,
+          renderAs: "cards",
+        };
+      case "attributes": {
+        const attrOpts = eshopConfig.shopType
+          ? ATTRIBUTE_OPTIONS_BY_TYPE[eshopConfig.shopType]
+          : [];
+        return {
+          key: "attributes",
+          adaMessage: "Customize how your products are sold. Toggle what applies, then tap **Done**.",
+          options: attrOpts.map(a => ({
+            id: a.key,
+            label: a.label,
+            value: a.key,
+            description: a.description,
+          })),
+          multiSelect: true,
+          renderAs: "chips",
+        };
+      }
       case "scope":
         return {
           key: "scope",
@@ -493,7 +623,7 @@ export function useStepController() {
       default:
         return { key: "greeting", adaMessage: "", options: [] };
     }
-  }, [currentStep, category, isFoodCategory, businessLocation, menuClassification, selectedAssets]);
+  }, [currentStep, category, isFoodCategory, businessLocation, menuClassification, selectedAssets, businessName, selectedScope, eshopConfig.shopType]);
 
   const buildConfirmationMessage = useCallback(() => {
     const lines = ["Here's your summary:\n"];
@@ -517,9 +647,10 @@ export function useStepController() {
     setCategory(detected);
     setBusinessName(name);
     setUserIdea(text);
-    // For emenu, go to business_type step instead of scope
     if (detected === "emenu") {
       setCurrentStep("business_type");
+    } else if (detected === "eshop") {
+      setCurrentStep("shop_type");
     } else {
       setCurrentStep("scope");
     }
@@ -530,6 +661,30 @@ export function useStepController() {
       case "business_type":
         setMenuClassification(option.value as MenuComplexity);
         setCurrentStep("scope");
+        break;
+      case "shop_type": {
+        const st = option.value as ShopType;
+        const preset = SHOP_TYPE_ATTRIBUTE_MAP[st] || {};
+        setEshopConfig(prev => ({
+          ...prev,
+          shopType: st,
+          attributes: { ...DEFAULT_ATTRIBUTES, ...preset },
+        }));
+        setCurrentStep("business_mode");
+        break;
+      }
+      case "business_mode":
+        setEshopConfig(prev => ({ ...prev, businessMode: option.value as BusinessMode }));
+        setCurrentStep("attributes");
+        break;
+      case "attributes":
+        setEshopConfig(prev => ({
+          ...prev,
+          attributes: {
+            ...prev.attributes,
+            [option.value]: !prev.attributes[option.value as keyof ShopAttributes],
+          },
+        }));
         break;
       case "scope":
         setSelectedScope(option.label);
@@ -605,6 +760,8 @@ export function useStepController() {
       }
     } else if (currentStep === "delivery_apps") {
       setCurrentStep("template_choice");
+    } else if (currentStep === "attributes") {
+      setCurrentStep("scope");
     }
   }, [currentStep, isFoodCategory]);
 
@@ -623,6 +780,7 @@ export function useStepController() {
     setBusinessLocation("");
     setMenuClassification(null);
     setUserUploadedAssets({ brandColors: [], images: [] });
+    setEshopConfig({ shopType: null, businessMode: null, attributes: { ...DEFAULT_ATTRIBUTES } });
   }, []);
 
   const inputAllowed = useMemo(() => {
@@ -663,6 +821,9 @@ export function useStepController() {
     menuClassification,
     userUploadedAssets,
     setUserUploadedAssets,
+    eshopConfig,
+    setEshopConfig,
+    isShopCategory,
     // Kept for backward compat
     selectedStyleCategory: selectedTemplateKey,
     selectedStyleSpecific: null as string | null,
