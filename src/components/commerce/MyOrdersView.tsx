@@ -65,26 +65,27 @@ export function MyOrdersView({ surfaceId, onTrackOrder, onBackToShop }: MyOrders
   }
 
   return (
-    <div className="max-w-md mx-auto p-4 space-y-4">
+    <div className="max-w-md mx-auto p-4 pb-8 space-y-4">
       <h2 className="text-xl font-bold">My Orders</h2>
 
       <div className="space-y-3">
         {merged.map((order) => {
-          const meta = STATUS_META[order.status] || STATUS_META.pending;
+          const statusKey = (order.status as OrderStatus) || "pending";
+          const meta = STATUS_META[statusKey] || STATUS_META.pending;
           const StatusIcon = meta.icon;
           const placed = new Date(order.placed_at);
           return (
             <button
               key={order.tracking_code}
               onClick={() => onTrackOrder(order.tracking_code)}
-              className="w-full text-left rounded-lg border border-border bg-card p-4 hover:bg-muted/50 transition-colors"
+              className="w-full text-left rounded-lg border border-border bg-card p-4 hover:bg-muted/50 active:bg-muted transition-colors"
             >
               <div className="flex items-start justify-between gap-3 mb-2">
                 <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground font-mono">
+                  <p className="text-xs text-muted-foreground font-mono truncate">
                     #{order.tracking_code}
                   </p>
-                  <p className="text-sm font-semibold mt-0.5">
+                  <p className="text-sm font-semibold mt-0.5 truncate">
                     {order.item_count} item{order.item_count === 1 ? "" : "s"}
                     {order.business_name ? ` · ${order.business_name}` : ""}
                   </p>
@@ -95,10 +96,12 @@ export function MyOrdersView({ surfaceId, onTrackOrder, onBackToShop }: MyOrders
               </div>
 
               <div className="flex items-center justify-between gap-3">
-                <div className={`flex items-center gap-1.5 text-xs font-medium ${meta.tone}`}>
-                  <StatusIcon className="h-3.5 w-3.5" />
+                <span
+                  className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold ${meta.badgeClass}`}
+                >
+                  <StatusIcon className="h-3 w-3" />
                   {meta.label}
-                </div>
+                </span>
                 <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
                   <Clock className="h-3 w-3" />
                   {placed.toLocaleString(undefined, {
