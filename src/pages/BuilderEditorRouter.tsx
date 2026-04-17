@@ -85,44 +85,12 @@ export default function BuilderEditorRouter() {
     </div>
   );
 
-  // Emenu → new editor with old navbar/publish
-  if (surfaceType === "emenu") {
-    return (
-      <Suspense fallback={fallbackLoader}>
-        <EmenuNewEditor />
-      </Suspense>
-    );
-  }
-
-  // Route based on surface_type
-  if (SELLER_TYPES.has(surfaceType)) {
-    return (
-      <Suspense fallback={fallbackLoader}>
-        <SellerEditor />
-      </Suspense>
-    );
-  }
-
-  if (surfaceType === "live_bio") {
-    return (
-      <Suspense fallback={fallbackLoader}>
-        <InfluencerEditorPlaceholder />
-      </Suspense>
-    );
-  }
-
-  if (surfaceType === "community_group") {
-    return (
-      <Suspense fallback={fallbackLoader}>
-        <CommunityEditorPlaceholder />
-      </Suspense>
-    );
-  }
-
-  // Fallback: unknown surface_type → seller editor
+  // GLOBAL STANDARD: All categories use EmenuNewEditor as the unified editor shell
+  // (same top nav bar, page top edit bar, publish modal, full-screen layout).
+  // Emenu is the global standard — no other editor variants are permitted.
   return (
     <Suspense fallback={fallbackLoader}>
-      <SellerEditor />
+      <EmenuNewEditor />
     </Suspense>
   );
 }
