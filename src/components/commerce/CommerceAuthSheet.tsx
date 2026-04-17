@@ -45,7 +45,7 @@ export function CommerceAuthSheet({
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
           options: {
@@ -54,17 +54,49 @@ export function CommerceAuthSheet({
           },
         });
         if (error) throw error;
+
+        // If email confirmation is required, signUp returns no session.
+        // Try to sign in immediately — works when auto-confirm is on, OR
+        // when the email already existed with this password.
+        if (!data.session) {
+          const { data: signInData, error: signInErr } =
+            await supabase.auth.signInWithPassword({
+              email: email.trim(),
+              password,
+            });
+          if (signInErr || !signInData.session) {
+            // Email confirmation required. Tell the user clearly.
+            setBusy(false);
+            toast.success(
+              "Account created! Check your email to verify, then return to complete your order.",
+              { duration: 6000 },
+            );
+            return;
+          }
+        }
         toast.success("Account created — continuing your order");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email: email.trim(),
           password,
         });
         if (error) throw error;
+        if (!data.session) {
+          throw new Error("Sign in failed — no session returned");
+        }
         toast.success("Signed in — continuing your order");
       }
-      onAuthed();
+      // Clear busy BEFORE calling onAuthed so the sheet never gets stuck
+      // if the parent's resume handler throws or hangs.
+      setBusy(false);
+      try {
+        onAuthed();
+      } catch (cbErr) {
+        console.error("onAuthed callback failed:", cbErr);
+      }
+      return;
     } catch (err: any) {
+      console.error("Commerce auth failed:", err);
       toast.error(err?.message || "Authentication failed");
     } finally {
       setBusy(false);

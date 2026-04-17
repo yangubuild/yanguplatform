@@ -324,10 +324,18 @@ export function CheckoutDialog({
       <CommerceAuthSheet
         open={authOpen}
         onClose={() => setAuthOpen(false)}
-        onAuthed={async () => {
+        onAuthed={() => {
           setAuthOpen(false);
-          // Resume order placement with cart intact
-          await submitOrder();
+          // Re-verify session, then resume order placement.
+          // Small delay lets auth state propagate to the PostgREST client.
+          setTimeout(async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+              toast.error("Session not ready yet — please tap Place Order again.");
+              return;
+            }
+            await submitOrder();
+          }, 150);
         }}
       />
     </Dialog>
