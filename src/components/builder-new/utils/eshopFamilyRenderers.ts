@@ -429,3 +429,392 @@ ${galleryHTML}
 ${footerHTML}
 </body></html>`;
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// UNCOVER — Tech / Electronics storefront
+// Reference: https://uncovertemplatesite.framer.website
+// Structure: discount marquee → minimal nav (Categories / Products / Blogs / Newsletter)
+//            → centered hero with two-tone headline ("Uncover The Most Innovative Products.")
+//            → 4-up category tiles (Outdoor / Video Gear / Sound Essentials / Best Sellers)
+//            → "Popular Products" eyebrow + tab filter (All / New / Classic)
+//            → 4-col product grid with stock chip + price + "New" badge
+//            → testimonials grid (avatar + quote + name + role)
+//            → About Us split (image left + 2 feature blocks right)
+//            → 4-up animated stats (Partners / Community / Orders / Reviews)
+//            → blogs preview row → newsletter footer
+// ═══════════════════════════════════════════════════════════════════
+
+interface UncoverTheme {
+  pageBg: string;
+  surfaceBg: string;
+  pageText: string;
+  mutedText: string;
+  accent: string;        // signature orange in classic
+  accentText: string;
+  cardBg: string;
+  border: string;
+  fontHeading: string;
+  fontBody: string;
+  mood: "light" | "dark" | "graphite";
+}
+
+const UNCOVER_VARIANTS: UncoverTheme[] = [
+  // Variant 0 — Classic Uncover (light gray bg, black type, signature orange accent)
+  {
+    pageBg: "#EFEFEF",
+    surfaceBg: "#FFFFFF",
+    pageText: "#0E0E0E",
+    mutedText: "#6B6B6B",
+    accent: "#F25822",
+    accentText: "#FFFFFF",
+    cardBg: "#FFFFFF",
+    border: "#E2E2E2",
+    fontHeading: "'Inter', sans-serif",
+    fontBody: "'Inter', sans-serif",
+    mood: "light",
+  },
+  // Variant 1 — Graphite (warm off-white + deep navy accent)
+  {
+    pageBg: "#F4F2EE",
+    surfaceBg: "#FFFFFF",
+    pageText: "#161A22",
+    mutedText: "#5C6270",
+    accent: "#2A4BD9",
+    accentText: "#FFFFFF",
+    cardBg: "#FFFFFF",
+    border: "#E1DDD5",
+    fontHeading: "'Outfit', sans-serif",
+    fontBody: "'Inter', sans-serif",
+    mood: "graphite",
+  },
+  // Variant 2 — Dark studio (inverted, lime accent)
+  {
+    pageBg: "#0C0C0C",
+    surfaceBg: "#141414",
+    pageText: "#F2F2F2",
+    mutedText: "#9A9A9A",
+    accent: "#C9F24A",
+    accentText: "#0C0C0C",
+    cardBg: "#141414",
+    border: "#262626",
+    fontHeading: "'Outfit', sans-serif",
+    fontBody: "'Inter', sans-serif",
+    mood: "dark",
+  },
+];
+
+export function renderUncover(ctx: EshopRenderContext): string {
+  const { config, preset, variantIndex } = ctx;
+  const s = preset.patches;
+  const heroS = (s.hero?.schema || {}) as Record<string, any>;
+  const headerS = (s.header?.schema || {}) as Record<string, any>;
+  const mainS = (s.main_content?.schema || {}) as Record<string, any>;
+  const offerS = (s.offer?.schema || {}) as Record<string, any>;
+  const footerS = (s.footer?.schema || {}) as Record<string, any>;
+
+  const t = { ...UNCOVER_VARIANTS[variantIndex] || UNCOVER_VARIANTS[0] };
+
+  // User brand color overrides accent (except graphite variant where navy is its identity)
+  if (config.userBrandColors?.[0] && variantIndex !== 1) {
+    t.accent = config.userBrandColors[0];
+  }
+
+  const name = config.businessName || "Uncover";
+  const navItems = (headerS.nav_items as string[]) || ["Categories", "Products", "Blogs", "Newsletter"];
+  const tagline = (headerS.top_tagline as string) || "Get a 20% discount  USE CODE 20PD";
+
+  const headlineLead = (heroS.headline as string) || "Uncover The Most";
+  const headlineTail = (heroS.headline_tail as string) || "Innovative Products.";
+  const heroSub = (heroS.subheadline as string) || "Exploring the tech and design shaping the world of tomorrow.";
+
+  // Categories tile row
+  const categories = (mainS.categories as any[]) || [
+    { title: "Outdoor", count: "4 pcs" },
+    { title: "Video Gear", count: "4 pcs" },
+    { title: "Sound Essentials", count: "4 pcs" },
+    { title: "Best Sellers", count: "8 pcs" },
+  ];
+
+  // Products
+  const fallbackProducts = [
+    { title: "R21 Controller", price: "$129", stock: "In Stock", badge: "" },
+    { title: "Studio Remote", price: "$84", stock: "In Stock", badge: "" },
+    { title: "Retro Charger", price: "$49", stock: "In Stock", badge: "" },
+    { title: "OP-1 Field", price: "$1,990", stock: "In Stock", badge: "New" },
+    { title: "Wireless Headphones", price: "$249", stock: "In Stock", badge: "" },
+    { title: "Mixer TX-6", price: "$1,199", stock: "In Stock", badge: "New" },
+    { title: "TP-7 Recorder", price: "$1,290", stock: "In Stock", badge: "" },
+    { title: "Motion Controller", price: "$199", stock: "In Stock", badge: "New" },
+  ];
+  const items = ((mainS.items as any[])?.length ? (mainS.items as any[]) : fallbackProducts);
+  const productTabs = (mainS.tabs as string[]) || ["All Items", "New Products", "Classic"];
+
+  // Testimonials
+  const testimonials = (offerS.testimonials?.items as any[]) || [
+    { quote: "The build quality is excellent and the overall experience feels premium. Setup was straightforward.", name: "Ethan Brooks", role: "Director" },
+    { quote: "Everything works as expected and feels well put together. Setup was easy and smooth so far.", name: "Ava Mitchell", role: "Creative Director" },
+    { quote: "The overall experience feels balanced and well executed. Worked without issues out of the box.", name: "Ethan Walker", role: "Brand Designer" },
+    { quote: "Integrates well into an existing setup and doesn't require much adjustment.", name: "Emily Collins", role: "Sound Designer" },
+    { quote: "The quality is immediately noticeable and it feels great to use every single day.", name: "James Walker", role: "Music Producer" },
+    { quote: "You can tell right away that this is a well-made product. Reliable and thoughtfully designed.", name: "Isabella Reed", role: "Audio Engineer" },
+  ];
+
+  // Stats
+  const stats = (offerS.stats as any[]) || [
+    { value: "120+", label: "Official Partners" },
+    { value: "8K+", label: "Community Members" },
+    { value: "2.4K+", label: "Orders This Month" },
+    { value: "1.9K+", label: "Reviews" },
+  ];
+
+  // About
+  const aboutHeading = (offerS.about_heading as string) || "Learn More About Us";
+  const aboutSub = (offerS.about_sub as string) || "Discover our story, values, and what we stand for.";
+  const aboutFeatures = (offerS.about_features as any[]) || [
+    { title: "Well-Designed Products", body: "We focus on products where form, function, and thoughtful design come together." },
+    { title: "Modern Tech Selection", body: "A curated range of tech products built for everyday use and creative workflows." },
+  ];
+
+  // Blogs
+  const blogs = (footerS.blogs as any[]) || [
+    { title: "Your Tech Setup", excerpt: "Building a setup that works for you starts with clarity, not complexity." },
+    { title: "Modern Product Design", excerpt: "Where technology meets intention, simplicity, and long-term value." },
+    { title: "About Our Products", excerpt: "Transparent look at the standards, thinking, and philosophy behind products." },
+  ];
+
+  // Logo
+  const logoHTML = config.userLogoUrl
+    ? `<img src="${config.userLogoUrl}" alt="${name}" style="height:24px;width:auto;"/>`
+    : `<span style="font-family:${t.fontHeading};font-weight:700;font-size:18px;letter-spacing:-0.01em;color:${t.pageText};">${name}</span>`;
+
+  // ─── Top discount marquee ───
+  const taglineHTML = `
+  <div style="background:${t.pageText};color:${t.pageBg};font-size:12px;font-weight:500;padding:9px 0;overflow:hidden;border-bottom:1px solid ${t.border};">
+    <div class="aema-marquee">
+      ${Array(10).fill(`<span style="white-space:nowrap;">${tagline.replace(/USE CODE/i, `<span style="color:${t.accent};font-weight:700;margin-left:8px;">USE CODE</span>`)}</span>`).join("")}
+    </div>
+  </div>`;
+
+  // ─── Centered nav with pill CTA ───
+  const navHTML = `
+  <nav style="position:sticky;top:0;z-index:80;background:${t.pageBg};display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:18px 32px;border-bottom:1px solid ${t.border};">
+    <div style="justify-self:start;">${logoHTML}</div>
+    <div class="aema-nav-links" style="display:flex;gap:8px;align-items:center;background:${t.surfaceBg};border:1px solid ${t.border};padding:6px;border-radius:4px;">
+      ${navItems
+        .map(
+          (n) =>
+            `<a href="${navHref(n)}" style="font-size:13px;font-weight:500;color:${t.pageText};padding:6px 14px;border-radius:3px;">${n}</a>`,
+        )
+        .join("")}
+    </div>
+    <div style="justify-self:end;">
+      <a href="#newsletter" style="display:inline-flex;align-items:center;gap:8px;background:${t.surfaceBg};color:${t.pageText};border:1px solid ${t.border};padding:10px 18px;font-size:13px;font-weight:600;border-radius:4px;">Join Newsletter</a>
+    </div>
+  </nav>`;
+
+  // ─── Hero: centered headline with two-tone (orange highlight on "The Most") ───
+  const heroHTML = `
+  <section id="hero" style="padding:90px 32px 56px;background:${t.pageBg};text-align:center;">
+    <h1 style="font-family:${t.fontHeading};font-size:clamp(2.4rem,6vw,4.6rem);font-weight:700;line-height:1.02;letter-spacing:-0.025em;color:${t.pageText};max-width:1100px;margin:0 auto 24px;">
+      ${headlineLead.split(" ").slice(0, -2).join(" ")} <span style="color:${t.accent};">${headlineLead.split(" ").slice(-2).join(" ")}</span><br/>${headlineTail}
+    </h1>
+    <p style="font-size:1rem;color:${t.mutedText};max-width:560px;margin:0 auto;line-height:1.55;">${heroSub}</p>
+  </section>`;
+
+  // ─── Category tiles: 4-up large image cards ───
+  const categoryTilesHTML = `
+  <section style="padding:24px 32px 48px;background:${t.pageBg};">
+    <div class="yangu-content-container">
+      <div data-grid="4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
+        ${categories
+          .slice(0, 4)
+          .map(
+            (c: any, i: number) => `
+          <a href="#products" style="display:block;position:relative;aspect-ratio:3/4;overflow:hidden;background:${t.surfaceBg};border-radius:6px;">
+            <img src="${getEshopImage(config, "collection", i)}" alt="${c.title}" style="width:100%;height:100%;object-fit:cover;"/>
+            <div style="position:absolute;left:0;right:0;bottom:0;padding:18px 18px;background:linear-gradient(to top, #00000099, transparent);color:#FFFFFF;">
+              <h3 style="font-family:${t.fontHeading};font-size:1.15rem;font-weight:600;margin-bottom:2px;">${c.title}</h3>
+              <span style="font-size:11px;opacity:0.85;">${c.count || ""}</span>
+            </div>
+          </a>`,
+          )
+          .join("")}
+      </div>
+    </div>
+  </section>`;
+
+  // ─── Popular Products eyebrow + tabs ───
+  const productsHeaderHTML = `
+  <section id="products" style="padding:64px 32px 24px;background:${t.pageBg};text-align:center;">
+    <div class="yangu-content-container">
+      <p style="display:inline-block;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:${t.mutedText};background:${t.surfaceBg};border:1px solid ${t.border};padding:6px 14px;border-radius:3px;margin-bottom:18px;">Popular Products</p>
+      <h2 style="font-family:${t.fontHeading};font-size:clamp(1.9rem,4.4vw,3.2rem);font-weight:700;letter-spacing:-0.02em;color:${t.pageText};max-width:900px;margin:0 auto 14px;line-height:1.05;">
+        Check Out The <span style="color:${t.accent};">Most Popular</span> Pieces.
+      </h2>
+      <p style="color:${t.mutedText};max-width:520px;margin:0 auto 28px;">Exploring the tech and design shaping the world of tomorrow.</p>
+      <div style="display:inline-flex;gap:6px;background:${t.surfaceBg};border:1px solid ${t.border};padding:5px;border-radius:4px;">
+        ${productTabs
+          .map(
+            (tab, i) => `
+          <button style="background:${i === 0 ? t.pageText : "transparent"};color:${i === 0 ? t.pageBg : t.pageText};border:none;cursor:pointer;font-size:13px;font-weight:500;padding:8px 16px;border-radius:3px;">${tab}</button>`,
+          )
+          .join("")}
+      </div>
+    </div>
+  </section>`;
+
+  // ─── Product grid: 4-col, stock chip + price + optional "New" badge ───
+  const productCard = (item: any, idx: number): string => {
+    const img = getEshopImage(config, "product", idx);
+    return `
+    <a href="#" style="display:block;background:${t.cardBg};border:1px solid ${t.border};border-radius:6px;overflow:hidden;color:${t.pageText};">
+      <div style="position:relative;aspect-ratio:1/1;background:${t.surfaceBg};">
+        <img src="${img}" alt="${item.title}" style="width:100%;height:100%;object-fit:cover;"/>
+        ${item.badge ? `<span style="position:absolute;top:10px;right:10px;background:${t.accent};color:${t.accentText};font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:4px 9px;border-radius:3px;">${item.badge}</span>` : ""}
+      </div>
+      <div style="padding:14px 14px 16px;">
+        <div style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#0F9D58;background:${t.mood === "dark" ? "#0F9D5820" : "#E8F5E9"};padding:3px 8px;border-radius:3px;margin-bottom:8px;">● ${item.stock || "In Stock"}</div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;">
+          <span style="font-size:14px;font-weight:600;letter-spacing:-0.01em;">${item.title}</span>
+          <span style="font-size:14px;font-weight:700;color:${t.pageText};">${item.price}</span>
+        </div>
+      </div>
+    </a>`;
+  };
+
+  const productGridHTML = `
+  <section style="padding:8px 32px 80px;background:${t.pageBg};">
+    <div class="yangu-content-container">
+      <div data-grid="4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
+        ${items.slice(0, 8).map((p: any, i: number) => productCard(p, i)).join("")}
+      </div>
+    </div>
+  </section>`;
+
+  // ─── Testimonials: 3-col grid of quote cards with avatar + name + role ───
+  const testimonialsHTML = `
+  <section style="padding:80px 32px;background:${t.surfaceBg};border-top:1px solid ${t.border};border-bottom:1px solid ${t.border};">
+    <div class="yangu-content-container" style="text-align:center;">
+      <p style="display:inline-block;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:${t.mutedText};background:${t.pageBg};border:1px solid ${t.border};padding:6px 14px;border-radius:3px;margin-bottom:18px;">Testimonials</p>
+      <h2 style="font-family:${t.fontHeading};font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;letter-spacing:-0.02em;color:${t.pageText};max-width:780px;margin:0 auto 12px;line-height:1.1;">See what our customers think about us and our products</h2>
+      <p style="color:${t.mutedText};margin-bottom:40px;">Read real reviews from people who use our products every day.</p>
+      <div data-grid="3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;text-align:left;">
+        ${testimonials
+          .slice(0, 6)
+          .map(
+            (tm: any, i: number) => `
+          <div style="background:${t.cardBg};border:1px solid ${t.border};border-radius:6px;padding:24px;">
+            <p style="font-size:14px;line-height:1.6;color:${t.pageText};margin-bottom:24px;min-height:90px;">"${tm.quote}"</p>
+            <div style="display:flex;align-items:center;gap:12px;border-top:1px solid ${t.border};padding-top:16px;">
+              <div style="width:42px;height:42px;border-radius:50%;overflow:hidden;background:${t.surfaceBg};flex-shrink:0;">
+                <img src="${getEshopImage(config, "product", i + 4)}" alt="${tm.name}" style="width:100%;height:100%;object-fit:cover;"/>
+              </div>
+              <div>
+                <div style="font-size:13px;font-weight:600;color:${t.pageText};">${tm.name}</div>
+                <div style="font-size:12px;color:${t.mutedText};">${tm.role}</div>
+              </div>
+            </div>
+          </div>`,
+          )
+          .join("")}
+      </div>
+    </div>
+  </section>`;
+
+  // ─── About + Stats ───
+  const aboutStatsHTML = `
+  <section id="about" style="padding:80px 32px;background:${t.pageBg};">
+    <div class="yangu-content-container">
+      <div data-grid="2" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-bottom:64px;">
+        <div style="aspect-ratio:4/5;overflow:hidden;border-radius:8px;background:${t.surfaceBg};">
+          <img src="${getEshopImage(config, "hero", 1)}" alt="${aboutHeading}" style="width:100%;height:100%;object-fit:cover;"/>
+        </div>
+        <div>
+          <p style="display:inline-block;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:${t.mutedText};background:${t.surfaceBg};border:1px solid ${t.border};padding:6px 14px;border-radius:3px;margin-bottom:18px;">About Us</p>
+          <h2 style="font-family:${t.fontHeading};font-size:clamp(1.9rem,4vw,3rem);font-weight:700;letter-spacing:-0.02em;color:${t.pageText};margin-bottom:14px;line-height:1.05;">${aboutHeading}</h2>
+          <p style="color:${t.mutedText};margin-bottom:28px;">${aboutSub}</p>
+          <div style="display:flex;flex-direction:column;gap:18px;">
+            ${aboutFeatures
+              .map(
+                (f: any) => `
+              <div style="background:${t.surfaceBg};border:1px solid ${t.border};border-radius:6px;padding:18px;">
+                <h4 style="font-size:14px;font-weight:600;color:${t.pageText};margin-bottom:6px;">${f.title}</h4>
+                <p style="font-size:13px;color:${t.mutedText};line-height:1.5;">${f.body}</p>
+              </div>`,
+              )
+              .join("")}
+          </div>
+          <a href="#" style="display:inline-block;margin-top:24px;background:${t.pageText};color:${t.pageBg};padding:11px 22px;font-size:13px;font-weight:600;border-radius:4px;">More About Us</a>
+        </div>
+      </div>
+      <div data-grid="4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
+        ${stats
+          .slice(0, 4)
+          .map(
+            (st: any) => `
+          <div style="background:${t.surfaceBg};border:1px solid ${t.border};border-radius:6px;padding:28px 20px;text-align:center;">
+            <div style="font-family:${t.fontHeading};font-size:clamp(2rem,3.4vw,2.8rem);font-weight:700;color:${t.pageText};letter-spacing:-0.02em;line-height:1;">${st.value}</div>
+            <div style="font-size:12px;color:${t.mutedText};margin-top:8px;letter-spacing:0.04em;">${st.label}</div>
+          </div>`,
+          )
+          .join("")}
+      </div>
+    </div>
+  </section>`;
+
+  // ─── Blogs ───
+  const blogsHTML = `
+  <section style="padding:80px 32px;background:${t.surfaceBg};border-top:1px solid ${t.border};">
+    <div class="yangu-content-container" style="text-align:center;">
+      <p style="display:inline-block;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:${t.mutedText};background:${t.pageBg};border:1px solid ${t.border};padding:6px 14px;border-radius:3px;margin-bottom:18px;">Blogs</p>
+      <h2 style="font-family:${t.fontHeading};font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;letter-spacing:-0.02em;color:${t.pageText};margin-bottom:10px;">Check out our blogs</h2>
+      <p style="color:${t.mutedText};margin-bottom:36px;">Explore stories, tips, and insights that matter.</p>
+      <div data-grid="3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;text-align:left;">
+        ${blogs
+          .slice(0, 3)
+          .map(
+            (b: any, i: number) => `
+          <a href="#" style="display:block;background:${t.cardBg};border:1px solid ${t.border};border-radius:6px;overflow:hidden;color:${t.pageText};">
+            <div style="aspect-ratio:16/10;background:${t.pageBg};overflow:hidden;">
+              <img src="${getEshopImage(config, "collection", i + 1)}" alt="${b.title}" style="width:100%;height:100%;object-fit:cover;"/>
+            </div>
+            <div style="padding:18px;">
+              <h4 style="font-size:15px;font-weight:600;color:${t.pageText};margin-bottom:6px;">${b.title}</h4>
+              <p style="font-size:13px;color:${t.mutedText};line-height:1.5;">${b.excerpt}</p>
+            </div>
+          </a>`,
+          )
+          .join("")}
+      </div>
+    </div>
+  </section>`;
+
+  // ─── Newsletter footer ───
+  const footerHTML = `
+  <footer id="newsletter" style="padding:90px 32px 36px;background:${t.pageText};color:${t.pageBg};text-align:center;">
+    <div class="yangu-content-container">
+      <p style="display:inline-block;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;opacity:0.7;border:1px solid ${t.pageBg}33;padding:6px 14px;border-radius:3px;margin-bottom:18px;">Get Notified</p>
+      <h2 style="font-family:${t.fontHeading};font-size:clamp(2rem,4.6vw,3.2rem);font-weight:700;letter-spacing:-0.02em;margin-bottom:10px;line-height:1.05;">Join our Newsletter</h2>
+      <p style="opacity:0.75;margin-bottom:28px;">Get notified about new updates and exclusive offers.</p>
+      <form style="display:flex;gap:10px;max-width:460px;margin:0 auto 56px;flex-wrap:wrap;justify-content:center;" onsubmit="event.preventDefault();">
+        <input type="email" placeholder="Email" style="flex:1;min-width:220px;background:transparent;border:1px solid ${t.pageBg}33;color:${t.pageBg};padding:12px 16px;font-size:14px;border-radius:4px;outline:none;"/>
+        <button type="submit" style="background:${t.accent};color:${t.accentText};border:none;cursor:pointer;padding:12px 24px;font-size:14px;font-weight:600;border-radius:4px;">Submit</button>
+      </form>
+      <p style="font-size:12px;opacity:0.5;letter-spacing:0.06em;">${footerS.copyright || `© ${new Date().getFullYear()} ${name} — All rights reserved.`}</p>
+    </div>
+  </footer>`;
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>${name}</title>
+<style>${eshopBaseStyles(t.pageBg, t.pageText, t.accent)}</style></head><body>
+${taglineHTML}
+${navHTML}
+${heroHTML}
+${categoryTilesHTML}
+${productsHeaderHTML}
+${productGridHTML}
+${testimonialsHTML}
+${aboutStatsHTML}
+${blogsHTML}
+${footerHTML}
+</body></html>`;
+}

@@ -462,16 +462,143 @@ const ESHOP_TEMPLATES: TemplatePreset[] = [
     },
   },
 
-  // ─── Uncover — Electronics / Tech (pending full rebuild) ───
+  // ─── Uncover — Electronics / Tech ───
+  // Reference: https://uncovertemplatesite.framer.website
   {
     key: "eshop_uncover",
     label: "Uncover — Electronics",
-    description: "Tech/electronics storefront: discount banner, popular products grid, testimonials carousel, stats counters, about section.",
+    description: "Tech/electronics storefront: discount marquee, centered two-tone hero, 4-up category tiles, popular products grid with stock chips, testimonials grid, about + stats, blogs, newsletter footer.",
     icon: "🎧",
     template_family: "uncover",
     preview_url: "https://uncovertemplatesite.framer.website",
-    reference: { source: "link", url: "https://uncovertemplatesite.framer.website", label: "Uncover Framer template", sectionOrder: ["banner", "header", "hero", "products", "testimonials", "stats", "about", "footer"], layoutPatterns: ["discount_banner_top", "popular_products_grid", "testimonials_carousel", "stats_counters"] },
-    patches: {},
+    reference: {
+      source: "link",
+      url: "https://uncovertemplatesite.framer.website",
+      label: "Uncover Framer template",
+      sectionOrder: ["banner", "header", "hero", "category_tiles", "products", "testimonials", "about", "stats", "blogs", "newsletter"],
+      layoutPatterns: [
+        "discount_marquee_top",
+        "centered_pill_nav",
+        "two_tone_centered_hero",
+        "four_category_tiles",
+        "tabbed_product_grid_with_stock_chip",
+        "three_col_testimonial_cards",
+        "about_split_with_feature_cards",
+        "four_stat_counters",
+        "three_blog_cards",
+        "centered_newsletter_footer",
+      ],
+    },
+    patches: {
+      header: {
+        schema: {
+          layout_variant: "nav_center_pill",
+          logo_position: "left",
+          logo_size: "small",
+          show_name: true,
+          show_cart_icon: false,
+          show_search: false,
+          menu_layout_style: "horizontal",
+          nav_items: ["Categories", "Products", "Blogs", "Newsletter"],
+          background_style: "light",
+          top_tagline: "Get a 20% discount  USE CODE 20PD",
+        },
+      },
+      hero: {
+        schema: {
+          layout_variant: "centered_two_tone",
+          alignment: "center",
+          background_style: "solid_light",
+          headline: "Uncover The Most",
+          headline_tail: "Innovative Products.",
+          subheadline: "Exploring the tech and design shaping the world of tomorrow.",
+          cta_text: "",
+          spacing: "spacious",
+          typography_style: "display_bold",
+          text_color: "dark",
+        },
+      },
+      main_content: {
+        schema: {
+          display_mode: "grid",
+          heading: "Popular Products",
+          tabs: ["All Items", "New Products", "Classic"],
+          filters_enabled: false,
+          sort_enabled: false,
+          cards: {
+            style: "image_top",
+            image_ratio: "square",
+            show_price: true,
+            show_title: true,
+            show_cta: false,
+            badge_enabled: true,
+            stock_chip_enabled: true,
+          },
+          grid: { columns_desktop: 4, columns_mobile: 2, gap: "sm" },
+          spacing: "comfortable",
+          categories: [
+            { title: "Outdoor", count: "4 pcs" },
+            { title: "Video Gear", count: "4 pcs" },
+            { title: "Sound Essentials", count: "4 pcs" },
+            { title: "Best Sellers", count: "8 pcs" },
+          ],
+          items: [
+            { title: "R21 Controller", price: "$129", stock: "In Stock", badge: "" },
+            { title: "Studio Remote", price: "$84", stock: "In Stock", badge: "" },
+            { title: "Retro Charger", price: "$49", stock: "In Stock", badge: "" },
+            { title: "OP-1 Field", price: "$1,990", stock: "In Stock", badge: "New" },
+            { title: "Wireless Headphones", price: "$249", stock: "In Stock", badge: "" },
+            { title: "Mixer TX-6", price: "$1,199", stock: "In Stock", badge: "New" },
+            { title: "TP-7 Recorder", price: "$1,290", stock: "In Stock", badge: "" },
+            { title: "Motion Controller", price: "$199", stock: "In Stock", badge: "New" },
+          ],
+        },
+      },
+      offer: {
+        schema: {
+          layout_variant: "about_stats_testimonials",
+          spacing: "spacious",
+          about_heading: "Learn More About Us",
+          about_sub: "Discover our story, values, and what we stand for.",
+          about_features: [
+            { title: "Well-Designed Products", body: "We focus on products where form, function, and thoughtful design come together." },
+            { title: "Modern Tech Selection", body: "A curated range of tech products built for everyday use and creative workflows." },
+          ],
+          stats: [
+            { value: "120+", label: "Official Partners" },
+            { value: "8K+", label: "Community Members" },
+            { value: "2.4K+", label: "Orders This Month" },
+            { value: "1.9K+", label: "Reviews" },
+          ],
+          testimonials: {
+            enabled: true,
+            heading: "See what our customers think about us and our products",
+            items: [
+              { quote: "The build quality is excellent and the overall experience feels premium. Setup was straightforward.", name: "Ethan Brooks", role: "Director" },
+              { quote: "Everything works as expected and feels well put together. Setup was easy and smooth so far.", name: "Ava Mitchell", role: "Creative Director" },
+              { quote: "The overall experience feels balanced and well executed. Worked without issues out of the box.", name: "Ethan Walker", role: "Brand Designer" },
+              { quote: "Integrates well into an existing setup and doesn't require much adjustment.", name: "Emily Collins", role: "Sound Designer" },
+              { quote: "The quality is immediately noticeable and it feels great to use every single day.", name: "James Walker", role: "Music Producer" },
+              { quote: "You can tell right away that this is a well-made product. Reliable and thoughtfully designed.", name: "Isabella Reed", role: "Audio Engineer" },
+            ],
+          },
+        },
+      },
+      footer: {
+        schema: {
+          layout_variant: "newsletter_centered",
+          background_style: "dark",
+          blogs: [
+            { title: "Your Tech Setup", excerpt: "Building a setup that works for you starts with clarity, not complexity." },
+            { title: "Modern Product Design", excerpt: "Where technology meets intention, simplicity, and long-term value." },
+            { title: "About Our Products", excerpt: "Transparent look at the standards, thinking, and philosophy behind products." },
+          ],
+          newsletter_enabled: true,
+          newsletter_heading: "Join our Newsletter",
+          newsletter_description: "Get notified about new updates and exclusive offers.",
+        },
+      },
+    },
   },
 
   // ─── Kanva — Beauty / Single product (pending full rebuild) ───
