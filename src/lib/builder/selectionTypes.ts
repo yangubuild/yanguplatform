@@ -45,6 +45,7 @@ export interface ProductCardData {
   descriptionNodeId?: string;
   priceNodeId?: string;
   badgeNodeId?: string;
+  meta?: Record<string, unknown>;
 }
 
 /** Classify an element tag + context into a SelectionKind */
