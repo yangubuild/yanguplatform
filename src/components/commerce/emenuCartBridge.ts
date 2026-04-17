@@ -120,6 +120,28 @@ export function buildCartBridgeCode(configuredCurrency: string = "USD"): string 
       var imageUrl = imageEl ? imageEl.src : null;
       var itemId = btoa(itemName + '_' + priceCents).replace(/=/g, '');
 
+      // ── Currency consistency: rewrite the visible price to match the configured shop currency ──
+      // Template HTML may have hardcoded symbols like "$30" while the shop is configured for UGX.
+      // Force a single source of truth so page cards and the cart always agree.
+      if (priceEl && priceNum > 0) {
+        try {
+          var formatted;
+          try {
+            formatted = new Intl.NumberFormat('en-US', {
+              style: 'currency',
+              currency: CONFIGURED_CURRENCY,
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 2,
+            }).format(priceNum);
+          } catch (_e) {
+            formatted = CONFIGURED_CURRENCY + ' ' + priceNum.toLocaleString('en-US');
+          }
+          if (normalizeText(priceEl.textContent) !== formatted) {
+            priceEl.textContent = formatted;
+          }
+        } catch (_err) { /* non-fatal */ }
+      }
+
       // Determine button text from card metadata
       var ctaAction = card.getAttribute('data-product-cta') || '';
       var buttonText = card.getAttribute('data-product-button-text') || '';
