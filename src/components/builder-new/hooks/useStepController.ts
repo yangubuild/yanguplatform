@@ -483,6 +483,37 @@ export function useStepController() {
           options: EMENU_BUSINESS_TYPE_OPTIONS,
           renderAs: "cards",
         };
+      case "shop_type":
+        return {
+          key: "shop_type",
+          adaMessage: `Great, **${businessName}**! What type of shop are you creating?`,
+          options: SHOP_TYPE_OPTIONS,
+          renderAs: "cards",
+        };
+      case "business_mode":
+        return {
+          key: "business_mode",
+          adaMessage: "How do you want to use your shop?",
+          options: BUSINESS_MODE_OPTIONS,
+          renderAs: "cards",
+        };
+      case "attributes": {
+        const attrOpts = eshopConfig.shopType
+          ? ATTRIBUTE_OPTIONS_BY_TYPE[eshopConfig.shopType]
+          : [];
+        return {
+          key: "attributes",
+          adaMessage: "Customize how your products are sold. Toggle what applies, then tap **Done**.",
+          options: attrOpts.map(a => ({
+            id: a.key,
+            label: a.label,
+            value: a.key,
+            description: a.description,
+          })),
+          multiSelect: true,
+          renderAs: "chips",
+        };
+      }
       case "scope":
         return {
           key: "scope",
