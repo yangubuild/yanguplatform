@@ -1437,13 +1437,15 @@ export function renderMinna(ctx: EshopRenderContext): string {
   const productCards = products.map((p: any, i: number) => {
     const img = getEshopImage(config, "product", i);
     return `
-    <a href="#" class="aema-card" style="display:block;color:${t.pageText};">
+    <a href="#" class="aema-card" data-product-card="true" style="display:block;color:${t.pageText};">
       <div style="aspect-ratio:3/4;overflow:hidden;background:${t.cardBg};margin-bottom:12px;">
         <img src="${img}" alt="${p.title || ""}" style="width:100%;height:100%;object-fit:cover;transition:transform .5s ease;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/>
       </div>
-      <div style="display:flex;flex-direction:column;gap:4px;padding:0 2px;">
-        <p style="font-size:13px;font-weight:500;color:${t.pageText};line-height:1.4;">${p.title || ""}</p>
-        <p style="font-size:13px;font-weight:600;color:${t.pageText};">${p.price || ""}</p>
+      <div style="padding:0 2px;">
+        <p data-product-role="title" style="font-size:13px;font-weight:500;color:${t.pageText};line-height:1.4;margin:0 0 6px 0;">${p.title || ""}</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <span data-product-role="price" style="font-size:13px;font-weight:600;color:${t.pageText};">${p.price || ""}</span>
+        </div>
       </div>
     </a>`;
   }).join("");
