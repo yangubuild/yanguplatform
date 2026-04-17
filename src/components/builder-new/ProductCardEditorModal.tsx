@@ -169,6 +169,21 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
       ? buttonText.trim()
       : resolveButtonTextForCta(ctaValue, surfaceType);
 
+    const meta = isCommerce ? {
+      brand: brand.trim(),
+      category: category.trim(),
+      subcategory: subcategory.trim(),
+      discountPct: discountPct.trim(),
+      discountLabel: discountLabel.trim(),
+      sizes,
+      colors,
+      material: material.trim(),
+      weight: weight.trim(),
+      dimensions: dimensions.trim(),
+      specifications: specifications.trim(),
+      available,
+    } : undefined;
+
     onSave({
       ...draft,
       imageSrc: images[0] || draft.imageSrc,
@@ -178,8 +193,19 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
       buttonText: nextButtonText,
       actionType,
       actionUrl: actionUrl.trim(),
-    });
+      ...(meta ? { meta } : {}),
+    } as ProductCardData);
   };
+
+  const addSize = () => {
+    const v = sizeInput.trim();
+    if (!v) return;
+    if (sizes.includes(v)) { setSizeInput(""); return; }
+    setSizes((prev) => [...prev, v]);
+    setSizeInput("");
+  };
+  const removeSize = (s: string) => setSizes((prev) => prev.filter((x) => x !== s));
+  const removeColor = (c: string) => setColors((prev) => prev.filter((x) => x !== c));
 
   return (
     <>
