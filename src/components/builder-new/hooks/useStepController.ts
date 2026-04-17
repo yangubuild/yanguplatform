@@ -9,6 +9,9 @@ import type { MenuComplexity } from "@/lib/builder/emenu/types";
 export type BuilderStep =
   | "greeting"
   | "business_type"
+  | "shop_type"
+  | "business_mode"
+  | "attributes"
   | "scope"
   | "assets"
   | "asset_upload"
@@ -20,6 +23,90 @@ export type BuilderStep =
   | "confirmation"
   | "generation"
   | "refinement";
+
+// ─── eShop config types ──────────────────────────────────────────────
+
+export type ShopType = "clothing" | "electronics" | "beauty" | "food" | "merch" | "single";
+export type BusinessMode = "ordering" | "showcase";
+
+export interface ShopAttributes {
+  size: boolean;
+  color: boolean;
+  volume: boolean;
+  weight: boolean;
+  variant: boolean;
+}
+
+export interface EshopConfig {
+  shopType: ShopType | null;
+  businessMode: BusinessMode | null;
+  attributes: ShopAttributes;
+}
+
+const DEFAULT_ATTRIBUTES: ShopAttributes = {
+  size: false,
+  color: false,
+  volume: false,
+  weight: false,
+  variant: false,
+};
+
+const SHOP_TYPE_ATTRIBUTE_MAP: Record<ShopType, Partial<ShopAttributes>> = {
+  clothing: { size: true, color: true },
+  electronics: { variant: true },
+  beauty: { volume: true, variant: true },
+  food: { weight: true },
+  merch: { variant: true },
+  single: { variant: true },
+};
+
+const SHOP_TYPE_OPTIONS: StepOption[] = [
+  { id: "clothing", label: "Clothing & Fashion", value: "clothing", icon: "👕", description: "Apparel, footwear, accessories" },
+  { id: "electronics", label: "Electronics & Devices", value: "electronics", icon: "💻", description: "Phones, gadgets, accessories" },
+  { id: "beauty", label: "Beauty & Bottled Products", value: "beauty", icon: "🧴", description: "Skincare, perfumes, cosmetics" },
+  { id: "food", label: "Food / Spices / Bulk Goods", value: "food", icon: "🥗", description: "Sold by weight or quantity" },
+  { id: "merch", label: "Merchandise / Mixed Products", value: "merch", icon: "🎁", description: "General mixed inventory" },
+  { id: "single", label: "Single Product Store", value: "single", icon: "🧩", description: "One hero product" },
+];
+
+const BUSINESS_MODE_OPTIONS: StepOption[] = [
+  { id: "ordering", label: "Sell Online", value: "ordering", icon: "🛒", description: "Accept orders & checkout" },
+  { id: "showcase", label: "Showcase Only", value: "showcase", icon: "🔗", description: "Display products, no checkout" },
+];
+
+interface AttributeOption {
+  key: keyof ShopAttributes;
+  label: string;
+  description: string;
+}
+
+const ATTRIBUTE_OPTIONS_BY_TYPE: Record<ShopType, AttributeOption[]> = {
+  clothing: [
+    { key: "size", label: "Sizes", description: "S, M, L, XL, etc." },
+    { key: "color", label: "Colors", description: "Color variants per item" },
+    { key: "variant", label: "Other Variants", description: "Material, fit, style" },
+  ],
+  electronics: [
+    { key: "variant", label: "Variants", description: "Storage, model, edition" },
+    { key: "color", label: "Colors", description: "Color options" },
+  ],
+  beauty: [
+    { key: "volume", label: "Volume", description: "ml / L sizes" },
+    { key: "variant", label: "Variants", description: "Scent, type, formula" },
+  ],
+  food: [
+    { key: "weight", label: "Weight", description: "g / kg portions" },
+    { key: "variant", label: "Variants", description: "Flavor, type" },
+  ],
+  merch: [
+    { key: "variant", label: "Variants", description: "Generic options" },
+    { key: "size", label: "Sizes", description: "If applicable" },
+    { key: "color", label: "Colors", description: "If applicable" },
+  ],
+  single: [
+    { key: "variant", label: "Variants", description: "Editions or options" },
+  ],
+};
 
 export interface StepOption {
   id: string;
