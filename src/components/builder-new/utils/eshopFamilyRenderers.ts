@@ -1400,7 +1400,7 @@ export function renderMinna(ctx: EshopRenderContext): string {
         </button>
         ${navLeft.map((l) => `<a href="${navHref(l)}" style="font-size:13px;letter-spacing:0.04em;color:${t.pageText};font-weight:500;">${l}</a>`).join("")}
       </div>
-      <a href="#hero" style="font-family:${t.fontHeading};font-size:24px;letter-spacing:0.32em;font-weight:500;color:${t.pageText};white-space:nowrap;">${wordmark}</a>
+      <a href="#hero" style="display:flex;align-items:center;justify-content:center;text-decoration:none;">${logoHTML}</a>
       <div style="display:flex;align-items:center;gap:18px;justify-content:flex-end;">
         <button aria-label="Search" style="background:none;border:none;cursor:pointer;padding:6px;color:${t.pageText};">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
