@@ -58,6 +58,27 @@ body > nav:not([data-yangu-badge]) > *{
   width:100% !important;
 }
 
+/* ── Canonical product card layout (DESKTOP) ──
+   Title (top) → Description → footer row: price (left) | + Add (right).
+   We target any container that holds a .yangu-live-cta button. */
+@media (min-width: 769px) {
+  /* Card content container becomes a vertical flex stack */
+  *:has(> .yangu-live-cta) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+  }
+  /* Bottom CTA: inline-right, auto width, not full-bleed */
+  .yangu-live-cta {
+    width: auto !important;
+    align-self: flex-end !important;
+    margin-top: 10px !important;
+    padding: 8px 18px !important;
+    min-width: 96px !important;
+  }
+}
+
 nav,.navbar,[class*="nav"]{
   display:flex !important;
   align-items:center !important;
@@ -138,6 +159,21 @@ h2,.section-title{
   .yangu-product-grid > *,
   [style*="grid-template-columns"] > div[style*="border-radius"]{
     max-width:100% !important;
+  }
+  /* ── Canonical product card layout (MOBILE) ──
+     One global rule: title → description → price → full-width [+ Add] */
+  *:has(> .yangu-live-cta) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+  }
+  .yangu-live-cta {
+    width: 100% !important;
+    align-self: stretch !important;
+    margin-top: 10px !important;
+    padding: 12px 16px !important;
+    font-size: 15px !important;
   }
   h1,.hero-title {
     font-size:2rem !important;
