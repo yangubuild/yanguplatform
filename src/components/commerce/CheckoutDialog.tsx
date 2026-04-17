@@ -15,6 +15,7 @@ import { MapPin, CheckCircle2, Loader2 } from "lucide-react";
 import { formatPriceCents } from "@/types/commerce";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { CommerceAuthSheet } from "@/components/commerce/CommerceAuthSheet";
 import type { CartItem } from "@/lib/cart/cartStore";
 
 interface CheckoutDialogProps {
@@ -51,6 +52,7 @@ export function CheckoutDialog({
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
 
   const isDelivery = orderType === "delivery";
   const grandTotal = totalCents + (isDelivery ? deliveryFeeCents : 0);
@@ -82,6 +84,18 @@ export function CheckoutDialog({
       return;
     }
 
+    // Phase 2: require auth before submitting the order. Cart is preserved
+    // in localStorage so it survives the auth handoff.
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      setAuthOpen(true);
+      return;
+    }
+
+    await submitOrder();
+  };
+
+  const submitOrder = async () => {
     setIsSubmitting(true);
     try {
       // Create order
@@ -306,6 +320,16 @@ export function CheckoutDialog({
           )}
         </div>
       </DialogContent>
+
+      <CommerceAuthSheet
+        open={authOpen}
+        onClose={() => setAuthOpen(false)}
+        onAuthed={async () => {
+          setAuthOpen(false);
+          // Resume order placement with cart intact
+          await submitOrder();
+        }}
+      />
     </Dialog>
   );
 }
