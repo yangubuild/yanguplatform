@@ -778,7 +778,7 @@ const EDIT_SCRIPT = String.raw`
 
       function isLikelyProductCard(el) {
         if (!window.__YANGU_ENABLE_PRODUCT_CONTROLS) return false;
-        if (!el || ['DIV', 'ARTICLE', 'LI'].indexOf(el.tagName) === -1) return false;
+        if (!el || ['DIV', 'ARTICLE', 'LI', 'A'].indexOf(el.tagName) === -1) return false;
         if (el.closest('nav,header,footer')) return false;
         var nestedMatches = 0;
         var descendants = el.querySelectorAll('div,article,li');
