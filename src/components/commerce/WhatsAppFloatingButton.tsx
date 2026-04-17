@@ -20,7 +20,11 @@ export function WhatsAppFloatingButton({ phoneNumber, defaultMessage }: WhatsApp
   return (
     <button
       onClick={handleClick}
-      className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 bg-transparent p-0"
+      className="fixed right-4 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 bg-transparent p-0 md:right-6"
+      style={{
+        // Clear the mobile bottom app nav (h-16 = 64px) + safe area; desktop falls back to 24px.
+        bottom: "calc(env(safe-area-inset-bottom, 0px) + 80px)",
+      }}
       aria-label="Chat on WhatsApp"
     >
       <img src={whatsappIcon} alt="WhatsApp" className="w-full h-full object-contain" />
