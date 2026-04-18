@@ -297,6 +297,11 @@ const EDIT_SCRIPT = String.raw`
         }
 
         var titleStripped = stripPrice(rawTitle);
+        // ALWAYS also derive a canonical title from raw text nodes — when titleEl is the
+        // entire <p> wrapper (concatenated text), titleStripped is unusable for matching
+        // individual duplicate fragments. The inferred core gives us a clean key.
+        var inferredTitle = inferTitleFromRawTextNodes(card);
+        var inferredStripped = inferredTitle ? stripPrice(inferredTitle) : '';
         var titleKeys = {};
         [rawTitle, titleStripped].forEach(function(t) { if (t) titleKeys[t.toLowerCase()] = true; });
 
