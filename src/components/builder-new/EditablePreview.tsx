@@ -836,6 +836,11 @@ const EDIT_SCRIPT = String.raw`
         var hasAnyText = Boolean(nameEl) || Boolean(priceEl) || Boolean(legacy && (legacy.titleText || legacy.priceText));
         if (!imageEl || !hasAnyText) return false;
 
+        // EXCLUDE section wrappers: a real product card never contains a section heading
+        // (e.g. "Products", "Featured", "Shop"). If we see h1/h2 inside, it's the section
+        // container, not a card — skip so we don't render a stray edit/delete near the heading.
+        if (el.querySelector('h1, h2')) return false;
+
         var rect = el.getBoundingClientRect();
         return rect.width >= 100 && rect.height >= 100;
       }
