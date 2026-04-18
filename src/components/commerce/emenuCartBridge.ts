@@ -191,9 +191,8 @@ export function buildCartBridgeCode(
 
   function initCartBridge() {
     normalizeMislabeledCards();
-    document.querySelectorAll('div, article, li, a').forEach(function(card) {
+    findCandidateProductCards().forEach(function(card) {
       if (card.getAttribute('data-cart-processed')) return;
-      if (!isProductCard(card)) return;
 
       var nameEl = findNameEl(card);
       var priceEl = findPriceEl(card);
