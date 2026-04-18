@@ -245,8 +245,31 @@ const EDIT_SCRIPT = String.raw`
       }
 
       function removeDuplicateTitleNodes(card, titleEl, priceEl, descEl, badgeEl) {
-        var titleText = normalizeProductText((titleEl && titleEl.textContent) || card.getAttribute('data-product-title') || '');
-        if (!titleText) return false;
+        var rawTitle = normalizeProductText((titleEl && titleEl.textContent) || card.getAttribute('data-product-title') || '');
+        if (!rawTitle) return false;
+
+        var rawPrice = normalizeProductText((priceEl && priceEl.textContent) || '');
+
+        // Build title-equivalence: collapse "Title $92" / "$92 Title" / "Title" all to the same key,
+        // so duplicate fragments get removed even when the canonical title has the price embedded.
+        function stripPrice(s) {
+          var out = s || '';
+          if (rawPrice) {
+            out = out.replace(new RegExp('\\s*' + escapeRegExp(rawPrice) + '\\s*', 'gi'), ' ');
+          }
+          var anyPrice = extractPriceText(out);
+          while (anyPrice) {
+            out = out.replace(new RegExp('\\s*' + escapeRegExp(anyPrice) + '\\s*', 'i'), ' ');
+            var next = extractPriceText(out);
+            if (next === anyPrice) break;
+            anyPrice = next;
+          }
+          return normalizeProductText(out);
+        }
+
+        var titleStripped = stripPrice(rawTitle);
+        var titleKeys = {};
+        [rawTitle, titleStripped].forEach(function(t) { if (t) titleKeys[t.toLowerCase()] = true; });
 
         var protectedNodes = [titleEl, priceEl, descEl, badgeEl].filter(Boolean);
         var removedAny = false;
@@ -260,14 +283,19 @@ const EDIT_SCRIPT = String.raw`
 
           var fullText = normalizeProductText(node.textContent);
           var directText = getDirectTextContent(node);
+          var fullStripped = stripPrice(fullText);
+          var directStripped = stripPrice(directText);
 
-          if (fullText === titleText) {
+          var fullMatches = fullText && (titleKeys[fullText.toLowerCase()] || (fullStripped && titleKeys[fullStripped.toLowerCase()]));
+          var directMatches = directText && (titleKeys[directText.toLowerCase()] || (directStripped && titleKeys[directStripped.toLowerCase()]));
+
+          if (fullMatches) {
             node.remove();
             removedAny = true;
             return;
           }
 
-          if (directText !== titleText) return;
+          if (!directMatches) return;
 
           Array.from(node.childNodes || []).forEach(function(child) {
             if (child.nodeType === 3 && normalizeProductText(child.textContent)) {
