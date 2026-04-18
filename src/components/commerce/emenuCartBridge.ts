@@ -508,8 +508,12 @@ export function buildCartBridgeCode(
 `;
 }
 
-export function buildCartBridgeScript(configuredCurrency: string = "USD"): string {
-  return `<script>${buildCartBridgeCode(configuredCurrency)}</script>`;
+export function buildCartBridgeScript(
+  configuredCurrency: string = "USD",
+  surfaceId: string = "",
+  surfaceType: string = "",
+): string {
+  return `<script>${buildCartBridgeCode(configuredCurrency, surfaceId, surfaceType)}</script>`;
 }
 
 // Keep backward compat export for any non-currency-aware callers
