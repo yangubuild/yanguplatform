@@ -244,11 +244,40 @@ const EDIT_SCRIPT = String.raw`
         return normalizeProductText(text);
       }
 
+      function inferTitleFromRawTextNodes(card) {
+        // Walk all bare text-node children inside the card and pick the longest
+        // non-price, non-trivial string as the canonical product name. Used when
+        // the template puts name+price as sibling text nodes inside a single <p>.
+        var best = '';
+        Array.from(card.querySelectorAll('*')).forEach(function(el) {
+          if (el.closest && el.closest('.yangu-product-controls')) return;
+          Array.from(el.childNodes || []).forEach(function(child) {
+            if (child.nodeType !== 3) return;
+            var raw = normalizeProductText(child.textContent);
+            if (!raw || raw.length < 3) return;
+            if (isPriceText(raw)) return;
+            // Strip any embedded price tokens to compare core text length
+            var core = raw.replace(/(?:[A-Z]{3}\s*[\d,]+(?:\.\d+)?|[\$€£₦]\s*[\d,]+(?:\.\d+)?|R\s*[\d,]+(?:\.\d+)?)/ig, '').replace(/\s+/g, ' ').trim();
+            if (!core || core.length < 3) return;
+            if (core.length > best.length) best = core;
+          });
+        });
+        return best;
+      }
+
       function removeDuplicateTitleNodes(card, titleEl, priceEl, descEl, badgeEl) {
         var rawTitle = normalizeProductText((titleEl && titleEl.textContent) || card.getAttribute('data-product-title') || '');
+        if (!rawTitle) {
+          // Fallback: derive from raw text nodes (templates with name+price as sibling text nodes)
+          rawTitle = inferTitleFromRawTextNodes(card);
+        }
         if (!rawTitle) return false;
 
         var rawPrice = normalizeProductText((priceEl && priceEl.textContent) || '');
+        if (!rawPrice) {
+          // Fallback: scan card for first price token
+          rawPrice = extractPriceText(card.textContent || '');
+        }
 
         // Build title-equivalence: collapse "Title $92" / "$92 Title" / "Title" all to the same key,
         // so duplicate fragments get removed even when the canonical title has the price embedded.
