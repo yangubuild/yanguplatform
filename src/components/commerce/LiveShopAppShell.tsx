@@ -33,15 +33,51 @@ export function LiveShopAppShell({
   businessName,
   logoUrl,
   cartCount,
+  wishlistCount = 0,
   activeTab,
   onTabChange,
+  onOpenWishlist,
   children,
 }: LiveShopAppShellProps) {
   const isMobile = useMediaQuery("(max-width: 768px)");
 
-  // Desktop: render children only — desktop keeps the template's own nav.
+  // Desktop: render children + a floating top-right icon row.
   if (!isMobile) {
-    return <>{children}</>;
+    return (
+      <>
+        {children}
+        <div className="fixed top-3 right-3 z-50 flex items-center gap-1 rounded-full border border-border bg-background/90 backdrop-blur-sm shadow-md px-2 py-1">
+          <button aria-label="Search" className="h-9 w-9 inline-flex items-center justify-center rounded-full hover:bg-muted/60 transition-colors">
+            <Search className="h-4 w-4 text-foreground" />
+          </button>
+          <button
+            aria-label="Wishlist"
+            onClick={() => onOpenWishlist?.()}
+            className="relative h-9 w-9 inline-flex items-center justify-center rounded-full hover:bg-muted/60 transition-colors"
+          >
+            <Heart className="h-4 w-4 text-foreground" />
+            {wishlistCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] px-1 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
+                {wishlistCount}
+              </span>
+            )}
+          </button>
+          <button
+            aria-label="Cart"
+            onClick={() => onTabChange("cart")}
+            className="relative h-9 w-9 inline-flex items-center justify-center rounded-full hover:bg-muted/60 transition-colors"
+          >
+            <ShoppingCart className="h-4 w-4 text-foreground" />
+            {cartCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] px-1 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
+          </button>
+          <PublicAccountDropdown onOpenWishlist={onOpenWishlist} />
+        </div>
+      </>
+    );
   }
 
   return (
