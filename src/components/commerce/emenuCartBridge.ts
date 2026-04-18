@@ -64,13 +64,16 @@ export function buildCartBridgeCode(
   }
 
   function isProductCard(el) {
-    // Eshop family renders cards as <a> tags; emenu uses div/article/li.
+    // STRICT: only inject on elements explicitly marked as product cards by the owner/editor.
+    // Heuristic detection (img + heading) caused false positives on hero images, collection
+    // tiles ("Women"/"Men"), brand badges, and grid wrappers — producing duplicate "+ Add"
+    // buttons across non-product elements. Real products always carry data-product-card="true".
     if (['DIV','ARTICLE','LI','A'].indexOf(el.tagName) === -1) return false;
+    if (el.getAttribute('data-product-card') !== 'true') return false;
+    // Skip wrappers that contain other product cards (only inject on the leaf card).
     var nested = el.querySelectorAll('[data-product-card="true"]');
     if (nested.length > 0) return false;
-    if (el.getAttribute('data-product-card') === 'true') return true;
-    // Allow cards even without a valid price element — price can be recovered later
-    return Boolean(el.querySelector('img') && findNameEl(el));
+    return true;
   }
 
   function getButtonStyle(card) {
