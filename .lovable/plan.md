@@ -1,51 +1,56 @@
 
 
-## Audit: What gets published — emenu vs eshop/other categories
+## Product Card System Modernization — Emenu & Eshop
 
-### When user clicks Publish in **EMENU** editor (`EmenuNewEditor`)
-1. Opens `BuilderPublishModal` (full modal: Page Title, SEO Description, Favicon, Cover Image, domain selector, slug).
-2. Calls Supabase RPC `request_publish_surface` → creates row in `builder_publishes`.
-3. `syncPublishedRecord` (useBuilderPublish.ts L168-210) writes `published_schema.surface` with:
-   - `surface_type: "emenu"`
-   - `slug`, `favicon_url`, `show_yangu_badge`
-   - **`emenu_html`** = sanitized full-page HTML from `metadata.builder_new_html` / `pages_html` (blob URLs persisted to storage).
-4. **Live runtime** (`PublicSurfacePage` L103 / `SurfaceViewer` L98-118): detects `surface_type === "emenu"` → renders `EmenuPublicView` which mounts `PublishedEmenuFrame` (iframe `srcdoc={emenu_html}`) wrapped in `PublicCommerceShell` (cart bridge, checkout).
-5. **Result**: 1:1 pixel parity with the editor canvas — exact HTML the user designed.
+I understand all 8 parts. Confirming scope: ONLY product cards + minimal commerce shell additions (wishlist, account dropdown, top-right icons). No editor navbar, sidebar, publish modal, or template layout changes. Emenu live behavior preserved.
 
-### When user clicks Publish in **ESHOP / ESITE / ESTORE / INFLUENCER / COMMUNITY**
-Two divergent paths exist in the codebase right now:
+### Part 1: Edit/Delete icons on ALL eshop cards
+**Root cause**: `EditablePreview.tsx` requires both visual size threshold AND structural heuristics. Eshop renderers now emit `data-product-card="true"`, but the icon injector still falls through size/heuristic gates that fail on some templates.
+**Fix**: In `EditablePreview.tsx`, short-circuit detection — if `el.matches('[data-product-card="true"]')`, inject icons immediately, bypassing `isLikelyProductCard` and size checks. Mirrors emenu where `.menu-item`/structural detection always wins.
 
-**Path A — from the unified editor (`EmenuNewEditor`, reached via `/builder/:surfaceId`)**
-- Same `BuilderPublishModal` opens, same `request_publish_surface` RPC, same `syncPublishedRecord`.
-- BUT `syncPublishedRecord` L178 only writes `emenu_html` when `surfaceType === "emenu"`. For eshop/etc. it writes only: `id, slug, surface_type, favicon_url, show_yangu_badge`.
-- **No `pages_html` and no section schema is copied into `published_schema`.**
-- Live runtime (`PublicSurfacePage` L121-128) falls back to `schema.pages[0].sections` and renders via `PREVIEW_MAP` section components — which is the **legacy section-based renderer**, NOT the actual HTML the user edited in the canvas.
-- **Result**: live eshop surface shows a generic section-based render that does NOT match what the user built in the canvas (the canvas works in `pages_html` HTML, just like emenu).
+### Part 2: Standardize card structure (Name → Desc → Price LEFT / Button RIGHT)
+**Renderers**: `eshopFamilyRenderers.ts` — wrap price+button in `<div class="yangu-price-row" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">`. On mobile (`@media max-width:640px`), `.yangu-price-row` becomes `flex-direction:column;align-items:stretch` so button goes full-width below price.
+**Cart bridge**: `emenuCartBridge.ts` already injects button into price row — confirm it appends inside `.yangu-price-row` not a sibling.
 
-**Path B — from `BuilderNewPage` onboarding chat (the "Publish" button in the chat step before entering editor)**
-- Opens `BuilderPublishDialog` (`src/components/builder-new/BuilderPublishDialog.tsx`).
-- This is a **fake/stub modal**: 1.5s `setTimeout`, fires `toast.success("Website published!")`, **no RPC, no DB write, nothing published**. URL shown is hardcoded `${slug}.shop` / `.site`.
-- **Result**: nothing is actually published. Pure dead UI.
+### Part 3: Wishlist system
+- **Love icon**: Inject into every `[data-product-card="true"]` via `emenuCartBridge.ts` (top-right absolute over image). State stored in `localStorage` keyed by surface slug + product name (guest-safe, no auth required).
+- **Wishlist drawer**: New component `PublicWishlistDrawer.tsx` opened by heart icon in top nav. Reads same localStorage. Shows image, name, price, "Move to Bag" (calls existing cart bridge add) and remove.
+- **Count badge**: Heart icon in top nav shows count.
 
-### Side-by-side
+### Part 4: Top-nav icons + Account dropdown
+- **Renderer additions** (`eshopFamilyRenderers.ts` header block only — keep template visual unchanged, only swap the existing icon row): `[Search] [Wishlist+badge] [Cart+badge] [Currency] [Account]` desktop; `[Search] [Wishlist]` mobile.
+- **Account dropdown**: Static HTML structure (per spec sections) injected into header. Auth-aware: if logged in → show name/email + sections; if guest → show "Sign in / Create account". Items like Orders/Wishlist link to `/dashboard/...` or open the wishlist drawer. Empty sub-items (Wallet, Coupons, etc.) link to placeholder routes already in app or are hidden if route missing — no dead controls.
 
-| Step | Emenu | Eshop / Esite / Estore / Influencer / Community |
-|---|---|---|
-| Modal opened | `BuilderPublishModal` (real) | `BuilderPublishModal` (real, in editor) **or** `BuilderPublishDialog` (fake stub, in onboarding) |
-| RPC called | `request_publish_surface` ✅ | `request_publish_surface` ✅ (editor) / **none** (onboarding stub) |
-| `published_schema.surface.emenu_html` | ✅ full sanitized HTML written | ❌ **NEVER written** (gated by `if (surfaceType === "emenu")`) |
-| `published_schema.pages[].sections` | n/a (HTML path) | Whatever the legacy schema has — not synced from `pages_html` |
-| Live render path | iframe `srcdoc` of real HTML, with cart bridge | Legacy section renderer via `PREVIEW_MAP` — **does not match canvas HTML** |
-| Parity with editor canvas | 1:1 exact | ❌ broken — live page is a generic section render, not the user's edited HTML |
-| Fake dialog still wired anywhere | n/a | ✅ `BuilderNewPage` still imports & renders `BuilderPublishDialog` (dead UI) |
+### Part 5: Default button text + 2-word limit
+- **Defaults map**: New `src/lib/builder/productButtonDefaults.ts`:
+  ```ts
+  { emenu:"+ Add", eshop:"+ Add", estore:"+ Add", esite:"Book", influencer:"+ Add", community:"+ Add" }
+  ```
+- **Validation**: In `ProductCardEditorModal.tsx`, on button text save: `if (text.trim().split(/\s+/).length > 2) toast.error("Button text limited to 2 words"); return;`
+- Cart bridge reads default from this map by `surfaceType`.
 
-### Two concrete bugs surfaced
-1. **`syncPublishedRecord` only persists HTML for emenu.** Eshop/esite/estore (which now also use the unified `pages_html` HTML editor) publish an empty/legacy schema → live surface ≠ editor canvas.
-2. **`BuilderPublishDialog` (fake stub) still exists and is rendered by `BuilderNewPage`.** Violates zero-dead-controls policy and contradicts the "single emenu publish modal globally" rule.
+### Part 6: Product detail popup (visitor-side, not editor)
+- **New**: `PublicProductDetailDialog.tsx` triggered by clicking any `[data-product-card="true"]` in published runtime (wired in `emenuCartBridge.ts`). Reuses existing dialog seen in screenshot 11.16.54.
+- **Content**: image carousel (← →), name, brand, price, description, size chips (eshop), color swatches (eshop), qty −/+, "+ Add" / "Book", love icon. Reads `data-product-meta` JSON already persisted by editor.
+- Editor click behavior unchanged (still opens `ProductCardEditorModal`).
 
-### Recommended fix (for approval — implementation in default mode)
-1. In `useBuilderPublish.ts` `syncPublishedRecord`, remove the `if (surfaceType === "emenu")` gate so that **all categories** persist `emenu_html` (rename internally to `published_html` later; keep field name for now to avoid runtime breakage).
-2. Update `PublicSurfacePage` and `SurfaceViewer` to render the iframe HTML path for any surface that has `published_schema.surface.emenu_html` (not just `surface_type === "emenu"`), keeping commerce shell active for `eshop / estore / store_listing`.
-3. Delete `src/components/builder-new/BuilderPublishDialog.tsx` and remove its import + render from `BuilderNewPage.tsx`. The Publish button in onboarding should either route to the real editor's publish flow or be hidden until the surface is initialized.
-4. Verify on a freshly-built eshop: edit canvas → Publish → live URL shows identical HTML with working cart.
+### Part 7: Scope guardrails
+Touch only: `eshopFamilyRenderers.ts`, `emenuCartBridge.ts`, `EditablePreview.tsx` (detection short-circuit only), `ProductCardEditorModal.tsx` (2-word validation only), new public components. Memory file `mem://commerce/product-card-layout-and-editor` updated with the full rule set so Estore/Esite/Influencer/Community inherit automatically when their renderers are built.
+
+### Files to change
+1. `src/components/builder-new/EditablePreview.tsx` — short-circuit detection on `[data-product-card]`
+2. `src/components/builder-new/utils/eshopFamilyRenderers.ts` — `.yangu-price-row` wrapper, top-nav icon row, account dropdown HTML
+3. `src/components/commerce/emenuCartBridge.ts` — inject love icon, image arrows, wire card click → detail dialog, mount wishlist drawer
+4. `src/components/builder-new/ProductCardEditorModal.tsx` — 2-word button validation
+5. **NEW** `src/lib/builder/productButtonDefaults.ts`
+6. **NEW** `src/components/commerce/PublicWishlistDrawer.tsx`
+7. **NEW** `src/components/commerce/PublicProductDetailDialog.tsx`
+8. **NEW** `src/components/commerce/PublicAccountDropdown.tsx`
+9. `mem://commerce/product-card-layout-and-editor` — append rules for future builders
+
+### Verification (after build)
+- Eshop editor: every product card shows edit/delete on hover ✅
+- Emenu editor: unchanged ✅
+- Live eshop: love icon every card, arrows on multi-image, price-LEFT/button-RIGHT desktop, stacked mobile, top-right icons full set, account dropdown opens, wishlist drawer functional, click card opens detail dialog ✅
+- Editor: button text > 2 words rejected with toast ✅
 
