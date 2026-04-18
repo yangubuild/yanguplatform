@@ -18,6 +18,8 @@ import { OrderDetailView } from "@/components/commerce/OrderDetailView";
 import { WhatsAppFloatingButton } from "@/components/commerce/WhatsAppFloatingButton";
 import { LiveShopAppShell, type LiveShopTab } from "@/components/commerce/LiveShopAppShell";
 import { MyOrdersView } from "@/components/commerce/MyOrdersView";
+import { PublicWishlistDrawer } from "@/components/commerce/PublicWishlistDrawer";
+import { PublicProductDetailDialog } from "@/components/commerce/PublicProductDetailDialog";
 import { recordBuyerOrder } from "@/lib/cart/buyerOrders";
 import { ShoppingCart } from "lucide-react";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -27,6 +29,7 @@ interface PublicCommerceShellProps {
   surfaceId: string;
   ownerId: string;
   businessName?: string;
+  surfaceType?: string;
   children: React.ReactNode;
 }
 
@@ -36,10 +39,13 @@ export function PublicCommerceShell({
   surfaceId,
   ownerId,
   businessName,
+  surfaceType,
   children,
 }: PublicCommerceShellProps) {
   const [view, setView] = useState<CommerceView>("none");
   const [trackingCode, setTrackingCode] = useState("");
+  const [wishlistOpen, setWishlistOpen] = useState(false);
+  const [detailProduct, setDetailProduct] = useState<import("./PublicProductDetailDialog").ProductDetailPayload | null>(null);
   const cart = useCart(surfaceId);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
@@ -127,6 +133,8 @@ export function PublicCommerceShell({
   if (typeof window !== "undefined") {
     (window as any).__yangu_add_to_cart = handleAddToCart;
     (window as any).__yangu_open_cart = () => setView("cart");
+    (window as any).__yangu_open_wishlist = () => setWishlistOpen(true);
+    (window as any).__yangu_open_product_detail = (p: any) => setDetailProduct(p);
   }
 
   // Broadcast cart count to iframe
