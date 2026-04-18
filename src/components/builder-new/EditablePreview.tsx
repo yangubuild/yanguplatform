@@ -386,38 +386,6 @@ const EDIT_SCRIPT = String.raw`
             }
           });
         });
-            if (child.nodeType !== 3) return;
-            var raw = normalizeProductText(child.textContent);
-            if (!raw) return;
-            var lower = raw.toLowerCase();
-            var stripped = stripPrice(raw).toLowerCase();
-            var matchesTitle = titleKeys[lower] || (stripped && titleKeys[stripped]);
-            var matchesPrice = rawPriceLower && lower === rawPriceLower;
-            if (matchesTitle) {
-              if (seenTitle) {
-                child.remove();
-                removedAny = true;
-              } else {
-                seenTitle = true;
-                // Normalize: if the kept node still has price embedded, strip it
-                if (rawPrice && lower !== rawPriceLower) {
-                  var cleaned = stripPrice(raw);
-                  if (cleaned && cleaned.toLowerCase() !== lower) {
-                    child.textContent = cleaned;
-                    removedAny = true;
-                  }
-                }
-              }
-            } else if (matchesPrice) {
-              if (seenPrice) {
-                child.remove();
-                removedAny = true;
-              } else {
-                seenPrice = true;
-              }
-            }
-          });
-        });
 
         return removedAny;
       }
