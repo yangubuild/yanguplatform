@@ -190,189 +190,220 @@ export function buildCartBridgeCode(
     });
   }
 
+  function getAllTextNodes(root) {
+    var nodes = [];
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    var n;
+    while ((n = walker.nextNode())) {
+      if (normalizeText(n.nodeValue)) nodes.push(n);
+    }
+    return nodes;
+  }
+
+  function detectNameAndPrice(card) {
+    // Returns { name, price, nameEl, priceEl } using both data-product-role and heuristics.
+    var nameEl = card.querySelector('[data-product-role="title"]');
+    var priceEl = card.querySelector('[data-product-role="price"]');
+    var name = nameEl ? normalizeText(nameEl.textContent) : '';
+    var price = priceEl ? normalizeText(priceEl.textContent) : '';
+
+    // Scan text nodes for price (currency token) and longest non-price string for name.
+    var textNodes = getAllTextNodes(card);
+    var bestNameNode = null, bestNameLen = 0;
+    var firstPriceNode = null;
+    textNodes.forEach(function(tn) {
+      var t = normalizeText(tn.nodeValue);
+      if (!t) return;
+      if (isPriceText(t)) {
+        if (!price) {
+          var extracted = extractPrice(t) || t;
+          price = extracted;
+          if (!priceEl) {
+            firstPriceNode = tn;
+          }
+        }
+        return;
+      }
+      if (!name && t.length > bestNameLen && t.length < 120 && !/^(\\+\\s*add|add|buy|order|book|join|\\u2713|added|view)$/i.test(t)) {
+        bestNameLen = t.length;
+        bestNameNode = tn;
+      }
+    });
+    if (!name && bestNameNode) name = normalizeText(bestNameNode.nodeValue);
+    if (!nameEl && bestNameNode && bestNameNode.parentElement) nameEl = bestNameNode.parentElement;
+    if (!priceEl && firstPriceNode && firstPriceNode.parentElement) priceEl = firstPriceNode.parentElement;
+
+    // If name still contains price text, strip it.
+    if (name && price && name.indexOf(price) !== -1) {
+      name = normalizeText(name.replace(price, ''));
+    }
+    return { name: name, price: price, nameEl: nameEl, priceEl: priceEl };
+  }
+
+  function stripDuplicateText(card, name, price, keepNameEl, keepPriceEl) {
+    // Remove any text nodes (other than the canonical name/price elements) whose
+    // normalized text matches name, price, or "name + price" combinations.
+    var combined1 = normalizeText(name + ' ' + price);
+    var combined2 = normalizeText(price + ' ' + name);
+    var textNodes = getAllTextNodes(card);
+    textNodes.forEach(function(tn) {
+      var parent = tn.parentElement;
+      if (!parent) return;
+      // Skip canonical elements (and their descendants).
+      if (keepNameEl && (parent === keepNameEl || keepNameEl.contains(parent))) return;
+      if (keepPriceEl && (parent === keepPriceEl || keepPriceEl.contains(parent))) return;
+      var t = normalizeText(tn.nodeValue);
+      if (!t) return;
+      if (t === name || t === price || t === combined1 || t === combined2) {
+        // Remove the text node; if its parent becomes empty, remove parent too.
+        var p = parent;
+        tn.parentNode.removeChild(tn);
+        while (p && p !== card && !p.textContent.trim() && !p.querySelector('img, svg, button, a, input')) {
+          var gp = p.parentElement;
+          if (gp) gp.removeChild(p);
+          p = gp;
+        }
+      }
+    });
+  }
+
+  function buildFooter(card, info, btn) {
+    // Replaces existing name/price containers below the image with a single
+    // normalized footer: name on top; price LEFT, button RIGHT.
+    var footer = document.createElement('div');
+    footer.className = 'yangu-product-footer';
+    footer.setAttribute('data-yangu-injected', 'true');
+    footer.style.cssText = 'margin-top:10px;display:flex;flex-direction:column;gap:6px;align-items:stretch;';
+
+    var nameLine = document.createElement('div');
+    nameLine.className = 'yangu-product-name';
+    nameLine.style.cssText = 'font-weight:700;font-size:15px;line-height:1.3;color:#111;';
+    nameLine.textContent = info.name || '';
+
+    var row = document.createElement('div');
+    row.className = 'yangu-price-row';
+    row.style.cssText = 'display:flex;flex-direction:row;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;';
+
+    var priceSpan = document.createElement('span');
+    priceSpan.className = 'yangu-product-price';
+    priceSpan.setAttribute('data-product-role', 'price');
+    priceSpan.style.cssText = 'font-weight:700;font-size:15px;color:#111;';
+    priceSpan.textContent = info.price || '';
+
+    row.appendChild(priceSpan);
+    row.appendChild(btn);
+    footer.appendChild(nameLine);
+    footer.appendChild(row);
+    card.appendChild(footer);
+    return { footer: footer, priceEl: priceSpan, nameEl: nameLine };
+  }
+
   function initCartBridge() {
     normalizeMislabeledCards();
     findCandidateProductCards().forEach(function(card) {
+      // Idempotency: if we already injected a normalized footer here, skip.
+      if (card.querySelector(':scope > .yangu-product-footer[data-yangu-injected="true"]')) return;
       if (card.getAttribute('data-cart-processed')) return;
 
-      var nameEl = findNameEl(card);
-      var priceEl = findPriceEl(card);
-      var imageEl = card.querySelector('img');
-      if (!nameEl) return;
+      var info = detectNameAndPrice(card);
+      if (!info.name) return;
 
-      var priceText = priceEl ? normalizeText(priceEl.textContent) : '';
-      var priceNum = NaN;
-      if (priceText && isPriceText(priceText)) {
-        priceNum = parsePriceNum(priceText);
-      }
-      if (isNaN(priceNum) && priceText) {
-        var extracted = extractPrice(priceText);
-        if (extracted) { priceText = extracted; priceNum = parsePriceNum(priceText); }
-      }
-      if (isNaN(priceNum)) {
-        var descEl = card.querySelector('[data-product-role="description"]');
-        if (descEl) {
-          var descExtracted = extractPrice(descEl.textContent);
-          if (descExtracted) { priceText = descExtracted; priceNum = parsePriceNum(priceText); }
+      // Parse price number (defaults to 0 if missing).
+      var priceNum = info.price ? parsePriceNum(info.price) : 0;
+      if (isNaN(priceNum) || priceNum < 0) priceNum = 0;
+
+      // Format price with configured currency (only if we have a number > 0).
+      var displayPrice = info.price || '';
+      if (priceNum > 0) {
+        try {
+          displayPrice = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: CONFIGURED_CURRENCY,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2,
+          }).format(priceNum);
+        } catch (_e) {
+          displayPrice = CONFIGURED_CURRENCY + ' ' + priceNum.toLocaleString('en-US');
         }
       }
-      if (isNaN(priceNum)) {
-        var cardExtracted = extractPrice(card.textContent);
-        if (cardExtracted) { priceText = cardExtracted; priceNum = parsePriceNum(priceText); }
-      }
-      // Last resort: extract any digits from price element or full card
-      if (isNaN(priceNum)) {
-        var src = priceEl ? priceEl.textContent : card.textContent;
-        var digits = normalizeText(src).replace(/[^\\d.]/g, '');
-        if (digits) priceNum = parseFloat(digits);
-      }
-      if (isNaN(priceNum) || priceNum <= 0) priceNum = 0;
+      info.price = displayPrice;
 
-      // Only mark processed AFTER confirming valid price parse
       card.setAttribute('data-cart-processed', 'true');
 
       var priceCents = Math.round(priceNum * 100);
-      var itemName = normalizeText(nameEl.textContent);
+      var itemName = info.name;
+      var imageEl = card.querySelector('img');
       var imageUrl = imageEl ? imageEl.src : null;
       var itemId = btoa(itemName + '_' + priceCents).replace(/=/g, '');
 
-      // ── Currency consistency: rewrite the visible price to match the configured shop currency ──
-      // Template HTML may have hardcoded symbols like "$30" while the shop is configured for UGX.
-      // Force a single source of truth so page cards and the cart always agree.
-      if (priceEl && priceNum > 0) {
-        try {
-          var formatted;
-          try {
-            formatted = new Intl.NumberFormat('en-US', {
-              style: 'currency',
-              currency: CONFIGURED_CURRENCY,
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 2,
-            }).format(priceNum);
-          } catch (_e) {
-            formatted = CONFIGURED_CURRENCY + ' ' + priceNum.toLocaleString('en-US');
-          }
-          if (normalizeText(priceEl.textContent) !== formatted) {
-            priceEl.textContent = formatted;
-          }
-        } catch (_err) { /* non-fatal */ }
-      }
-
-      // Determine button text from card metadata
+      // Determine button text and CTA action.
       var ctaAction = card.getAttribute('data-product-cta') || '';
       var buttonText = card.getAttribute('data-product-button-text') || '';
-
-      // If CTA is explicitly "none", skip button
-      if (ctaAction === 'none') return;
-
-      // Default button text if not set
+      if (ctaAction === 'none') {
+        // Still strip duplicates and build footer (without button) for layout consistency.
+      }
       if (!buttonText) {
         var ctaTextMap = {
-          'add_to_cart': '+ Add',
-          'buy_now': 'Buy Now',
-          'order_now': 'Order Now',
-          'book_now': 'Book Now',
-          'join_now': '+ Join',
-          'contact_seller': 'Contact Seller',
-          'reserve': 'Reserve',
-          'access': 'Access',
-          'download': 'Download',
-          'view': 'View'
+          'add_to_cart': '+ Add', 'buy_now': 'Buy Now', 'order_now': 'Order Now',
+          'book_now': 'Book Now', 'join_now': '+ Join', 'contact_seller': 'Contact',
+          'reserve': 'Reserve', 'access': 'Access', 'download': 'Download', 'view': 'View'
         };
         buttonText = ctaTextMap[ctaAction] || '+ Add';
       }
 
       var style = getButtonStyle(card);
-
       var btn = document.createElement('button');
+      btn.type = 'button';
       btn.textContent = buttonText;
       btn.className = 'yangu-live-cta';
-      // Inline button — sits to the RIGHT of the price in the same flex row
       btn.style.cssText = 'padding:6px 14px;border-radius:' + style.radius + ';border:2px solid ' + style.color + ';background:transparent;color:' + style.color + ';font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:0.02em;white-space:nowrap;flex-shrink:0;';
       btn.onmouseover = function() { btn.style.background = style.color; btn.style.color = '#fff'; };
       btn.onmouseout = function() { btn.style.background = 'transparent'; btn.style.color = style.color; };
 
       var actionType = card.getAttribute('data-product-action-type') || 'checkout';
       var actionUrl = card.getAttribute('data-product-action-url') || '';
-
       btn.onclick = function(e) {
         e.preventDefault();
         e.stopPropagation();
-
-        if (actionType === 'external_url' && actionUrl) {
-          window.open(actionUrl, '_blank');
-          return;
-        }
+        if (actionType === 'external_url' && actionUrl) { window.open(actionUrl, '_blank'); return; }
         if (actionType === 'whatsapp') {
           window.open('https://wa.me/?text=' + encodeURIComponent('I would like to order: ' + itemName), '_blank');
           return;
         }
-
         window.parent.postMessage({
           type: 'yangu_add_to_cart',
-          item: {
-            id: itemId,
-            name: itemName,
-            price_cents: priceCents,
-            currency: CONFIGURED_CURRENCY,
-            image_url: imageUrl,
-            variant: null
-          }
+          item: { id: itemId, name: itemName, price_cents: priceCents, currency: CONFIGURED_CURRENCY, image_url: imageUrl, variant: null }
         }, '*');
-
         var origText = btn.textContent;
         btn.textContent = '\\u2713 Added';
-        btn.style.background = '#059669';
-        btn.style.color = '#fff';
-        btn.style.borderColor = '#059669';
+        btn.style.background = '#059669'; btn.style.color = '#fff'; btn.style.borderColor = '#059669';
         setTimeout(function() {
           btn.textContent = origText;
-          btn.style.background = 'transparent';
-          btn.style.color = style.color;
-          btn.style.borderColor = style.color;
+          btn.style.background = 'transparent'; btn.style.color = style.color; btn.style.borderColor = style.color;
         }, 1200);
       };
 
-      // Place button inline to the RIGHT of the price.
-      // Strategy: if the price element's parent is a flex container, append the button there.
-      // Otherwise, wrap the price in a flex justify-between row and append the button.
-      var inserted = false;
-      if (priceEl) {
-        var priceParent = priceEl.parentElement;
-        if (priceParent && priceParent !== card) {
-          var ps = window.getComputedStyle(priceParent);
-          if (ps.display === 'flex' || ps.display === 'inline-flex') {
-            // Ensure the row uses justify-between so price stays left, button right
-            priceParent.style.justifyContent = 'space-between';
-            priceParent.style.alignItems = 'center';
-            priceParent.appendChild(btn);
-            inserted = true;
-          } else {
-            // Wrap price in a new flex row
-            var wrap = document.createElement('div');
-            wrap.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;';
-            priceEl.parentNode.insertBefore(wrap, priceEl);
-            wrap.appendChild(priceEl);
-            wrap.appendChild(btn);
-            inserted = true;
-          }
+      // Strip duplicate name/price text nodes BEFORE building the new footer.
+      stripDuplicateText(card, info.name, info.price, info.nameEl, info.priceEl);
+      // Also remove the original name/price elements so they don't duplicate the new footer.
+      try {
+        if (info.nameEl && info.nameEl !== card && card.contains(info.nameEl)) {
+          var npe = info.nameEl;
+          npe.parentElement && npe.parentElement.removeChild(npe);
         }
-      }
-      if (!inserted) {
-        // Fallback: append below name/price
-        var contentArea = null;
-        if (nameEl && nameEl.parentElement && nameEl.parentElement !== card) {
-          contentArea = nameEl.parentElement;
+        if (info.priceEl && info.priceEl !== card && card.contains(info.priceEl)) {
+          var ppe = info.priceEl;
+          ppe.parentElement && ppe.parentElement.removeChild(ppe);
         }
-        if (!contentArea) contentArea = card;
-        btn.style.marginTop = '8px';
-        btn.style.width = '100%';
-        contentArea.appendChild(btn);
-      }
+      } catch (_e) {}
 
-      // ─── Delivery + "GET IT ..." strip (eshop / estore / esite product cards) ───
-      // Reads data-product-meta JSON when present, otherwise applies surface defaults so
-      // visitors immediately see the e-commerce signals (Free delivery + GET IT TOMORROW).
+      // Strip duplicates again after removing originals (catch sibling copies).
+      stripDuplicateText(card, info.name, info.price, null, null);
+
+      // Build the canonical footer.
+      var built = buildFooter(card, info, ctaAction === 'none' ? document.createElement('span') : btn);
+
+      // ─── Delivery + GET IT strip (eshop / estore / esite) ───
       var st = (window.__YANGU_SURFACE_TYPE || '').toLowerCase();
       var isShoppy = (st === 'eshop' || st === 'estore' || st === 'esite');
       if (isShoppy && !card.getAttribute('data-delivery-injected')) {
@@ -387,11 +418,9 @@ export function buildCartBridgeCode(
         var getItUnit = meta.getItUnit || 'tomorrow';
         var getItValue = meta.getItValue || '1';
         var getItTodayUnit = meta.getItTodayUnit || 'hours';
-
         var deliveryLabel = (deliveryType === 'paid' && deliveryFee)
           ? ('Delivery: ' + deliveryFee)
           : (deliveryType === 'paid' ? 'Paid delivery' : 'Free delivery');
-
         var getItHighlight;
         if (getItUnit === 'today') {
           getItHighlight = 'TODAY ' + getItValue + ' ' + (getItTodayUnit === 'minutes' ? 'MIN' : 'HRS');
@@ -402,7 +431,6 @@ export function buildCartBridgeCode(
         } else {
           getItHighlight = 'TOMORROW';
         }
-
         var strip = document.createElement('div');
         strip.className = 'yangu-delivery-strip';
         strip.style.cssText = 'margin-top:8px;display:flex;flex-direction:column;gap:4px;font-family:inherit;';
@@ -411,13 +439,7 @@ export function buildCartBridgeCode(
           '<div style="font-size:11px;font-weight:800;letter-spacing:0.04em;color:#111;line-height:1.3;">' +
             'GET IT <span style="background:#D6FF3D;color:#111;padding:1px 6px;border-radius:2px;font-style:italic;">' + getItHighlight + '</span>' +
           '</div>';
-
-        var anchor = priceEl ? (priceEl.closest('.yangu-price-row') || priceEl.parentElement) : null;
-        if (anchor && anchor.parentElement) {
-          anchor.parentElement.insertBefore(strip, anchor.nextSibling);
-        } else {
-          card.appendChild(strip);
-        }
+        built.footer.appendChild(strip);
       }
     });
 
