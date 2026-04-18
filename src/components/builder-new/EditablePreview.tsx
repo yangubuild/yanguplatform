@@ -297,8 +297,13 @@ const EDIT_SCRIPT = String.raw`
         }
 
         var titleStripped = stripPrice(rawTitle);
+        // ALWAYS also derive a canonical title from raw text nodes — when titleEl is the
+        // entire <p> wrapper (concatenated text), titleStripped is unusable for matching
+        // individual duplicate fragments. The inferred core gives us a clean key.
+        var inferredTitle = inferTitleFromRawTextNodes(card);
+        var inferredStripped = inferredTitle ? stripPrice(inferredTitle) : '';
         var titleKeys = {};
-        [rawTitle, titleStripped].forEach(function(t) { if (t) titleKeys[t.toLowerCase()] = true; });
+        [rawTitle, titleStripped, inferredTitle, inferredStripped].forEach(function(t) { if (t) titleKeys[t.toLowerCase()] = true; });
 
         var protectedNodes = [titleEl, priceEl, descEl, badgeEl].filter(Boolean);
         var removedAny = false;
@@ -344,14 +349,15 @@ const EDIT_SCRIPT = String.raw`
         // Required for templates where name/price are sibling text nodes inside
         // a single <p> (the editor preview was leaking 3-4 duplicates this way).
         var rawPriceLower = rawPrice ? rawPrice.toLowerCase() : '';
+        // Card-scoped trackers: keep exactly ONE title text node and ONE price text
+        // node across the whole card, regardless of which parent <p>/<div> they live in.
+        var seenTitle = false;
+        var seenPrice = false;
         Array.from(card.querySelectorAll('*')).forEach(function(el) {
           if (protectedNodes.some(function(protectedNode) {
             return el === protectedNode || el.contains(protectedNode);
           })) return;
           if (el.closest && el.closest('.yangu-product-controls')) return;
-          // Track which raw text nodes have been kept so we leave exactly one of each kind.
-          var seenTitle = false;
-          var seenPrice = false;
           Array.from(el.childNodes || []).forEach(function(child) {
             if (child.nodeType !== 3) return;
             var raw = normalizeProductText(child.textContent);
@@ -366,7 +372,7 @@ const EDIT_SCRIPT = String.raw`
                 removedAny = true;
               } else {
                 seenTitle = true;
-                // Normalize: if the kept node still has price embedded, strip it
+                // Normalize: if the kept node has price embedded, strip it so we render clean name only
                 if (rawPrice && lower !== rawPriceLower) {
                   var cleaned = stripPrice(raw);
                   if (cleaned && cleaned.toLowerCase() !== lower) {
@@ -885,18 +891,35 @@ const EDIT_SCRIPT = String.raw`
         if (!el || ['DIV', 'ARTICLE', 'LI', 'A'].indexOf(el.tagName) === -1) return false;
         if (el.closest('nav,header,footer')) return false;
 
+        // Hard exclusion: any element containing a descendant <a> with an <img>
+        // is a grid/section wrapper and must NEVER be a product card itself.
+        var nestedAnchorWithImg = false;
+        var anchorChildren = el.querySelectorAll('a');
+        for (var ai = 0; ai < anchorChildren.length; ai++) {
+          if (anchorChildren[ai] !== el && anchorChildren[ai].querySelector('img')) {
+            nestedAnchorWithImg = true;
+            break;
+          }
+        }
+        if (nestedAnchorWithImg) return false;
+
         // SHORT-CIRCUIT: if renderer explicitly marks this as a product card
         // (e.g. eshop's data-product-card="true"), trust it immediately and
-        // bypass nested-card / size / structural heuristics. This guarantees
-        // every product card across all category templates gets edit/delete icons.
+        // bypass remaining heuristics.
         if (el.getAttribute('data-product-card') === 'true') return true;
         if (el.querySelector('.yangu-product-controls')) return true;
 
         var nestedMatches = 0;
-        var descendants = el.querySelectorAll('div,article,li');
+        var descendants = el.querySelectorAll('div,article,li,a');
         for (var i = 0; i < descendants.length; i++) {
           var descendant = descendants[i];
           if (descendant === el) continue;
+          // Any descendant <a> holding an <img> is a sign this is a GRID/section wrapper,
+          // not an individual product card. Skip so we don't render stray controls outside
+          // the cards (e.g. floating near the "Products" heading).
+          if (descendant.tagName === 'A' && descendant.querySelector('img')) {
+            return false;
+          }
           if (descendant.querySelector('img') && getProductNameEl(descendant) && getProductPriceEl(descendant)) {
             nestedMatches++;
             if (nestedMatches > 0) return false;
@@ -913,9 +936,9 @@ const EDIT_SCRIPT = String.raw`
         if (!imageEl || !hasAnyText) return false;
 
         // EXCLUDE section wrappers: a real product card never contains a section heading
-        // (e.g. "Products", "Featured", "Shop"). If we see h1/h2 inside, it's the section
+        // (e.g. "Products", "Featured", "Shop"). If we see h1/h2/h3 inside, it's the section
         // container, not a card — skip so we don't render a stray edit/delete near the heading.
-        if (el.querySelector('h1, h2')) return false;
+        if (el.querySelector('h1, h2, h3')) return false;
 
         var rect = el.getBoundingClientRect();
         return rect.width >= 100 && rect.height >= 100;
