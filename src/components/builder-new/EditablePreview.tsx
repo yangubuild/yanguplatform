@@ -893,10 +893,16 @@ const EDIT_SCRIPT = String.raw`
         if (el.querySelector('.yangu-product-controls')) return true;
 
         var nestedMatches = 0;
-        var descendants = el.querySelectorAll('div,article,li');
+        var descendants = el.querySelectorAll('div,article,li,a');
         for (var i = 0; i < descendants.length; i++) {
           var descendant = descendants[i];
           if (descendant === el) continue;
+          // Any descendant <a> holding an <img> is a sign this is a GRID/section wrapper,
+          // not an individual product card. Skip so we don't render stray controls outside
+          // the cards (e.g. floating near the "Products" heading).
+          if (descendant.tagName === 'A' && descendant.querySelector('img')) {
+            return false;
+          }
           if (descendant.querySelector('img') && getProductNameEl(descendant) && getProductPriceEl(descendant)) {
             nestedMatches++;
             if (nestedMatches > 0) return false;
@@ -913,9 +919,9 @@ const EDIT_SCRIPT = String.raw`
         if (!imageEl || !hasAnyText) return false;
 
         // EXCLUDE section wrappers: a real product card never contains a section heading
-        // (e.g. "Products", "Featured", "Shop"). If we see h1/h2 inside, it's the section
+        // (e.g. "Products", "Featured", "Shop"). If we see h1/h2/h3 inside, it's the section
         // container, not a card — skip so we don't render a stray edit/delete near the heading.
-        if (el.querySelector('h1, h2')) return false;
+        if (el.querySelector('h1, h2, h3')) return false;
 
         var rect = el.getBoundingClientRect();
         return rect.width >= 100 && rect.height >= 100;
