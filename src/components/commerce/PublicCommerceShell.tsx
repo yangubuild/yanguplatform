@@ -160,13 +160,35 @@ export function PublicCommerceShell({
       ? "orders"
       : "menu";
 
+  // Wishlist count from localStorage (visitor-side, surface-scoped)
+  const [wishlistCount, setWishlistCount] = useState(0);
+  useEffect(() => {
+    const read = () => {
+      try {
+        const raw = localStorage.getItem(`yangu_wishlist_${surfaceId}`);
+        const arr = raw ? JSON.parse(raw) : [];
+        setWishlistCount(Array.isArray(arr) ? arr.length : 0);
+      } catch { setWishlistCount(0); }
+    };
+    read();
+    const handler = () => read();
+    window.addEventListener("yangu_wishlist_changed", handler);
+    window.addEventListener("storage", handler);
+    return () => {
+      window.removeEventListener("yangu_wishlist_changed", handler);
+      window.removeEventListener("storage", handler);
+    };
+  }, [surfaceId]);
+
   return (
     <LiveShopAppShell
       businessName={businessName || surface?.title}
       logoUrl={logoUrl}
       cartCount={cart.count}
+      wishlistCount={wishlistCount}
       activeTab={activeTab}
       onTabChange={handleTabChange}
+      onOpenWishlist={() => setWishlistOpen(true)}
     >
       {children}
 

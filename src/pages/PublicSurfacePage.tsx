@@ -110,6 +110,7 @@ export default function PublicSurfacePage() {
         pageTitle={pageTitle}
         faviconUrl={faviconUrl || null}
         showBadge={showBadge}
+        surfaceType={surfaceType}
       />
     );
   }
@@ -247,17 +248,18 @@ export default function PublicSurfacePage() {
 
 /** Emenu public view — loads commerce config for currency pass-through */
 function EmenuPublicView({
-  surfaceId, ownerId, businessName, publishedEmenuHtml, pageTitle, faviconUrl, showBadge,
+  surfaceId, ownerId, businessName, publishedEmenuHtml, pageTitle, faviconUrl, showBadge, surfaceType,
 }: {
   surfaceId: string; ownerId: string; businessName: string;
   publishedEmenuHtml: string; pageTitle: string; faviconUrl: string | null; showBadge: boolean;
+  surfaceType?: string;
 }) {
   const { data: commerceConfig } = usePublicCommerceConfig(surfaceId);
   const currency = commerceConfig?.currency ?? "USD";
   const orderingEnabled = commerceConfig?.ordering_enabled ?? true;
 
   return (
-    <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName} surfaceType={(arguments as any)?.[0]?.surfaceType}>
+    <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName} surfaceType={surfaceType}>
       <PublishedEmenuFrame
         html={publishedEmenuHtml}
         title={pageTitle}
