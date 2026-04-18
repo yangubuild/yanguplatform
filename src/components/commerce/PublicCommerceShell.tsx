@@ -274,6 +274,45 @@ export function PublicCommerceShell({
           </div>
         </div>
       )}
+
+      {/* Wishlist drawer (visitor-side) */}
+      <PublicWishlistDrawer
+        surfaceId={surfaceId}
+        open={wishlistOpen}
+        onClose={() => setWishlistOpen(false)}
+        onMoveToBag={(item) => {
+          handleAddToCart({
+            id: item.id,
+            name: item.name,
+            price_cents: item.price_cents,
+            currency: item.currency,
+            image_url: item.image_url,
+            variant: null,
+          });
+        }}
+      />
+
+      {/* Product detail dialog (visitor-side) */}
+      <PublicProductDetailDialog
+        surfaceId={surfaceId}
+        surfaceType={surfaceType}
+        product={detailProduct}
+        open={!!detailProduct}
+        onClose={() => setDetailProduct(null)}
+        onAddToCart={(p, opts) => {
+          const variantParts = [opts.size, opts.color].filter(Boolean).join(" / ");
+          for (let i = 0; i < opts.quantity; i++) {
+            handleAddToCart({
+              id: p.id + (variantParts ? "_" + variantParts : ""),
+              name: p.name,
+              price_cents: p.price_cents,
+              currency: p.currency,
+              image_url: p.image_urls[0] || null,
+              variant: variantParts || null,
+            });
+          }
+        }}
+      />
     </LiveShopAppShell>
   );
 }
