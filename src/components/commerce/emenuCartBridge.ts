@@ -9,10 +9,16 @@
  */
 
 /** Returns the raw JavaScript code (no <script> wrapper) for the cart bridge */
-export function buildCartBridgeCode(configuredCurrency: string = "USD"): string {
+export function buildCartBridgeCode(
+  configuredCurrency: string = "USD",
+  surfaceId: string = "",
+  surfaceType: string = "",
+): string {
   return `
 (function() {
   var CONFIGURED_CURRENCY = ${JSON.stringify(configuredCurrency)};
+  window.__YANGU_SURFACE_ID = ${JSON.stringify(surfaceId)};
+  window.__YANGU_SURFACE_TYPE = ${JSON.stringify(surfaceType)};
 
   function normalizeText(t) { return (t || '').replace(/\\s+/g, ' ').trim(); }
 
