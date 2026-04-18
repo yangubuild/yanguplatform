@@ -149,6 +149,39 @@ export function SurfaceSettingsDialog({
 
       if (error) throw error;
 
+      // Also patch any active published snapshots so the live URL reflects the new metadata.
+      try {
+        const { data: activePublishes } = await supabase
+          .from("builder_publishes")
+          .select("id, published_schema")
+          .eq("surface_id", surfaceId)
+          .eq("state", "published")
+          .is("unpublished_at", null);
+
+        if (activePublishes && activePublishes.length > 0) {
+          await Promise.all(
+            activePublishes.map((row: any) => {
+              const schema = (row.published_schema as Record<string, unknown> | null) || {};
+              const currentSurface = ((schema.surface as Record<string, unknown> | undefined) ?? {});
+              const updatedSurface = {
+                ...currentSurface,
+                seo_title: seoTitle || null,
+                seo_description: seoDescription || null,
+                favicon_url: faviconUrl || null,
+                cover_image_url: resolvedCoverImageUrl,
+              };
+              const nextSchema = { ...schema, surface: updatedSurface };
+              return supabase
+                .from("builder_publishes")
+                .update({ published_schema: nextSchema as any })
+                .eq("id", row.id);
+            })
+          );
+        }
+      } catch (syncErr) {
+        console.error("[SurfaceSettingsDialog] live sync error:", syncErr);
+      }
+
       toast.success("Surface settings saved");
       onSaved?.({
         seo_title: seoTitle,
