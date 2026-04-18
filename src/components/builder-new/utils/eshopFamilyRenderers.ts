@@ -328,7 +328,7 @@ export function renderAema(ctx: EshopRenderContext): string {
       </div>
       <div style="padding:14px 4px 24px;">
         <div data-product-role="title" style="font-size:13px;font-weight:600;letter-spacing:0.02em;margin-bottom:8px;">${item.title}</div>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <div class="yangu-price-row" style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
           <span data-product-role="price" style="font-size:13px;font-weight:600;color:${t.pageText};">
             ${item.price}
             ${item.original_price ? `<span style="margin-left:6px;color:${t.pageText}66;text-decoration:line-through;font-weight:400;">${item.original_price}</span>` : ""}
@@ -677,7 +677,7 @@ export function renderUncover(ctx: EshopRenderContext): string {
       <div style="padding:14px 14px 16px;">
         <div style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#0F9D58;background:${t.mood === "dark" ? "#0F9D5820" : "#E8F5E9"};padding:3px 8px;border-radius:3px;margin-bottom:8px;">● ${item.stock || "In Stock"}</div>
         <div data-product-role="title" style="font-size:14px;font-weight:600;letter-spacing:-0.01em;margin-bottom:8px;">${item.title}</div>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <div class="yangu-price-row" style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
           <span data-product-role="price" style="font-size:14px;font-weight:700;color:${t.pageText};">${item.price}</span>
         </div>
       </div>
@@ -1054,7 +1054,7 @@ export function renderKanva(ctx: EshopRenderContext): string {
       <div style="padding:18px;">
         ${item.category ? `<div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:${t.mutedText};margin-bottom:6px;">${item.category}</div>` : ""}
         <div data-product-role="title" style="font-family:${t.fontHeading};font-size:18px;font-weight:500;color:${t.pageText};margin-bottom:8px;">${item.title}</div>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <div class="yangu-price-row" style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
           <span data-product-role="price" style="font-size:14px;font-weight:600;color:${t.pageText};">
             ${item.price}
             ${item.original_price ? `<span style="display:inline-block;margin-left:6px;font-size:11px;color:${t.mutedText};text-decoration:line-through;font-weight:400;">${item.original_price}</span>` : ""}
