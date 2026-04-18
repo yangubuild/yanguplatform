@@ -259,6 +259,56 @@ export function buildCartBridgeCode(
         btn.style.width = '100%';
         contentArea.appendChild(btn);
       }
+
+      // ─── Delivery + "GET IT ..." strip (eshop / estore / esite product cards) ───
+      // Reads data-product-meta JSON when present, otherwise applies surface defaults so
+      // visitors immediately see the e-commerce signals (Free delivery + GET IT TOMORROW).
+      var st = (window.__YANGU_SURFACE_TYPE || '').toLowerCase();
+      var isShoppy = (st === 'eshop' || st === 'estore' || st === 'esite');
+      if (isShoppy && !card.getAttribute('data-delivery-injected')) {
+        card.setAttribute('data-delivery-injected', 'true');
+        var meta = {};
+        try {
+          var rawMeta = card.getAttribute('data-product-meta');
+          if (rawMeta) meta = JSON.parse(rawMeta) || {};
+        } catch(_e) {}
+        var deliveryType = meta.deliveryType || 'free';
+        var deliveryFee = meta.deliveryFee || '';
+        var getItUnit = meta.getItUnit || 'tomorrow';
+        var getItValue = meta.getItValue || '1';
+        var getItTodayUnit = meta.getItTodayUnit || 'hours';
+
+        var deliveryLabel = (deliveryType === 'paid' && deliveryFee)
+          ? ('Delivery: ' + deliveryFee)
+          : (deliveryType === 'paid' ? 'Paid delivery' : 'Free delivery');
+
+        var getItHighlight;
+        if (getItUnit === 'today') {
+          getItHighlight = 'TODAY ' + getItValue + ' ' + (getItTodayUnit === 'minutes' ? 'MIN' : 'HRS');
+        } else if (getItUnit === 'days') {
+          getItHighlight = (getItValue || '1') + ' ' + (String(getItValue) === '1' ? 'DAY' : 'DAYS');
+        } else if (getItUnit === 'months') {
+          getItHighlight = (getItValue || '1') + ' ' + (String(getItValue) === '1' ? 'MONTH' : 'MONTHS');
+        } else {
+          getItHighlight = 'TOMORROW';
+        }
+
+        var strip = document.createElement('div');
+        strip.className = 'yangu-delivery-strip';
+        strip.style.cssText = 'margin-top:8px;display:flex;flex-direction:column;gap:4px;font-family:inherit;';
+        strip.innerHTML =
+          '<div style="font-size:12px;color:#444;line-height:1.3;">' + deliveryLabel + '</div>' +
+          '<div style="font-size:11px;font-weight:800;letter-spacing:0.04em;color:#111;line-height:1.3;">' +
+            'GET IT <span style="background:#D6FF3D;color:#111;padding:1px 6px;border-radius:2px;font-style:italic;">' + getItHighlight + '</span>' +
+          '</div>';
+
+        var anchor = priceEl ? (priceEl.closest('.yangu-price-row') || priceEl.parentElement) : null;
+        if (anchor && anchor.parentElement) {
+          anchor.parentElement.insertBefore(strip, anchor.nextSibling);
+        } else {
+          card.appendChild(strip);
+        }
+      }
     });
 
     // ─── Love icon (wishlist toggle) on every product card ───
