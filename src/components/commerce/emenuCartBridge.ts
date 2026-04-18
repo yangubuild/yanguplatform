@@ -262,23 +262,29 @@ export function buildCartBridgeCode(
     });
 
     // ─── Love icon (wishlist toggle) on every product card ───
-    document.querySelectorAll('[data-product-card="true"]').forEach(function(card) {
+    // Selector includes any card the bridge already processed (heuristic match) so heart
+    // appears on legacy templates that did not declare [data-product-card="true"].
+    document.querySelectorAll('[data-product-card="true"], [data-cart-processed="true"]').forEach(function(card) {
       if (card.getAttribute('data-wishlist-injected')) return;
       var imgWrap = card.querySelector('img');
       if (!imgWrap) return;
       var imgParent = imgWrap.parentElement;
       if (!imgParent) return;
-      // Ensure the image container is positioned so the heart can be absolutely placed.
+      // Walk up to the nearest reasonably-sized container so the heart sits over the photo,
+      // not over a tiny inline-block.
       var ips = window.getComputedStyle(imgParent);
       if (ips.position === 'static') imgParent.style.position = 'relative';
+      // Ensure container does not clip the heart
+      if (ips.overflow === 'hidden') imgParent.style.overflow = 'visible';
       card.setAttribute('data-wishlist-injected', 'true');
 
       var heart = document.createElement('button');
       heart.type = 'button';
       heart.className = 'yangu-wishlist-heart';
       heart.setAttribute('aria-label', 'Add to wishlist');
-      heart.style.cssText = 'position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:999px;border:0;background:#ffffff;color:#111111;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.18);z-index:5;transition:transform .15s;padding:0;';
-      heart.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+      // White circle, dark stroke icon, strong shadow. Always visible on light or dark imagery.
+      heart.style.cssText = 'position:absolute !important;top:10px !important;right:10px !important;width:36px !important;height:36px !important;border-radius:999px !important;border:1px solid rgba(0,0,0,0.08) !important;background:#ffffff !important;color:#111111 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;cursor:pointer !important;box-shadow:0 2px 8px rgba(0,0,0,0.18) !important;z-index:50 !important;padding:0 !important;margin:0 !important;line-height:1 !important;';
+      heart.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
 
       // Sync pressed state from localStorage
       var nameForId = normalizeText(card.querySelector('[data-product-role="title"], h1, h2, h3, h4, h5')?.textContent || '');
