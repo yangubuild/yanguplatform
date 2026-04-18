@@ -82,7 +82,7 @@ export function buildCartBridgeCode(
   }
 
   function initCartBridge() {
-    document.querySelectorAll('div, article, li').forEach(function(card) {
+    document.querySelectorAll('div, article, li, a').forEach(function(card) {
       if (card.getAttribute('data-cart-processed')) return;
       if (!isProductCard(card)) return;
 
