@@ -1,56 +1,51 @@
 
+The user's screenshot shows the live `/joanna` eshop has serious bugs in the Products grid:
 
-## Product Card System Modernization — Emenu & Eshop
+1. **Card 1 (Pink Bucket Hat & Jacket, $78)**: Name + price OK, but **NO + Add button**, no heart, no delivery strip.
+2. **Card 2 ($92)**: **Price shown FIRST instead of name**, name "Yellow Sunglasses Look $92" appears DUPLICATED below (price embedded in name), AND a third "Yellow Sunglasses Look $92" duplicate. + Add button is present but floating awkwardly. Heart present.
+3. **Card 3 (Pink Sunglasses Editorial)**: Name only, **NO price, NO button, NO delivery strip**. Heart present.
+4. **Card 4 ($64 / Soft Curls Beauty)**: **Price first**, name "Soft Curls Beauty $64" duplicated, then "Soft Curls Beauty" again, then "$64" again. **NO + Add button**. Heart present.
 
-I understand all 8 parts. Confirming scope: ONLY product cards + minimal commerce shell additions (wishlist, account dropdown, top-right icons). No editor navbar, sidebar, publish modal, or template layout changes. Emenu live behavior preserved.
+## Root cause analysis
 
-### Part 1: Edit/Delete icons on ALL eshop cards
-**Root cause**: `EditablePreview.tsx` requires both visual size threshold AND structural heuristics. Eshop renderers now emit `data-product-card="true"`, but the icon injector still falls through size/heuristic gates that fail on some templates.
-**Fix**: In `EditablePreview.tsx`, short-circuit detection — if `el.matches('[data-product-card="true"]')`, inject icons immediately, bypassing `isLikelyProductCard` and size checks. Mirrors emenu where `.menu-item`/structural detection always wins.
+Two distinct bugs are compounding:
 
-### Part 2: Standardize card structure (Name → Desc → Price LEFT / Button RIGHT)
-**Renderers**: `eshopFamilyRenderers.ts` — wrap price+button in `<div class="yangu-price-row" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">`. On mobile (`@media max-width:640px`), `.yangu-price-row` becomes `flex-direction:column;align-items:stretch` so button goes full-width below price.
-**Cart bridge**: `emenuCartBridge.ts` already injects button into price row — confirm it appends inside `.yangu-price-row` not a sibling.
+### Bug A — Duplicate name/price text
+The cart bridge (`emenuCartBridge.ts`) is **injecting name + price text nodes** into cards that already contain that text in the source HTML. The bridge should ONLY inject the action UI (button, heart, delivery strip) and never re-render name/price. Cards that already have name/price end up with 2–3 copies.
 
-### Part 3: Wishlist system
-- **Love icon**: Inject into every `[data-product-card="true"]` via `emenuCartBridge.ts` (top-right absolute over image). State stored in `localStorage` keyed by surface slug + product name (guest-safe, no auth required).
-- **Wishlist drawer**: New component `PublicWishlistDrawer.tsx` opened by heart icon in top nav. Reads same localStorage. Shows image, name, price, "Move to Bag" (calls existing cart bridge add) and remove.
-- **Count badge**: Heart icon in top nav shows count.
+### Bug B — Missing + Add buttons on 3 of 4 cards
+The current `findCandidateProductCards()` logic only injects the button on cards where it finds a clean structural match (img + heading). When name/price markup is irregular (price-as-heading, or name without price), the leaf detection skips the card entirely. Only Card 2 got a button because its structure matched.
 
-### Part 4: Top-nav icons + Account dropdown
-- **Renderer additions** (`eshopFamilyRenderers.ts` header block only — keep template visual unchanged, only swap the existing icon row): `[Search] [Wishlist+badge] [Cart+badge] [Currency] [Account]` desktop; `[Search] [Wishlist]` mobile.
-- **Account dropdown**: Static HTML structure (per spec sections) injected into header. Auth-aware: if logged in → show name/email + sections; if guest → show "Sign in / Create account". Items like Orders/Wishlist link to `/dashboard/...` or open the wishlist drawer. Empty sub-items (Wallet, Coupons, etc.) link to placeholder routes already in app or are hidden if route missing — no dead controls.
+### Bug C — Card ordering (name vs price)
+Per locked memory `mem://commerce/product-card-layout-and-editor`: **universal layout = name/desc above, price LEFT / button RIGHT**. The bridge isn't normalizing card order — it's leaving raw template HTML where price appears as the first heading.
 
-### Part 5: Default button text + 2-word limit
-- **Defaults map**: New `src/lib/builder/productButtonDefaults.ts`:
-  ```ts
-  { emenu:"+ Add", eshop:"+ Add", estore:"+ Add", esite:"Book", influencer:"+ Add", community:"+ Add" }
-  ```
-- **Validation**: In `ProductCardEditorModal.tsx`, on button text save: `if (text.trim().split(/\s+/).length > 2) toast.error("Button text limited to 2 words"); return;`
-- Cart bridge reads default from this map by `surfaceType`.
+## Fix plan
 
-### Part 6: Product detail popup (visitor-side, not editor)
-- **New**: `PublicProductDetailDialog.tsx` triggered by clicking any `[data-product-card="true"]` in published runtime (wired in `emenuCartBridge.ts`). Reuses existing dialog seen in screenshot 11.16.54.
-- **Content**: image carousel (← →), name, brand, price, description, size chips (eshop), color swatches (eshop), qty −/+, "+ Add" / "Book", love icon. Reads `data-product-meta` JSON already persisted by editor.
-- Editor click behavior unchanged (still opens `ProductCardEditorModal`).
+**File: `src/components/commerce/emenuCartBridge.ts`**
 
-### Part 7: Scope guardrails
-Touch only: `eshopFamilyRenderers.ts`, `emenuCartBridge.ts`, `EditablePreview.tsx` (detection short-circuit only), `ProductCardEditorModal.tsx` (2-word validation only), new public components. Memory file `mem://commerce/product-card-layout-and-editor` updated with the full rule set so Estore/Esite/Influencer/Community inherit automatically when their renderers are built.
+1. **Stop injecting any text content.** Remove ALL code paths that write product name or price into the card. The bridge injects ONLY: heart icon (top-right), + Add button (bottom-right of footer), delivery strip (below footer). Name/price come from the template HTML, period.
 
-### Files to change
-1. `src/components/builder-new/EditablePreview.tsx` — short-circuit detection on `[data-product-card]`
-2. `src/components/builder-new/utils/eshopFamilyRenderers.ts` — `.yangu-price-row` wrapper, top-nav icon row, account dropdown HTML
-3. `src/components/commerce/emenuCartBridge.ts` — inject love icon, image arrows, wire card click → detail dialog, mount wishlist drawer
-4. `src/components/builder-new/ProductCardEditorModal.tsx` — 2-word button validation
-5. **NEW** `src/lib/builder/productButtonDefaults.ts`
-6. **NEW** `src/components/commerce/PublicWishlistDrawer.tsx`
-7. **NEW** `src/components/commerce/PublicProductDetailDialog.tsx`
-8. **NEW** `src/components/commerce/PublicAccountDropdown.tsx`
-9. `mem://commerce/product-card-layout-and-editor` — append rules for future builders
+2. **Normalize card footer structure on inject.** For each detected product card:
+   - Find the card's text block (everything below the image).
+   - Detect name (longest non-price text node) and price (text matching `/[$€£₦KSh]\s*\d/`).
+   - Wrap them in a flex row: `<div class="yangu-product-footer flex items-center justify-between gap-2">` with name on left, price+button on right.
+   - This guarantees **name → price-LEFT → button-RIGHT** layout per the locked spec.
+   - Strip duplicate text nodes that match the detected name or price (prevents the "Soft Curls Beauty" tripled text).
 
-### Verification (after build)
-- Eshop editor: every product card shows edit/delete on hover ✅
-- Emenu editor: unchanged ✅
-- Live eshop: love icon every card, arrows on multi-image, price-LEFT/button-RIGHT desktop, stacked mobile, top-right icons full set, account dropdown opens, wishlist drawer functional, click card opens detail dialog ✅
-- Editor: button text > 2 words rejected with toast ✅
+3. **Inject + Add button on EVERY detected product card unconditionally.** Remove the structural gate that's currently skipping 3 cards. If `findProductSections()` flagged the card as a product, it gets a button. Period.
 
+4. **Mobile vs desktop layout:** Use Tailwind responsive classes on the injected wrapper — `flex-col md:flex-row` so mobile stacks (name → price → button vertically) and desktop is horizontal (name | price + button).
+
+5. **Idempotency guard:** Tag injected wrapper with `data-yangu-injected="true"` and skip cards already containing this attribute on re-runs (prevents duplicate buttons on re-mount).
+
+6. **Remove duplicate name nodes:** After detecting the canonical name, query the card for any other text nodes whose content === name and remove them. Same for price.
+
+## Verification (after editing)
+
+After applying the fix in default mode, navigate to `https://yangu.shop/joanna` and confirm:
+- All 4 cards have exactly ONE name, ONE price, ONE + Add button, ONE heart.
+- Layout: name top, price LEFT + button RIGHT below on desktop; vertical stack on mobile.
+- Delivery "Get it by…" strip renders under each card.
+- No stray button near the "Made in yangu" badge.
+
+Then audit the editor at `/builder/46caf8ea-43f6-436d-8335-2a229a937400` and confirm each of the 4 cards shows edit/delete icons, and that desktop header Account / Wishlist / Cart links remain active.
