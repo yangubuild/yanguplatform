@@ -11,9 +11,10 @@
  */
 
 import { ReactNode } from "react";
-import { ShoppingBag, ShoppingCart, ListOrdered, User } from "lucide-react";
+import { ShoppingBag, ShoppingCart, ListOrdered, User, Heart, Search } from "lucide-react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
+import { PublicAccountDropdown } from "@/components/commerce/PublicAccountDropdown";
 
 export type LiveShopTab = "menu" | "cart" | "orders" | "account";
 
@@ -21,8 +22,10 @@ interface LiveShopAppShellProps {
   businessName?: string;
   logoUrl?: string;
   cartCount: number;
+  wishlistCount?: number;
   activeTab: LiveShopTab;
   onTabChange: (tab: LiveShopTab) => void;
+  onOpenWishlist?: () => void;
   children: ReactNode;
 }
 
@@ -60,18 +63,32 @@ export function LiveShopAppShell({
             {businessName || "Shop"}
           </span>
         </div>
-        <button
-          onClick={() => onTabChange("cart")}
-          className="relative h-9 w-9 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
-          aria-label="Cart"
-        >
-          <ShoppingCart className="h-5 w-5 text-foreground" />
-          {cartCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-              {cartCount}
-            </span>
-          )}
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            aria-label="Wishlist"
+            onClick={() => onOpenWishlist?.()}
+            className="relative h-9 w-9 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
+          >
+            <Heart className="h-5 w-5 text-foreground" />
+            {wishlistCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                {wishlistCount}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => onTabChange("cart")}
+            className="relative h-9 w-9 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
+            aria-label="Cart"
+          >
+            <ShoppingCart className="h-5 w-5 text-foreground" />
+            {cartCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
+          </button>
+        </div>
       </header>
 
       {/* Iframe / page content area */}
