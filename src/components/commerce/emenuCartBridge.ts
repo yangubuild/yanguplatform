@@ -64,7 +64,8 @@ export function buildCartBridgeCode(
   }
 
   function isProductCard(el) {
-    if (['DIV','ARTICLE','LI'].indexOf(el.tagName) === -1) return false;
+    // Eshop family renders cards as <a> tags; emenu uses div/article/li.
+    if (['DIV','ARTICLE','LI','A'].indexOf(el.tagName) === -1) return false;
     var nested = el.querySelectorAll('[data-product-card="true"]');
     if (nested.length > 0) return false;
     if (el.getAttribute('data-product-card') === 'true') return true;
