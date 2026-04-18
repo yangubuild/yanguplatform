@@ -303,7 +303,7 @@ const EDIT_SCRIPT = String.raw`
         var inferredTitle = inferTitleFromRawTextNodes(card);
         var inferredStripped = inferredTitle ? stripPrice(inferredTitle) : '';
         var titleKeys = {};
-        [rawTitle, titleStripped].forEach(function(t) { if (t) titleKeys[t.toLowerCase()] = true; });
+        [rawTitle, titleStripped, inferredTitle, inferredStripped].forEach(function(t) { if (t) titleKeys[t.toLowerCase()] = true; });
 
         var protectedNodes = [titleEl, priceEl, descEl, badgeEl].filter(Boolean);
         var removedAny = false;
