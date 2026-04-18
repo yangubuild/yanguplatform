@@ -81,7 +81,48 @@ export function buildCartBridgeCode(
     return { color: color, radius: radius, padding: padding, fontSize: fontSize };
   }
 
+  function normalizeMislabeledCards() {
+    // Templates sometimes hoist data-product-card="true" onto outer wrappers
+    // (e.g. .yangu-content-container or grid containers). When that happens,
+    // the bridge mistakes the entire grid for a single card. Detect wrappers
+    // whose descendants look like real cards (.aema-card or multiple imgs)
+    // and demote them: strip data-product-card from the wrapper, promote it
+    // to inner .aema-card children, copy product-button-* + product-meta down.
+    document.querySelectorAll('[data-product-card="true"]').forEach(function(wrapper) {
+      var inner = wrapper.querySelectorAll('.aema-card, [data-product-role="title"]');
+      // Heuristic: if wrapper contains 2+ images AND inner card markers, it's a grid wrapper.
+      var imgs = wrapper.querySelectorAll('img');
+      var directCards = wrapper.querySelectorAll(':scope > .aema-card, :scope > a.aema-card, :scope > div.aema-card');
+      var hasInnerCards = directCards.length >= 2 || (inner.length >= 2 && imgs.length >= 2);
+      if (!hasInnerCards) return;
+
+      // Collect transferable attributes (button styles, meta) so cards inherit them.
+      var transferAttrs = ['data-product-button-color','data-product-button-radius','data-product-button-padding','data-product-button-font-size','data-product-cta','data-product-button-text','data-product-action-type','data-product-action-url','data-product-meta'];
+      var transferMap = {};
+      transferAttrs.forEach(function(a){
+        var v = wrapper.getAttribute(a);
+        if (v != null) transferMap[a] = v;
+      });
+
+      // Demote wrapper
+      wrapper.removeAttribute('data-product-card');
+      wrapper.removeAttribute('data-product-title');
+      wrapper.removeAttribute('data-product-badge-enabled');
+      wrapper.removeAttribute('data-product-badge-text');
+
+      // Promote each .aema-card child
+      var targets = directCards.length > 0 ? directCards : wrapper.querySelectorAll('.aema-card');
+      targets.forEach(function(c) {
+        if (c.getAttribute('data-product-card') !== 'true') c.setAttribute('data-product-card','true');
+        Object.keys(transferMap).forEach(function(k){
+          if (!c.getAttribute(k)) c.setAttribute(k, transferMap[k]);
+        });
+      });
+    });
+  }
+
   function initCartBridge() {
+    normalizeMislabeledCards();
     document.querySelectorAll('div, article, li, a').forEach(function(card) {
       if (card.getAttribute('data-cart-processed')) return;
       if (!isProductCard(card)) return;
