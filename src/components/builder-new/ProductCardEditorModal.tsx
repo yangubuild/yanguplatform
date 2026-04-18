@@ -66,6 +66,13 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
   const [specifications, setSpecifications] = useState("");
   const [available, setAvailable] = useState(true);
 
+  // Delivery fields (eshop / estore)
+  const [deliveryType, setDeliveryType] = useState<"free" | "paid">("free");
+  const [deliveryFee, setDeliveryFee] = useState("");
+  const [getItUnit, setGetItUnit] = useState<"today" | "tomorrow" | "days" | "months">("tomorrow");
+  const [getItValue, setGetItValue] = useState("1");
+  const [getItTodayUnit, setGetItTodayUnit] = useState<"minutes" | "hours">("hours");
+
   // AI description state
   const [generatingDesc, setGeneratingDesc] = useState(false);
 
@@ -108,6 +115,11 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
     setDimensions(meta.dimensions || "");
     setSpecifications(meta.specifications || "");
     setAvailable(meta.available !== false);
+    setDeliveryType(meta.deliveryType === "paid" ? "paid" : "free");
+    setDeliveryFee(meta.deliveryFee || "");
+    setGetItUnit(["today", "tomorrow", "days", "months"].includes(meta.getItUnit) ? meta.getItUnit : "tomorrow");
+    setGetItValue(meta.getItValue || "1");
+    setGetItTodayUnit(meta.getItTodayUnit === "minutes" ? "minutes" : "hours");
   }, [product, surfaceType]);
 
   useEffect(() => {
@@ -189,6 +201,11 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
       dimensions: dimensions.trim(),
       specifications: specifications.trim(),
       available,
+      deliveryType,
+      deliveryFee: deliveryType === "paid" ? deliveryFee.trim() : "",
+      getItUnit,
+      getItValue: getItValue.trim() || "1",
+      getItTodayUnit,
     } : undefined;
 
     onSave({
