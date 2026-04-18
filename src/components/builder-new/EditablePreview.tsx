@@ -778,10 +778,10 @@ const EDIT_SCRIPT = String.raw`
 
       function isLikelyProductCard(el) {
         if (!window.__YANGU_ENABLE_PRODUCT_CONTROLS) return false;
-        if (!el || ['DIV', 'ARTICLE', 'LI', 'A'].indexOf(el.tagName) === -1) return false;
+        if (!el || ['DIV', 'ARTICLE', 'LI'].indexOf(el.tagName) === -1) return false;
         if (el.closest('nav,header,footer')) return false;
         var nestedMatches = 0;
-        var descendants = el.querySelectorAll('div,article,li,a');
+        var descendants = el.querySelectorAll('div,article,li');
         for (var i = 0; i < descendants.length; i++) {
           var descendant = descendants[i];
           if (descendant === el) continue;
@@ -848,7 +848,7 @@ const EDIT_SCRIPT = String.raw`
           }
         });
 
-        document.querySelectorAll('div,article,li,a').forEach(function(card) {
+        document.querySelectorAll('div,article,li').forEach(function(card) {
           if (!isLikelyProductCard(card)) return;
           allCards.push(card);
         });
@@ -865,17 +865,10 @@ const EDIT_SCRIPT = String.raw`
           }
         });
 
-        // Second pass: normalize legacy cards (now siblings have roles for style inference).
-        // For cards that already have BOTH title+price roles set by the renderer, skip the
-        // heavy normalization (which can mis-classify wrappers as "description" and trigger
-        // visible duplicates). Just ensure node id + classname so controls can attach cleanly.
+        // Second pass: normalize legacy cards (now siblings have roles for style inference)
         allCards.forEach(function(card) {
-          var hasTitle = getProductRoleEl(card, 'title');
-          var hasPrice = getProductRoleEl(card, 'price');
-          if (!(hasTitle && hasPrice)) {
-            var mapping = markProductRoles(card);
-            if (mapping && mapping.repaired) repairedAny = true;
-          }
+          var mapping = markProductRoles(card);
+          if (mapping && mapping.repaired) repairedAny = true;
           card.classList.add('yangu-product-card');
           ensureNodeId(card);
 

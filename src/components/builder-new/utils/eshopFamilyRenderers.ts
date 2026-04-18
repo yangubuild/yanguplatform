@@ -1437,15 +1437,13 @@ export function renderMinna(ctx: EshopRenderContext): string {
   const productCards = products.map((p: any, i: number) => {
     const img = getEshopImage(config, "product", i);
     return `
-    <a href="#" class="aema-card" data-product-card="true" style="display:block;color:${t.pageText};">
+    <a href="#" class="aema-card" style="display:block;color:${t.pageText};">
       <div style="aspect-ratio:3/4;overflow:hidden;background:${t.cardBg};margin-bottom:12px;">
         <img src="${img}" alt="${p.title || ""}" style="width:100%;height:100%;object-fit:cover;transition:transform .5s ease;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/>
       </div>
-      <div style="padding:0 2px;">
-        <p data-product-role="title" style="font-size:13px;font-weight:500;color:${t.pageText};line-height:1.4;margin:0 0 6px 0;">${p.title || ""}</p>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-          <span data-product-role="price" style="font-size:13px;font-weight:600;color:${t.pageText};">${p.price || ""}</span>
-        </div>
+      <div style="display:flex;flex-direction:column;gap:4px;padding:0 2px;">
+        <p style="font-size:13px;font-weight:500;color:${t.pageText};line-height:1.4;">${p.title || ""}</p>
+        <p style="font-size:13px;font-weight:600;color:${t.pageText};">${p.price || ""}</p>
       </div>
     </a>`;
   }).join("");
@@ -1728,10 +1726,10 @@ export function renderMockhub(ctx: EshopRenderContext): string {
         <div style="aspect-ratio:4/3;overflow:hidden;background:${t.panelBg};">
           <img src="${img}" alt="${it.title}" loading="lazy" style="width:100%;height:100%;object-fit:cover;transition:transform .5s ease;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/>
         </div>
-        <div style="padding:16px 18px;display:flex;flex-direction:column;gap:6px;">
+        <div style="padding:16px 18px;display:flex;flex-direction:column;gap:8px;">
           <p style="font-size:14px;font-weight:600;color:${t.pageText};">${it.title}</p>
-          ${it.tag ? `<p style="font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:${t.mutedText};">${it.tag}</p>` : ""}
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:${t.mutedText};border:1px solid ${t.border};padding:4px 8px;border-radius:6px;">${it.tag}</span>
             <span style="font-size:13px;font-weight:700;color:${isFree ? t.accent : t.pageText};">${it.price}</span>
           </div>
         </div>
@@ -1994,16 +1992,17 @@ export function renderLumel(ctx: EshopRenderContext): string {
       </div>
       <div class="yangu-product-grid" data-grid="3" style="grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:32px;">
         ${products.map((p, i) => `
-          <article style="background:${t.panelBg};border:1px solid ${t.border};border-radius:12px;overflow:hidden;display:flex;flex-direction:column;">
+          <article class="yangu-product-card" data-yangu-product="true" data-yangu-product-id="lumel-${i}" data-yangu-product-name="${p.title}" data-yangu-product-price="${p.price}" style="background:${t.panelBg};border:1px solid ${t.border};border-radius:12px;overflow:hidden;display:flex;flex-direction:column;">
             <div style="aspect-ratio:4/5;background:${t.pageBg};overflow:hidden;">
               <img src="${getEshopImage(config, "product", i)}" alt="${p.title}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"/>
             </div>
             <div style="padding:24px;display:flex;flex-direction:column;gap:6px;">
-              ${p.volume ? `<p style="font-family:${t.fontBody};font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:${t.mutedText};">${p.volume}</p>` : ""}
-              <h3 style="font-family:${t.fontHeading};font-weight:500;font-size:22px;color:${t.pageText};">${p.title}</h3>
-              ${p.note ? `<p style="font-family:${t.fontBody};font-size:13px;color:${t.mutedText};margin-bottom:12px;">${p.note}</p>` : ""}
+              <p style="font-family:${t.fontBody};font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:${t.mutedText};">${p.volume}</p>
+              <h3 class="yangu-product-name" style="font-family:${t.fontHeading};font-weight:500;font-size:22px;color:${t.pageText};">${p.title}</h3>
+              <p style="font-family:${t.fontBody};font-size:13px;color:${t.mutedText};margin-bottom:12px;">${p.note}</p>
               <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;">
-                <span style="font-family:${t.fontHeading};font-size:20px;color:${t.pageText};">${p.price}</span>
+                <span class="yangu-product-price" style="font-family:${t.fontHeading};font-size:20px;color:${t.pageText};">${p.price}</span>
+                <button class="yangu-product-add" style="background:${t.accent};color:${t.accentText};border:none;padding:10px 18px;font-family:${t.fontBody};font-size:12px;letter-spacing:0.1em;text-transform:uppercase;border-radius:8px;cursor:pointer;">+ Add</button>
               </div>
             </div>
           </article>
