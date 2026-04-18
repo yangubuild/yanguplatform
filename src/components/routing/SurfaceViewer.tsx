@@ -219,17 +219,18 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
 
 /** Emenu surface view with commerce wiring — mirrors PublicSurfacePage's EmenuPublicView */
 function EmenuSurfaceView({
-  surfaceId, ownerId, businessName, publishedEmenuHtml, pageTitle, faviconUrl, showBadge,
+  surfaceId, ownerId, businessName, publishedEmenuHtml, pageTitle, faviconUrl, showBadge, surfaceType,
 }: {
   surfaceId: string; ownerId: string; businessName: string;
   publishedEmenuHtml: string; pageTitle: string; faviconUrl: string | null; showBadge: boolean;
+  surfaceType?: string;
 }) {
   const { data: commerceConfig } = usePublicCommerceConfig(surfaceId);
   const currency = commerceConfig?.currency ?? "USD";
   const orderingEnabled = commerceConfig?.ordering_enabled ?? true;
 
   return (
-    <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName}>
+    <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName} surfaceType={surfaceType}>
       <PublishedEmenuFrame
         html={publishedEmenuHtml}
         title={pageTitle}
@@ -237,11 +238,17 @@ function EmenuSurfaceView({
         showBadge={showBadge}
         orderingEnabled={orderingEnabled}
         currency={currency}
+        surfaceId={surfaceId}
+        surfaceType={surfaceType}
         onPostMessage={(msg) => {
           if (msg.type === "yangu_add_to_cart" && msg.item) {
             (window as any).__yangu_add_to_cart?.(msg.item);
           } else if (msg.type === "yangu_open_cart") {
             (window as any).__yangu_open_cart?.();
+          } else if (msg.type === "yangu_open_wishlist") {
+            (window as any).__yangu_open_wishlist?.();
+          } else if (msg.type === "yangu_open_product_detail" && msg.product) {
+            (window as any).__yangu_open_product_detail?.(msg.product);
           }
         }}
       />
