@@ -107,6 +107,11 @@ function eshopBaseStyles(pageBg: string, pageText: string, accent: string): stri
       .aema-hero-media { order: 1 !important; aspect-ratio: 4/5 !important; }
       h1 { font-size: clamp(2rem, 8vw, 3rem) !important; }
     }
+    @media (max-width: 640px) {
+      /* Mobile: price stacks above full-width button on every product card */
+      .yangu-price-row { flex-direction: column !important; align-items: stretch !important; gap: 8px !important; }
+      .yangu-price-row .yangu-live-cta { width: 100% !important; padding: 10px 14px !important; }
+    }
     @media (min-width: 769px) and (max-width: 1024px) {
       .yangu-product-grid { grid-template-columns: repeat(3, 1fr) !important; }
     }

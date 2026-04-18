@@ -11,6 +11,7 @@ import { ItemCtaSelector, getDefaultCtaForSurface, resolveButtonTextForCta } fro
 import { ColorPopup } from "@/components/builder-new/editor-popups/ColorPopup";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { isButtonTextValid, MAX_BUTTON_WORDS, getDefaultButtonText } from "@/lib/builder/productButtonDefaults";
 import type { ProductCardData } from "@/lib/builder/selectionTypes";
 
 interface ProductCardEditorModalProps {
@@ -169,6 +170,12 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
       ? buttonText.trim()
       : resolveButtonTextForCta(ctaValue, surfaceType);
 
+    // Enforce strict 2-word limit on button text (applies across all categories)
+    if (nextButtonText && !isButtonTextValid(nextButtonText)) {
+      toast.error(`Button text limited to ${MAX_BUTTON_WORDS} words`);
+      return;
+    }
+
     const meta = isCommerce ? {
       brand: brand.trim(),
       category: category.trim(),
@@ -190,7 +197,7 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
       badgeEnabled,
       badgeText: badgeEnabled ? badgeText.trim() : "",
       ctaAction: ctaValue,
-      buttonText: nextButtonText,
+      buttonText: nextButtonText || getDefaultButtonText(surfaceType),
       actionType,
       actionUrl: actionUrl.trim(),
       ...(meta ? { meta } : {}),
