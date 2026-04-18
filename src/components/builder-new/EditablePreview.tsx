@@ -831,7 +831,10 @@ const EDIT_SCRIPT = String.raw`
         var nameEl = getProductNameEl(el);
         var priceEl = getProductPriceEl(el);
         var legacy = inferLegacyProductData(el);
-        if (!imageEl || ((!nameEl || !priceEl) && !(legacy && legacy.titleText && legacy.priceText))) return false;
+        // Relaxed: any card-sized container with an image + (name OR price OR legacy data) is treated as a product card.
+        // This guarantees edit/delete icons appear even when a card is missing a price (e.g. "Pink Sunglasses Editorial").
+        var hasAnyText = Boolean(nameEl) || Boolean(priceEl) || Boolean(legacy && (legacy.titleText || legacy.priceText));
+        if (!imageEl || !hasAnyText) return false;
 
         var rect = el.getBoundingClientRect();
         return rect.width >= 100 && rect.height >= 100;
