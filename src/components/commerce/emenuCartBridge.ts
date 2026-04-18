@@ -63,17 +63,82 @@ export function buildCartBridgeCode(
     return null;
   }
 
-  function isProductCard(el) {
-    // STRICT: only inject on elements explicitly marked as product cards by the owner/editor.
-    // Heuristic detection (img + heading) caused false positives on hero images, collection
-    // tiles ("Women"/"Men"), brand badges, and grid wrappers — producing duplicate "+ Add"
-    // buttons across non-product elements. Real products always carry data-product-card="true".
+  function findProductSections() {
+    // Returns an array of container elements that hold product cards.
+    // 1) Explicit markers (preferred): [data-section-type="products"], [data-products-grid].
+    // 2) Heuristic: <section> containing an h1/h2/h3 whose text matches Products/Menu/Shop/Catalog/Items.
+    var found = [];
+    var explicit = document.querySelectorAll('[data-section-type="products"], [data-section-type="menu"], [data-products-grid="true"]');
+    explicit.forEach(function(s){ found.push(s); });
+    var sections = document.querySelectorAll('section, div[id], div[class*="product"], div[class*="menu"]');
+    sections.forEach(function(s) {
+      if (found.indexOf(s) !== -1) return;
+      var heading = s.querySelector('h1, h2, h3');
+      if (!heading) return;
+      var t = normalizeText(heading.textContent).toLowerCase();
+      if (/^(products?|menu|shop|catalog(ue)?|items|our (products|menu|shop)|featured)\\b/.test(t)) {
+        // Avoid nested duplicates
+        var alreadyAncestor = found.some(function(f){ return f.contains(s) || s.contains(f); });
+        if (!alreadyAncestor) found.push(s);
+      }
+    });
+    return found;
+  }
+
+  function isLikelyProductCard(el, section) {
     if (['DIV','ARTICLE','LI','A'].indexOf(el.tagName) === -1) return false;
-    if (el.getAttribute('data-product-card') !== 'true') return false;
-    // Skip wrappers that contain other product cards (only inject on the leaf card).
-    var nested = el.querySelectorAll('[data-product-card="true"]');
-    if (nested.length > 0) return false;
+    if (el === section) return false;
+    // Skip if it contains another candidate card (only inject on leaves).
+    if (el.querySelector('[data-cart-processed="true"]')) return false;
+    var img = el.querySelector('img');
+    if (!img) return false;
+    // Must have a heading or styled name
+    var heading = el.querySelector('h1, h2, h3, h4, h5, h6, [data-product-role="title"]');
+    if (!heading) return false;
+    var name = normalizeText(heading.textContent);
+    if (!name || name.length < 2 || name.length > 120) return false;
+    // Reject obvious non-product names (collection tiles like "Women", "Men")
+    if (/^(women|men|kids|sale|new|all|view all|shop all|see more|browse|category|categories|collection|collections)$/i.test(name)) return false;
     return true;
+  }
+
+  function isProductCard(el) {
+    // Explicit marker still wins.
+    if (el.getAttribute && el.getAttribute('data-product-card') === 'true') {
+      var nested = el.querySelectorAll('[data-product-card="true"]');
+      if (nested.length > 0) return false;
+      return true;
+    }
+    // Otherwise rely on findCandidateProductCards() which scopes by section.
+    return false;
+  }
+
+  function findCandidateProductCards() {
+    var cards = [];
+    // 1) Explicit cards anywhere.
+    document.querySelectorAll('[data-product-card="true"]').forEach(function(c){
+      var nested = c.querySelectorAll('[data-product-card="true"]');
+      if (nested.length === 0) cards.push(c);
+    });
+    // 2) Heuristic cards inside detected product sections.
+    var sections = findProductSections();
+    sections.forEach(function(section) {
+      // Walk descendants but only consider elements with an img + heading.
+      var candidates = section.querySelectorAll('div, article, li, a');
+      candidates.forEach(function(el) {
+        if (cards.indexOf(el) !== -1) return;
+        if (isLikelyProductCard(el, section)) {
+          // Prefer the smallest valid container: skip if a descendant is also a candidate.
+          var hasInnerCandidate = false;
+          var inner = el.querySelectorAll('div, article, li, a');
+          for (var i = 0; i < inner.length; i++) {
+            if (isLikelyProductCard(inner[i], section)) { hasInnerCandidate = true; break; }
+          }
+          if (!hasInnerCandidate) cards.push(el);
+        }
+      });
+    });
+    return cards;
   }
 
   function getButtonStyle(card) {
