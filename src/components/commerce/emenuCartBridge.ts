@@ -277,8 +277,8 @@ export function buildCartBridgeCode(
       heart.type = 'button';
       heart.className = 'yangu-wishlist-heart';
       heart.setAttribute('aria-label', 'Add to wishlist');
-      heart.style.cssText = 'position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:999px;border:0;background:rgba(255,255,255,0.92);color:#222;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.15);z-index:5;transition:transform .15s;';
-      heart.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+      heart.style.cssText = 'position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:999px;border:0;background:#ffffff;color:#111111;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.18);z-index:5;transition:transform .15s;padding:0;';
+      heart.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
 
       // Sync pressed state from localStorage
       var nameForId = normalizeText(card.querySelector('[data-product-role="title"], h1, h2, h3, h4, h5')?.textContent || '');
@@ -297,7 +297,8 @@ export function buildCartBridgeCode(
       }
       function paint() {
         var w = isWished();
-        heart.style.color = w ? '#e11d48' : '#222';
+        heart.style.color = w ? '#e11d48' : '#111111';
+        heart.style.background = '#ffffff';
         heart.querySelector('svg').setAttribute('fill', w ? '#e11d48' : 'none');
       }
       paint();

@@ -66,6 +66,13 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
   const [specifications, setSpecifications] = useState("");
   const [available, setAvailable] = useState(true);
 
+  // Delivery fields (eshop / estore)
+  const [deliveryType, setDeliveryType] = useState<"free" | "paid">("free");
+  const [deliveryFee, setDeliveryFee] = useState("");
+  const [getItUnit, setGetItUnit] = useState<"today" | "tomorrow" | "days" | "months">("tomorrow");
+  const [getItValue, setGetItValue] = useState("1");
+  const [getItTodayUnit, setGetItTodayUnit] = useState<"minutes" | "hours">("hours");
+
   // AI description state
   const [generatingDesc, setGeneratingDesc] = useState(false);
 
@@ -108,6 +115,11 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
     setDimensions(meta.dimensions || "");
     setSpecifications(meta.specifications || "");
     setAvailable(meta.available !== false);
+    setDeliveryType(meta.deliveryType === "paid" ? "paid" : "free");
+    setDeliveryFee(meta.deliveryFee || "");
+    setGetItUnit(["today", "tomorrow", "days", "months"].includes(meta.getItUnit) ? meta.getItUnit : "tomorrow");
+    setGetItValue(meta.getItValue || "1");
+    setGetItTodayUnit(meta.getItTodayUnit === "minutes" ? "minutes" : "hours");
   }, [product, surfaceType]);
 
   useEffect(() => {
@@ -189,6 +201,11 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
       dimensions: dimensions.trim(),
       specifications: specifications.trim(),
       available,
+      deliveryType,
+      deliveryFee: deliveryType === "paid" ? deliveryFee.trim() : "",
+      getItUnit,
+      getItValue: getItValue.trim() || "1",
+      getItTodayUnit,
     } : undefined;
 
     onSave({
@@ -463,6 +480,99 @@ export function ProductCardEditorModal({ open, product, onClose, onSave, surface
                     <Checkbox checked={available} onCheckedChange={(v) => setAvailable(Boolean(v))} />
                     <span className="text-sm text-foreground">Product is available</span>
                   </label>
+                </div>
+
+                {/* Delivery */}
+                <div className="space-y-3 rounded-xl border border-border bg-muted/20 p-4">
+                  <h4 className="text-sm font-semibold text-foreground">Delivery</h4>
+                  <div className="grid gap-2 md:grid-cols-2">
+                    <button
+                      type="button"
+                      onClick={() => setDeliveryType("free")}
+                      className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${deliveryType === "free" ? "border-primary bg-primary/10 text-foreground" : "border-border text-muted-foreground hover:border-primary/50"}`}
+                    >
+                      Free delivery
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDeliveryType("paid")}
+                      className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${deliveryType === "paid" ? "border-primary bg-primary/10 text-foreground" : "border-border text-muted-foreground hover:border-primary/50"}`}
+                    >
+                      Paid delivery
+                    </button>
+                  </div>
+                  {deliveryType === "paid" && (
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Delivery fee</Label>
+                      <Input value={deliveryFee} onChange={(e) => setDeliveryFee(e.target.value)} placeholder="e.g. 5 USD" />
+                    </div>
+                  )}
+
+                  <div className="space-y-2 pt-1">
+                    <Label className="text-xs text-muted-foreground">Get it</Label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {(["today", "tomorrow", "days", "months"] as const).map((u) => (
+                        <button
+                          key={u}
+                          type="button"
+                          onClick={() => setGetItUnit(u)}
+                          className={`rounded-lg border px-2 py-2 text-xs font-medium capitalize transition ${getItUnit === u ? "border-primary bg-primary/10 text-foreground" : "border-border text-muted-foreground hover:border-primary/50"}`}
+                        >
+                          {u}
+                        </button>
+                      ))}
+                    </div>
+
+                    {getItUnit === "today" && (
+                      <div className="grid gap-2 md:grid-cols-2">
+                        <Input
+                          type="number"
+                          min={1}
+                          value={getItValue}
+                          onChange={(e) => setGetItValue(e.target.value)}
+                          placeholder="e.g. 30"
+                        />
+                        <div className="flex gap-2">
+                          {(["minutes", "hours"] as const).map((u) => (
+                            <button
+                              key={u}
+                              type="button"
+                              onClick={() => setGetItTodayUnit(u)}
+                              className={`flex-1 rounded-lg border px-2 py-2 text-xs font-medium capitalize transition ${getItTodayUnit === u ? "border-primary bg-primary/10 text-foreground" : "border-border text-muted-foreground hover:border-primary/50"}`}
+                            >
+                              {u}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {getItUnit === "days" && (
+                      <Input
+                        type="number"
+                        min={1}
+                        max={30}
+                        value={getItValue}
+                        onChange={(e) => setGetItValue(e.target.value)}
+                        placeholder="1–30 days"
+                      />
+                    )}
+
+                    {getItUnit === "months" && (
+                      <Input
+                        type="number"
+                        min={1}
+                        max={12}
+                        value={getItValue}
+                        onChange={(e) => setGetItValue(e.target.value)}
+                        placeholder="1–12 months"
+                      />
+                    )}
+
+                    {getItUnit === "tomorrow" && (
+                      <p className="text-[11px] text-muted-foreground">Item will be marked as <span className="font-semibold text-foreground">Get it tomorrow</span>.</p>
+                    )}
+                  </div>
                 </div>
               </>
             )}
