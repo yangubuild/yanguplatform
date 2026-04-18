@@ -885,10 +885,21 @@ const EDIT_SCRIPT = String.raw`
         if (!el || ['DIV', 'ARTICLE', 'LI', 'A'].indexOf(el.tagName) === -1) return false;
         if (el.closest('nav,header,footer')) return false;
 
+        // Hard exclusion: any element containing a descendant <a> with an <img>
+        // is a grid/section wrapper and must NEVER be a product card itself.
+        var nestedAnchorWithImg = false;
+        var anchorChildren = el.querySelectorAll('a');
+        for (var ai = 0; ai < anchorChildren.length; ai++) {
+          if (anchorChildren[ai] !== el && anchorChildren[ai].querySelector('img')) {
+            nestedAnchorWithImg = true;
+            break;
+          }
+        }
+        if (nestedAnchorWithImg) return false;
+
         // SHORT-CIRCUIT: if renderer explicitly marks this as a product card
         // (e.g. eshop's data-product-card="true"), trust it immediately and
-        // bypass nested-card / size / structural heuristics. This guarantees
-        // every product card across all category templates gets edit/delete icons.
+        // bypass remaining heuristics.
         if (el.getAttribute('data-product-card') === 'true') return true;
         if (el.querySelector('.yangu-product-controls')) return true;
 
