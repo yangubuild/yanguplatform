@@ -310,6 +310,53 @@ const EDIT_SCRIPT = String.raw`
           }
         });
 
+        // FINAL PASS: walk every descendant element and dedupe bare TEXT NODE
+        // children whose normalized/price-stripped value matches the title key.
+        // Required for templates where name/price are sibling text nodes inside
+        // a single <p> (the editor preview was leaking 3-4 duplicates this way).
+        var rawPriceLower = rawPrice ? rawPrice.toLowerCase() : '';
+        Array.from(card.querySelectorAll('*')).forEach(function(el) {
+          if (protectedNodes.some(function(protectedNode) {
+            return el === protectedNode || el.contains(protectedNode);
+          })) return;
+          if (el.closest && el.closest('.yangu-product-controls')) return;
+          // Track which raw text nodes have been kept so we leave exactly one of each kind.
+          var seenTitle = false;
+          var seenPrice = false;
+          Array.from(el.childNodes || []).forEach(function(child) {
+            if (child.nodeType !== 3) return;
+            var raw = normalizeProductText(child.textContent);
+            if (!raw) return;
+            var lower = raw.toLowerCase();
+            var stripped = stripPrice(raw).toLowerCase();
+            var matchesTitle = titleKeys[lower] || (stripped && titleKeys[stripped]);
+            var matchesPrice = rawPriceLower && lower === rawPriceLower;
+            if (matchesTitle) {
+              if (seenTitle) {
+                child.remove();
+                removedAny = true;
+              } else {
+                seenTitle = true;
+                // Normalize: if the kept node still has price embedded, strip it
+                if (rawPrice && lower !== rawPriceLower) {
+                  var cleaned = stripPrice(raw);
+                  if (cleaned && cleaned.toLowerCase() !== lower) {
+                    child.textContent = cleaned;
+                    removedAny = true;
+                  }
+                }
+              }
+            } else if (matchesPrice) {
+              if (seenPrice) {
+                child.remove();
+                removedAny = true;
+              } else {
+                seenPrice = true;
+              }
+            }
+          });
+        });
+
         return removedAny;
       }
 
