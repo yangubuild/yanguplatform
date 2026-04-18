@@ -246,6 +246,8 @@ interface PublishedEmenuFrameProps {
   showBadge?: boolean;
   orderingEnabled?: boolean;
   currency?: string;
+  surfaceId?: string;
+  surfaceType?: string;
   onPostMessage?: (data: any) => void;
 }
 
@@ -260,6 +262,8 @@ export function PublishedEmenuFrame({
   showBadge,
   orderingEnabled,
   currency = "USD",
+  surfaceId = "",
+  surfaceType = "",
   onPostMessage,
 }: PublishedEmenuFrameProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -291,9 +295,9 @@ export function PublishedEmenuFrame({
       h = h.replace("</body>", `${YANGU_BADGE_HTML}\n</body>`);
     }
 
-    // Inject cart bridge script with configured currency
+    // Inject cart bridge script with configured currency + surface identity
     if (orderingEnabled && h.includes("</body>")) {
-      h = h.replace("</body>", `${buildCartBridgeScript(currency)}\n</body>`);
+      h = h.replace("</body>", `${buildCartBridgeScript(currency, surfaceId, surfaceType)}\n</body>`);
     }
 
     if (h.includes("<title>")) {
@@ -301,7 +305,7 @@ export function PublishedEmenuFrame({
     }
 
     return h;
-  }, [html, title, faviconUrl, showBadge, orderingEnabled, currency]);
+  }, [html, title, faviconUrl, showBadge, orderingEnabled, currency, surfaceId, surfaceType]);
 
   // Listen for postMessage from iframe
   useEffect(() => {
@@ -328,7 +332,7 @@ export function PublishedEmenuFrame({
         // Skip if already injected
         if (doc.getElementById("yangu-cart-btn")) return;
         const script = doc.createElement("script");
-        script.textContent = buildCartBridgeCode(currency);
+        script.textContent = buildCartBridgeCode(currency, surfaceId, surfaceType);
         doc.body.appendChild(script);
       } catch (e) {
         console.warn("[PublishedEmenuFrame] bridge inject error:", e);

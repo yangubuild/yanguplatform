@@ -257,7 +257,7 @@ function EmenuPublicView({
   const orderingEnabled = commerceConfig?.ordering_enabled ?? true;
 
   return (
-    <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName}>
+    <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName} surfaceType={(arguments as any)?.[0]?.surfaceType}>
       <PublishedEmenuFrame
         html={publishedEmenuHtml}
         title={pageTitle}
@@ -265,11 +265,16 @@ function EmenuPublicView({
         showBadge={showBadge}
         orderingEnabled={orderingEnabled}
         currency={currency}
+        surfaceId={surfaceId}
         onPostMessage={(msg) => {
           if (msg.type === "yangu_add_to_cart" && msg.item) {
             (window as any).__yangu_add_to_cart?.(msg.item);
           } else if (msg.type === "yangu_open_cart") {
             (window as any).__yangu_open_cart?.();
+          } else if (msg.type === "yangu_open_wishlist") {
+            (window as any).__yangu_open_wishlist?.();
+          } else if (msg.type === "yangu_open_product_detail" && msg.product) {
+            (window as any).__yangu_open_product_detail?.(msg.product);
           }
         }}
       />

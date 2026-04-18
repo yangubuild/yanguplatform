@@ -780,6 +780,14 @@ const EDIT_SCRIPT = String.raw`
         if (!window.__YANGU_ENABLE_PRODUCT_CONTROLS) return false;
         if (!el || ['DIV', 'ARTICLE', 'LI'].indexOf(el.tagName) === -1) return false;
         if (el.closest('nav,header,footer')) return false;
+
+        // SHORT-CIRCUIT: if renderer explicitly marks this as a product card
+        // (e.g. eshop's data-product-card="true"), trust it immediately and
+        // bypass nested-card / size / structural heuristics. This guarantees
+        // every product card across all category templates gets edit/delete icons.
+        if (el.getAttribute('data-product-card') === 'true') return true;
+        if (el.querySelector('.yangu-product-controls')) return true;
+
         var nestedMatches = 0;
         var descendants = el.querySelectorAll('div,article,li');
         for (var i = 0; i < descendants.length; i++) {
@@ -790,9 +798,6 @@ const EDIT_SCRIPT = String.raw`
             if (nestedMatches > 0) return false;
           }
         }
-
-        if (el.getAttribute('data-product-card') === 'true') return true;
-        if (el.querySelector('.yangu-product-controls')) return true;
 
         var imageEl = el.querySelector('img');
         var nameEl = getProductNameEl(el);

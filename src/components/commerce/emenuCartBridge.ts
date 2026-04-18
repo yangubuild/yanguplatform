@@ -9,10 +9,16 @@
  */
 
 /** Returns the raw JavaScript code (no <script> wrapper) for the cart bridge */
-export function buildCartBridgeCode(configuredCurrency: string = "USD"): string {
+export function buildCartBridgeCode(
+  configuredCurrency: string = "USD",
+  surfaceId: string = "",
+  surfaceType: string = "",
+): string {
   return `
 (function() {
   var CONFIGURED_CURRENCY = ${JSON.stringify(configuredCurrency)};
+  window.__YANGU_SURFACE_ID = ${JSON.stringify(surfaceId)};
+  window.__YANGU_SURFACE_TYPE = ${JSON.stringify(surfaceType)};
 
   function normalizeText(t) { return (t || '').replace(/\\s+/g, ' ').trim(); }
 
@@ -255,6 +261,131 @@ export function buildCartBridgeCode(configuredCurrency: string = "USD"): string 
       }
     });
 
+    // ─── Love icon (wishlist toggle) on every product card ───
+    document.querySelectorAll('[data-product-card="true"]').forEach(function(card) {
+      if (card.getAttribute('data-wishlist-injected')) return;
+      var imgWrap = card.querySelector('img');
+      if (!imgWrap) return;
+      var imgParent = imgWrap.parentElement;
+      if (!imgParent) return;
+      // Ensure the image container is positioned so the heart can be absolutely placed.
+      var ips = window.getComputedStyle(imgParent);
+      if (ips.position === 'static') imgParent.style.position = 'relative';
+      card.setAttribute('data-wishlist-injected', 'true');
+
+      var heart = document.createElement('button');
+      heart.type = 'button';
+      heart.className = 'yangu-wishlist-heart';
+      heart.setAttribute('aria-label', 'Add to wishlist');
+      heart.style.cssText = 'position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:999px;border:0;background:rgba(255,255,255,0.92);color:#222;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.15);z-index:5;transition:transform .15s;';
+      heart.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+
+      // Sync pressed state from localStorage
+      var nameForId = normalizeText(card.querySelector('[data-product-role="title"], h1, h2, h3, h4, h5')?.textContent || '');
+      var priceForId = (function() {
+        var pe = card.querySelector('[data-product-role="price"]') || findPriceEl(card);
+        return pe ? normalizeText(pe.textContent) : '';
+      })();
+      var pId = btoa(nameForId + '_' + priceForId).replace(/=/g, '');
+      function isWished() {
+        try {
+          var raw = localStorage.getItem('yangu_wishlist_' + (window.__YANGU_SURFACE_ID || ''));
+          if (!raw) return false;
+          var arr = JSON.parse(raw);
+          return Array.isArray(arr) && arr.some(function(i){ return i.id === pId; });
+        } catch(_e) { return false; }
+      }
+      function paint() {
+        var w = isWished();
+        heart.style.color = w ? '#e11d48' : '#222';
+        heart.querySelector('svg').setAttribute('fill', w ? '#e11d48' : 'none');
+      }
+      paint();
+
+      heart.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var imgEl = card.querySelector('img');
+        var priceEl2 = card.querySelector('[data-product-role="price"]') || findPriceEl(card);
+        var pNum = priceEl2 ? parsePriceNum(priceEl2.textContent) : 0;
+        if (isNaN(pNum)) pNum = 0;
+        window.parent.postMessage({
+          type: 'yangu_wishlist_toggle',
+          item: {
+            id: pId,
+            name: nameForId,
+            price_cents: Math.round(pNum * 100),
+            currency: CONFIGURED_CURRENCY,
+            image_url: imgEl ? imgEl.src : null
+          }
+        }, '*');
+        // Optimistic local toggle
+        try {
+          var key = 'yangu_wishlist_' + (window.__YANGU_SURFACE_ID || '');
+          var raw = localStorage.getItem(key);
+          var arr = raw ? JSON.parse(raw) : [];
+          if (!Array.isArray(arr)) arr = [];
+          var existingIdx = arr.findIndex(function(i){ return i.id === pId; });
+          if (existingIdx >= 0) arr.splice(existingIdx, 1);
+          else arr.push({ id: pId, name: nameForId, price_cents: Math.round(pNum * 100), currency: CONFIGURED_CURRENCY, image_url: imgEl ? imgEl.src : null });
+          localStorage.setItem(key, JSON.stringify(arr));
+        } catch(_e) {}
+        paint();
+      });
+      imgParent.appendChild(heart);
+
+      // ─── Image carousel arrows (only if multiple images) ───
+      var allImgs = (card.getAttribute('data-product-images') || '').split('|').filter(Boolean);
+      if (allImgs.length > 1) {
+        var idx = 0;
+        var mainImg = card.querySelector('img');
+        var leftArrow = document.createElement('button');
+        leftArrow.type = 'button';
+        leftArrow.setAttribute('aria-label', 'Previous image');
+        leftArrow.style.cssText = 'position:absolute;left:8px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:999px;border:0;background:rgba(255,255,255,0.85);color:#222;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;z-index:5;';
+        leftArrow.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
+        var rightArrow = leftArrow.cloneNode(true);
+        rightArrow.style.cssText = leftArrow.style.cssText.replace('left:8px', 'right:8px');
+        rightArrow.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+        leftArrow.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); idx = (idx - 1 + allImgs.length) % allImgs.length; if (mainImg) mainImg.src = allImgs[idx]; });
+        rightArrow.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); idx = (idx + 1) % allImgs.length; if (mainImg) mainImg.src = allImgs[idx]; });
+        imgParent.appendChild(leftArrow);
+        imgParent.appendChild(rightArrow);
+      }
+
+      // ─── Card click → open product detail dialog (excludes button/heart/arrow) ───
+      card.addEventListener('click', function(e) {
+        var t = e.target;
+        if (t.closest('button, a, .yangu-wishlist-heart, .yangu-live-cta')) return;
+        e.preventDefault();
+        var imgEl = card.querySelector('img');
+        var priceEl3 = card.querySelector('[data-product-role="price"]') || findPriceEl(card);
+        var nameEl3 = card.querySelector('[data-product-role="title"]') || findNameEl(card);
+        var descEl3 = card.querySelector('[data-product-role="description"]');
+        var pNum2 = priceEl3 ? parsePriceNum(priceEl3.textContent) : 0;
+        if (isNaN(pNum2)) pNum2 = 0;
+        var metaRaw = card.getAttribute('data-product-meta');
+        var meta = {};
+        try { meta = metaRaw ? JSON.parse(metaRaw) : {}; } catch(_e) {}
+        var imgs = allImgs.length ? allImgs : (imgEl ? [imgEl.src] : []);
+        window.parent.postMessage({
+          type: 'yangu_open_product_detail',
+          product: {
+            id: pId,
+            name: nameForId || (nameEl3 ? normalizeText(nameEl3.textContent) : ''),
+            description: descEl3 ? normalizeText(descEl3.textContent) : '',
+            brand: meta.brand || '',
+            price_cents: Math.round(pNum2 * 100),
+            currency: CONFIGURED_CURRENCY,
+            image_urls: imgs,
+            sizes: Array.isArray(meta.sizes) ? meta.sizes : [],
+            colors: Array.isArray(meta.colors) ? meta.colors : [],
+            button_text: card.getAttribute('data-product-button-text') || ''
+          }
+        }, '*');
+      });
+    });
+
     // Also wire up any pre-existing order buttons added via the editor
     document.querySelectorAll('[data-yangu-order-btn]').forEach(function(btn) {
       if (btn.getAttribute('data-cart-wired')) return;
@@ -377,8 +508,12 @@ export function buildCartBridgeCode(configuredCurrency: string = "USD"): string 
 `;
 }
 
-export function buildCartBridgeScript(configuredCurrency: string = "USD"): string {
-  return `<script>${buildCartBridgeCode(configuredCurrency)}</script>`;
+export function buildCartBridgeScript(
+  configuredCurrency: string = "USD",
+  surfaceId: string = "",
+  surfaceType: string = "",
+): string {
+  return `<script>${buildCartBridgeCode(configuredCurrency, surfaceId, surfaceType)}</script>`;
 }
 
 // Keep backward compat export for any non-currency-aware callers
