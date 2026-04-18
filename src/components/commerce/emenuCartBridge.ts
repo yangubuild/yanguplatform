@@ -88,17 +88,18 @@ export function buildCartBridgeCode(
   function isLikelyProductCard(el, section) {
     if (['DIV','ARTICLE','LI','A'].indexOf(el.tagName) === -1) return false;
     if (el === section) return false;
-    // Skip if it contains another candidate card (only inject on leaves).
     if (el.querySelector('[data-cart-processed="true"]')) return false;
     var img = el.querySelector('img');
     if (!img) return false;
-    // Must have a heading or styled name
+    // Need either a heading OR currency text in the card.
     var heading = el.querySelector('h1, h2, h3, h4, h5, h6, [data-product-role="title"]');
-    if (!heading) return false;
-    var name = normalizeText(heading.textContent);
-    if (!name || name.length < 2 || name.length > 120) return false;
-    // Reject obvious non-product names (collection tiles like "Women", "Men")
-    if (/^(women|men|kids|sale|new|all|view all|shop all|see more|browse|category|categories|collection|collections)$/i.test(name)) return false;
+    var cardText = normalizeText(el.textContent || '');
+    var hasCurrency = /[\\$€£₦]\\s*\\d|\\b(?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR|KSh)\\s*\\d/i.test(cardText);
+    if (!heading && !hasCurrency) return false;
+    var name = heading ? normalizeText(heading.textContent) : '';
+    // Reject obvious non-product names (collection tiles).
+    if (name && /^(women|men|kids|sale|new|all|view all|shop all|see more|browse|category|categories|collection|collections)$/i.test(name)) return false;
+    if (name && name.length > 200) return false;
     return true;
   }
 
