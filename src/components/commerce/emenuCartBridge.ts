@@ -303,9 +303,13 @@ export function buildCartBridgeCode(
       }
       function paint() {
         var w = isWished();
-        heart.style.color = w ? '#e11d48' : '#111111';
+        var svg = heart.querySelector('svg');
         heart.style.background = '#ffffff';
-        heart.querySelector('svg').setAttribute('fill', w ? '#e11d48' : 'none');
+        heart.style.color = w ? '#e11d48' : '#111111';
+        if (svg) {
+          svg.setAttribute('stroke', w ? '#e11d48' : '#111111');
+          svg.setAttribute('fill', w ? '#e11d48' : 'none');
+        }
       }
       paint();
 
