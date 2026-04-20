@@ -814,6 +814,11 @@ const EDIT_SCRIPT = String.raw`
         if (el.getAttribute('data-product-card') === 'true') return true;
         if (el.querySelector('.yangu-product-controls')) return true;
 
+        // SAFE MODE: if any explicitly-marked product cards exist in the document,
+        // do NOT fall back to heuristics for unmarked elements. Prevents stray
+        // controls on grid/section wrappers in templates that already mark real cards.
+        if (docHasProductCardMarkers()) return false;
+
         var nestedMatches = 0;
         var descendants = el.querySelectorAll('div,article,li,a');
         for (var i = 0; i < descendants.length; i++) {
