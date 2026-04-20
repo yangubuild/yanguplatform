@@ -787,6 +787,10 @@ const EDIT_SCRIPT = String.raw`
         };
       }
 
+      function docHasProductCardMarkers() {
+        return Boolean(document.querySelector('[data-product-card="true"]'));
+      }
+
       function isLikelyProductCard(el) {
         if (!window.__YANGU_ENABLE_PRODUCT_CONTROLS) return false;
         if (!el || ['DIV', 'ARTICLE', 'LI', 'A'].indexOf(el.tagName) === -1) return false;
