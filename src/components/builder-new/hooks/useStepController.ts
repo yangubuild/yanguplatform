@@ -675,19 +675,20 @@ export function useStepController() {
   }, [category, selectedScope, selectedAssets, selectedSections, selectedDeliveryApps, selectedTemplateKey, businessLocation, userUploadedAssets]);
 
   const handleGreetingInput = useCallback((text: string) => {
-    const detected = detectCategory(text);
+    // Prefer pre-set category (from URL/embed prop) over keyword detection
+    const effective = category ?? detectCategory(text);
     const name = extractBusinessName(text);
-    setCategory(detected);
+    if (!category) setCategory(effective);
     setBusinessName(name);
     setUserIdea(text);
-    if (detected === "emenu") {
+    if (effective === "emenu") {
       setCurrentStep("business_type");
-    } else if (detected === "eshop") {
+    } else if (effective === "eshop") {
       setCurrentStep("shop_type");
     } else {
       setCurrentStep("scope");
     }
-  }, []);
+  }, [category]);
 
   const handleOptionSelect = useCallback((option: StepOption) => {
     switch (currentStep) {
