@@ -265,133 +265,34 @@ const EDIT_SCRIPT = String.raw`
         return best;
       }
 
+      // SAFE role-scoped normalizer.
+      // Only removes duplicates within the SAME data-product-role group (title or price).
+      // Never touches unrolled nodes, never parses composite strings, never strips text from kept node.
       function removeDuplicateTitleNodes(card, titleEl, priceEl, descEl, badgeEl) {
-        var rawTitle = normalizeProductText((titleEl && titleEl.textContent) || card.getAttribute('data-product-title') || '');
-        if (!rawTitle) {
-          // Fallback: derive from raw text nodes (templates with name+price as sibling text nodes)
-          rawTitle = inferTitleFromRawTextNodes(card);
-        }
-        if (!rawTitle) return false;
-
-        var rawPrice = normalizeProductText((priceEl && priceEl.textContent) || '');
-        if (!rawPrice) {
-          // Fallback: scan card for first price token
-          rawPrice = extractPriceText(card.textContent || '');
-        }
-
-        // Build title-equivalence: collapse "Title $92" / "$92 Title" / "Title" all to the same key,
-        // so duplicate fragments get removed even when the canonical title has the price embedded.
-        function stripPrice(s) {
-          var out = s || '';
-          if (rawPrice) {
-            out = out.replace(new RegExp('\\s*' + escapeRegExp(rawPrice) + '\\s*', 'gi'), ' ');
-          }
-          var anyPrice = extractPriceText(out);
-          while (anyPrice) {
-            out = out.replace(new RegExp('\\s*' + escapeRegExp(anyPrice) + '\\s*', 'i'), ' ');
-            var next = extractPriceText(out);
-            if (next === anyPrice) break;
-            anyPrice = next;
-          }
-          return normalizeProductText(out);
-        }
-
-        var titleStripped = stripPrice(rawTitle);
-        // ALWAYS also derive a canonical title from raw text nodes — when titleEl is the
-        // entire <p> wrapper (concatenated text), titleStripped is unusable for matching
-        // individual duplicate fragments. The inferred core gives us a clean key.
-        var inferredTitle = inferTitleFromRawTextNodes(card);
-        var inferredStripped = inferredTitle ? stripPrice(inferredTitle) : '';
-        var titleKeys = {};
-        [rawTitle, titleStripped, inferredTitle, inferredStripped].forEach(function(t) { if (t) titleKeys[t.toLowerCase()] = true; });
-
-        var protectedNodes = [titleEl, priceEl, descEl, badgeEl].filter(Boolean);
+        if (!card) return false;
         var removedAny = false;
 
-        Array.from(card.querySelectorAll('h1,h2,h3,h4,h5,h6,p,span,div,strong,b,small')).forEach(function(node) {
-          if (protectedNodes.some(function(protectedNode) {
-            return node === protectedNode || node.contains(protectedNode) || protectedNode.contains(node);
-          })) return;
-          if (node.closest('.yangu-product-controls')) return;
-          if (node.querySelector('img,button,a,svg,input,select,textarea')) return;
-
-          var fullText = normalizeProductText(node.textContent);
-          var directText = getDirectTextContent(node);
-          var fullStripped = stripPrice(fullText);
-          var directStripped = stripPrice(directText);
-
-          var fullMatches = fullText && (titleKeys[fullText.toLowerCase()] || (fullStripped && titleKeys[fullStripped.toLowerCase()]));
-          var directMatches = directText && (titleKeys[directText.toLowerCase()] || (directStripped && titleKeys[directStripped.toLowerCase()]));
-
-          if (fullMatches) {
-            node.remove();
-            removedAny = true;
-            return;
-          }
-
-          if (!directMatches) return;
-
-          Array.from(node.childNodes || []).forEach(function(child) {
-            if (child.nodeType === 3 && normalizeProductText(child.textContent)) {
-              child.remove();
+        function dedupeRole(role, canonicalEl) {
+          var nodes = card.querySelectorAll('[data-product-role="' + role + '"]');
+          if (!nodes || nodes.length < 2) return;
+          var keep = canonicalEl && card.contains(canonicalEl) ? canonicalEl : nodes[0];
+          var keepText = normalizeProductText(keep.textContent || '').toLowerCase();
+          if (!keepText) return;
+          for (var i = 0; i < nodes.length; i++) {
+            var n = nodes[i];
+            if (n === keep) continue;
+            // Safety: never remove a node that contains the keep node or is contained by it.
+            if (n.contains(keep) || keep.contains(n)) continue;
+            var t = normalizeProductText(n.textContent || '').toLowerCase();
+            if (t && t === keepText) {
+              n.remove();
               removedAny = true;
             }
-          });
-
-          if (!normalizeProductText(node.textContent) && node.children.length === 0) {
-            node.remove();
-            removedAny = true;
           }
-        });
+        }
 
-        // FINAL PASS: walk every descendant element and dedupe bare TEXT NODE
-        // children whose normalized/price-stripped value matches the title key.
-        // Required for templates where name/price are sibling text nodes inside
-        // a single <p> (the editor preview was leaking 3-4 duplicates this way).
-        var rawPriceLower = rawPrice ? rawPrice.toLowerCase() : '';
-        // Card-scoped trackers: keep exactly ONE title text node and ONE price text
-        // node across the whole card, regardless of which parent <p>/<div> they live in.
-        var seenTitle = false;
-        var seenPrice = false;
-        Array.from(card.querySelectorAll('*')).forEach(function(el) {
-          if (protectedNodes.some(function(protectedNode) {
-            return el === protectedNode || el.contains(protectedNode);
-          })) return;
-          if (el.closest && el.closest('.yangu-product-controls')) return;
-          Array.from(el.childNodes || []).forEach(function(child) {
-            if (child.nodeType !== 3) return;
-            var raw = normalizeProductText(child.textContent);
-            if (!raw) return;
-            var lower = raw.toLowerCase();
-            var stripped = stripPrice(raw).toLowerCase();
-            var matchesTitle = titleKeys[lower] || (stripped && titleKeys[stripped]);
-            var matchesPrice = rawPriceLower && lower === rawPriceLower;
-            if (matchesTitle) {
-              if (seenTitle) {
-                child.remove();
-                removedAny = true;
-              } else {
-                seenTitle = true;
-                // Normalize: if the kept node has price embedded, strip it so we render clean name only
-                if (rawPrice && lower !== rawPriceLower) {
-                  var cleaned = stripPrice(raw);
-                  if (cleaned && cleaned.toLowerCase() !== lower) {
-                    child.textContent = cleaned;
-                    removedAny = true;
-                  }
-                }
-              }
-            } else if (matchesPrice) {
-              if (seenPrice) {
-                child.remove();
-                removedAny = true;
-              } else {
-                seenPrice = true;
-              }
-            }
-          });
-        });
-
+        dedupeRole('title', titleEl);
+        dedupeRole('price', priceEl);
         return removedAny;
       }
 
@@ -886,6 +787,10 @@ const EDIT_SCRIPT = String.raw`
         };
       }
 
+      function docHasProductCardMarkers() {
+        return Boolean(document.querySelector('[data-product-card="true"]'));
+      }
+
       function isLikelyProductCard(el) {
         if (!window.__YANGU_ENABLE_PRODUCT_CONTROLS) return false;
         if (!el || ['DIV', 'ARTICLE', 'LI', 'A'].indexOf(el.tagName) === -1) return false;
@@ -908,6 +813,11 @@ const EDIT_SCRIPT = String.raw`
         // bypass remaining heuristics.
         if (el.getAttribute('data-product-card') === 'true') return true;
         if (el.querySelector('.yangu-product-controls')) return true;
+
+        // SAFE MODE: if any explicitly-marked product cards exist in the document,
+        // do NOT fall back to heuristics for unmarked elements. Prevents stray
+        // controls on grid/section wrappers in templates that already mark real cards.
+        if (docHasProductCardMarkers()) return false;
 
         var nestedMatches = 0;
         var descendants = el.querySelectorAll('div,article,li,a');
