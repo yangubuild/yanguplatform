@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { getEngine } from "@/lib/builder/engineRegistry";
 import { BuilderEntryScreen } from "@/components/builder/BuilderEntryScreen";
 import { BuilderAiOnboarding } from "@/components/builder/BuilderAiOnboarding";
+import { SpeakToBuild } from "@/components/builder/speak-to-build/SpeakToBuild";
 import { mergeIntoDefault } from "@/lib/builderDefaults";
 import BuilderNewPage from "@/pages/BuilderNewPage";
 
@@ -166,6 +167,13 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     setSearchParams(next, { replace: false });
   }, [searchParams, setSearchParams]);
 
+  // Speak-to-Build path handler
+  const handleSpeakPath = useCallback(() => {
+    const next = new URLSearchParams(searchParams);
+    next.set("mode", "speak");
+    setSearchParams(next, { replace: false });
+  }, [searchParams, setSearchParams]);
+
   /** Handle wizard/AI completion — build seed sections and navigate to editor */
   const handleComplete = useCallback(async (answers: Record<string, unknown>) => {
     if (!engine || !user?.id) { toast.error("You must be logged in"); return null; }
@@ -268,6 +276,19 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     );
   }
 
+  // If mode=speak, show the Speak to Build voice-first flow
+  if (mode === "speak") {
+    return (
+      <div className="min-h-screen bg-background">
+        <SpeakToBuild
+          initialCategory={engineKey as never}
+          onComplete={handleComplete}
+          onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <BuilderEntryScreen
@@ -275,6 +296,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
         onComplete={handleComplete}
         onChatPath={handleChatPath}
         onAiPath={handleAiPath}
+        onSpeakPath={handleSpeakPath}
       />
     </div>
   );
