@@ -18,6 +18,7 @@ import {
   extractPageContext,
 } from "@/lib/builder/ada-local-fallback";
 import { beginSession, speak as voiceSpeak, stopSpeaking } from "@/lib/voice/voiceController";
+import { resolveLanguage, type AdaLanguage } from "@/lib/voice/languageDetect";
 
 export interface AdaChatMessage {
   id: string;
@@ -41,16 +42,27 @@ export function useAdaBuilderChat() {
   const [messages, setMessages] = useState<AdaChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const editorBindingRef = useRef<AdaEditorBinding | null>(null);
+  // Current conversation language — sticky across turns until a new
+  // detection clearly overrides it.
+  const currentLanguageRef = useRef<AdaLanguage>("en");
 
   /** Call this from the editor to wire ADA to real page state */
   const bindEditor = useCallback((binding: AdaEditorBinding) => {
     editorBindingRef.current = binding;
   }, []);
 
-  const sendMessage = useCallback(async (userText: string) => {
+  const sendMessage = useCallback(async (
+    userText: string,
+    opts?: { sttLanguage?: string | null }
+  ) => {
     // Barge-in: any new request invalidates prior session and stops current speech.
     const session = beginSession();
     const isActive = () => session.isActive();
+
+    // Detect language from STT hint or text. Update sticky session language.
+    const detected = resolveLanguage({ sttLanguage: opts?.sttLanguage, text: userText });
+    currentLanguageRef.current = detected;
+    const lang = detected;
 
     const userMsg: AdaChatMessage = {
       id: crypto.randomUUID(),
