@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { getEngine } from "@/lib/builder/engineRegistry";
 import { BuilderEntryScreen } from "@/components/builder/BuilderEntryScreen";
 import { BuilderAiOnboarding } from "@/components/builder/BuilderAiOnboarding";
+import { SpeakToBuild } from "@/components/builder/speak-to-build/SpeakToBuild";
 import BuilderNewPage from "@/pages/BuilderNewPage";
 
 /**
@@ -69,6 +70,12 @@ export default function InfluencerPage() {
     setSearchParams(next, { replace: false });
   }, [searchParams, setSearchParams]);
 
+  const handleSpeakPath = useCallback(() => {
+    const next = new URLSearchParams(searchParams);
+    next.set("mode", "speak");
+    setSearchParams(next, { replace: false });
+  }, [searchParams, setSearchParams]);
+
   if (mode === "ai") {
     return <BuilderNewPage embedded initialCategory="influencer" onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }} />;
   }
@@ -86,6 +93,18 @@ export default function InfluencerPage() {
     );
   }
 
+  if (mode === "speak") {
+    return (
+      <div className="min-h-screen bg-background">
+        <SpeakToBuild
+          initialCategory="influencer"
+          onComplete={handleComplete}
+          onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <BuilderEntryScreen
@@ -93,6 +112,7 @@ export default function InfluencerPage() {
         onComplete={handleComplete}
         onChatPath={handleChatPath}
         onAiPath={handleAiPath}
+        onSpeakPath={handleSpeakPath}
       />
     </div>
   );

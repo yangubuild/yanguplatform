@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { getEngine } from "@/lib/builder/engineRegistry";
 import { BuilderEntryScreen } from "@/components/builder/BuilderEntryScreen";
 import { BuilderAiOnboarding } from "@/components/builder/BuilderAiOnboarding";
+import { SpeakToBuild } from "@/components/builder/speak-to-build/SpeakToBuild";
 import { Store, Users } from "lucide-react";
 import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
@@ -82,6 +83,12 @@ export default function DashboardCommunityPage() {
     setSearchParams(next, { replace: false });
   }, [searchParams, setSearchParams]);
 
+  const handleSpeakPath = useCallback(() => {
+    const next = new URLSearchParams(searchParams);
+    next.set("mode", "speak");
+    setSearchParams(next, { replace: false });
+  }, [searchParams, setSearchParams]);
+
   // Chat flow embedded
   if (mode === "ai" && selectedFlow === "community") {
     return <BuilderNewPage embedded initialCategory="community" onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }} />;
@@ -95,6 +102,18 @@ export default function DashboardCommunityPage() {
           onComplete={handleCommunityComplete}
           onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }}
           onChatPath={handleChatPath}
+        />
+      </div>
+    );
+  }
+
+  if (mode === "speak" && selectedFlow === "community") {
+    return (
+      <div className="min-h-screen bg-background">
+        <SpeakToBuild
+          initialCategory="community"
+          onComplete={handleCommunityComplete}
+          onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }}
         />
       </div>
     );
@@ -114,6 +133,7 @@ export default function DashboardCommunityPage() {
           onComplete={handleCommunityComplete}
           onChatPath={handleChatPath}
           onAiPath={handleAiPath}
+          onSpeakPath={handleSpeakPath}
         />
       </div>
     );
