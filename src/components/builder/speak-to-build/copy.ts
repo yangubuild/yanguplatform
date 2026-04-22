@@ -110,7 +110,7 @@ export const CATEGORY_OPTIONS: Array<{
 export const STYLE_OPTIONS: Array<{ value: string; label: Record<AdaLanguage, string> }> = [
   { value: "modern",   label: { en: "Modern",   fr: "Moderne",   ar: "عصري",     sw: "Kisasa",     lg: "Eya kati",        rw: "Igezweho" } },
   { value: "minimal",  label: { en: "Minimal",  fr: "Minimal",   ar: "بسيط",     sw: "Rahisi",     lg: "Entonotono",      rw: "Yoroshye" } },
-  { value: "luxury",   label: { en: "Luxury",   fr: "Luxe",      ar: "فاخر",     sw: "Anasa",      lg: "Ey'ekitiibwa",    lg2: "" as unknown as string, rw: "Ubuhanzi bw'agaciro" } as unknown as { value: string; label: Record<AdaLanguage, string> },
+  { value: "luxury",   label: { en: "Luxury",   fr: "Luxe",      ar: "فاخر",     sw: "Anasa",      lg: "Ey'ekitiibwa",    rw: "Ubuhanzi bw'agaciro" } },
   { value: "bold",     label: { en: "Bold",     fr: "Audacieux", ar: "جريء",     sw: "Jasiri",     lg: "Eyetongodde",     rw: "Igaragara" } },
   { value: "african",  label: { en: "African traditional", fr: "Africain traditionnel", ar: "أفريقي تقليدي", sw: "Kiafrika cha jadi", lg: "Eky'Afrika", rw: "Gakondo y'Afrika" } },
   { value: "creative", label: { en: "Creative", fr: "Créatif",   ar: "إبداعي",   sw: "Ubunifu",    lg: "Ey'obuyiiya",     rw: "Ubuhanzi" } },
