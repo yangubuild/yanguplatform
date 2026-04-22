@@ -110,46 +110,89 @@ function speakBrowser(text: string, lang: AdaLanguage) {
   }
 }
 
-/**
- * Speak text in the given language.
- * Cancels any current playback first (barge-in).
- */
-export function speak(text: string, lang: AdaLanguage = "en"): void {
-  if (!text) return;
-  if (typeof window === "undefined") return;
+export interface SpeakOptions {
+  /** Override the per-session voice id. */
+  voiceId?: string;
+  /** When true, ignore the session-locked voice and use a fresh one. */
+  ignoreSessionVoice?: boolean;
+}
 
-  // Always interrupt previous speech.
+function resolveVoiceId(lang: AdaLanguage, opts?: SpeakOptions): string | undefined {
+  if (opts?.voiceId) {
+    if (!opts.ignoreSessionVoice) {
+      sessionVoiceRef = opts.voiceId;
+      sessionVoiceLang = lang;
+    }
+    return opts.voiceId;
+  }
+  if (!opts?.ignoreSessionVoice && sessionVoiceRef && sessionVoiceLang === lang) {
+    return sessionVoiceRef;
+  }
+  return undefined;
+}
+
+/**
+ * Internal worker — handles one playback. Optional `onDone` fires once when
+ * playback completes OR is superseded/errored, so speakAsync can resolve.
+ */
+function speakInternal(
+  text: string,
+  lang: AdaLanguage,
+  opts: SpeakOptions | undefined,
+  onDone?: () => void,
+): void {
+  if (!text) { onDone?.(); return; }
+  if (typeof window === "undefined") { onDone?.(); return; }
+
+  // Always interrupt previous speech (barge-in).
   stopSpeaking();
 
   const reqId = ++activeRequestId;
   setSpeaking(true);
 
-  // Fire async TTS request; play when ready unless superseded.
+  const voiceId = resolveVoiceId(lang, opts);
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    onDone?.();
+  };
+
   (async () => {
     try {
-      const { data, error } = await supabase.functions.invoke("ada-tts", {
-        body: { text, language: lang },
-      });
+      const body: Record<string, unknown> = { text, language: lang };
+      if (voiceId) body.voice_id = voiceId;
+      const { data, error } = await supabase.functions.invoke("ada-tts", { body });
 
-      // Superseded by a newer request — drop silently.
-      if (reqId !== activeRequestId) return;
+      if (reqId !== activeRequestId) { finish(); return; }
 
       if (error || !data?.ok || !data?.audio_base64) {
-        // Fall back to browser TTS.
         speakBrowser(text, lang);
+        // Browser TTS is fire-and-forget here; resolve immediately-ish.
+        // We hook into utterance end below for accuracy.
+        if (activeUtterance) {
+          const u = activeUtterance;
+          const prevEnd = u.onend;
+          u.onend = (ev) => { try { (prevEnd as any)?.call(u, ev); } finally { finish(); } };
+          const prevErr = u.onerror;
+          u.onerror = (ev) => { try { (prevErr as any)?.call(u, ev); } finally { finish(); } };
+        } else {
+          finish();
+        }
         return;
       }
 
       const audio = new Audio(`data:${data.mime || "audio/mpeg"};base64,${data.audio_base64}`);
       audio.onended = () => {
         if (activeAudio === audio) { activeAudio = null; setSpeaking(false); }
+        finish();
       };
       audio.onerror = () => {
         if (activeAudio === audio) {
           activeAudio = null;
-          // Try browser fallback if MP3 playback failed.
           speakBrowser(text, lang);
         }
+        finish();
       };
       activeAudio = audio;
       try {
@@ -157,12 +200,41 @@ export function speak(text: string, lang: AdaLanguage = "en"): void {
       } catch {
         if (activeAudio === audio) activeAudio = null;
         speakBrowser(text, lang);
+        finish();
       }
     } catch {
-      if (reqId !== activeRequestId) return;
+      if (reqId !== activeRequestId) { finish(); return; }
       speakBrowser(text, lang);
+      finish();
     }
   })();
+}
+
+/**
+ * Speak text in the given language.
+ * Cancels any current playback first (barge-in). Fire-and-forget.
+ */
+export function speak(text: string, lang: AdaLanguage = "en", opts?: SpeakOptions): void {
+  speakInternal(text, lang, opts);
+}
+
+/**
+ * Speak text and resolve when playback finishes (or is interrupted).
+ * Use this when sequencing UI transitions after ADA finishes talking.
+ */
+export function speakAsync(
+  text: string,
+  lang: AdaLanguage = "en",
+  opts?: SpeakOptions,
+): Promise<void> {
+  return new Promise<void>((resolve) => {
+    const done = () => {
+      pendingResolvers.delete(done);
+      resolve();
+    };
+    pendingResolvers.add(done);
+    speakInternal(text, lang, opts, done);
+  });
 }
 
 /** Returns true if TTS is currently playing or pending. */
@@ -184,10 +256,24 @@ export function beginSession(): { id: number; isActive: () => boolean } {
   activeSessionId += 1;
   const id = activeSessionId;
   stopSpeaking();
+  // Reset session-locked voice; first speak() call will set it.
+  sessionVoiceRef = null;
+  sessionVoiceLang = null;
   return {
     id,
     isActive: () => activeSessionId === id,
   };
+}
+
+/** Lock a specific voice id for the rest of the session (e.g. for a given language). */
+export function lockSessionVoice(voiceId: string, lang: AdaLanguage = "en"): void {
+  sessionVoiceRef = voiceId;
+  sessionVoiceLang = lang;
+}
+
+/** Returns the currently locked session voice id, if any. */
+export function getSessionVoiceId(): string | null {
+  return sessionVoiceRef;
 }
 
 /** Cancel the currently-active session and stop speech. */
