@@ -18,7 +18,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, PhoneOff } from "lucide-react";
+import { ArrowLeft, PhoneOff, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -318,6 +318,25 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     onBack();
   }, [onBack, voice]);
 
+  const handleOpenChat = useCallback(() => {
+    try { voice.stop(); } catch { /* ignore */ }
+    try { voiceInterrupt(); } catch { /* ignore */ }
+    if (onSwitchToChat) {
+      onSwitchToChat({
+        business_name: answers.business_name,
+        business_description: answers.business_description,
+        industry: answers.category || "",
+        location: answers.location,
+        primary_color: answers.primary_color,
+        _speak_category: answers.category,
+        _speak_language: answers.language,
+        _speak_style: answers.style,
+      });
+    } else {
+      onBack();
+    }
+  }, [voice, onSwitchToChat, onBack, answers]);
+
   // ---- header status ----------------------------------------------------
   const status = useMemo(() => {
     if (step === "building") return labels.build + "…";
@@ -374,15 +393,24 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       </main>
 
       {/* Bottom actions */}
-      <footer className="px-6 pb-10 sm:pb-14 flex items-center justify-center">
+      <footer className="px-6 pb-10 sm:pb-14 flex items-center justify-center gap-3">
         <Button
           variant="destructive"
           size="lg"
           className="rounded-2xl px-6 h-14 gap-2"
-          onClick={handleEndCall}
+          onClick={(e) => { e.stopPropagation(); handleEndCall(); }}
         >
           <PhoneOff className="h-5 w-5" />
           End Call
+        </Button>
+        <Button
+          variant="outline"
+          size="lg"
+          className="rounded-2xl px-6 h-14 gap-2"
+          onClick={(e) => { e.stopPropagation(); handleOpenChat(); }}
+        >
+          <MessageSquare className="h-5 w-5" />
+          Open Chat
         </Button>
       </footer>
     </div>
