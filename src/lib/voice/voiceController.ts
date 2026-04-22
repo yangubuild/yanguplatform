@@ -20,6 +20,20 @@ let speaking = false;
 let activeSessionId = 0;
 const listeners = new Set<Listener>();
 
+/** Session-locked voice id (per language) so a single call doesn't switch voices mid-flow. */
+let sessionVoiceRef: string | null = null;
+let sessionVoiceLang: AdaLanguage | null = null;
+
+/** Pending end-of-playback resolvers for speakAsync(). Cleared on interrupt. */
+const pendingResolvers = new Set<() => void>();
+
+function flushPendingResolvers() {
+  for (const r of pendingResolvers) {
+    try { r(); } catch { /* ignore */ }
+  }
+  pendingResolvers.clear();
+}
+
 function notify() {
   for (const l of listeners) {
     try { l(speaking); } catch { /* ignore */ }
@@ -38,7 +52,13 @@ export function stopSpeaking(): void {
   activeRequestId += 1;
 
   if (activeAudio) {
-    try { activeAudio.pause(); activeAudio.src = ""; } catch { /* ignore */ }
+    try {
+      activeAudio.onended = null;
+      activeAudio.onerror = null;
+      activeAudio.pause();
+      activeAudio.src = "";
+      activeAudio.load?.();
+    } catch { /* ignore */ }
     activeAudio = null;
   }
 
@@ -51,6 +71,15 @@ export function stopSpeaking(): void {
 
   activeUtterance = null;
   setSpeaking(false);
+  flushPendingResolvers();
+}
+
+/**
+ * HARD interrupt: synchronously cancels TTS playback and pending requests.
+ * MUST be called before starting a new recording to guarantee zero overlap.
+ */
+export function voiceInterrupt(): void {
+  stopSpeaking();
 }
 
 const BROWSER_LANG_MAP: Record<AdaLanguage, string> = {
