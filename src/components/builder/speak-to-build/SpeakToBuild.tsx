@@ -18,7 +18,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { MessageSquare, PhoneOff, Send } from "lucide-react";
+import { ArrowLeft, MessageSquare, PhoneOff, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -358,6 +358,17 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     >
       {/* Top status */}
       <header className="px-6 pt-8 sm:pt-12 text-center">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onBack();
+          }}
+          aria-label="Back"
+          className="absolute left-4 top-4 sm:left-6 sm:top-6 inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
         <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
           {labels.speak_to_build}
         </p>
