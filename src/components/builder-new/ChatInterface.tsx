@@ -1,5 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Plus } from "lucide-react";
+import { Send, Plus, Mic, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { useChatAudioRecorder } from "@/hooks/useChatAudioRecorder";
+import { interrupt as voiceInterrupt } from "@/lib/voice/voiceController";
 import type { ChatMessage } from "./types/builder.types";
 import type { Selection } from "./types/builder.types";
 import type { StepConfig, StepOption, BuilderStep, UserAssets } from "./hooks/useStepController";
@@ -64,6 +68,61 @@ export function ChatInterface({
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [noticeHeight, setNoticeHeight] = useState(0);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+
+  const handleRecorded = useCallback(async (blob: Blob) => {
+    if (blob.size < 500) return;
+    setIsTranscribing(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const userId = userData?.user?.id || "anon";
+      const ext = blob.type.includes("ogg") ? "ogg" : blob.type.includes("mp4") ? "m4a" : "webm";
+      const filePath = `${userId}/builder/${Date.now()}.${ext}`;
+
+      const { error: upErr } = await supabase.storage
+        .from("ada-audio")
+        .upload(filePath, blob, { contentType: blob.type, upsert: true });
+      if (upErr) {
+        toast({ title: `Audio upload failed: ${upErr.message || "unknown"}`, variant: "destructive" });
+        return;
+      }
+
+      const { data, error: fnErr } = await supabase.functions.invoke("ada-transcribe-audio", {
+        body: { bucket: "ada-audio", path: filePath },
+      });
+
+      if (fnErr || data?.ok === false) {
+        toast({ title: data?.message || "Transcription failed. You can type instead.", variant: "destructive" });
+        return;
+      }
+      const transcript = (data?.transcript || "").trim();
+      if (!transcript) {
+        toast({ title: "Didn't catch that — try again.", variant: "destructive" });
+        return;
+      }
+      if (inputAllowed && !isLoading) {
+        onSend(transcript);
+      } else {
+        setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
+      }
+    } catch (err) {
+      console.error("[Builder mic] error:", err);
+      toast({ title: "Voice processing error", variant: "destructive" });
+    } finally {
+      setIsTranscribing(false);
+    }
+  }, [inputAllowed, isLoading, onSend]);
+
+  const { isRecording, isSupported, toggleRecording } = useChatAudioRecorder({
+    onRecorded: handleRecorded,
+    onError: (msg) => toast({ title: msg, variant: "destructive" }),
+  });
+
+  const handleMicClick = async () => {
+    // Barge-in on tap
+    voiceInterrupt();
+    await toggleRecording();
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -163,6 +222,26 @@ export function ChatInterface({
             disabled={!inputAllowed}
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none py-1.5 max-h-[120px] disabled:cursor-not-allowed"
           />
+          {isSupported && (
+            <button
+              type="button"
+              onClick={handleMicClick}
+              disabled={isTranscribing || isLoading}
+              aria-label={isRecording ? "Stop recording" : "Start voice input"}
+              title={isRecording ? "Stop recording" : "Speak to ADA"}
+              className={`p-1.5 rounded-full transition-colors shrink-0 ${
+                isRecording
+                  ? "bg-destructive text-destructive-foreground animate-pulse"
+                  : "text-muted-foreground hover:text-foreground"
+              } disabled:opacity-40`}
+            >
+              {isTranscribing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Mic className="h-4 w-4" />
+              )}
+            </button>
+          )}
           <button
             onClick={handleSend}
             disabled={!input.trim() || isLoading || !inputAllowed}
