@@ -294,6 +294,20 @@ export function useAdaBuilderChat() {
       };
       setMessages((prev) => [...prev, msg]);
     }
+
+    function speakSafe(text: string) {
+      try {
+        if (typeof window === "undefined") return;
+        const synth = window.speechSynthesis;
+        if (!synth || !text) return;
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.rate = 1;
+        utter.pitch = 1;
+        synth.speak(utter);
+      } catch {
+        // TTS is best-effort; never block dispatch.
+      }
+    }
   }, [messages]);
 
   const clearChat = useCallback(() => setMessages([]), []);
