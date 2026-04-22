@@ -1,3 +1,4 @@
+// LOCKED: Voice-only UI. Do not reintroduce chat UI.
 /**
  * SpeakToBuild — Full-screen, phone-call style voice interface.
  *
@@ -13,12 +14,11 @@
  * UI:
  *   - Top: status line ("ADA is speaking…", "Listening…", "Thinking…")
  *   - Center: VoiceOrb (idle/listening/speaking/thinking, audio-reactive)
- *   - Bottom: End Call + Open Chat
- *   - Hidden text fallback only after 2 STT failures
+ *   - Bottom: End Call
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, MessageSquare, PhoneOff, Send } from "lucide-react";
+import { ArrowLeft, PhoneOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -46,7 +46,6 @@ interface Props {
   initialCategory?: SpeakCategory | null;
   onComplete: (answers: Record<string, unknown>) => Promise<unknown> | unknown;
   onBack: () => void;
-  /** Optional: switch to chat mode passing collected answers. */
   onSwitchToChat?: (answers: Record<string, unknown>) => void;
 }
 
@@ -106,7 +105,6 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
   });
   const [fadingOut, setFadingOut] = useState(false);
   const [sttFailures, setSttFailures] = useState(0);
-  const [textFallback, setTextFallback] = useState("");
 
   const language = answers.language;
   const labels = ACTION_LABELS[language];
@@ -135,7 +133,6 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
 
     // Reset STT failure counter on a successful turn
     setSttFailures(0);
-    setTextFallback("");
 
     // Lock language sticky on first turns
     const cur = stepRef.current;
@@ -283,12 +280,12 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       .then(async () => {
         // Completion line + brief pause + fade to editor.
         const done: Record<AdaLanguage, string> = {
-          en: "Your website is ready. You can continue editing by voice or chat.",
-          fr: "Votre site est prêt. Vous pouvez continuer par la voix ou le chat.",
-          ar: "موقعك جاهز. يمكنك متابعة التعديل بالصوت أو الدردشة.",
-          sw: "Tovuti yako iko tayari. Unaweza kuendelea kwa sauti au gumzo.",
-          lg: "Websaiti yo emaze. Osobola okweyongerayo n'eddoboozi oba chat.",
-          rw: "Urubuga rwawe rwiteguye. Ushobora gukomeza ukoresheje ijwi cyangwa chat.",
+          en: "Your website is ready.",
+          fr: "Votre site est prêt.",
+          ar: "موقعك جاهز.",
+          sw: "Tovuti yako iko tayari.",
+          lg: "Websaiti yo emaze.",
+          rw: "Urubuga rwawe rwiteguye.",
         };
         await speakAsync(done[language] || done.en, language);
         setStep("done");
@@ -321,19 +318,6 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     onBack();
   }, [onBack, voice]);
 
-  const handleOpenChat = useCallback(() => {
-    try { voice.stop(); } catch { /* ignore */ }
-    try { voiceInterrupt(); } catch { /* ignore */ }
-    if (onSwitchToChat) {
-      onSwitchToChat({
-        ...answersRef.current,
-        _speak_to_build_handoff: true,
-      } as Record<string, unknown>);
-    } else {
-      onBack();
-    }
-  }, [onBack, onSwitchToChat, voice]);
-
   // ---- header status ----------------------------------------------------
   const status = useMemo(() => {
     if (step === "building") return labels.build + "…";
@@ -345,8 +329,6 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       default:          return "Tap the orb to speak";
     }
   }, [voice.uiState, step, labels]);
-
-  const showTextFallback = sttFailures >= 2 && step !== "building" && step !== "done";
 
   // ---- render -----------------------------------------------------------
   return (
@@ -391,45 +373,8 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         />
       </main>
 
-      {/* Hidden text fallback (only after 2 STT failures) */}
-      {showTextFallback && (
-        <div className="px-6 pb-2">
-          <div className="mx-auto max-w-md flex items-end gap-2 rounded-2xl border border-border bg-card p-1.5">
-            <input
-              value={textFallback}
-              onChange={(e) => setTextFallback(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  if (textFallback.trim()) {
-                    handleTextAnswer(textFallback);
-                    setTextFallback("");
-                  }
-                }
-              }}
-              placeholder={labels.placeholder}
-              className="flex-1 bg-transparent text-sm outline-none px-2 py-2"
-            />
-            <button
-              type="button"
-              onClick={() => {
-                if (textFallback.trim()) {
-                  handleTextAnswer(textFallback);
-                  setTextFallback("");
-                }
-              }}
-              className="p-2 rounded-full bg-foreground text-background disabled:opacity-40"
-              disabled={!textFallback.trim()}
-              aria-label={labels.send}
-            >
-              <Send className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Bottom actions */}
-      <footer className="px-6 pb-10 sm:pb-14 flex items-center justify-center gap-4">
+      <footer className="px-6 pb-10 sm:pb-14 flex items-center justify-center">
         <Button
           variant="destructive"
           size="lg"
@@ -438,15 +383,6 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         >
           <PhoneOff className="h-5 w-5" />
           End Call
-        </Button>
-        <Button
-          variant="outline"
-          size="lg"
-          className="rounded-2xl px-6 h-14 gap-2"
-          onClick={handleOpenChat}
-        >
-          <MessageSquare className="h-5 w-5" />
-          Open Chat
         </Button>
       </footer>
     </div>
