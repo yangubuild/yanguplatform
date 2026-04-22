@@ -222,6 +222,26 @@ export function ChatInterface({
             disabled={!inputAllowed}
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none py-1.5 max-h-[120px] disabled:cursor-not-allowed"
           />
+          {isSupported && (
+            <button
+              type="button"
+              onClick={handleMicClick}
+              disabled={isTranscribing || isLoading}
+              aria-label={isRecording ? "Stop recording" : "Start voice input"}
+              title={isRecording ? "Stop recording" : "Speak to ADA"}
+              className={`p-1.5 rounded-full transition-colors shrink-0 ${
+                isRecording
+                  ? "bg-destructive text-destructive-foreground animate-pulse"
+                  : "text-muted-foreground hover:text-foreground"
+              } disabled:opacity-40`}
+            >
+              {isTranscribing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Mic className="h-4 w-4" />
+              )}
+            </button>
+          )}
           <button
             onClick={handleSend}
             disabled={!input.trim() || isLoading || !inputAllowed}
