@@ -94,7 +94,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { text, language } = await req.json().catch(() => ({}));
+    const { text, language, voice_id } = await req.json().catch(() => ({}));
     const cleanText = String(text || "").trim();
     if (!cleanText) {
       return new Response(JSON.stringify({ ok: false, error: "missing_text" }), {
@@ -105,7 +105,10 @@ serve(async (req) => {
       ? language as Lang : "en";
 
     const elevenKey = Deno.env.get("ELEVENLABS_API_KEY");
-    const elevenVoice = ELEVEN_VOICE_MAP[lang];
+    const elevenVoice =
+      (typeof voice_id === "string" && voice_id.trim().length > 0)
+        ? voice_id.trim()
+        : ELEVEN_VOICE_MAP[lang];
 
     let audio: ArrayBuffer | null = null;
     let provider: "elevenlabs" | "google" = "elevenlabs";
