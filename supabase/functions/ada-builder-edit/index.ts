@@ -14,12 +14,23 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { userMessage, contextSummary, conversationHistory } = await req.json();
+    const { userMessage, contextSummary, conversationHistory, language } = await req.json();
+
+    const LANG_NAMES: Record<string, string> = {
+      en: "English", ar: "Arabic", fr: "French",
+      sw: "Swahili", lg: "Luganda", rw: "Kinyarwanda",
+    };
+    const replyLang = LANG_NAMES[language] ? language : "en";
+    const replyLangName = LANG_NAMES[replyLang];
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
     const systemPrompt = `You are Ada, a builder editing assistant for YANGU surfaces.
+
+RESPONSE LANGUAGE:
+- The user is writing in ${replyLangName}. ALWAYS write the "reply" and "clarification" fields in ${replyLangName}.
+- Keep replies short, natural, and conversational. Do not mix languages in one reply.
 
 The user wants to edit their page. You receive a structured summary of the current page state.
 
