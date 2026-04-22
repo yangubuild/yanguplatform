@@ -7,86 +7,106 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+function jsonResponse(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+function base64ToBytes(b64: string): Uint8Array {
+  const clean = b64.includes(",") ? b64.split(",")[1] : b64;
+  const bin = atob(clean);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+function extFromMime(mime: string): string {
+  const m = mime.toLowerCase();
+  if (m.includes("webm")) return "webm";
+  if (m.includes("ogg")) return "ogg";
+  if (m.includes("mp3") || m.includes("mpeg")) return "mp3";
+  if (m.includes("wav")) return "wav";
+  if (m.includes("mp4") || m.includes("m4a")) return "m4a";
+  return "webm";
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const { bucket, path } = await req.json();
-    if (!bucket || !path) {
-      return new Response(
-        JSON.stringify({ error: "Missing bucket or path" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Log env presence (booleans only)
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    const openaiKey = Deno.env.get("OPENAI_API_KEY");
-
-    console.log("[ada-transcribe] env check:", {
-      hasSupabaseUrl: !!supabaseUrl,
-      hasServiceRoleKey: !!serviceRoleKey,
-      hasOpenaiKey: !!openaiKey,
+    console.log("[ada-transcribe] request received", {
+      method: req.method,
+      contentType: req.headers.get("content-type"),
     });
 
-    if (!supabaseUrl || !serviceRoleKey) {
-      return new Response(
-        JSON.stringify({ error: "Server misconfigured: missing SUPABASE_URL or SERVICE_ROLE_KEY" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
+    const openaiKey = Deno.env.get("OPENAI_API_KEY");
     if (!openaiKey) {
-      return new Response(
-        JSON.stringify({ error: "Missing OPENAI_API_KEY — configure it in backend secrets" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      console.error("[ada-transcribe] missing OPENAI_API_KEY");
+      return jsonResponse({ error: true, message: "Server missing OPENAI_API_KEY" }, 200);
     }
 
-    const supabase = createClient(supabaseUrl, serviceRoleKey);
+    // Resolve audio bytes from any of the supported input contracts.
+    let audioBytes: Uint8Array | null = null;
+    let mimeType = "audio/webm";
+    let ext = "webm";
 
-    // Download audio
-    const { data: fileData, error: dlError } = await supabase.storage
-      .from(bucket)
-      .download(path);
+    const contentType = req.headers.get("content-type") ?? "";
 
-    if (dlError || !fileData) {
-      console.error("[ada-transcribe] Storage download error:", dlError);
-      return new Response(
-        JSON.stringify({ error: "Failed to download audio", detail: dlError?.message }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    try {
+      if (contentType.includes("multipart/form-data")) {
+        // Contract A: FormData with "file"
+        const formData = await req.formData();
+        const file = formData.get("file");
+        if (file && file instanceof File) {
+          const buf = await file.arrayBuffer();
+          audioBytes = new Uint8Array(buf);
+          mimeType = file.type || "audio/webm";
+          ext = extFromMime(mimeType);
+        }
+      } else {
+        // Contract B/C: JSON body — either {audio_base64, mime} or {bucket, path}
+        const body = await req.json().catch(() => ({} as any));
+
+        if (body?.audio_base64) {
+          audioBytes = base64ToBytes(String(body.audio_base64));
+          mimeType = body.mime || "audio/webm";
+          ext = extFromMime(mimeType);
+        } else if (body?.bucket && body?.path) {
+          const supabaseUrl = Deno.env.get("SUPABASE_URL");
+          const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+          if (!supabaseUrl || !serviceRoleKey) {
+            return jsonResponse({ error: true, message: "Storage backend not configured" }, 200);
+          }
+          const supabase = createClient(supabaseUrl, serviceRoleKey);
+          const { data, error } = await supabase.storage.from(body.bucket).download(body.path);
+          if (error || !data) {
+            return jsonResponse({ error: true, message: `Download failed: ${error?.message ?? "unknown"}` }, 200);
+          }
+          const buf = await data.arrayBuffer();
+          audioBytes = new Uint8Array(buf);
+          ext = String(body.path).split(".").pop()?.toLowerCase() || "webm";
+          mimeType = `audio/${ext === "m4a" ? "mp4" : ext}`;
+        }
+      }
+    } catch (parseErr) {
+      console.error("[ada-transcribe] body parse error", parseErr);
+      return jsonResponse({ error: true, message: "Invalid request body" }, 200);
     }
 
-    const arrayBuf = await fileData.arrayBuffer();
-    console.log("[ada-transcribe] Storage download OK, bytes:", arrayBuf.byteLength);
+    if (!audioBytes || audioBytes.byteLength === 0) {
+      console.warn("[ada-transcribe] no audio file received");
+      return jsonResponse({ error: true, message: "No audio file provided" }, 200);
+    }
 
-    // Determine mime/ext
-    const ext = path.split(".").pop()?.toLowerCase() ?? "webm";
-    const mimeMap: Record<string, string> = {
-      webm: "audio/webm",
-      ogg: "audio/ogg",
-      mp3: "audio/mpeg",
-      wav: "audio/wav",
-      m4a: "audio/mp4",
-    };
-    const mimeType = mimeMap[ext] || "audio/webm";
-    console.log("[ada-transcribe] mimeType:", mimeType, "ext:", ext);
+    console.log("[ada-transcribe] audio bytes:", audioBytes.byteLength, "mime:", mimeType);
 
     // Send to OpenAI Whisper
     const formData = new FormData();
-    const audioBlob = new Blob([arrayBuf], { type: mimeType });
+    const audioBlob = new Blob([audioBytes], { type: mimeType });
     formData.append("file", audioBlob, `audio.${ext}`);
     formData.append("model", "whisper-1");
     formData.append("response_format", "verbose_json");
@@ -98,63 +118,42 @@ serve(async (req) => {
     });
 
     const whisperBody = await whisperRes.text();
-    console.log("[ada-transcribe] Whisper status:", whisperRes.status);
-    console.log("[ada-transcribe] Whisper body:", whisperBody);
+    console.log("[ada-transcribe] provider status:", whisperRes.status);
 
     if (!whisperRes.ok) {
-      // Parse error body
       let parsed: any = {};
       try { parsed = JSON.parse(whisperBody); } catch {}
       const errCode = parsed?.error?.code || "";
       const errMsg = parsed?.error?.message || whisperBody;
+      console.error("[ada-transcribe] provider error:", whisperRes.status, errMsg);
 
-      // Quota exceeded – return graceful JSON (200 with ok:false)
       if (whisperRes.status === 429 || errCode === "insufficient_quota") {
-        console.log("[ada-transcribe] Quota exceeded, returning graceful response");
-        return new Response(
-          JSON.stringify({ ok: false, error_code: "INSUFFICIENT_QUOTA", message: "Voice temporarily unavailable. Please try again later." }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return jsonResponse({ ok: false, error: true, error_code: "INSUFFICIENT_QUOTA", message: "Voice temporarily unavailable. Please try again later.", text: "" }, 200);
       }
-
-      // Auth errors
       if (whisperRes.status === 401 || whisperRes.status === 403) {
-        return new Response(
-          JSON.stringify({ ok: false, error_code: "AUTH_ERROR", message: "Missing/invalid OPENAI_API_KEY", detail: whisperBody }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return jsonResponse({ ok: false, error: true, error_code: "AUTH_ERROR", message: "Invalid OPENAI_API_KEY", text: "" }, 200);
       }
-
-      return new Response(
-        JSON.stringify({ ok: false, error_code: errCode || "UPSTREAM_ERROR", message: errMsg, detail: whisperBody }),
-        { status: whisperRes.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ ok: false, error: true, error_code: errCode || "UPSTREAM_ERROR", message: errMsg, text: "" }, 200);
     }
 
-    // Parse successful response
-    let whisperData: any;
-    try {
-      whisperData = JSON.parse(whisperBody);
-    } catch {
-      return new Response(
-        JSON.stringify({ error: "Failed to parse Whisper response", detail: whisperBody }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    let whisperData: any = {};
+    try { whisperData = JSON.parse(whisperBody); } catch {}
 
-    return new Response(
-      JSON.stringify({
-        ok: true,
-        transcript: whisperData.text ?? "",
-        language: whisperData.language ?? "unknown",
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    const text = whisperData.text ?? "";
+    console.log("[ada-transcribe] transcript length:", text.length);
+
+    return jsonResponse({
+      ok: true,
+      text,
+      transcript: text,
+      language: whisperData.language ?? "unknown",
+    }, 200);
   } catch (err) {
     console.error("[ada-transcribe] unhandled error:", err);
-    return new Response(
-      JSON.stringify({ error: "Internal server error", detail: String(err) }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse({
+      error: true,
+      message: err instanceof Error ? err.message : String(err),
+      text: "",
+    }, 200);
   }
 });
