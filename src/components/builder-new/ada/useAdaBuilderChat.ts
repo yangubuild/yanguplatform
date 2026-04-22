@@ -138,69 +138,146 @@ export function useAdaBuilderChat() {
       }
 
       // ── Event-driven dispatcher ──
-      // Clarification short-circuits everything else in the stream.
+      // Reusable mutation runner — guarded so the plan can only execute once per turn.
+      let mutationRan = false;
+      let mutationSpoke = false;
+
+      const runMutationOnce = async (
+        mutationPlan: AdaMutationPlan & { reply?: string }
+      ): Promise<{ message: string; ok: boolean } | null> => {
+        if (mutationRan) return null;
+        mutationRan = true;
+
+        const replyText = stripAdaFormatting(mutationPlan.reply || "");
+
+        if (mutationPlan.action === "ask_clarification") {
+          const msg = stripAdaFormatting(
+            mutationPlan.clarification || replyText || "Which item or section should I change?"
+          );
+          addAssistantMessage(msg);
+          return { message: msg, ok: false };
+        }
+
+        if (mutationPlan.action === "unsupported") {
+          const msg = stripAdaFormatting(
+            mutationPlan.reason || replyText || "I can't handle that request from here yet."
+          );
+          addAssistantMessage(msg);
+          return { message: msg, ok: false };
+        }
+
+        if (!currentHtml || !binding) {
+          const msg =
+            replyText ||
+            "I can see your request, but I don't have access to the page content right now. Try refreshing the editor.";
+          addAssistantMessage(msg);
+          return { message: msg, ok: false };
+        }
+
+        const mutation = prepareAdaMutation(snapshot, mutationPlan);
+
+        switch (mutation.kind) {
+          case "clarify":
+            addAssistantMessage(mutation.message);
+            return { message: mutation.message, ok: false };
+
+          case "failed":
+            addAssistantMessage(mutation.message);
+            return { message: mutation.message, ok: false };
+
+          case "html": {
+            binding.setHtml(mutation.nextHtml);
+            await new Promise((r) => setTimeout(r, 100));
+            const afterHtml = binding.getHtml();
+            const ok = !!(afterHtml && mutation.verify(afterHtml));
+            const msg = ok
+              ? mutation.successMessage
+              : mutation.successMessage + " (Please check the preview to confirm.)";
+            addAssistantMessage(msg);
+            return { message: msg, ok };
+          }
+
+          case "sections": {
+            const msg =
+              replyText ||
+              "I prepared the change but this surface uses HTML editing. The update should be visible now.";
+            addAssistantMessage(msg);
+            return { message: msg, ok: true };
+          }
+        }
+        return null;
+      };
+
+      // ── Event stream path ──
       if (events && events.length) {
+        // Clarification short-circuits everything else in the stream.
         const clarify = events.find((e) => e?.type === "clarification");
         if (clarify) {
-          addAssistantMessage(stripAdaFormatting(String(clarify.message || "Could you be more specific?")));
+          addAssistantMessage(
+            stripAdaFormatting(String(clarify.message || "Could you be more specific?"))
+          );
           return;
         }
-      }
 
-      const reply = stripAdaFormatting(plan.reply || "");
+        for (const ev of events) {
+          try {
+            const type = String(ev?.type || "");
+            switch (type) {
+              case "ui_update": {
+                const message = typeof ev.message === "string" ? ev.message.trim() : "";
+                // Skip generic "Working on it…" filler so chat isn't noisy.
+                if (message && !/^working on it/i.test(message)) {
+                  addAssistantMessage(stripAdaFormatting(message));
+                }
+                break;
+              }
 
-      // If AI asks for clarification or says unsupported
-      if (plan.action === "ask_clarification") {
-        addAssistantMessage(stripAdaFormatting(plan.clarification || reply || "Which item or section should I change?"));
-        return;
-      }
+              case "edit_site":
+              case "mutation": {
+                const evPlan = (ev.plan || ev.data || plan) as
+                  | (AdaMutationPlan & { reply?: string })
+                  | null;
+                if (!evPlan) break;
+                const result = await runMutationOnce(evPlan);
+                if (result?.ok) {
+                  // Mutation produced its own confirmation — that becomes the voice.
+                  speakSafe(result.message);
+                  mutationSpoke = true;
+                }
+                break;
+              }
 
-      if (plan.action === "unsupported") {
-        addAssistantMessage(stripAdaFormatting(plan.reason || reply || "I can't handle that request from here yet."));
-        return;
-      }
+              case "tts": {
+                // Only one confirmation voice per action.
+                if (mutationSpoke) break;
+                const text = typeof ev.text === "string" ? ev.text.trim() : "";
+                if (text) {
+                  speakSafe(stripAdaFormatting(text));
+                  mutationSpoke = true;
+                }
+                break;
+              }
 
-      // Attempt real mutation
-      if (!currentHtml || !binding) {
-        addAssistantMessage(reply || "I can see your request, but I don't have access to the page content right now. Try refreshing the editor.");
-        return;
-      }
-
-      // Surface a quick UI ack from the events stream before running the mutation.
-      const uiAck = events?.find((e) => e?.type === "ui_update");
-      if (uiAck && typeof uiAck.message === "string" && uiAck.message.trim()) {
-        // Intentionally not adding to chat — the success message below replaces it.
-        // Kept as a hook for future toast/typing-indicator wiring.
-      }
-
-      const mutation = prepareAdaMutation(snapshot, plan);
-
-      switch (mutation.kind) {
-        case "clarify":
-          addAssistantMessage(mutation.message);
-          break;
-
-        case "failed":
-          addAssistantMessage(mutation.message);
-          break;
-
-        case "html": {
-          binding.setHtml(mutation.nextHtml);
-
-          // Verify the mutation took effect
-          await new Promise((r) => setTimeout(r, 100));
-          const afterHtml = binding.getHtml();
-          if (afterHtml && mutation.verify(afterHtml)) {
-            addAssistantMessage(mutation.successMessage);
-          } else {
-            addAssistantMessage(mutation.successMessage + " (Please check the preview to confirm.)");
+              default:
+                break;
+            }
+          } catch (err) {
+            console.error("ADA event failed:", ev?.type, err);
           }
-          break;
         }
 
-        case "sections":
-          addAssistantMessage(reply || "I prepared the change but this surface uses HTML editing. The update should be visible now.");
-          break;
+        // If the stream had no edit_site/mutation event but a plan exists, run it as fallback.
+        if (!mutationRan) {
+          const result = await runMutationOnce(plan);
+          if (result?.ok && !mutationSpoke) {
+            speakSafe(result.message);
+            mutationSpoke = true;
+          }
+        }
+      } else {
+        // ── Legacy plan-only path (no events array) ──
+        const result = await runMutationOnce(plan);
+        if (result?.ok) speakSafe(result.message);
       }
     } catch {
       addAssistantMessage("Something went wrong. Please try again.");
