@@ -220,13 +220,16 @@ export function useAdaBuilderChat() {
         // Clarification short-circuits everything else in the stream.
         const clarify = events.find((e) => e?.type === "clarification");
         if (clarify) {
+          if (!isActive()) return;
           addAssistantMessage(
             stripAdaFormatting(String(clarify.message || "Could you be more specific?"))
           );
+          voiceSpeak(stripAdaFormatting(String(clarify.message || "")));
           return;
         }
 
         for (const ev of events) {
+          if (!isActive()) return; // interrupted mid-stream
           try {
             const type = String(ev?.type || "");
             switch (type) {
@@ -246,6 +249,7 @@ export function useAdaBuilderChat() {
                   | null;
                 if (!evPlan) break;
                 const result = await runMutationOnce(evPlan);
+                if (!isActive()) return;
                 if (result?.ok) {
                   // Mutation produced its own confirmation — that becomes the voice.
                   speakSafe(result.message);
@@ -276,6 +280,7 @@ export function useAdaBuilderChat() {
         // If the stream had no edit_site/mutation event but a plan exists, run it as fallback.
         if (!mutationRan) {
           const result = await runMutationOnce(plan);
+          if (!isActive()) return;
           if (result?.ok && !mutationSpoke) {
             speakSafe(result.message);
             mutationSpoke = true;
@@ -284,15 +289,17 @@ export function useAdaBuilderChat() {
       } else {
         // ── Legacy plan-only path (no events array) ──
         const result = await runMutationOnce(plan);
+        if (!isActive()) return;
         if (result?.ok) speakSafe(result.message);
       }
     } catch {
       addAssistantMessage("Something went wrong. Please try again.");
     } finally {
-      setIsLoading(false);
+      if (isActive()) setIsLoading(false);
     }
 
     function addAssistantMessage(content: string) {
+      if (!isActive()) return;
       const msg: AdaChatMessage = {
         id: crypto.randomUUID(),
         role: "assistant",
@@ -303,21 +310,15 @@ export function useAdaBuilderChat() {
     }
 
     function speakSafe(text: string) {
-      try {
-        if (typeof window === "undefined") return;
-        const synth = window.speechSynthesis;
-        if (!synth || !text) return;
-        const utter = new SpeechSynthesisUtterance(text);
-        utter.rate = 1;
-        utter.pitch = 1;
-        synth.speak(utter);
-      } catch {
-        // TTS is best-effort; never block dispatch.
-      }
+      if (!isActive()) return;
+      voiceSpeak(text);
     }
   }, [messages]);
 
-  const clearChat = useCallback(() => setMessages([]), []);
+  const clearChat = useCallback(() => {
+    stopSpeaking();
+    setMessages([]);
+  }, []);
 
   return { messages, isLoading, sendMessage, clearChat, bindEditor };
 }
