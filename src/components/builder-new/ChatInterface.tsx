@@ -8,6 +8,7 @@ import { MessageBubble } from "./MessageBubble";
 import { BuilderPinnedNotice } from "./BuilderPinnedNotice";
 import { StepRenderer } from "./StepRenderer";
 import { YanguLoader } from "@/components/YanguLoader";
+import { stopSpeaking } from "@/lib/voice/voiceController";
 
 interface ChatInterfaceProps {
   messages: ChatMessage[];
@@ -86,6 +87,8 @@ export function ChatInterface({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    // Typing = barge-in: stop any current ADA speech immediately.
+    if (e.target.value && !input) stopSpeaking();
     setInput(e.target.value);
     const ta = e.target;
     ta.style.height = "auto";
