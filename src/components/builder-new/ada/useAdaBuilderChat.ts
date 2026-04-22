@@ -17,6 +17,7 @@ import {
   buildLocalReply,
   extractPageContext,
 } from "@/lib/builder/ada-local-fallback";
+import { beginSession, speak as voiceSpeak, stopSpeaking } from "@/lib/voice/voiceController";
 
 export interface AdaChatMessage {
   id: string;
