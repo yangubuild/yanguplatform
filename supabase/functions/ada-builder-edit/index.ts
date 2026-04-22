@@ -126,7 +126,23 @@ ACTIONS AVAILABLE:
       ? JSON.parse(toolCall.function.arguments)
       : toolCall.function.arguments;
 
-    return new Response(JSON.stringify({ ok: true, plan: args }), {
+    // Build an events[] envelope alongside the plan so the client can dispatch
+    // sequentially (ui_update → mutation → tts) while the mutation engine
+    // remains the source of truth for HTML edits.
+    const events: Array<Record<string, unknown>> = [];
+    const reply: string = (args.reply || "").toString();
+
+    if (args.action === "ask_clarification") {
+      events.push({ type: "clarification", message: args.clarification || reply || "Could you be more specific?" });
+    } else if (args.action === "unsupported") {
+      events.push({ type: "ui_update", message: args.reason || reply || "I can't handle that yet." });
+    } else {
+      events.push({ type: "ui_update", message: "Working on it…" });
+      events.push({ type: "edit_site", action: args.action, target: args.target ?? null, changes: args.changes ?? null, plan: args });
+      if (reply) events.push({ type: "tts", text: reply });
+    }
+
+    return new Response(JSON.stringify({ ok: true, plan: args, events }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {

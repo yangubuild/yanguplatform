@@ -78,6 +78,7 @@ export function useAdaBuilderChat() {
 
       // Try the AI gateway first
       let plan: (AdaMutationPlan & { reply?: string }) | null = null;
+      let events: Array<Record<string, unknown>> | null = null;
       let usedFallback = false;
 
       try {
@@ -100,6 +101,7 @@ export function useAdaBuilderChat() {
           }
         } else {
           plan = data.plan;
+          events = Array.isArray(data.events) ? data.events : null;
         }
       } catch {
         // Network error → try fallback
@@ -122,11 +124,27 @@ export function useAdaBuilderChat() {
         }
 
         plan = { ...localPlan, reply: buildLocalReply(localPlan) };
+        // Synthesize an event envelope for the fallback path so dispatch is uniform.
+        events = [
+          { type: "ui_update", message: "Working on it…" },
+          { type: "edit_site", action: localPlan.action, target: localPlan.target ?? null, changes: localPlan.changes ?? null, plan },
+          { type: "tts", text: plan.reply || "" },
+        ];
       }
 
       if (!plan) {
         addAssistantMessage("Something went wrong. Please try again.");
         return;
+      }
+
+      // ── Event-driven dispatcher ──
+      // Clarification short-circuits everything else in the stream.
+      if (events && events.length) {
+        const clarify = events.find((e) => e?.type === "clarification");
+        if (clarify) {
+          addAssistantMessage(stripAdaFormatting(String(clarify.message || "Could you be more specific?")));
+          return;
+        }
       }
 
       const reply = stripAdaFormatting(plan.reply || "");
@@ -146,6 +164,13 @@ export function useAdaBuilderChat() {
       if (!currentHtml || !binding) {
         addAssistantMessage(reply || "I can see your request, but I don't have access to the page content right now. Try refreshing the editor.");
         return;
+      }
+
+      // Surface a quick UI ack from the events stream before running the mutation.
+      const uiAck = events?.find((e) => e?.type === "ui_update");
+      if (uiAck && typeof uiAck.message === "string" && uiAck.message.trim()) {
+        // Intentionally not adding to chat — the success message below replaces it.
+        // Kept as a hook for future toast/typing-indicator wiring.
       }
 
       const mutation = prepareAdaMutation(snapshot, plan);
