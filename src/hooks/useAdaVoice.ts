@@ -1,6 +1,7 @@
 import { useRef, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { interrupt as voiceInterrupt } from "@/lib/voice/voiceController";
 
 interface UseAdaVoiceOptions {
   chatId: string | null;
@@ -22,6 +23,10 @@ export function useAdaVoice({ chatId, userId, isAuthenticated, onTranscript }: U
       toast({ title: "Login to use voice", variant: "destructive" });
       return;
     }
+
+    // Barge-in: starting mic input must immediately stop any current speech
+    // and cancel any in-flight ADA processing.
+    voiceInterrupt();
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
