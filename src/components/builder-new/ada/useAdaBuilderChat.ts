@@ -48,6 +48,10 @@ export function useAdaBuilderChat() {
   }, []);
 
   const sendMessage = useCallback(async (userText: string) => {
+    // Barge-in: any new request invalidates prior session and stops current speech.
+    const session = beginSession();
+    const isActive = () => session.isActive();
+
     const userMsg: AdaChatMessage = {
       id: crypto.randomUUID(),
       role: "user",
@@ -90,6 +94,8 @@ export function useAdaBuilderChat() {
             conversationHistory: history.slice(0, -1),
           },
         });
+
+        if (!isActive()) return; // user interrupted while waiting on AI
 
         if (error || !data?.ok) {
           const errorCode = data?.error || (error as Record<string, unknown>)?.error;
