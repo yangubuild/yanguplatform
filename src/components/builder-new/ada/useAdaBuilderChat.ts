@@ -104,6 +104,7 @@ export function useAdaBuilderChat() {
             userMessage: userText,
             contextSummary,
             conversationHistory: history.slice(0, -1),
+            language: lang,
           },
         });
 
@@ -236,7 +237,7 @@ export function useAdaBuilderChat() {
           addAssistantMessage(
             stripAdaFormatting(String(clarify.message || "Could you be more specific?"))
           );
-          voiceSpeak(stripAdaFormatting(String(clarify.message || "")));
+          voiceSpeak(stripAdaFormatting(String(clarify.message || "")), lang);
           return;
         }
 
@@ -323,7 +324,7 @@ export function useAdaBuilderChat() {
 
     function speakSafe(text: string) {
       if (!isActive()) return;
-      voiceSpeak(text);
+      voiceSpeak(text, lang);
     }
   }, [messages]);
 
