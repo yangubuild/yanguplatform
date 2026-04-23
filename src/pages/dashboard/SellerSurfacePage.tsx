@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { getEngine } from "@/lib/builder/engineRegistry";
 import { BuilderEntryScreen } from "@/components/builder/BuilderEntryScreen";
 import { BuilderAiOnboarding } from "@/components/builder/BuilderAiOnboarding";
-import { SpeakToBuild } from "@/components/builder/speak-to-build/SpeakToBuild";
 import { mergeIntoDefault } from "@/lib/builderDefaults";
 import BuilderNewPage from "@/pages/BuilderNewPage";
 
