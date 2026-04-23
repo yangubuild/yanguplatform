@@ -270,6 +270,21 @@ export function useBuilderEditor(surfaceId: string | undefined) {
       const schema = getDefaultSchema(sectionType);
 
       try {
+        if (isOffline()) {
+          await addToQueue({
+            type: "upsert_section",
+            payload: {
+              p_page_id: activePageId,
+              p_section_type: sectionType,
+              p_schema: schema,
+              p_position: nextPosition,
+              p_is_visible: true,
+              p_core_slot: null,
+            },
+          });
+          toast.success("Section saved offline. Will sync when online.");
+          return;
+        }
         const { data, error } = await supabase.rpc("builder_upsert_section", {
           p_page_id: activePageId,
           p_section_type: sectionType,
