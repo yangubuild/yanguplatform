@@ -324,6 +324,21 @@ export function useBuilderEditor(surfaceId: string | undefined) {
       const nextPosition = options?.position ?? (sections.length> 0 ? Math.max(...sections.map((s) => s.position)) + 1 : 0);
 
       try {
+        if (isOffline()) {
+          await addToQueue({
+            type: "upsert_section",
+            payload: {
+              p_page_id: activePageId,
+              p_section_type: sectionType,
+              p_schema: schema,
+              p_position: nextPosition,
+              p_is_visible: true,
+              p_core_slot: options?.coreSlot ?? null,
+            },
+          });
+          toast.success("Section saved offline. Will sync when online.");
+          return;
+        }
         const { data, error } = await supabase.rpc("builder_upsert_section", {
           p_page_id: activePageId,
           p_section_type: sectionType,
