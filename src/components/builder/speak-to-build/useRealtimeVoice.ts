@@ -51,12 +51,16 @@ export function useRealtimeVoice({
   const rafRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
   const [audioBlocked, setAudioBlocked] = useState(false);
+  const startingRef = useRef(false);
+  const greetedRef = useRef(false);
 
   // Per-turn buffers
   const assistantTextBufRef = useRef<string>("");
   const userTranscriptBufRef = useRef<string>("");
 
   const cleanup = useCallback(() => {
+    greetedRef.current = false;
+    startingRef.current = false;
     if (rafRef.current != null) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
@@ -87,7 +91,11 @@ export function useRealtimeVoice({
   }, [cleanup]);
 
   const start = useCallback(async () => {
-    if (pcRef.current) return; // already connected
+    if (pcRef.current || startingRef.current) {
+      console.log("[useRealtimeVoice] start skipped (already starting/connected)");
+      return;
+    }
+    startingRef.current = true;
     setUiState("connecting");
     try {
       // 1. Mint ephemeral token
@@ -102,15 +110,43 @@ export function useRealtimeVoice({
       // 2. Peer connection
       const pc = new RTCPeerConnection();
       pcRef.current = pc;
+      console.log("[useRealtimeVoice] RTCPeerConnection created");
+
+      pc.addEventListener("connectionstatechange", () => {
+        console.log("[useRealtimeVoice] connectionState:", pc.connectionState);
+        if (pc.connectionState === "connected") {
+          console.log("RTC CONNECTED");
+        }
+        if (
+          pc.connectionState === "failed" ||
+          pc.connectionState === "disconnected" ||
+          pc.connectionState === "closed"
+        ) {
+          if (mountedRef.current && pc === pcRef.current) {
+            setUiState("error");
+          }
+        }
+      });
+      pc.addEventListener("iceconnectionstatechange", () => {
+        console.log("[useRealtimeVoice] iceConnectionState:", pc.iceConnectionState);
+      });
 
       // 3. Remote audio sink
       const audioEl = document.createElement("audio");
       audioEl.autoplay = true;
       audioElRef.current = audioEl;
       pc.ontrack = (e) => {
+        console.log("TRACK RECEIVED", e);
         const [stream] = e.streams;
         if (audioElRef.current) {
           audioElRef.current.srcObject = stream;
+          audioElRef.current.onplay = () => {
+            console.log("AUDIO PLAYING");
+            if (mountedRef.current) setAudioBlocked(false);
+          };
+          audioElRef.current.onerror = (err) => {
+            console.error("[useRealtimeVoice] audio element error", err);
+          };
           // Try to play immediately. If browser blocks autoplay we surface
           // the `audioBlocked` flag so the UI can render a single Start CTA.
           const p = audioElRef.current.play();
@@ -171,17 +207,21 @@ export function useRealtimeVoice({
       dc.addEventListener("open", () => {
         console.log("[useRealtimeVoice] data channel open");
         // Kick off the conversation: ask ADA to greet immediately.
-        try {
-          dc.send(JSON.stringify({
-            type: "response.create",
-            response: {
-              modalities: ["audio", "text"],
-              instructions:
-                "Greet the user warmly in their language and ask what kind of business they want to build. Keep it to one short sentence.",
-            },
-          }));
-        } catch (err) {
-          console.warn("[useRealtimeVoice] greet send failed", err);
+        if (!greetedRef.current) {
+          greetedRef.current = true;
+          try {
+            dc.send(JSON.stringify({
+              type: "response.create",
+              response: {
+                modalities: ["audio", "text"],
+                instructions:
+                  "Hey I'm ADA AI. Greet the user warmly in their language and ask what kind of business they want to build — name, what they do, and what they're looking to build. Keep it to one short sentence.",
+              },
+            }));
+            console.log("[useRealtimeVoice] greet response.create sent");
+          } catch (err) {
+            console.warn("[useRealtimeVoice] greet send failed", err);
+          }
         }
         if (mountedRef.current) setUiState("listening");
         onConnected?.();
@@ -190,6 +230,7 @@ export function useRealtimeVoice({
       dc.addEventListener("message", (e: MessageEvent) => {
         let msg: { type: string; [k: string]: unknown };
         try { msg = JSON.parse(e.data); } catch { return; }
+        console.log("Realtime event:", msg.type);
 
         switch (msg.type) {
           case "input_audio_buffer.speech_started":
@@ -199,9 +240,12 @@ export function useRealtimeVoice({
             if (mountedRef.current) setUiState("thinking");
             break;
           case "response.audio.delta":
+          case "response.output_audio.delta":
+            console.log("ADA RESPONSE RECEIVED (audio delta)");
             if (mountedRef.current) setUiState("speaking");
             break;
           case "response.audio.done":
+          case "response.output_audio.done":
             if (mountedRef.current) setUiState("listening");
             break;
           case "response.audio_transcript.delta":
@@ -271,11 +315,13 @@ export function useRealtimeVoice({
       await pc.setRemoteDescription(answer);
 
       console.log("[useRealtimeVoice] connected");
+      startingRef.current = false;
     } catch (err) {
       console.error("[useRealtimeVoice] start failed", err);
       cleanup();
       if (mountedRef.current) setUiState("error");
       onError?.(err instanceof Error ? err : new Error(String(err)));
+      startingRef.current = false;
     }
   }, [language, onConnected, onMessage, onError, cleanup]);
 
