@@ -122,6 +122,14 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
   const sessionRef = useRef<ReturnType<typeof beginSession> | null>(null);
   if (sessionRef.current == null) sessionRef.current = beginSession();
 
+  // Conversation log shared with chat builder on handoff.
+  const transcriptRef = useRef<TranscriptEntry[]>([]);
+  const logTurn = useCallback((role: "assistant" | "user", text: string) => {
+    const t = (text || "").trim();
+    if (!t) return;
+    transcriptRef.current.push({ role, text: t, ts: Date.now() });
+  }, []);
+
   const updateAnswer = useCallback(<K extends keyof SpeakAnswers>(key: K, value: SpeakAnswers[K]) => {
     setAnswers((prev) => ({ ...prev, [key]: value }));
   }, []);
@@ -135,6 +143,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
   const handleTextAnswer = useCallback((raw: string) => {
     const text = raw.trim();
     if (!text) return;
+    logTurn("user", text);
 
     // Reset STT failure counter on a successful turn
     setSttFailures(0);
@@ -199,7 +208,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       default:
         break;
     }
-  }, [goNext, updateAnswer]);
+  }, [goNext, updateAnswer, logTurn]);
 
   // ---- voice engine -----------------------------------------------------
 
