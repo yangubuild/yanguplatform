@@ -104,6 +104,34 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
   useEffect(() => {
     if (greetedRef.current) return;
     greetedRef.current = true;
+
+    // Hydrate prior conversation from a Speak-to-Build handoff, if present.
+    // The voice flow stashes its transcript in sessionStorage so the chat
+    // builder can display the same conversation seamlessly.
+    try {
+      const raw = sessionStorage.getItem("speak_to_chat_seed_v1");
+      if (raw) {
+        const parsed = JSON.parse(raw) as { transcript?: { role: "assistant" | "user"; text: string; ts?: number }[] };
+        const turns = Array.isArray(parsed?.transcript) ? parsed.transcript : [];
+        if (turns.length > 0) {
+          const seeded: ChatMessage[] = turns
+            .filter((t) => t && (t.role === "assistant" || t.role === "user") && typeof t.text === "string" && t.text.trim().length > 0)
+            .map((t) => ({
+              id: crypto.randomUUID(),
+              role: t.role,
+              content: t.text,
+              timestamp: typeof t.ts === "number" ? t.ts : Date.now(),
+            }));
+          if (seeded.length > 0) {
+            setMessages(seeded);
+            sessionStorage.removeItem("speak_to_chat_seed_v1");
+            return;
+          }
+        }
+        sessionStorage.removeItem("speak_to_chat_seed_v1");
+      }
+    } catch { /* ignore */ }
+
     const config = ctrl.getStepConfig();
     if (config.adaMessage) addMsg("assistant", config.adaMessage);
   // eslint-disable-next-line react-hooks/exhaustive-deps

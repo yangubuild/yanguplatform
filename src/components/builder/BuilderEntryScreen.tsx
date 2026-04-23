@@ -1,4 +1,4 @@
-import { Sparkles, MessageSquare, Mic } from "lucide-react";
+import { MessageSquare, Mic } from "lucide-react";
 import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
 import type { BuilderEngine } from "@/lib/builder/types";
@@ -17,15 +17,11 @@ interface Props {
 
 /**
  * Unified entry screen for ALL builder categories.
- * Shows three paths: "Build with AI", "Build with Chat", and "Speak to Build".
+ * Shows two paths: "Speak to Build" and "Build with Chat".
  */
 export function BuilderEntryScreen({ engine, onComplete, onChatPath, onAiPath, onSpeakPath }: Props) {
   const handleChat = () => {
     onChatPath?.();
-  };
-
-  const handleAi = () => {
-    onAiPath?.();
   };
 
   const handleSpeak = () => {
@@ -39,19 +35,19 @@ export function BuilderEntryScreen({ engine, onComplete, onChatPath, onAiPath, o
         <p className="text-muted-foreground mt-1">{engine.description}</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card
           className="p-5 sm:p-6 space-y-3 border-2 border-primary/30 hover:border-primary/60 transition-colors cursor-pointer"
-          onClick={handleAi}>
+          onClick={handleSpeak}>
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold text-foreground">Build with AI</h3>
+            <Mic className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold text-foreground">Speak to Build</h3>
           </div>
           <p className="text-sm text-muted-foreground">
-            Import from a social profile or let AI help you set up quickly.
+            Voice-first onboarding. Just talk — ADA will build it.
           </p>
-          <Button size="sm" className="w-full gap-2" onClick={(e) => { e.stopPropagation(); handleAi(); }}>
-            <Sparkles className="h-4 w-4" /> Start with AI
+          <Button size="sm" className="w-full gap-2" onClick={(e) => { e.stopPropagation(); handleSpeak(); }}>
+            <Mic className="h-4 w-4" /> Speak to Build
           </Button>
         </Card>
 
@@ -67,21 +63,6 @@ export function BuilderEntryScreen({ engine, onComplete, onChatPath, onAiPath, o
           </p>
           <Button size="sm" variant="outline" className="w-full gap-2" onClick={(e) => { e.stopPropagation(); handleChat(); }}>
             <MessageSquare className="h-4 w-4" /> Start Chat
-          </Button>
-        </Card>
-
-        <Card
-          className="p-5 sm:p-6 space-y-3 hover:border-primary/30 transition-colors cursor-pointer"
-          onClick={handleSpeak}>
-          <div className="flex items-center gap-2">
-            <Mic className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold text-foreground">Speak to Build</h3>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Voice-first onboarding. Just talk — ADA will build it.
-          </p>
-          <Button size="sm" variant="outline" className="w-full gap-2" onClick={(e) => { e.stopPropagation(); handleSpeak(); }}>
-            <Mic className="h-4 w-4" /> Speak to Build
           </Button>
         </Card>
       </div>

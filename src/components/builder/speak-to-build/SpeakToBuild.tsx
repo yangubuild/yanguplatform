@@ -49,6 +49,11 @@ interface Props {
   onSwitchToChat?: (answers: Record<string, unknown>) => void;
 }
 
+/** Shared sessionStorage key for handing off the voice transcript to the chat builder. */
+export const SPEAK_TO_CHAT_SEED_KEY = "speak_to_chat_seed_v1";
+
+type TranscriptEntry = { role: "assistant" | "user"; text: string; ts: number };
+
 const STEPS: SpeakStepId[] = [
   "intro", "category", "business_info", "logo", "logo_create",
   "colors", "location", "style", "building", "done",
@@ -117,6 +122,14 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
   const sessionRef = useRef<ReturnType<typeof beginSession> | null>(null);
   if (sessionRef.current == null) sessionRef.current = beginSession();
 
+  // Conversation log shared with chat builder on handoff.
+  const transcriptRef = useRef<TranscriptEntry[]>([]);
+  const logTurn = useCallback((role: "assistant" | "user", text: string) => {
+    const t = (text || "").trim();
+    if (!t) return;
+    transcriptRef.current.push({ role, text: t, ts: Date.now() });
+  }, []);
+
   const updateAnswer = useCallback(<K extends keyof SpeakAnswers>(key: K, value: SpeakAnswers[K]) => {
     setAnswers((prev) => ({ ...prev, [key]: value }));
   }, []);
@@ -130,6 +143,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
   const handleTextAnswer = useCallback((raw: string) => {
     const text = raw.trim();
     if (!text) return;
+    logTurn("user", text);
 
     // Reset STT failure counter on a successful turn
     setSttFailures(0);
@@ -194,7 +208,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       default:
         break;
     }
-  }, [goNext, updateAnswer]);
+  }, [goNext, updateAnswer, logTurn]);
 
   // ---- voice engine -----------------------------------------------------
 
@@ -236,6 +250,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     if (!text) return;
 
     void (async () => {
+      logTurn("assistant", text);
       await speakAsync(text, language);
       if (!firstSpeechDoneRef.current) {
         firstSpeechDoneRef.current = true;
@@ -243,7 +258,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         voice.notifyFirstSpeechEnded();
       }
     })();
-  }, [step, language, fadingOut, voice]);
+  }, [step, language, fadingOut, voice, logTurn]);
 
   // Reset spoken set when language changes so prompts replay in new language.
   useEffect(() => {
@@ -257,7 +272,9 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     buildTriggeredRef.current = true;
 
     // Speak "I'm building your website now." then run the build.
-    void speakAsync(getCopy(language, "building"), language);
+    const buildLine = getCopy(language, "building");
+    logTurn("assistant", buildLine);
+    void speakAsync(buildLine, language);
 
     const payload: Record<string, unknown> = {
       business_name: answers.business_name || "Untitled",
@@ -287,7 +304,9 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
           lg: "Websaiti yo emaze.",
           rw: "Urubuga rwawe rwiteguye.",
         };
-        await speakAsync(done[language] || done.en, language);
+        const doneLine = done[language] || done.en;
+        logTurn("assistant", doneLine);
+        await speakAsync(doneLine, language);
         setStep("done");
         await new Promise((r) => setTimeout(r, 1500));
         setFadingOut(true);
@@ -301,7 +320,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         buildTriggeredRef.current = false;
         setStep("style");
       });
-  }, [step, answers, onComplete, language]);
+  }, [step, answers, onComplete, language, logTurn]);
 
   // ---- cleanup on unmount ----------------------------------------------
   useEffect(() => {
@@ -312,15 +331,33 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
   }, [voice]);
 
   // ---- footer actions ---------------------------------------------------
+  /**
+   * End Call — stops mic and TTS but does NOT reset conversation/builder state.
+   * Persists the current transcript + answers to sessionStorage so the user can
+   * resume in the chat builder if they choose to.
+   */
+  const persistSnapshot = useCallback(() => {
+    try {
+      const snapshot = {
+        transcript: transcriptRef.current,
+        answers: answersRef.current,
+        ts: Date.now(),
+      };
+      sessionStorage.setItem(SPEAK_TO_CHAT_SEED_KEY, JSON.stringify(snapshot));
+    } catch { /* ignore */ }
+  }, []);
+
   const handleEndCall = useCallback(() => {
     try { voice.stop(); } catch { /* ignore */ }
     try { voiceInterrupt(); } catch { /* ignore */ }
+    persistSnapshot();
     onBack();
-  }, [onBack, voice]);
+  }, [onBack, voice, persistSnapshot]);
 
   const handleOpenChat = useCallback(() => {
     try { voice.stop(); } catch { /* ignore */ }
     try { voiceInterrupt(); } catch { /* ignore */ }
+    persistSnapshot();
     if (onSwitchToChat) {
       onSwitchToChat({
         business_name: answers.business_name,
@@ -331,11 +368,12 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         _speak_category: answers.category,
         _speak_language: answers.language,
         _speak_style: answers.style,
+        _speak_transcript: transcriptRef.current,
       });
     } else {
       onBack();
     }
-  }, [voice, onSwitchToChat, onBack, answers]);
+  }, [voice, onSwitchToChat, onBack, answers, persistSnapshot]);
 
   // ---- header status ----------------------------------------------------
   const status = useMemo(() => {
