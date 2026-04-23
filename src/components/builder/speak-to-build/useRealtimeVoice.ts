@@ -106,14 +106,22 @@ export function useRealtimeVoice({
       const ephemeral: string | undefined = tokenData?.client_secret;
       const model: string = tokenData?.model || "gpt-4o-realtime-preview-2024-12-17";
       if (!ephemeral) throw new Error("No client_secret returned");
+      const expiresAt: number | undefined = tokenData?.expires_at;
+      const nowSec = Math.floor(Date.now() / 1000);
+      if (expiresAt && expiresAt < nowSec) {
+        throw new Error(`Ephemeral token already expired (exp=${expiresAt}, now=${nowSec})`);
+      }
+      console.log("TOKEN OK", { model, expiresAt, ttl: expiresAt ? expiresAt - nowSec : "n/a" });
 
       // 2. Peer connection
-      const pc = new RTCPeerConnection();
+      const pc = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      });
       pcRef.current = pc;
-      console.log("[useRealtimeVoice] RTCPeerConnection created");
+      console.log("[useRealtimeVoice] RTCPeerConnection created with STUN");
 
       pc.addEventListener("connectionstatechange", () => {
-        console.log("[useRealtimeVoice] connectionState:", pc.connectionState);
+        console.log("PC state:", pc.connectionState);
         if (pc.connectionState === "connected") {
           console.log("RTC CONNECTED");
         }
@@ -128,7 +136,10 @@ export function useRealtimeVoice({
         }
       });
       pc.addEventListener("iceconnectionstatechange", () => {
-        console.log("[useRealtimeVoice] iceConnectionState:", pc.iceConnectionState);
+        console.log("ICE state:", pc.iceConnectionState);
+        if (pc.iceConnectionState === "connected" || pc.iceConnectionState === "completed") {
+          console.log("ICE CONNECTED");
+        }
       });
 
       // 3. Remote audio sink
