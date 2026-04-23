@@ -220,6 +220,7 @@ const BusinessDepositPage = lazy(() => lazyRetry(() => import("./pages/dashboard
 const InfluencerPage = lazy(() => lazyRetry(() => import("./pages/dashboard/InfluencerPage")));
 const SellerSurfacePage = lazy(() => lazyRetry(() => import("./pages/dashboard/SellerSurfacePage")));
 const EshopConnectPage = lazy(() => lazyRetry(() => import("./pages/seller/eshop-connect/EshopConnectPage")));
+const SellerSpeakToBuildPage = lazy(() => lazyRetry(() => import("./pages/dashboard/SellerSpeakToBuildPage")));
 const DashboardOffers = lazy(() => lazyRetry(() => import("./pages/dashboard/DashboardOffers")));
 const CustomProductWizard = lazy(() => lazyRetry(() => import("./pages/dashboard/CustomProductWizard")));
 const DashboardExplore = lazy(() => lazyRetry(() => import("./pages/dashboard/DashboardExplore")));
