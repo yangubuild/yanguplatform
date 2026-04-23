@@ -50,6 +50,7 @@ export function useRealtimeVoice({
   const audioCtxRef = useRef<AudioContext | null>(null);
   const rafRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
+  const [audioBlocked, setAudioBlocked] = useState(false);
 
   // Per-turn buffers
   const assistantTextBufRef = useRef<string>("");
@@ -108,7 +109,20 @@ export function useRealtimeVoice({
       audioElRef.current = audioEl;
       pc.ontrack = (e) => {
         const [stream] = e.streams;
-        if (audioElRef.current) audioElRef.current.srcObject = stream;
+        if (audioElRef.current) {
+          audioElRef.current.srcObject = stream;
+          // Try to play immediately. If browser blocks autoplay we surface
+          // the `audioBlocked` flag so the UI can render a single Start CTA.
+          const p = audioElRef.current.play();
+          if (p && typeof p.then === "function") {
+            p.then(() => {
+              if (mountedRef.current) setAudioBlocked(false);
+            }).catch((err) => {
+              console.warn("[useRealtimeVoice] autoplay blocked", err);
+              if (mountedRef.current) setAudioBlocked(true);
+            });
+          }
+        }
 
         // Attach analyser to remote stream for "speaking" level
         try {
@@ -274,6 +288,21 @@ export function useRealtimeVoice({
     };
   }, [cleanup]);
 
+  /** Called from a user gesture to retry playback if autoplay was blocked. */
+  const unlockAudio = useCallback(async () => {
+    try {
+      if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
+        await audioCtxRef.current.resume();
+      }
+      if (audioElRef.current) {
+        await audioElRef.current.play();
+      }
+      if (mountedRef.current) setAudioBlocked(false);
+    } catch (err) {
+      console.warn("[useRealtimeVoice] unlockAudio failed", err);
+    }
+  }, []);
+
   // Start/stop on enabled flag
   useEffect(() => {
     if (enabled) {
@@ -284,5 +313,5 @@ export function useRealtimeVoice({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]);
 
-  return { uiState, level, start, stop };
+  return { uiState, level, start, stop, audioBlocked, unlockAudio };
 }
