@@ -250,6 +250,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     if (!text) return;
 
     void (async () => {
+      logTurn("assistant", text);
       await speakAsync(text, language);
       if (!firstSpeechDoneRef.current) {
         firstSpeechDoneRef.current = true;
@@ -257,7 +258,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         voice.notifyFirstSpeechEnded();
       }
     })();
-  }, [step, language, fadingOut, voice]);
+  }, [step, language, fadingOut, voice, logTurn]);
 
   // Reset spoken set when language changes so prompts replay in new language.
   useEffect(() => {
@@ -271,7 +272,9 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     buildTriggeredRef.current = true;
 
     // Speak "I'm building your website now." then run the build.
-    void speakAsync(getCopy(language, "building"), language);
+    const buildLine = getCopy(language, "building");
+    logTurn("assistant", buildLine);
+    void speakAsync(buildLine, language);
 
     const payload: Record<string, unknown> = {
       business_name: answers.business_name || "Untitled",
@@ -301,7 +304,9 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
           lg: "Websaiti yo emaze.",
           rw: "Urubuga rwawe rwiteguye.",
         };
-        await speakAsync(done[language] || done.en, language);
+        const doneLine = done[language] || done.en;
+        logTurn("assistant", doneLine);
+        await speakAsync(doneLine, language);
         setStep("done");
         await new Promise((r) => setTimeout(r, 1500));
         setFadingOut(true);
