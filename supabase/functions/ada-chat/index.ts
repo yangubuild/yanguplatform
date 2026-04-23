@@ -26,6 +26,17 @@ function truncate(s: string, max = 800): string {
   return s.length > max ? s.slice(0, max) + "…" : s;
 }
 
+// Detects whether an LLM answer contains at least one citation.
+// Accepts: explicit `citation_url` JSON field, markdown links, or bare URLs.
+function hasCitation(text: string): boolean {
+  if (!text) return false;
+  if (/"citation_url"\s*:\s*"https?:\/\//i.test(text)) return true;
+  if (/citation_url\s*[:=]\s*https?:\/\//i.test(text)) return true;
+  if (/\[[^\]]+\]\(https?:\/\/[^\s)]+\)/.test(text)) return true; // markdown link
+  if (/\bhttps?:\/\/[^\s)]+/i.test(text)) return true; // bare url
+  return false;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -48,6 +59,22 @@ serve(async (req) => {
     }
 
     const { messages, intent, search_context, stream: wantStream } = await req.json();
+
+    // ── Hard guard: university intent must have search_context (library citations) ──
+    if (intent === "university" && (!search_context || (Array.isArray(search_context) ? search_context.length === 0 : String(search_context).trim().length === 0))) {
+      console.log(`[ada-chat][${reqId}] University intent rejected: no search_context provided`);
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          message:
+            "I can only answer questions about topics in the YANGU University library. Please ask about a specific book, course, or topic from our collection.",
+          content:
+            "I can only answer questions about topics in the YANGU University library. Please ask about a specific book, course, or topic from our collection.",
+          needsCitation: true,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
     const LOVABLE_KEY = Deno.env.get("LOVABLE_API_KEY");
     const YANGU_KEY = Deno.env.get("YANGU_AI_KEY");
