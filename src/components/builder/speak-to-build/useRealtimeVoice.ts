@@ -106,14 +106,22 @@ export function useRealtimeVoice({
       const ephemeral: string | undefined = tokenData?.client_secret;
       const model: string = tokenData?.model || "gpt-4o-realtime-preview-2024-12-17";
       if (!ephemeral) throw new Error("No client_secret returned");
+      const expiresAt: number | undefined = tokenData?.expires_at;
+      const nowSec = Math.floor(Date.now() / 1000);
+      if (expiresAt && expiresAt < nowSec) {
+        throw new Error(`Ephemeral token already expired (exp=${expiresAt}, now=${nowSec})`);
+      }
+      console.log("TOKEN OK", { model, expiresAt, ttl: expiresAt ? expiresAt - nowSec : "n/a" });
 
       // 2. Peer connection
-      const pc = new RTCPeerConnection();
+      const pc = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      });
       pcRef.current = pc;
-      console.log("[useRealtimeVoice] RTCPeerConnection created");
+      console.log("[useRealtimeVoice] RTCPeerConnection created with STUN");
 
       pc.addEventListener("connectionstatechange", () => {
-        console.log("[useRealtimeVoice] connectionState:", pc.connectionState);
+        console.log("PC state:", pc.connectionState);
         if (pc.connectionState === "connected") {
           console.log("RTC CONNECTED");
         }
@@ -128,7 +136,10 @@ export function useRealtimeVoice({
         }
       });
       pc.addEventListener("iceconnectionstatechange", () => {
-        console.log("[useRealtimeVoice] iceConnectionState:", pc.iceConnectionState);
+        console.log("ICE state:", pc.iceConnectionState);
+        if (pc.iceConnectionState === "connected" || pc.iceConnectionState === "completed") {
+          console.log("ICE CONNECTED");
+        }
       });
 
       // 3. Remote audio sink
@@ -205,7 +216,7 @@ export function useRealtimeVoice({
       dcRef.current = dc;
 
       dc.addEventListener("open", () => {
-        console.log("[useRealtimeVoice] data channel open");
+        console.log("DATA CHANNEL OPEN");
         // Kick off the conversation: ask ADA to greet immediately.
         if (!greetedRef.current) {
           greetedRef.current = true;
@@ -293,6 +304,7 @@ export function useRealtimeVoice({
       // 6. SDP exchange
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
+      console.log("SDP SENT", { len: offer.sdp?.length, model });
 
       const sdpResp = await fetch(`${REALTIME_BASE}?model=${encodeURIComponent(model)}`, {
         method: "POST",
@@ -305,13 +317,17 @@ export function useRealtimeVoice({
 
       if (!sdpResp.ok) {
         const text = await sdpResp.text();
+        console.error("SDP exchange failed", sdpResp.status, text);
         throw new Error(`Realtime SDP exchange failed (${sdpResp.status}): ${text}`);
       }
 
-      const answer: RTCSessionDescriptionInit = {
-        type: "answer",
-        sdp: await sdpResp.text(),
-      };
+      const answerSdp = await sdpResp.text();
+      if (!answerSdp.startsWith("v=")) {
+        console.error("Invalid SDP answer (does not start with 'v='):", answerSdp.slice(0, 200));
+        throw new Error("Invalid SDP answer from Realtime API");
+      }
+      console.log("SDP ANSWER RECEIVED", { len: answerSdp.length });
+      const answer: RTCSessionDescriptionInit = { type: "answer", sdp: answerSdp };
       await pc.setRemoteDescription(answer);
 
       console.log("[useRealtimeVoice] connected");
