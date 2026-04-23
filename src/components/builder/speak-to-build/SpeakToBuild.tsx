@@ -103,9 +103,6 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     category: (initialCategory as SpeakCategory) || null,
   });
   const [fadingOut, setFadingOut] = useState(false);
-  const [sttFailures, setSttFailures] = useState(0);
-  const [audioReady, setAudioReady] = useState(false);
-  const audioCtxRef = useRef<AudioContext | null>(null);
 
   const language = answers.language;
   const labels = ACTION_LABELS[language];
@@ -115,47 +112,10 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
   const answersRef = useRef(answers);
   useEffect(() => { answersRef.current = answers; }, [answers]);
 
-  const sessionRef = useRef<ReturnType<typeof beginSession> | null>(null);
-  if (sessionRef.current == null) sessionRef.current = beginSession();
-
-  // ---- Audio unlock (browser autoplay policy) --------------------------
-  // First user click resumes the AudioContext and flips audioReady=true.
-  // ADA's intro speech is gated behind audioReady so it never silently fails.
-  const unlockAudio = useCallback(async () => {
-    if (audioReady) return;
-    try {
-      const Ctx: typeof AudioContext | undefined =
-        (window as any).AudioContext || (window as any).webkitAudioContext;
-      if (Ctx && !audioCtxRef.current) {
-        audioCtxRef.current = new Ctx();
-      }
-      if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
-        await audioCtxRef.current.resume();
-      }
-      // Play a 1-frame silent buffer to fully unlock on iOS / strict browsers.
-      if (audioCtxRef.current) {
-        const buf = audioCtxRef.current.createBuffer(1, 1, 22050);
-        const src = audioCtxRef.current.createBufferSource();
-        src.buffer = buf;
-        src.connect(audioCtxRef.current.destination);
-        src.start(0);
-      }
-      // Also nudge speechSynthesis (Safari requires speak() inside a gesture).
-      try {
-        if (typeof window !== "undefined" && window.speechSynthesis) {
-          const u = new SpeechSynthesisUtterance("");
-          u.volume = 0;
-          window.speechSynthesis.speak(u);
-        }
-      } catch { /* ignore */ }
-      console.log("[SpeakToBuild] audio unlocked");
-      setAudioReady(true);
-    } catch (err) {
-      console.error("[SpeakToBuild] audio unlock failed:", err);
-      // Still flip ready so we attempt playback rather than block forever.
-      setAudioReady(true);
-    }
-  }, [audioReady]);
+  // Realtime starts on mount; user gesture is only needed to satisfy autoplay
+  // policy on the remote <audio> element. We track whether the user has
+  // interacted; until then we show the "Tap to start" hint.
+  const [audioReady, setAudioReady] = useState(false);
 
   // Conversation log shared with chat builder on handoff.
   const transcriptRef = useRef<TranscriptEntry[]>([]);
