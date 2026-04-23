@@ -97,6 +97,7 @@ function styleFromText(text: string): string | null {
 // ----- component -----------------------------------------------------------
 
 export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToChat }: Props) {
+  console.log("SpeakToBuild render");
   const [step, setStep] = useState<SpeakStepId>("intro");
   const [answers, setAnswers] = useState<SpeakAnswers>({
     ...DEFAULT_ANSWERS,

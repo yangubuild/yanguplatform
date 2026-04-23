@@ -12,7 +12,7 @@
  * Single source of truth for voice. No speechSynthesis, no STT polling.
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export type RealtimeUiState = "idle" | "connecting" | "listening" | "speaking" | "thinking" | "error";
@@ -359,5 +359,9 @@ export function useRealtimeVoice({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]);
 
-  return { uiState, level, start, stop, audioBlocked, unlockAudio };
+  // Stable return shape: same keys every render, regardless of state.
+  return useMemo(
+    () => ({ uiState, level, start, stop, audioBlocked, unlockAudio }),
+    [uiState, level, start, stop, audioBlocked, unlockAudio],
+  );
 }
