@@ -205,65 +205,30 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
 
   // ---- voice engine -----------------------------------------------------
 
-  const onSilenceRecovery = useCallback(() => {
-    const recovery: Record<AdaLanguage, string> = {
-      en: "I didn't catch that. You can speak now, or tap the orb.",
-      fr: "Je n'ai pas compris. Parlez maintenant, ou touchez l'orbe.",
-      ar: "لم أسمعك. يمكنك التحدث الآن أو لمس الكرة.",
-      sw: "Sikukusikia. Sema sasa au gusa duara.",
-      lg: "Sikukutegedde. Yogera kati oba okwate orb.",
-      rw: "Sinakumvise. Vuga ubu cyangwa ukande orb.",
-    };
-    void speakAsync(recovery[language] || recovery.en, language);
-  }, [language]);
-
-  const voice = useVoiceCall({
-    onTranscript: handleTextAnswer,
-    onSilenceRecovery,
-    onSttError: () => setSttFailures((n) => n + 1),
-    onMicDenied: () => {
-      toast.error("Microphone permission is required for Speak to Build.");
+  // OpenAI Realtime drives the entire conversation. The hook handles mic,
+  // VAD, STT, LLM and TTS. We just observe transcripts to advance our local
+  // step machine (so the build trigger still fires after enough info).
+  const handleRealtimeMessage = useCallback(
+    (text: string, role: "assistant" | "user") => {
+      if (role === "user") {
+        handleTextAnswer(text);
+      } else {
+        logTurn("assistant", text);
+      }
     },
-    enabled: !fadingOut && step !== "done",
+    [handleTextAnswer, logTurn],
+  );
+
+  const voice = useRealtimeVoice({
+    language,
+    onMessage: handleRealtimeMessage,
+    onConnected: () => setAudioReady(true),
+    onError: (err) => {
+      console.error("[SpeakToBuild] realtime error", err);
+      toast.error(err.message || "Voice connection failed");
+    },
+    enabled: !fadingOut && step !== "done" && step !== "building",
   });
-
-  // ---- ADA speaks the prompt for each step ------------------------------
-  const spokenStepsRef = useRef<Set<SpeakStepId>>(new Set());
-  const firstSpeechDoneRef = useRef(false);
-
-  useEffect(() => {
-    if (fadingOut) return;
-    if (!audioReady) return;
-    if (spokenStepsRef.current.has(step)) return;
-    spokenStepsRef.current.add(step);
-
-    // Skip auto-speak for terminal building/done — handled separately below.
-    if (step === "building") return;
-
-    const text = getCopy(language, step);
-    if (!text) return;
-
-    void (async () => {
-      logTurn("assistant", text);
-      console.log("[SpeakToBuild] speak start →", step, text.slice(0, 60));
-      try {
-        await speakAsync(text, language);
-        console.log("[SpeakToBuild] speak end →", step);
-      } catch (err) {
-        console.error("[SpeakToBuild] speakAsync error:", err);
-      }
-      if (!firstSpeechDoneRef.current) {
-        firstSpeechDoneRef.current = true;
-        // Lazy-mic activation after first speech (LOCK).
-        voice.notifyFirstSpeechEnded();
-      }
-    })();
-  }, [step, language, fadingOut, voice, logTurn, audioReady]);
-
-  // Reset spoken set when language changes so prompts replay in new language.
-  useEffect(() => {
-    spokenStepsRef.current = new Set();
-  }, [language]);
 
   // ---- Build trigger ----------------------------------------------------
   const buildTriggeredRef = useRef(false);
@@ -274,7 +239,8 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     // Speak "I'm building your website now." then run the build.
     const buildLine = getCopy(language, "building");
     logTurn("assistant", buildLine);
-    void speakAsync(buildLine, language);
+    // Realtime session is stopped at this point; surface the line via toast.
+    toast.info(buildLine);
 
     const payload: Record<string, unknown> = {
       business_name: answers.business_name || "Untitled",
@@ -306,7 +272,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         };
         const doneLine = done[language] || done.en;
         logTurn("assistant", doneLine);
-        await speakAsync(doneLine, language);
+        toast.success(doneLine);
         setStep("done");
         await new Promise((r) => setTimeout(r, 1500));
         setFadingOut(true);
@@ -326,7 +292,6 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
   useEffect(() => {
     return () => {
       try { voice.stop(); } catch { /* ignore */ }
-      try { stopSpeaking(); } catch { /* ignore */ }
     };
   }, [voice]);
 
