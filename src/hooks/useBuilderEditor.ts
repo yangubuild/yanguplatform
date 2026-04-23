@@ -7,6 +7,15 @@ import { enforceCoreSectionOrder, CORE_SECTIONS, resolveCoreSectionType, CONTENT
 import type { PageEditSettings } from "@/config/builderCoreSections";
 import { DEFAULT_PAGE_SETTINGS } from "@/config/builderCoreSections";
 import { applyTemplateForMainContent } from "@/hooks/useMainContentTemplate";
+import { addToQueue } from "@/lib/offline/offlineQueue";
+
+// Phase 1 offline guard: navigator.onLine is the single source of truth.
+// We avoid taking a hook dependency here because useBuilderEditor is called
+// from many places; reading navigator.onLine at call time is sufficient and
+// keeps the queue write path side-effect free.
+function isOffline(): boolean {
+  return typeof navigator !== "undefined" && navigator.onLine === false;
+}
 
 // ─── Types ───
 export interface EditorSection {
@@ -261,6 +270,21 @@ export function useBuilderEditor(surfaceId: string | undefined) {
       const schema = getDefaultSchema(sectionType);
 
       try {
+        if (isOffline()) {
+          await addToQueue({
+            type: "upsert_section",
+            payload: {
+              p_page_id: activePageId,
+              p_section_type: sectionType,
+              p_schema: schema,
+              p_position: nextPosition,
+              p_is_visible: true,
+              p_core_slot: null,
+            },
+          });
+          toast.success("Section saved offline. Will sync when online.");
+          return;
+        }
         const { data, error } = await supabase.rpc("builder_upsert_section", {
           p_page_id: activePageId,
           p_section_type: sectionType,
@@ -300,6 +324,21 @@ export function useBuilderEditor(surfaceId: string | undefined) {
       const nextPosition = options?.position ?? (sections.length> 0 ? Math.max(...sections.map((s) => s.position)) + 1 : 0);
 
       try {
+        if (isOffline()) {
+          await addToQueue({
+            type: "upsert_section",
+            payload: {
+              p_page_id: activePageId,
+              p_section_type: sectionType,
+              p_schema: schema,
+              p_position: nextPosition,
+              p_is_visible: true,
+              p_core_slot: options?.coreSlot ?? null,
+            },
+          });
+          toast.success("Section saved offline. Will sync when online.");
+          return;
+        }
         const { data, error } = await supabase.rpc("builder_upsert_section", {
           p_page_id: activePageId,
           p_section_type: sectionType,
@@ -386,6 +425,22 @@ export function useBuilderEditor(surfaceId: string | undefined) {
       if (!section) { setIsSavingSection(false); return; }
 
       try {
+        if (isOffline()) {
+          await addToQueue({
+            type: "upsert_section",
+            payload: {
+              p_page_id: activePageId,
+              p_section_id: sectionId,
+              p_section_type: section.section_type,
+              p_schema: schema,
+              p_position: section.position,
+              p_is_visible: section.is_visible,
+              p_core_slot: section.core_slot || null,
+            },
+          });
+          toast.success("Section saved offline. Will sync when online.");
+          return;
+        }
         const { data, error } = await supabase.rpc("builder_upsert_section", {
           p_page_id: activePageId,
           p_section_id: sectionId,
@@ -437,6 +492,22 @@ export function useBuilderEditor(surfaceId: string | undefined) {
       });
 
       try {
+        if (isOffline()) {
+          await addToQueue({
+            type: "upsert_section",
+            payload: {
+              p_page_id: activePageId,
+              p_section_id: sectionId,
+              p_section_type: section.section_type,
+              p_schema: section.schema,
+              p_position: section.position,
+              p_is_visible: visible,
+              p_core_slot: section.core_slot || null,
+            },
+          });
+          toast.success("Section saved offline. Will sync when online.");
+          return;
+        }
         const { data, error } = await supabase.rpc("builder_upsert_section", {
           p_page_id: activePageId,
           p_section_id: sectionId,
@@ -464,6 +535,14 @@ export function useBuilderEditor(surfaceId: string | undefined) {
   const deleteSection = useCallback(
     async (sectionId: string) => {
       try {
+        if (isOffline()) {
+          await addToQueue({
+            type: "delete_section",
+            payload: { p_section_id: sectionId },
+          });
+          toast.success("Section saved offline. Will sync when online.");
+          return true;
+        }
         const { data, error } = await supabase.rpc("builder_delete_section", {
           p_section_id: sectionId,
         });
