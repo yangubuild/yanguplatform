@@ -21,14 +21,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, PhoneOff, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import {
-  speakAsync,
-  voiceInterrupt,
-  beginSession,
-  stopSpeaking,
-} from "@/lib/voice/voiceController";
 import { resolveLanguage, type AdaLanguage } from "@/lib/voice/languageDetect";
-import { useVoiceCall } from "./useVoiceCall";
+import { useRealtimeVoice } from "./useRealtimeVoice";
 import { VoiceOrb } from "./VoiceOrb";
 import {
   ACTION_LABELS,
