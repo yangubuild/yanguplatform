@@ -216,7 +216,7 @@ export function useRealtimeVoice({
       dcRef.current = dc;
 
       dc.addEventListener("open", () => {
-        console.log("[useRealtimeVoice] data channel open");
+        console.log("DATA CHANNEL OPEN");
         // Kick off the conversation: ask ADA to greet immediately.
         if (!greetedRef.current) {
           greetedRef.current = true;
@@ -304,6 +304,7 @@ export function useRealtimeVoice({
       // 6. SDP exchange
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
+      console.log("SDP SENT", { len: offer.sdp?.length, model });
 
       const sdpResp = await fetch(`${REALTIME_BASE}?model=${encodeURIComponent(model)}`, {
         method: "POST",
@@ -316,13 +317,17 @@ export function useRealtimeVoice({
 
       if (!sdpResp.ok) {
         const text = await sdpResp.text();
+        console.error("SDP exchange failed", sdpResp.status, text);
         throw new Error(`Realtime SDP exchange failed (${sdpResp.status}): ${text}`);
       }
 
-      const answer: RTCSessionDescriptionInit = {
-        type: "answer",
-        sdp: await sdpResp.text(),
-      };
+      const answerSdp = await sdpResp.text();
+      if (!answerSdp.startsWith("v=")) {
+        console.error("Invalid SDP answer (does not start with 'v='):", answerSdp.slice(0, 200));
+        throw new Error("Invalid SDP answer from Realtime API");
+      }
+      console.log("SDP ANSWER RECEIVED", { len: answerSdp.length });
+      const answer: RTCSessionDescriptionInit = { type: "answer", sdp: answerSdp };
       await pc.setRemoteDescription(answer);
 
       console.log("[useRealtimeVoice] connected");
