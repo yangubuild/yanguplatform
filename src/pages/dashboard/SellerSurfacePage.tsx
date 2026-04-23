@@ -169,10 +169,8 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
 
   // Speak-to-Build path handler
   const handleSpeakPath = useCallback(() => {
-    const next = new URLSearchParams(searchParams);
-    next.set("mode", "speak");
-    setSearchParams(next, { replace: false });
-  }, [searchParams, setSearchParams]);
+    navigate(`/dashboard/seller/${sellerKey}/speak`);
+  }, [navigate, sellerKey]);
 
   /** Handle wizard/AI completion — build seed sections and navigate to editor */
   const handleComplete = useCallback(async (answers: Record<string, unknown>) => {
@@ -276,17 +274,10 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     );
   }
 
-  // If mode=speak, show the Speak to Build voice-first flow
+  // Legacy ?mode=speak → redirect to dedicated full-screen route
   if (mode === "speak") {
-    return (
-      <div className="min-h-screen bg-background">
-        <SpeakToBuild
-          initialCategory={engineKey as never}
-          onComplete={handleComplete}
-          onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }}
-        />
-      </div>
-    );
+    navigate(`/dashboard/seller/${sellerKey}/speak`, { replace: true });
+    return null;
   }
 
   return (
