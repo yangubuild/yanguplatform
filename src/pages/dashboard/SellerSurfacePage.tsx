@@ -254,8 +254,9 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     );
   }
 
-  // If mode=ai, show the embedded chat flow within the dashboard shell
-  if (mode === "ai") {
+  // If mode=ai or mode=chat, show the embedded chat flow within the dashboard shell.
+  // mode=chat is the canonical entry from Speak-to-Build "Open in Chat".
+  if (mode === "ai" || mode === "chat") {
     return <BuilderNewPage embedded initialCategory={engineKey} onBack={() => { const next = new URLSearchParams(searchParams); next.delete("mode"); setSearchParams(next, { replace: true }); }} />;
   }
 
