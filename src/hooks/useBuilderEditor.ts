@@ -535,6 +535,14 @@ export function useBuilderEditor(surfaceId: string | undefined) {
   const deleteSection = useCallback(
     async (sectionId: string) => {
       try {
+        if (isOffline()) {
+          await addToQueue({
+            type: "delete_section",
+            payload: { p_section_id: sectionId },
+          });
+          toast.success("Section saved offline. Will sync when online.");
+          return true;
+        }
         const { data, error } = await supabase.rpc("builder_delete_section", {
           p_section_id: sectionId,
         });
