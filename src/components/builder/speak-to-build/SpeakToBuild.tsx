@@ -314,14 +314,12 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
 
   const handleEndCall = useCallback(() => {
     try { voice.stop(); } catch { /* ignore */ }
-    try { voiceInterrupt(); } catch { /* ignore */ }
     persistSnapshot();
     onBack();
   }, [onBack, voice, persistSnapshot]);
 
   const handleOpenChat = useCallback(() => {
     try { voice.stop(); } catch { /* ignore */ }
-    try { voiceInterrupt(); } catch { /* ignore */ }
     persistSnapshot();
     if (onSwitchToChat) {
       onSwitchToChat({
@@ -348,9 +346,26 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       case "speaking":  return "ADA is speaking…";
       case "thinking":  return "Thinking…";
       case "listening": return labels.listening;
-      default:          return "Tap the orb to speak";
+      case "connecting":return "Connecting…";
+      case "error":     return "Voice unavailable — tap to retry";
+      default:          return "Tap to start";
     }
   }, [voice.uiState, step, labels]);
+
+  // Map realtime states → orb visual states (orb only knows 4 states).
+  const orbState = useMemo(() => {
+    if (voice.uiState === "speaking") return "speaking" as const;
+    if (voice.uiState === "thinking") return "thinking" as const;
+    if (voice.uiState === "listening") return "listening" as const;
+    return "idle" as const;
+  }, [voice.uiState]);
+
+  const ensureAudio = useCallback(() => {
+    // Tapping anywhere counts as the user gesture that authorizes <audio>
+    // playback. The realtime hook already started the session on mount, so
+    // we only need to flip the "ready" hint flag.
+    if (!audioReady) setAudioReady(true);
+  }, [audioReady]);
 
   // ---- render -----------------------------------------------------------
   return (
@@ -358,10 +373,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       className={`fixed inset-0 z-50 bg-background text-foreground flex flex-col transition-opacity duration-300 ${
         fadingOut ? "opacity-0" : "opacity-100"
       }`}
-      onClick={() => {
-        void unlockAudio();
-        voice.notifyUserGesture();
-      }}
+      onClick={ensureAudio}
     >
       {/* Top status */}
       <header className="px-6 pt-8 sm:pt-12 text-center">
@@ -380,21 +392,14 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
           {labels.speak_to_build}
         </p>
         <h1 className="mt-2 text-xl sm:text-2xl font-medium">{status}</h1>
-        {voice.hint && (
-          <p className="mt-2 text-sm text-muted-foreground">{voice.hint}</p>
-        )}
       </header>
 
       {/* Center orb */}
       <main className="flex-1 grid place-items-center px-6">
         <VoiceOrb
-          state={voice.uiState}
+          state={orbState}
           level={voice.level}
-          onTap={() => {
-            void unlockAudio();
-            voice.notifyUserGesture();
-            voice.toggle();
-          }}
+          onTap={ensureAudio}
           ariaLabel={labels.mic}
         />
         {!audioReady && (
