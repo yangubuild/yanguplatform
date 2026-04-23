@@ -441,7 +441,10 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       className={`fixed inset-0 z-50 bg-background text-foreground flex flex-col transition-opacity duration-300 ${
         fadingOut ? "opacity-0" : "opacity-100"
       }`}
-      onClick={voice.notifyUserGesture}
+      onClick={() => {
+        void unlockAudio();
+        voice.notifyUserGesture();
+      }}
     >
       {/* Top status */}
       <header className="px-6 pt-8 sm:pt-12 text-center">
@@ -471,11 +474,19 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
           state={voice.uiState}
           level={voice.level}
           onTap={() => {
+            void unlockAudio();
             voice.notifyUserGesture();
             voice.toggle();
           }}
           ariaLabel={labels.mic}
         />
+        {!audioReady && (
+          <div className="pointer-events-none absolute inset-0 grid place-items-center">
+            <div className="rounded-2xl bg-foreground/90 text-background px-5 py-3 text-sm font-medium shadow-lg">
+              Tap anywhere to start
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Bottom actions */}
