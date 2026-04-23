@@ -141,9 +141,6 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     console.log("[SpeakToBuild] transcript ←", text);
     logTurn("user", text);
 
-    // Reset STT failure counter on a successful turn
-    setSttFailures(0);
-
     // Lock language sticky on first turns
     const cur = stepRef.current;
     if (cur === "intro" || cur === "category" || cur === "business_info") {
