@@ -184,6 +184,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
   const handleTextAnswer = useCallback((raw: string) => {
     const text = raw.trim();
     if (!text) return;
+    console.log("[SpeakToBuild] transcript ←", text);
     logTurn("user", text);
 
     // Reset STT failure counter on a successful turn
