@@ -49,6 +49,11 @@ interface Props {
   onSwitchToChat?: (answers: Record<string, unknown>) => void;
 }
 
+/** Shared sessionStorage key for handing off the voice transcript to the chat builder. */
+export const SPEAK_TO_CHAT_SEED_KEY = "speak_to_chat_seed_v1";
+
+type TranscriptEntry = { role: "assistant" | "user"; text: string; ts: number };
+
 const STEPS: SpeakStepId[] = [
   "intro", "category", "business_info", "logo", "logo_create",
   "colors", "location", "style", "building", "done",
