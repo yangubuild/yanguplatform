@@ -1,7 +1,12 @@
 /**
  * parseSpokenAmount
  * -----------------
- * Convert spoken East African amount strings into integer **cents**.
+ * Convert spoken East African amount strings into integer amounts.
+ *
+ * Note: per spec, the returned integer is the **literal numeric value**
+ * spoken (e.g. "elfu tano" -> 5000, "5,000" -> 5000). Callers that need
+ * cents should multiply by 100 themselves; this keeps the parser symmetric
+ * with how amounts are typed and spoken in East African commerce flows.
  *
  * Supported lexicons:
  *  - English      : "ten thousand", "five hundred", "1,200"
@@ -165,18 +170,17 @@ export function parseSpokenAmount(input: string | null | undefined): number | nu
   const normalized = normalize(String(input));
   if (!normalized) return null;
 
-  // Fast path: a single numeric literal like "5000" or "5,000".
   const directDigits = normalized.replace(/\s+/g, "");
   if (/^\d+(\.\d{1,2})?$/.test(directDigits)) {
     const asNum = parseFloat(directDigits);
     if (!isFinite(asNum)) return null;
-    return Math.round(asNum * 100);
+    return Math.round(asNum);
   }
 
   const tokens = tokenize(normalized);
   const value = wordsToNumber(tokens);
   if (value == null || value <= 0) return null;
-  return Math.round(value * 100);
+  return Math.round(value);
 }
 
 export default parseSpokenAmount;
