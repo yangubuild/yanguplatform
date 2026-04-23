@@ -221,50 +221,55 @@ IMPORTANT: Never output any internal reasoning, thoughts, or system messages. On
       ...messages.slice(-20),
     ];
 
-    // ── Call AI gateway with model fallback ──
-    let response: Response | null = null;
+    // ── Call AI gateway with model fallback (extracted so we can retry on citation failure) ──
     let lastError = "";
+    let timedOut = false;
+    const callGateway = async (extraMessages: Array<{ role: string; content: string }> = []) => {
+      let resp: Response | null = null;
+      for (const model of models) {
+        try {
+          console.log(`[ada-chat][${reqId}] Trying model=${model}`);
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 55_000);
+          resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${AI_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ model, messages: [...aiMessages, ...extraMessages], stream: true }),
+            signal: controller.signal,
+          });
+          clearTimeout(timeout);
 
-    for (const model of models) {
-      try {
-        console.log(`[ada-chat][${reqId}] Trying model=${model}`);
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 55_000);
-        response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${AI_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ model, messages: aiMessages, stream: true }),
-          signal: controller.signal,
-        });
-        clearTimeout(timeout);
+          if (resp.ok) {
+            console.log(`[ada-chat][${reqId}] Success with model=${model}`);
+            return resp;
+          }
 
-        if (response.ok) {
-          console.log(`[ada-chat][${reqId}] Success with model=${model}`);
-          break;
+          const errBody = truncate(await resp.text());
+          console.error(`[ada-chat][${reqId}] model=${model} returned ${resp.status}: ${errBody}`);
+          lastError = errBody;
+
+          if (resp.status < 500) return resp; // client error — return as-is
+          resp = null;
+        } catch (fetchErr) {
+          const msg = fetchErr instanceof Error ? fetchErr.message : String(fetchErr);
+          console.error(`[ada-chat][${reqId}] Fetch failed for model=${model}: ${msg}`);
+          lastError = msg;
+          if (msg.includes("abort")) {
+            timedOut = true;
+            return null;
+          }
+          resp = null;
         }
-
-        // Non-ok: read body for diagnostics, try next model on 5xx
-        const errBody = truncate(await response.text());
-        console.error(`[ada-chat][${reqId}] model=${model} returned ${response.status}: ${errBody}`);
-        lastError = errBody;
-
-        if (response.status < 500) {
-          // Client-level errors (401, 402, 429) — don't retry with another model
-          break;
-        }
-        response = null; // mark for fallback
-      } catch (fetchErr) {
-        const msg = fetchErr instanceof Error ? fetchErr.message : String(fetchErr);
-        console.error(`[ada-chat][${reqId}] Fetch failed for model=${model}: ${msg}`);
-        lastError = msg;
-        if (msg.includes("abort")) {
-          return jsonError(504, "AI gateway timed out", "ADA_UPSTREAM", { timeout: true });
-        }
-        response = null;
       }
+      return resp;
+    };
+
+    let response = await callGateway();
+    if (timedOut) {
+      return jsonError(504, "AI gateway timed out", "ADA_UPSTREAM", { timeout: true });
     }
 
     if (!response || !response.ok) {
@@ -289,26 +294,60 @@ IMPORTANT: Never output any internal reasoning, thoughts, or system messages. On
     // ── Non-streaming path ──
     if (!wantStream) {
       try {
-        const reader = response.body!.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-        let fullContent = "";
+        const drain = async (res: Response): Promise<string> => {
+          const reader = res.body!.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
+          let full = "";
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+            for (const line of lines) {
+              if (!line.startsWith("data: ")) continue;
+              const data = line.slice(6).trim();
+              if (data === "[DONE]") break;
+              try {
+                const parsed = JSON.parse(data);
+                const content = parsed.choices?.[0]?.delta?.content;
+                if (content) full += content;
+              } catch { /* skip */ }
+            }
+          }
+          return full;
+        };
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() || "";
-          for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
-            const data = line.slice(6).trim();
-            if (data === "[DONE]") break;
-            try {
-              const parsed = JSON.parse(data);
-              const content = parsed.choices?.[0]?.delta?.content;
-              if (content) fullContent += content;
-            } catch { /* skip */ }
+        let fullContent = await drain(response);
+
+        // Citation validator: if intent is university and no citation, retry once.
+        if (intent === "university" && fullContent && !hasCitation(fullContent)) {
+          console.warn(`[ada-chat][${reqId}] No citation in response — retrying once with stricter instruction`);
+          const retryResp = await callGateway([
+            { role: "assistant", content: fullContent },
+            {
+              role: "user",
+              content:
+                "Your previous answer is rejected because it did not include a citation_url to a source from the YANGU University library. Re-answer using ONLY the provided library context, and include at least one citation_url (a real URL from the library context). If you cannot cite a source, reply with exactly: 'I can only answer questions about topics in the YANGU University library.'",
+            },
+          ]);
+          if (retryResp && retryResp.ok) {
+            const retryContent = await drain(retryResp);
+            if (retryContent && hasCitation(retryContent)) {
+              fullContent = retryContent;
+            } else {
+              return new Response(
+                JSON.stringify({
+                  ok: true,
+                  content:
+                    "I can only answer questions about topics in the YANGU University library. Please ask about a specific book, course, or topic from our collection.",
+                  needsCitation: true,
+                  rejected: true,
+                }),
+                { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+              );
+            }
           }
         }
 
