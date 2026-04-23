@@ -116,41 +116,60 @@ function wordsToNumber(tokens: string[]): number | null {
   let total = 0;
   let current = 0;
   let sawAny = false;
+  let pendingScale = 0; // scale word seen with no preceding multiplier (e.g. "elfu" then "tano")
 
   for (const tok of tokens) {
     if (CURRENCY_NOISE.has(tok)) continue;
 
     // Pure digits.
     if (/^\d+$/.test(tok)) {
-      current += parseInt(tok, 10);
+      const n = parseInt(tok, 10);
+      if (pendingScale) {
+        total += n * pendingScale;
+        pendingScale = 0;
+      } else {
+        current += n;
+      }
       sawAny = true;
       continue;
     }
 
     if (tok in UNITS) {
-      current += UNITS[tok];
+      if (pendingScale) {
+        total += UNITS[tok] * pendingScale;
+        pendingScale = 0;
+      } else {
+        current += UNITS[tok];
+      }
       sawAny = true;
       continue;
     }
 
     if (tok in TENS) {
-      current += TENS[tok];
+      if (pendingScale) {
+        total += TENS[tok] * pendingScale;
+        pendingScale = 0;
+      } else {
+        current += TENS[tok];
+      }
       sawAny = true;
       continue;
     }
 
     if (tok in SCALES) {
       const scale = SCALES[tok];
-      // "elfu" / "thousand" with no preceding unit still implies 1×scale
-      // ("elfu" alone = 1000, "olukumi" alone = 1000).
-      const multiplier = current === 0 ? 1 : current;
-      const product = multiplier * scale;
-      if (scale >= 1000) {
-        total += product;
-        current = 0;
+      if (current === 0) {
+        // Scale spoken first ("elfu tano" / "mia tano" / "olukumi bbiri").
+        // Defer until we see the multiplier; if none follows, treat as 1×scale.
+        pendingScale = (pendingScale || 1) * scale;
       } else {
-        // hundreds chain into the current accumulator
-        current = product;
+        const product = current * scale;
+        if (scale >= 1000) {
+          total += product;
+          current = 0;
+        } else {
+          current = product;
+        }
       }
       sawAny = true;
       continue;
@@ -159,6 +178,7 @@ function wordsToNumber(tokens: string[]): number | null {
   }
 
   if (!sawAny) return null;
+  if (pendingScale) total += pendingScale; // "elfu" alone => 1000
   return total + current;
 }
 
