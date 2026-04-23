@@ -7,6 +7,15 @@ import { enforceCoreSectionOrder, CORE_SECTIONS, resolveCoreSectionType, CONTENT
 import type { PageEditSettings } from "@/config/builderCoreSections";
 import { DEFAULT_PAGE_SETTINGS } from "@/config/builderCoreSections";
 import { applyTemplateForMainContent } from "@/hooks/useMainContentTemplate";
+import { addToQueue } from "@/lib/offline/offlineQueue";
+
+// Phase 1 offline guard: navigator.onLine is the single source of truth.
+// We avoid taking a hook dependency here because useBuilderEditor is called
+// from many places; reading navigator.onLine at call time is sufficient and
+// keeps the queue write path side-effect free.
+function isOffline(): boolean {
+  return typeof navigator !== "undefined" && navigator.onLine === false;
+}
 
 // ─── Types ───
 export interface EditorSection {
