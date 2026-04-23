@@ -21,14 +21,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, PhoneOff, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import {
-  speakAsync,
-  voiceInterrupt,
-  beginSession,
-  stopSpeaking,
-} from "@/lib/voice/voiceController";
 import { resolveLanguage, type AdaLanguage } from "@/lib/voice/languageDetect";
-import { useVoiceCall } from "./useVoiceCall";
+import { useRealtimeVoice } from "./useRealtimeVoice";
 import { VoiceOrb } from "./VoiceOrb";
 import {
   ACTION_LABELS,
@@ -109,9 +103,6 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     category: (initialCategory as SpeakCategory) || null,
   });
   const [fadingOut, setFadingOut] = useState(false);
-  const [sttFailures, setSttFailures] = useState(0);
-  const [audioReady, setAudioReady] = useState(false);
-  const audioCtxRef = useRef<AudioContext | null>(null);
 
   const language = answers.language;
   const labels = ACTION_LABELS[language];
@@ -121,47 +112,10 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
   const answersRef = useRef(answers);
   useEffect(() => { answersRef.current = answers; }, [answers]);
 
-  const sessionRef = useRef<ReturnType<typeof beginSession> | null>(null);
-  if (sessionRef.current == null) sessionRef.current = beginSession();
-
-  // ---- Audio unlock (browser autoplay policy) --------------------------
-  // First user click resumes the AudioContext and flips audioReady=true.
-  // ADA's intro speech is gated behind audioReady so it never silently fails.
-  const unlockAudio = useCallback(async () => {
-    if (audioReady) return;
-    try {
-      const Ctx: typeof AudioContext | undefined =
-        (window as any).AudioContext || (window as any).webkitAudioContext;
-      if (Ctx && !audioCtxRef.current) {
-        audioCtxRef.current = new Ctx();
-      }
-      if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
-        await audioCtxRef.current.resume();
-      }
-      // Play a 1-frame silent buffer to fully unlock on iOS / strict browsers.
-      if (audioCtxRef.current) {
-        const buf = audioCtxRef.current.createBuffer(1, 1, 22050);
-        const src = audioCtxRef.current.createBufferSource();
-        src.buffer = buf;
-        src.connect(audioCtxRef.current.destination);
-        src.start(0);
-      }
-      // Also nudge speechSynthesis (Safari requires speak() inside a gesture).
-      try {
-        if (typeof window !== "undefined" && window.speechSynthesis) {
-          const u = new SpeechSynthesisUtterance("");
-          u.volume = 0;
-          window.speechSynthesis.speak(u);
-        }
-      } catch { /* ignore */ }
-      console.log("[SpeakToBuild] audio unlocked");
-      setAudioReady(true);
-    } catch (err) {
-      console.error("[SpeakToBuild] audio unlock failed:", err);
-      // Still flip ready so we attempt playback rather than block forever.
-      setAudioReady(true);
-    }
-  }, [audioReady]);
+  // Realtime starts on mount; user gesture is only needed to satisfy autoplay
+  // policy on the remote <audio> element. We track whether the user has
+  // interacted; until then we show the "Tap to start" hint.
+  const [audioReady, setAudioReady] = useState(false);
 
   // Conversation log shared with chat builder on handoff.
   const transcriptRef = useRef<TranscriptEntry[]>([]);
@@ -186,9 +140,6 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     if (!text) return;
     console.log("[SpeakToBuild] transcript ←", text);
     logTurn("user", text);
-
-    // Reset STT failure counter on a successful turn
-    setSttFailures(0);
 
     // Lock language sticky on first turns
     const cur = stepRef.current;
@@ -254,65 +205,30 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
 
   // ---- voice engine -----------------------------------------------------
 
-  const onSilenceRecovery = useCallback(() => {
-    const recovery: Record<AdaLanguage, string> = {
-      en: "I didn't catch that. You can speak now, or tap the orb.",
-      fr: "Je n'ai pas compris. Parlez maintenant, ou touchez l'orbe.",
-      ar: "لم أسمعك. يمكنك التحدث الآن أو لمس الكرة.",
-      sw: "Sikukusikia. Sema sasa au gusa duara.",
-      lg: "Sikukutegedde. Yogera kati oba okwate orb.",
-      rw: "Sinakumvise. Vuga ubu cyangwa ukande orb.",
-    };
-    void speakAsync(recovery[language] || recovery.en, language);
-  }, [language]);
-
-  const voice = useVoiceCall({
-    onTranscript: handleTextAnswer,
-    onSilenceRecovery,
-    onSttError: () => setSttFailures((n) => n + 1),
-    onMicDenied: () => {
-      toast.error("Microphone permission is required for Speak to Build.");
+  // OpenAI Realtime drives the entire conversation. The hook handles mic,
+  // VAD, STT, LLM and TTS. We just observe transcripts to advance our local
+  // step machine (so the build trigger still fires after enough info).
+  const handleRealtimeMessage = useCallback(
+    (text: string, role: "assistant" | "user") => {
+      if (role === "user") {
+        handleTextAnswer(text);
+      } else {
+        logTurn("assistant", text);
+      }
     },
-    enabled: !fadingOut && step !== "done",
+    [handleTextAnswer, logTurn],
+  );
+
+  const voice = useRealtimeVoice({
+    language,
+    onMessage: handleRealtimeMessage,
+    onConnected: () => setAudioReady(true),
+    onError: (err) => {
+      console.error("[SpeakToBuild] realtime error", err);
+      toast.error(err.message || "Voice connection failed");
+    },
+    enabled: !fadingOut && step !== "done" && step !== "building",
   });
-
-  // ---- ADA speaks the prompt for each step ------------------------------
-  const spokenStepsRef = useRef<Set<SpeakStepId>>(new Set());
-  const firstSpeechDoneRef = useRef(false);
-
-  useEffect(() => {
-    if (fadingOut) return;
-    if (!audioReady) return;
-    if (spokenStepsRef.current.has(step)) return;
-    spokenStepsRef.current.add(step);
-
-    // Skip auto-speak for terminal building/done — handled separately below.
-    if (step === "building") return;
-
-    const text = getCopy(language, step);
-    if (!text) return;
-
-    void (async () => {
-      logTurn("assistant", text);
-      console.log("[SpeakToBuild] speak start →", step, text.slice(0, 60));
-      try {
-        await speakAsync(text, language);
-        console.log("[SpeakToBuild] speak end →", step);
-      } catch (err) {
-        console.error("[SpeakToBuild] speakAsync error:", err);
-      }
-      if (!firstSpeechDoneRef.current) {
-        firstSpeechDoneRef.current = true;
-        // Lazy-mic activation after first speech (LOCK).
-        voice.notifyFirstSpeechEnded();
-      }
-    })();
-  }, [step, language, fadingOut, voice, logTurn, audioReady]);
-
-  // Reset spoken set when language changes so prompts replay in new language.
-  useEffect(() => {
-    spokenStepsRef.current = new Set();
-  }, [language]);
 
   // ---- Build trigger ----------------------------------------------------
   const buildTriggeredRef = useRef(false);
@@ -323,7 +239,8 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     // Speak "I'm building your website now." then run the build.
     const buildLine = getCopy(language, "building");
     logTurn("assistant", buildLine);
-    void speakAsync(buildLine, language);
+    // Realtime session is stopped at this point; surface the line via toast.
+    toast.info(buildLine);
 
     const payload: Record<string, unknown> = {
       business_name: answers.business_name || "Untitled",
@@ -355,7 +272,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         };
         const doneLine = done[language] || done.en;
         logTurn("assistant", doneLine);
-        await speakAsync(doneLine, language);
+        toast.success(doneLine);
         setStep("done");
         await new Promise((r) => setTimeout(r, 1500));
         setFadingOut(true);
@@ -375,7 +292,6 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
   useEffect(() => {
     return () => {
       try { voice.stop(); } catch { /* ignore */ }
-      try { stopSpeaking(); } catch { /* ignore */ }
     };
   }, [voice]);
 
@@ -398,14 +314,12 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
 
   const handleEndCall = useCallback(() => {
     try { voice.stop(); } catch { /* ignore */ }
-    try { voiceInterrupt(); } catch { /* ignore */ }
     persistSnapshot();
     onBack();
   }, [onBack, voice, persistSnapshot]);
 
   const handleOpenChat = useCallback(() => {
     try { voice.stop(); } catch { /* ignore */ }
-    try { voiceInterrupt(); } catch { /* ignore */ }
     persistSnapshot();
     if (onSwitchToChat) {
       onSwitchToChat({
@@ -432,9 +346,26 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       case "speaking":  return "ADA is speaking…";
       case "thinking":  return "Thinking…";
       case "listening": return labels.listening;
-      default:          return "Tap the orb to speak";
+      case "connecting":return "Connecting…";
+      case "error":     return "Voice unavailable — tap to retry";
+      default:          return "Tap to start";
     }
   }, [voice.uiState, step, labels]);
+
+  // Map realtime states → orb visual states (orb only knows 4 states).
+  const orbState = useMemo(() => {
+    if (voice.uiState === "speaking") return "speaking" as const;
+    if (voice.uiState === "thinking") return "thinking" as const;
+    if (voice.uiState === "listening") return "listening" as const;
+    return "idle" as const;
+  }, [voice.uiState]);
+
+  const ensureAudio = useCallback(() => {
+    // Tapping anywhere counts as the user gesture that authorizes <audio>
+    // playback. The realtime hook already started the session on mount, so
+    // we only need to flip the "ready" hint flag.
+    if (!audioReady) setAudioReady(true);
+  }, [audioReady]);
 
   // ---- render -----------------------------------------------------------
   return (
@@ -442,10 +373,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       className={`fixed inset-0 z-50 bg-background text-foreground flex flex-col transition-opacity duration-300 ${
         fadingOut ? "opacity-0" : "opacity-100"
       }`}
-      onClick={() => {
-        void unlockAudio();
-        voice.notifyUserGesture();
-      }}
+      onClick={ensureAudio}
     >
       {/* Top status */}
       <header className="px-6 pt-8 sm:pt-12 text-center">
@@ -464,21 +392,14 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
           {labels.speak_to_build}
         </p>
         <h1 className="mt-2 text-xl sm:text-2xl font-medium">{status}</h1>
-        {voice.hint && (
-          <p className="mt-2 text-sm text-muted-foreground">{voice.hint}</p>
-        )}
       </header>
 
       {/* Center orb */}
       <main className="flex-1 grid place-items-center px-6">
         <VoiceOrb
-          state={voice.uiState}
+          state={orbState}
           level={voice.level}
-          onTap={() => {
-            void unlockAudio();
-            voice.notifyUserGesture();
-            voice.toggle();
-          }}
+          onTap={ensureAudio}
           ariaLabel={labels.mic}
         />
         {!audioReady && (
