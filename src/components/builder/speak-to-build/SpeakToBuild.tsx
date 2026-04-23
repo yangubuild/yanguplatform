@@ -320,7 +320,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         buildTriggeredRef.current = false;
         setStep("style");
       });
-  }, [step, answers, onComplete, language]);
+  }, [step, answers, onComplete, language, logTurn]);
 
   // ---- cleanup on unmount ----------------------------------------------
   useEffect(() => {
@@ -331,15 +331,33 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
   }, [voice]);
 
   // ---- footer actions ---------------------------------------------------
+  /**
+   * End Call — stops mic and TTS but does NOT reset conversation/builder state.
+   * Persists the current transcript + answers to sessionStorage so the user can
+   * resume in the chat builder if they choose to.
+   */
+  const persistSnapshot = useCallback(() => {
+    try {
+      const snapshot = {
+        transcript: transcriptRef.current,
+        answers: answersRef.current,
+        ts: Date.now(),
+      };
+      sessionStorage.setItem(SPEAK_TO_CHAT_SEED_KEY, JSON.stringify(snapshot));
+    } catch { /* ignore */ }
+  }, []);
+
   const handleEndCall = useCallback(() => {
     try { voice.stop(); } catch { /* ignore */ }
     try { voiceInterrupt(); } catch { /* ignore */ }
+    persistSnapshot();
     onBack();
-  }, [onBack, voice]);
+  }, [onBack, voice, persistSnapshot]);
 
   const handleOpenChat = useCallback(() => {
     try { voice.stop(); } catch { /* ignore */ }
     try { voiceInterrupt(); } catch { /* ignore */ }
+    persistSnapshot();
     if (onSwitchToChat) {
       onSwitchToChat({
         business_name: answers.business_name,
@@ -350,11 +368,12 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         _speak_category: answers.category,
         _speak_language: answers.language,
         _speak_style: answers.style,
+        _speak_transcript: transcriptRef.current,
       });
     } else {
       onBack();
     }
-  }, [voice, onSwitchToChat, onBack, answers]);
+  }, [voice, onSwitchToChat, onBack, answers, persistSnapshot]);
 
   // ---- header status ----------------------------------------------------
   const status = useMemo(() => {
