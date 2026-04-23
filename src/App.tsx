@@ -553,6 +553,16 @@ const App = () => (
                   }
                 />
 
+                {/* Speak to Build (full-screen voice flow, outside dashboard shell) */}
+                <Route
+                  path="/dashboard/seller/:sellerKey/speak"
+                  element={
+                    <ProtectedRoute>
+                      <SellerSpeakToBuildPage />
+                    </ProtectedRoute>
+                  }
+                />
+
                 {/* Public checkout */}
                 <Route path="/checkout" element={<EshopCheckoutPage />} />
 
