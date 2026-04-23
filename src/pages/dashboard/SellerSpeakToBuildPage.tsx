@@ -75,6 +75,7 @@ export default function SellerSpeakToBuildPage() {
         initialCategory={engineKey as never}
         onComplete={handleComplete}
         onBack={() => navigate(`/dashboard/seller/${sellerKey}`)}
+        onSwitchToChat={() => navigate(`/dashboard/seller/${sellerKey}?mode=chat`)}
       />
     </div>
   );
