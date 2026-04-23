@@ -112,11 +112,6 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
   const answersRef = useRef(answers);
   useEffect(() => { answersRef.current = answers; }, [answers]);
 
-  // Realtime starts on mount; user gesture is only needed to satisfy autoplay
-  // policy on the remote <audio> element. We track whether the user has
-  // interacted; until then we show the "Tap to start" hint.
-  const [audioReady, setAudioReady] = useState(false);
-
   // Conversation log shared with chat builder on handoff.
   const transcriptRef = useRef<TranscriptEntry[]>([]);
   const logTurn = useCallback((role: "assistant" | "user", text: string) => {
@@ -222,7 +217,6 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
   const voice = useRealtimeVoice({
     language,
     onMessage: handleRealtimeMessage,
-    onConnected: () => setAudioReady(true),
     onError: (err) => {
       console.error("[SpeakToBuild] realtime error", err);
       toast.error(err.message || "Voice connection failed");
@@ -347,8 +341,8 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       case "thinking":  return "Thinking…";
       case "listening": return labels.listening;
       case "connecting":return "Connecting…";
-      case "error":     return "Voice unavailable — tap to retry";
-      default:          return "Tap to start";
+      case "error":     return "Voice unavailable";
+      default:          return "Connecting…";
     }
   }, [voice.uiState, step, labels]);
 
@@ -360,20 +354,12 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     return "idle" as const;
   }, [voice.uiState]);
 
-  const ensureAudio = useCallback(() => {
-    // Tapping anywhere counts as the user gesture that authorizes <audio>
-    // playback. The realtime hook already started the session on mount, so
-    // we only need to flip the "ready" hint flag.
-    if (!audioReady) setAudioReady(true);
-  }, [audioReady]);
-
   // ---- render -----------------------------------------------------------
   return (
     <div
       className={`fixed inset-0 z-50 bg-background text-foreground flex flex-col transition-opacity duration-300 ${
         fadingOut ? "opacity-0" : "opacity-100"
       }`}
-      onClick={ensureAudio}
     >
       {/* Top status */}
       <header className="px-6 pt-8 sm:pt-12 text-center">
@@ -395,18 +381,22 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       </header>
 
       {/* Center orb */}
-      <main className="flex-1 grid place-items-center px-6">
+      <main className="flex-1 grid place-items-center px-6 relative">
         <VoiceOrb
           state={orbState}
           level={voice.level}
-          onTap={ensureAudio}
+          onTap={voice.audioBlocked ? voice.unlockAudio : undefined}
           ariaLabel={labels.mic}
         />
-        {!audioReady && (
-          <div className="pointer-events-none absolute inset-0 grid place-items-center">
-            <div className="rounded-2xl bg-foreground/90 text-background px-5 py-3 text-sm font-medium shadow-lg">
-              Tap anywhere to start
-            </div>
+        {voice.audioBlocked && (
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
+            <Button
+              size="lg"
+              className="rounded-2xl px-6 h-12 shadow-lg"
+              onClick={(e) => { e.stopPropagation(); void voice.unlockAudio(); }}
+            >
+              Start conversation
+            </Button>
           </div>
         )}
       </main>
