@@ -250,6 +250,13 @@ export function useRealtimeVoice({
           case "input_audio_buffer.speech_stopped":
             if (mountedRef.current) setUiState("thinking");
             break;
+          case "output_audio_buffer.started":
+            console.log("ADA SPEAKING (output_audio_buffer.started)");
+            if (mountedRef.current) setUiState("speaking");
+            break;
+          case "output_audio_buffer.stopped":
+            if (mountedRef.current) setUiState("listening");
+            break;
           case "response.audio.delta":
           case "response.output_audio.delta":
             console.log("ADA RESPONSE RECEIVED (audio delta)");
@@ -257,6 +264,9 @@ export function useRealtimeVoice({
             break;
           case "response.audio.done":
           case "response.output_audio.done":
+            if (mountedRef.current) setUiState("listening");
+            break;
+          case "response.completed":
             if (mountedRef.current) setUiState("listening");
             break;
           case "response.audio_transcript.delta":

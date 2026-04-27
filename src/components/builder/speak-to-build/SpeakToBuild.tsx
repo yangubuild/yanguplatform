@@ -284,11 +284,18 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
   }, [step, answers, onComplete, language, logTurn]);
 
   // ---- cleanup on unmount ----------------------------------------------
+  // CRITICAL: `voice` identity changes ~60×/sec (audio level updates).
+  // Depending on it would tear down the WebRTC session every frame and
+  // trap the UI in "Connecting…". Capture latest via ref, run cleanup once.
+  const voiceRef = useRef(voice);
+  useEffect(() => {
+    voiceRef.current = voice;
+  }, [voice]);
   useEffect(() => {
     return () => {
-      try { voice.stop(); } catch { /* ignore */ }
+      try { voiceRef.current?.stop(); } catch { /* ignore */ }
     };
-  }, [voice]);
+  }, []);
 
   // ---- footer actions ---------------------------------------------------
   /**
