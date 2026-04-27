@@ -32,6 +32,11 @@ interface UseRealtimeVoiceOptions {
 
 const REALTIME_BASE = "https://api.openai.com/v1/realtime";
 
+// Module-level guard: defeats React StrictMode double-mount which otherwise
+// mints two ephemeral tokens and creates two RTCPeerConnections in parallel.
+let activeStartId = 0;
+let hasActiveSession = false;
+
 export function useRealtimeVoice({
   language = "en",
   onMessage,
@@ -61,6 +66,7 @@ export function useRealtimeVoice({
   const cleanup = useCallback(() => {
     greetedRef.current = false;
     startingRef.current = false;
+    hasActiveSession = false;
     if (rafRef.current != null) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
@@ -91,17 +97,21 @@ export function useRealtimeVoice({
   }, [cleanup]);
 
   const start = useCallback(async () => {
-    if (pcRef.current || startingRef.current) {
+    if (pcRef.current || startingRef.current || hasActiveSession) {
       console.log("[useRealtimeVoice] start skipped (already starting/connected)");
       return;
     }
     startingRef.current = true;
+    hasActiveSession = true;
+    const myStartId = ++activeStartId;
+    const isStale = () => myStartId !== activeStartId;
     setUiState("connecting");
     try {
       // 1. Mint ephemeral token
       const { data: tokenData, error: tokenErr } = await supabase.functions.invoke("realtime-token", {
         body: { language, voice: "shimmer" },
       });
+      if (isStale()) { console.log("[useRealtimeVoice] stale after token, abort"); return; }
       if (tokenErr) throw new Error(tokenErr.message || "Failed to mint realtime token");
       const ephemeral: string | undefined = tokenData?.client_secret;
       const model: string = tokenData?.model || "gpt-4o-realtime-preview-2024-12-17";
@@ -119,6 +129,14 @@ export function useRealtimeVoice({
       });
       pcRef.current = pc;
       console.log("[useRealtimeVoice] RTCPeerConnection created with STUN");
+
+      // CRITICAL: explicit recvonly transceiver guarantees `pc.ontrack`
+      // fires deterministically with the remote ADA audio. Without this the
+      // SDP answer is sendrecv but no track event is delivered in some
+      // browsers, leaving the page silent.
+      try { pc.addTransceiver("audio", { direction: "recvonly" }); } catch (err) {
+        console.warn("[useRealtimeVoice] addTransceiver(recvonly) failed", err);
+      }
 
       pc.addEventListener("connectionstatechange", () => {
         console.log("PC state:", pc.connectionState);
@@ -145,6 +163,11 @@ export function useRealtimeVoice({
       // 3. Remote audio sink
       const audioEl = document.createElement("audio");
       audioEl.autoplay = true;
+      audioEl.setAttribute("playsinline", "true");
+      audioEl.style.display = "none";
+      // Some browsers (Safari/iOS, occasionally Chrome on certain pages)
+      // refuse to play media from detached <audio> elements. Attach to DOM.
+      document.body.appendChild(audioEl);
       audioElRef.current = audioEl;
       pc.ontrack = (e) => {
         console.log("TRACK RECEIVED", e);
@@ -244,6 +267,14 @@ export function useRealtimeVoice({
         console.log("Realtime event:", msg.type);
 
         switch (msg.type) {
+          case "session.created":
+          case "session.updated":
+          case "response.created":
+            // Any of these prove the session is alive — leave "connecting".
+            if (mountedRef.current) {
+              setUiState((prev) => (prev === "connecting" ? "listening" : prev));
+            }
+            break;
           case "input_audio_buffer.speech_started":
             if (mountedRef.current) setUiState("listening");
             break;
@@ -271,6 +302,10 @@ export function useRealtimeVoice({
             break;
           case "response.audio_transcript.delta":
           case "response.output_text.delta": {
+            // First event we usually see — also use it to escape "connecting".
+            if (mountedRef.current) {
+              setUiState((prev) => (prev === "connecting" ? "speaking" : prev));
+            }
             const delta = (msg.delta as string) || "";
             assistantTextBufRef.current += delta;
             break;
@@ -332,6 +367,7 @@ export function useRealtimeVoice({
       }
 
       const answerSdp = await sdpResp.text();
+      if (isStale()) { console.log("[useRealtimeVoice] stale after SDP answer, abort"); return; }
       if (!answerSdp.startsWith("v=")) {
         console.error("Invalid SDP answer (does not start with 'v='):", answerSdp.slice(0, 200));
         throw new Error("Invalid SDP answer from Realtime API");
@@ -342,12 +378,29 @@ export function useRealtimeVoice({
 
       console.log("[useRealtimeVoice] connected");
       startingRef.current = false;
+
+      // Watchdog: if 8s after start we are still "connecting", surface error.
+      window.setTimeout(() => {
+        if (isStale()) return;
+        if (mountedRef.current && pcRef.current === pc) {
+          // We can read uiState via setter trick — only fire onError if still connecting.
+          setUiState((prev) => {
+            if (prev === "connecting") {
+              console.error("[useRealtimeVoice] watchdog: still connecting after 8s");
+              onError?.(new Error("Voice session did not start. Please refresh and try again."));
+              return "error";
+            }
+            return prev;
+          });
+        }
+      }, 8000);
     } catch (err) {
       console.error("[useRealtimeVoice] start failed", err);
       cleanup();
       if (mountedRef.current) setUiState("error");
       onError?.(err instanceof Error ? err : new Error(String(err)));
       startingRef.current = false;
+      hasActiveSession = false;
     }
   }, [language, onConnected, onMessage, onError, cleanup]);
 
