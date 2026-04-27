@@ -1,111 +1,157 @@
-# Speak to Build → Real-time Conversational Voice Interface (FINAL LOCKED)
+# Speak to Build — Real Root Cause + Fix Plan
 
-## Vision
-This is YANGU's "talk to build your business" moment. A farmer can launch a store by speaking. A trader can build without typing. A creator can generate a site in seconds. Speak to Build is a phone-call experience with ADA — no forms, no buttons, just voice.
+## What the logs actually prove
 
-## UI Layout
+The latest run shows ADA **is** generating audio:
+
 ```
-┌─────────────────────────────────────────┐
-│  ⚡ Live Voice · ADA          EN    ✕   │
-├─────────────────────────────────────────┤
-│              00:14                      │
-│           ╭─────────────╮               │
-│          (    ◉ orb     )               │  idle | speaking | listening | thinking
-│           ╰─────────────╯               │
-│         ADA is speaking                 │
-│  "What would you like to build today?"  │
-│  You: a coffee shop in Kampala          │
-│            Tap to interrupt             │
-├─────────────────────────────────────────┤
-│   [ 📞 End Call ]   [ 💬 Open Chat ]    │
-└─────────────────────────────────────────┘
+Realtime event: response.audio.delta        ← ADA speaking
+... (many deltas) ...
+Realtime event: response.audio.done
+Realtime event: response.audio_transcript.done
+Realtime event: response.done
+Realtime event: output_audio_buffer.stopped ← ADA finished
 ```
 
-## Behavior Flow
-1. **ADA speaks first** — no mic permission on mount. Orb in `speaking`, intro line via TTS, call timer starts.
-2. **Mic permission timing** — request `getUserMedia` on whichever happens first: user's first tap on the call surface, OR ADA finishes the first prompt. Satisfies Safari/iOS user-gesture rule.
-3. **Auto-listen via VAD** — `AnalyserNode` RMS sampled every 100 ms. Speech start ~0.04, end-of-speech silence window 1.2 s. Caps: 0.5 s min, 15 s max.
-4. **Manual override always available** — tapping orb force-toggles recording at any time (start if idle, stop+submit if listening, cancel if speaking).
-5. **VAD stall fallback** — no speech after 4 s active listening → "Tap to speak" hint.
-6. **Hidden text fallback** — after 2 consecutive STT failures → reveal slim text strip; auto-hide on next successful voice turn.
-7. **Barge-in** — voice detected during ADA speech → `voiceInterrupt()` then switch to listening.
-8. **Step advance** — transcript flows into existing `handleTextAnswer(text)`. Step machine advances. Next prompt spoken via locked session voice.
-9. **Voice consistency lock** — one `voice_id` per session (per detected language), stored on `sessionVoiceRef`, passed on every TTS call. Never changes mid-session.
-10. **Build completion magic moment**:
-    - Step machine `building` → orb `thinking`, status "Building your site…"
-    - On success ADA says: *"Your website is ready. You can continue editing by voice or chat."*
-    - **1.5 s pause** after TTS ends → fade out call UI (300 ms) → route to editor with fade-in (300 ms) → sonner toast: *"Built with Speak to Build"* (3 s, bottom-center).
-11. **End Call** → full cleanup → `onBack()`.
-12. **Open Chat** → cleanup + hand `answers` to parent → switch entry mode `speak` → `chat` with answers prefilled.
+So the connection works. The data channel works. ADA spoke a full greeting.
+**You just didn't hear it, and the UI never left "Connecting…".**
 
-## 🔒 Final Engineering Locks (MANDATORY)
+That changes the diagnosis completely. This is not a connection problem.
+It is three small client bugs.
 
-### 1. Hard interrupt priority (race-condition guard)
-`voiceInterrupt()` must SYNCHRONOUSLY cancel audio output BEFORE any recorder state change. TTS and recording must never overlap. Implementation: `voiceController.interrupt()` calls `stopSpeaking()` synchronously, returns only after `activeAudio = null`. Hook awaits this before calling `recorder.start()`.
+---
 
-### 2. Single active recorder rule
-`useVoiceCall.ts` guards every entry point with `isRecordingRef`:
+## The 3 real bugs
+
+### Bug 1 — Two sessions minted in parallel (React StrictMode)
+
+Network log shows:
+```
+10:05:40Z  POST /realtime-token  (session A)
+10:05:40Z  POST /realtime-token  (session B)
+10:05:41Z  POST api.openai.com/v1/realtime  (session A SDP)
+10:05:41Z  POST api.openai.com/v1/realtime  (session B SDP)
+```
+
+React 18 StrictMode mounts the effect twice in dev. Our `startingRef` guard
+doesn't help because both invocations enter `start()` before either sets
+`pcRef.current`. Result: session A is created, then immediately torn down by
+session B's cleanup, but session B's `pc.ontrack` never fires reliably because
+the wiring happens after `setRemoteDescription` resolves on a racing PC.
+
+Net effect: zero `TRACK RECEIVED` log, zero remote `<audio>` playback.
+
+### Bug 2 — No `recvonly` transceiver = unreliable inbound audio
+
+We do:
 ```ts
-if (isRecordingRef.current) return;
-isRecordingRef.current = true;
+pc.ontrack = ...
+const dc = pc.createDataChannel(...)
+const mic = await getUserMedia(...)
+mic.getTracks().forEach(t => pc.addTrack(t, mic))
 ```
-Prevents double-triggers from VAD + tap collision, rapid taps, mobile glitches. Released only in recorder `onstop` and error paths.
 
-### 3. Transcript debounce (ghost submission guard)
-After STT returns, drop the transcript if:
-- length < 2 characters after trim, OR
-- identical (case-insensitive, trimmed) to last accepted transcript within 2000 ms.
-Tracked via `lastTranscriptRef = { text, ts }`.
+We never explicitly add an audio receiver. OpenAI's answer is `sendrecv`, but
+without `pc.addTransceiver("audio", { direction: "recvonly" })` the `ontrack`
+event can race the `setRemoteDescription` resolution — especially when a second
+PC is being created in parallel (Bug 1). This is the actual reason no audio
+plays even though SDP handshake succeeds.
 
-### 4. Silence auto-recovery
-After 2 consecutive VAD stalls (no speech detected within 4 s window), ADA speaks (in current language): *"You can speak anytime, or tap the screen to start."* Counter resets on any successful transcript. Prevents dead sessions.
+### Bug 3 — UI is stuck on "Connecting…"
 
-### 5. Timeout safety (30 s per-turn fail-safe)
-Every voice turn starts a 30 s watchdog timer. If STT does not return a result within 30 s of recorder stop → cancel pending request, reset to listening state, increment failure counter. Prevents stuck sessions on network failure.
+`uiState` only leaves `connecting` when:
+- `dc.onopen` fires → sets `listening`, OR
+- a server event arrives that hits a case that sets state.
 
-### 6. Mobile audio routing fix (iOS earpiece bug)
-Force speaker output by:
-- Setting `audio.setAttribute('playsinline', 'true')` on every TTS Audio element.
-- Setting `audio.setAttribute('webkit-playsinline', 'true')`.
-- Using `AudioContext` with `latencyHint: 'interactive'`.
-- On iOS, calling `audio.play()` only inside the user gesture chain (first tap unlocks).
-Without this, iOS routes to earpiece and feels broken.
+Looking at the logs, the FIRST event seen is `response.audio_transcript.delta`
+— which we currently **don't** map to a state change. We only handle
+`response.audio.delta`. Result: even though the session is fully alive, the
+header shows "Connecting…" and the orb stays grey.
 
-### 7. Session cleanup (memory leak prevention)
-On End Call / Open Chat / Completion / unmount, `useVoiceCall.cleanup()` runs:
-- `mediaStream.getTracks().forEach(t => t.stop())`
-- `analyser.disconnect()` + `audioContext.close()`
-- `clearTimeout` on all timers (VAD stall, 30 s watchdog, completion delay)
-- `mediaRecorder.stop()` if active
-- `voiceController.interrupt()` to cancel TTS
-- Null all refs
+---
 
-## Files to change
-- `src/components/builder/speak-to-build/SpeakToBuild.tsx` — rewrite render layer; keep step machine, parsers; append completion magic-moment sequence.
-- `src/components/builder/speak-to-build/VoiceCallUI.tsx` *(new)* — header, timer, orb mount, status, subtitles, footer, hint, hidden text strip. Owns fade-out class.
-- `src/components/builder/speak-to-build/VoiceOrb.tsx` *(new)* — `state`, `level`, `onTap`. Speaking = bars; listening = rings driven by `level`; thinking = shimmer; idle = breathe. Whole orb is tap target.
-- `src/components/builder/speak-to-build/useVoiceCall.ts` *(new)* — encapsulates lazy mic acquisition, VAD loop, auto-record/stop, barge-in, 4 s stall, 30 s watchdog, transcript debounce, single-recorder guard, manual `toggle()`, full `cleanup()`. Exposes `{ uiState, level, hint, toggle, stop, cleanup }`.
-- `src/components/builder/speak-to-build/copy.ts` — add localized strings: `live_voice`, `ada_speaking`, `listening`, `thinking`, `building_status`, `tap_to_interrupt`, `tap_to_speak`, `silence_recovery`, `end_call`, `open_chat`, `mic_required`, `site_ready`, `built_with_speak_to_build`.
-- `src/lib/voice/voiceController.ts` — `speak()` accepts optional `voiceId`; add `speakAsync()` returning a promise that resolves on playback end (used for completion line + 1.5 s wait); `interrupt()` made synchronous; iOS playsinline attrs.
-- `supabase/functions/ada-tts/index.ts` — accept optional `voice_id` body param, override per-language default when present.
-- Entry pages (`SellerSurfacePage`, `InfluencerPage`, `DashboardCommunityPage`) — add `onOpenChat(prefill)` callback to switch mode `speak` → `chat` with answers prefilled as initial user message.
+## Fix Plan (small, surgical, no architecture change)
 
-## Untouched
-`voiceController` core, `ada-transcribe-audio`, language detection, sticky language, Build with Chat, step machine, parsers, completion payload (`_speak_to_build: true`).
+### File: `src/components/builder/speak-to-build/useRealtimeVoice.ts`
 
-## Removed from UI
-Category buttons, yes/no buttons, style grid, persistent text input, send button, persistent mic toggle, mute button, back arrow card, prompt card, subtitle bar.
+1. **Module-level lock** to defeat StrictMode double-start:
+   ```ts
+   // outside the hook
+   let activeSessionId = 0;
+   ```
+   In `start()`, take a local id, abort if a newer one starts, and skip
+   ALL side-effects (token mint, PC creation, SDP) when an active session
+   already exists. Pair with `pcRef.current` check.
 
-## Edge cases
-- Mic denied → "Microphone required" + Open Chat shortcut.
-- 2× STT failure → ADA "Sorry, I didn't catch that — could you repeat?" + reveal text strip.
-- VAD silent 4 s → "Tap to speak" hint (orb tap already works).
-- 2× consecutive VAD stalls → silence-recovery line (lock #4).
-- 30 s no STT → reset to listening (lock #5).
-- No `MediaRecorder` → text strip immediately.
-- Mobile: safe-area padding; orb scales to viewport; tap target ≥ 96 px; iOS playsinline (lock #6).
+2. **Explicit recvonly audio transceiver** before `addTrack`:
+   ```ts
+   pc.addTransceiver("audio", { direction: "recvonly" });
+   ```
+   This guarantees `ontrack` fires deterministically.
 
-## Strategic outcome
-Speak to Build becomes YANGU's core differentiator — voice-first business creation for users who don't want to (or can't) type. Build with Chat remains the structured power-user path. Both coexist, both share backend templates, neither interferes with the other.
+3. **Move `pc.ontrack` assignment BEFORE creating the data channel and mic**
+   (it already is — keep it that way) AND attach the audio element to
+   `document.body` so iOS/Safari treat it as a user-visible sink:
+   ```ts
+   audioEl.setAttribute("playsinline", "true");
+   audioEl.style.display = "none";
+   document.body.appendChild(audioEl);
+   ```
+   Currently we create the element but never attach it to the DOM, which
+   on some browsers prevents playback.
 
-**Status: LOCKED. Ready to implement on go-ahead.**
+4. **Broaden state transitions** so the UI exits "Connecting…" the moment
+   anything happens:
+   ```ts
+   case "session.created":
+   case "session.updated":
+   case "response.created":
+   case "response.audio_transcript.delta":   // ← first event we see
+     if (uiState === "connecting") setUiState("listening");
+     break;
+   ```
+
+5. **Watchdog**: 8s after `start()`, if still `connecting`, log a clear error
+   and call `onError`. This stops the silent-forever failure mode.
+
+### File: `src/components/builder/speak-to-build/SpeakToBuild.tsx`
+
+No structural changes. Just confirm:
+- The cleanup ref pattern (already in place) stays.
+- "Start conversation" CTA stays visible whenever `audioBlocked` is true.
+
+---
+
+## Verification (after applying)
+
+After hard refresh on `/dashboard/seller/eshop/speak`, expect in console:
+
+```
+TOKEN OK { ... }                           ← only ONCE now
+[useRealtimeVoice] RTCPeerConnection created
+SDP SENT
+SDP ANSWER RECEIVED
+PC state: connecting
+ICE state: checking
+TRACK RECEIVED                             ← now fires
+AUDIO PLAYING                              ← now fires
+DATA CHANNEL OPEN
+Realtime event: session.created
+Realtime event: response.audio_transcript.delta
+```
+
+UI: header transitions Connecting → Listening within ~1.5s. Orb pulses green
+when ADA speaks. You hear the greeting.
+
+If autoplay is blocked, the "Start conversation" button appears — one tap
+unlocks audio.
+
+---
+
+## Out of scope for this fix
+
+- Migrating to GA `/v1/realtime/client_secrets` + `gpt-realtime` model.
+  The current beta endpoint works (events prove it). Migration is a separate
+  task once basic playback is confirmed.
+- VoiceOrb color mapping to YANGU orange / green. Separate cosmetic task.
+- Removing legacy `useVoiceCall.ts`. Cleanup task.
