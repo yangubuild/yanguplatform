@@ -130,6 +130,10 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     setStep(STEPS[Math.min(idx + 1, STEPS.length - 1)]);
   }, []);
 
+  // After handleTextAnswer advances `step`, we need to prompt ADA with the
+  // next step's question. We compute it from the just-updated stepRef.
+  const pendingNextPromptRef = useRef<SpeakStepId | null>(null);
+
   // ---- handleTextAnswer (preserved logic) -------------------------------
   const handleTextAnswer = useCallback((raw: string) => {
     const text = raw.trim();
@@ -151,8 +155,10 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         if (cat) {
           updateAnswer("category", cat);
           setStep("business_info");
+          pendingNextPromptRef.current = "business_info";
         } else {
           setStep("category");
+          pendingNextPromptRef.current = "category";
         }
         break;
       }
@@ -163,17 +169,26 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         updateAnswer("business_name", name || text.slice(0, 60));
         updateAnswer("business_description", desc);
         goNext("business_info");
+        pendingNextPromptRef.current = "logo";
         break;
       }
       case "logo": {
-        if (isYes(text)) { updateAnswer("has_logo", true); setStep("colors"); }
-        else if (isNo(text)) { updateAnswer("has_logo", false); setStep("logo_create"); }
-        else { setStep("logo"); }
+        if (isYes(text)) {
+          updateAnswer("has_logo", true); setStep("colors");
+          pendingNextPromptRef.current = "colors";
+        } else if (isNo(text)) {
+          updateAnswer("has_logo", false); setStep("logo_create");
+          pendingNextPromptRef.current = "logo_create";
+        } else {
+          setStep("logo");
+          pendingNextPromptRef.current = "logo";
+        }
         break;
       }
       case "logo_create": {
         updateAnswer("wants_ai_logo", isYes(text) ? true : isNo(text) ? false : null);
         setStep("colors");
+        pendingNextPromptRef.current = "colors";
         break;
       }
       case "colors": {
@@ -181,17 +196,21 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         updateAnswer("brand_colors", text);
         if (hex) updateAnswer("primary_color", hex);
         goNext("colors");
+        pendingNextPromptRef.current = "location";
         break;
       }
       case "location": {
         updateAnswer("location", text);
         goNext("location");
+        pendingNextPromptRef.current = "style";
         break;
       }
       case "style": {
         const s = styleFromText(text);
         updateAnswer("style", s || text);
         setStep("building");
+        // No next prompt — build trigger takes over.
+        pendingNextPromptRef.current = null;
         break;
       }
       default:
@@ -224,6 +243,24 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     },
     enabled: !fadingOut && step !== "done" && step !== "building",
   });
+
+  // After each user turn advances the step, ask ADA to speak the next prompt.
+  // This is the conversation-loop driver: user → handleTextAnswer →
+  // pendingNextPromptRef set → here we send the next response.create.
+  const voiceSendRef = useRef(voice.sendInstruction);
+  useEffect(() => { voiceSendRef.current = voice.sendInstruction; }, [voice.sendInstruction]);
+  useEffect(() => {
+    const next = pendingNextPromptRef.current;
+    if (!next) return;
+    pendingNextPromptRef.current = null;
+    const prompt = getCopy(language, next);
+    if (!prompt) return;
+    // Tiny delay so the previous user turn is fully committed server-side.
+    const id = window.setTimeout(() => {
+      try { voiceSendRef.current?.(prompt); } catch { /* ignore */ }
+    }, 150);
+    return () => window.clearTimeout(id);
+  }, [step, language]);
 
   // ---- Build trigger ----------------------------------------------------
   const buildTriggeredRef = useRef(false);

@@ -241,6 +241,21 @@ export function useRealtimeVoice({
 
       dc.addEventListener("open", () => {
         console.log("DATA CHANNEL OPEN");
+        // Configure session: enable input audio transcription so we receive
+        // `conversation.item.input_audio_transcription.completed` events that
+        // drive the local step machine + next-turn prompts.
+        try {
+          dc.send(JSON.stringify({
+            type: "session.update",
+            session: {
+              input_audio_transcription: { model: "whisper-1" },
+              turn_detection: { type: "server_vad" },
+            },
+          }));
+          console.log("[useRealtimeVoice] session.update sent (transcription on)");
+        } catch (err) {
+          console.warn("[useRealtimeVoice] session.update failed", err);
+        }
         // Kick off the conversation: ask ADA to greet immediately.
         if (!greetedRef.current) {
           greetedRef.current = true;
@@ -442,6 +457,28 @@ export function useRealtimeVoice({
     }
   }, []);
 
+  /**
+   * Trigger ADA's next spoken turn with custom instructions.
+   * Used by the step machine to keep the conversation loop going.
+   * Safe to call repeatedly; no-ops if data channel is not open.
+   */
+  const sendInstruction = useCallback((instructions: string) => {
+    const dc = dcRef.current;
+    if (!dc || dc.readyState !== "open") {
+      console.warn("[useRealtimeVoice] sendInstruction skipped — dc not open", dc?.readyState);
+      return;
+    }
+    try {
+      dc.send(JSON.stringify({
+        type: "response.create",
+        response: { modalities: ["audio"], instructions },
+      }));
+      console.log("[useRealtimeVoice] response.create sent ←", instructions.slice(0, 80));
+    } catch (err) {
+      console.warn("[useRealtimeVoice] sendInstruction failed", err);
+    }
+  }, []);
+
   // Start/stop on enabled flag
   useEffect(() => {
     if (enabled) {
@@ -454,7 +491,7 @@ export function useRealtimeVoice({
 
   // Stable return shape: same keys every render, regardless of state.
   return useMemo(
-    () => ({ uiState, level, start, stop, audioBlocked, unlockAudio }),
-    [uiState, level, start, stop, audioBlocked, unlockAudio],
+    () => ({ uiState, level, start, stop, audioBlocked, unlockAudio, sendInstruction }),
+    [uiState, level, start, stop, audioBlocked, unlockAudio, sendInstruction],
   );
 }
