@@ -234,6 +234,24 @@ export function useRealtimeVoice({
       });
       micStreamRef.current = micStream;
       micStream.getTracks().forEach((track) => pc.addTrack(track, micStream));
+      // Diagnostics: confirm the mic track is actually live and being sent.
+      const micTracks = micStream.getAudioTracks();
+      console.log("Mic tracks:", micTracks);
+      micTracks.forEach((t, i) => {
+        console.log(`Mic track[${i}]`, {
+          label: t.label,
+          enabled: t.enabled,
+          muted: t.muted,
+          readyState: t.readyState,
+        });
+      });
+      try {
+        const senders = pc.getSenders().filter((s) => s.track?.kind === "audio");
+        console.log("PC audio senders:", senders.length, senders.map((s) => ({
+          enabled: s.track?.enabled,
+          readyState: s.track?.readyState,
+        })));
+      } catch { /* ignore */ }
 
       // 5. Data channel for events
       const dc = pc.createDataChannel("oai-events");
@@ -292,9 +310,11 @@ export function useRealtimeVoice({
             }
             break;
           case "input_audio_buffer.speech_started":
+            console.log("USER SPEECH STARTED");
             if (mountedRef.current) setUiState("listening");
             break;
           case "input_audio_buffer.speech_stopped":
+            console.log("USER SPEECH STOPPED");
             if (mountedRef.current) setUiState("thinking");
             break;
           case "output_audio_buffer.started":
@@ -344,6 +364,7 @@ export function useRealtimeVoice({
             userTranscriptBufRef.current = "";
             const transcript =
               (msg.transcript as string | undefined)?.trim() || buffered;
+            console.log("USER SAID:", transcript);
             if (transcript) onMessage?.(transcript, "user");
             break;
           }
