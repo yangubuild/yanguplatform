@@ -248,6 +248,7 @@ export function useRealtimeVoice({
           dc.send(JSON.stringify({
             type: "session.update",
             session: {
+              type: "realtime",
               input_audio_transcription: { model: "whisper-1" },
               turn_detection: { type: "server_vad" },
             },
@@ -263,7 +264,6 @@ export function useRealtimeVoice({
             dc.send(JSON.stringify({
               type: "response.create",
               response: {
-                modalities: ["audio"],
                 instructions:
                   "Hey I'm ADA AI. Tell me about your business — what's the name, what do you do, and what are you looking to build?",
               },
@@ -471,7 +471,7 @@ export function useRealtimeVoice({
     try {
       dc.send(JSON.stringify({
         type: "response.create",
-        response: { modalities: ["audio"], instructions },
+        response: { instructions },
       }));
       console.log("[useRealtimeVoice] response.create sent ←", instructions.slice(0, 80));
     } catch (err) {
