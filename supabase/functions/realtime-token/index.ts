@@ -69,6 +69,9 @@ Deno.serve(async (req) => {
           model: "gpt-realtime",
           instructions,
           audio: {
+            input: {
+              turn_detection: { type: "server_vad" },
+            },
             output: { voice },
           },
         },

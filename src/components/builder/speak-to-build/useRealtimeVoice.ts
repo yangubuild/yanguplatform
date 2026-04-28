@@ -259,19 +259,20 @@ export function useRealtimeVoice({
 
       dc.addEventListener("open", () => {
         console.log("DATA CHANNEL OPEN");
-        // Configure session: enable input audio transcription so we receive
-        // `conversation.item.input_audio_transcription.completed` events that
-        // drive the local step machine + next-turn prompts.
+        // Configure GA session turn detection before creating the greeting.
         try {
           dc.send(JSON.stringify({
             type: "session.update",
             session: {
               type: "realtime",
-              input_audio_transcription: { model: "whisper-1" },
-              turn_detection: { type: "server_vad" },
+              audio: {
+                input: {
+                  turn_detection: { type: "server_vad" },
+                },
+              },
             },
           }));
-          console.log("[useRealtimeVoice] session.update sent (transcription on)");
+          console.log("[useRealtimeVoice] session.update sent (GA VAD)");
         } catch (err) {
           console.warn("[useRealtimeVoice] session.update failed", err);
         }
