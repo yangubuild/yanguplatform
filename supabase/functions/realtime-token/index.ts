@@ -51,35 +51,27 @@ Deno.serve(async (req) => {
     let body: { language?: string; voice?: string } = {};
     try { body = await req.json(); } catch { /* allow empty */ }
     const language = (body.language || "en").toLowerCase();
-    const voice = body.voice || "shimmer";
+    const voice = body.voice || "marin";
 
     const instructions =
       BASE_PROMPT + "\n" + (LANGUAGE_ADDONS[language] ?? LANGUAGE_ADDONS.en);
 
-    const transcription: Record<string, unknown> = { model: "whisper-1" };
-    if (WHISPER_LANG[language]) transcription.language = WHISPER_LANG[language];
-
-    const r = await fetch("https://api.openai.com/v1/realtime/sessions", {
+    // GA Realtime API: POST /v1/realtime/client_secrets with { session: {...} }
+    const r = await fetch("https://api.openai.com/v1/realtime/client_secrets", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-realtime-preview-2024-12-17",
-        voice,
-        modalities: ["audio", "text"],
-        instructions,
-        input_audio_format: "pcm16",
-        output_audio_format: "pcm16",
-        input_audio_transcription: transcription,
-        turn_detection: {
-          type: "server_vad",
-          threshold: 0.5,
-          prefix_padding_ms: 300,
-          silence_duration_ms: 600,
+        session: {
+          type: "realtime",
+          model: "gpt-realtime",
+          instructions,
+          audio: {
+            output: { voice },
+          },
         },
-        max_response_output_tokens: 800,
       }),
     });
 
@@ -94,11 +86,16 @@ Deno.serve(async (req) => {
 
     const data = await r.json();
 
+    // GA response shape: { value: "ek_...", expires_at: 123, session: {...} }
+    // Some variants nest under client_secret — handle both.
+    const secretValue = data?.value ?? data?.client_secret?.value;
+    const secretExp = data?.expires_at ?? data?.client_secret?.expires_at;
+
     return new Response(
       JSON.stringify({
-        client_secret: data.client_secret?.value,
-        expires_at: data.client_secret?.expires_at,
-        model: "gpt-4o-realtime-preview-2024-12-17",
+        client_secret: secretValue,
+        expires_at: secretExp,
+        model: "gpt-realtime",
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
