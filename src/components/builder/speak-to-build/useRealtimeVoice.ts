@@ -131,13 +131,12 @@ export function useRealtimeVoice({
       pcRef.current = pc;
       console.log("[useRealtimeVoice] RTCPeerConnection created with STUN");
 
-      // CRITICAL: explicit recvonly transceiver guarantees `pc.ontrack`
-      // fires deterministically with the remote ADA audio. Without this the
-      // SDP answer is sendrecv but no track event is delivered in some
-      // browsers, leaving the page silent.
-      try { pc.addTransceiver("audio", { direction: "recvonly" }); } catch (err) {
-        console.warn("[useRealtimeVoice] addTransceiver(recvonly) failed", err);
-      }
+      // NOTE: do NOT add a recvonly transceiver here. We will add the mic
+      // track below via pc.addTrack(), which creates a sendrecv transceiver
+      // that handles BOTH directions (mic up, ADA audio down). Adding a
+      // recvonly transceiver first creates a separate m=audio section that
+      // can mask the sendrecv one in the answer, leaving the server with
+      // no inbound audio (no speech_started events ever fire).
 
       pc.addEventListener("connectionstatechange", () => {
         console.log("PC state:", pc.connectionState);
@@ -228,15 +227,13 @@ export function useRealtimeVoice({
         }
       };
 
-      // 4. Mic
-      const micStream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
-      });
+      // 4. Mic — MUST be added BEFORE createOffer so the SDP advertises
+      // a sendrecv audio m-section. Without this OpenAI never receives
+      // user audio and no speech_started / transcription events fire.
+      const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       micStreamRef.current = micStream;
-      micStream.getTracks().forEach((track) => pc.addTrack(track, micStream));
-      // Diagnostics: confirm the mic track is actually live and being sent.
       const micTracks = micStream.getAudioTracks();
-      console.log("Mic tracks:", micTracks);
+      console.log("Mic tracks acquired:", micTracks.length);
       micTracks.forEach((t, i) => {
         console.log(`Mic track[${i}]`, {
           label: t.label,
@@ -244,14 +241,22 @@ export function useRealtimeVoice({
           muted: t.muted,
           readyState: t.readyState,
         });
+        // Force-enable defensively.
+        if (!t.enabled) t.enabled = true;
       });
-      try {
-        const senders = pc.getSenders().filter((s) => s.track?.kind === "audio");
-        console.log("PC audio senders:", senders.length, senders.map((s) => ({
-          enabled: s.track?.enabled,
-          readyState: s.track?.readyState,
-        })));
-      } catch { /* ignore */ }
+      micStream.getTracks().forEach((track) => {
+        const sender = pc.addTrack(track, micStream);
+        console.log("addTrack sender:", {
+          kind: sender.track?.kind,
+          enabled: sender.track?.enabled,
+          readyState: sender.track?.readyState,
+        });
+      });
+      const audioSenders = pc.getSenders().filter((s) => s.track?.kind === "audio");
+      console.log("PC audio senders after addTrack:", audioSenders.length);
+      if (audioSenders.length === 0) {
+        throw new Error("No audio sender on RTCPeerConnection — mic not attached");
+      }
 
       // 5. Data channel for events
       const dc = pc.createDataChannel("oai-events");
