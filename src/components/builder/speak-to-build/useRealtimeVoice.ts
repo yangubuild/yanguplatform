@@ -30,7 +30,8 @@ interface UseRealtimeVoiceOptions {
   enabled?: boolean;
 }
 
-const REALTIME_BASE = "https://api.openai.com/v1/realtime";
+// GA Realtime API: SDP exchange goes to /v1/realtime/calls (not /v1/realtime)
+const REALTIME_CALLS = "https://api.openai.com/v1/realtime/calls";
 
 // Module-level guard: defeats React StrictMode double-mount which otherwise
 // mints two ephemeral tokens and creates two RTCPeerConnections in parallel.
@@ -114,7 +115,7 @@ export function useRealtimeVoice({
       if (isStale()) { console.log("[useRealtimeVoice] stale after token, abort"); return; }
       if (tokenErr) throw new Error(tokenErr.message || "Failed to mint realtime token");
       const ephemeral: string | undefined = tokenData?.client_secret;
-      const model: string = tokenData?.model || "gpt-4o-realtime-preview-2024-12-17";
+      const model: string = tokenData?.model || "gpt-realtime";
       if (!ephemeral) throw new Error("No client_secret returned");
       const expiresAt: number | undefined = tokenData?.expires_at;
       const nowSec = Math.floor(Date.now() / 1000);
@@ -247,9 +248,9 @@ export function useRealtimeVoice({
             dc.send(JSON.stringify({
               type: "response.create",
               response: {
-                modalities: ["audio", "text"],
+                modalities: ["audio"],
                 instructions:
-                  "Hey I'm ADA AI. Greet the user warmly in their language and ask what kind of business they want to build — name, what they do, and what they're looking to build. Keep it to one short sentence.",
+                  "Hey I'm ADA AI. Tell me about your business — what's the name, what do you do, and what are you looking to build?",
               },
             }));
             console.log("[useRealtimeVoice] greet response.create sent");
@@ -342,8 +343,21 @@ export function useRealtimeVoice({
         }
       });
 
-      dc.addEventListener("close", () => {
-        console.log("[useRealtimeVoice] data channel closed");
+      dc.addEventListener("close", (ev: Event) => {
+        const ce = ev as CloseEvent;
+        console.error("[useRealtimeVoice] DATA CHANNEL CLOSED", {
+          code: (ce as unknown as { code?: number }).code,
+          reason: (ce as unknown as { reason?: string }).reason,
+          wasClean: (ce as unknown as { wasClean?: boolean }).wasClean,
+          pcConnectionState: pc.connectionState,
+          pcIceConnectionState: pc.iceConnectionState,
+        });
+      });
+      dc.addEventListener("error", (ev) => {
+        console.error("[useRealtimeVoice] DATA CHANNEL ERROR", ev, {
+          pcConnectionState: pc.connectionState,
+          pcIceConnectionState: pc.iceConnectionState,
+        });
       });
 
       // 6. SDP exchange
@@ -351,7 +365,7 @@ export function useRealtimeVoice({
       await pc.setLocalDescription(offer);
       console.log("SDP SENT", { len: offer.sdp?.length, model });
 
-      const sdpResp = await fetch(`${REALTIME_BASE}?model=${encodeURIComponent(model)}`, {
+      const sdpResp = await fetch(`${REALTIME_CALLS}?model=${encodeURIComponent(model)}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${ephemeral}`,
