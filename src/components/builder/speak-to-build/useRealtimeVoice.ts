@@ -125,18 +125,27 @@ export function useRealtimeVoice({
     try {
       // 1. Acquire mic FIRST, before any network await, so capture is tied as
       // closely as possible to the user's original navigation gesture.
+      console.log("[useRealtimeVoice] probing mic permission…");
+      const probeStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      probeStream.getTracks().forEach((track) => track.stop());
+
       const devices = await navigator.mediaDevices.enumerateDevices();
       const audioInputs = devices.filter((d) => d.kind === "audioinput");
-      const selectedMic = audioInputs.find((d) => d.deviceId && d.deviceId !== "default") ?? audioInputs[0];
+      const selectedMic = audioInputs.find((d) => d.deviceId && d.deviceId !== "default" && d.deviceId !== "communications") ?? audioInputs[0];
+      const audioConstraints: MediaTrackConstraints = {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+      };
+      if (selectedMic?.deviceId) {
+        audioConstraints.deviceId = { exact: selectedMic.deviceId };
+      }
       console.log("AVAILABLE MICS:", audioInputs);
       console.log("USING MIC:", selectedMic);
-      console.log("[useRealtimeVoice] requesting getUserMedia…");
+      console.log("[useRealtimeVoice] requesting getUserMedia…", audioConstraints);
       const micStream = await navigator.mediaDevices.getUserMedia({
         audio: {
-          deviceId: selectedMic?.deviceId,
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
+          ...audioConstraints,
         },
       });
       micStreamRef.current = micStream;
