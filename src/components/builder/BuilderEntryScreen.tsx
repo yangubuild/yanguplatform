@@ -27,7 +27,7 @@ export function BuilderEntryScreen({ engine, onComplete, onChatPath, onAiPath, o
 
   const handleSpeak = () => {
     void prewarmRealtimeMicStream().catch((err) => {
-      console.error("[BuilderEntryScreen] mic prewarm failed", err);
+      if (import.meta.env.DEV) console.error("[BuilderEntryScreen] mic prewarm failed", err);
     });
     onSpeakPath?.();
   };
