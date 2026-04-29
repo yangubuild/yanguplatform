@@ -185,6 +185,7 @@ export function useRealtimeVoice({
   const micAudioCtxRef = useRef<AudioContext | null>(null);
   const micSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const micVolumeTimerRef = useRef<number | null>(null);
+  const outboundStatsTimerRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
   const startTimerRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
@@ -215,6 +216,10 @@ export function useRealtimeVoice({
     if (micVolumeTimerRef.current != null) {
       window.clearInterval(micVolumeTimerRef.current);
       micVolumeTimerRef.current = null;
+    }
+    if (outboundStatsTimerRef.current != null) {
+      window.clearInterval(outboundStatsTimerRef.current);
+      outboundStatsTimerRef.current = null;
     }
     try { micAudioCtxRef.current?.close(); } catch { /* ignore */ }
     try { audioCtxRef.current?.close(); } catch { /* ignore */ }
