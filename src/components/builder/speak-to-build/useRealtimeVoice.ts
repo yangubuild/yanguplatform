@@ -133,9 +133,34 @@ const createRealtimeMicStream = async () => {
 
   try {
     const refreshedInputs = await getAudioInputs();
-    const activeTrack = stream.getAudioTracks()[0];
-    const activeDeviceId = activeTrack?.getSettings?.().deviceId;
-    const activeMic = refreshedInputs.find((d) => d.deviceId === activeDeviceId) ?? null;
+    let activeTrack = stream.getAudioTracks()[0];
+    let activeDeviceId = activeTrack?.getSettings?.().deviceId;
+    const explicitMic = pickExplicitMic(refreshedInputs);
+    if (
+      explicitMic?.deviceId &&
+      explicitMic.deviceId !== "default" &&
+      explicitMic.deviceId !== "communications" &&
+      activeDeviceId !== explicitMic.deviceId
+    ) {
+      console.log("SWITCHING MIC TO EXPLICIT DEVICE:", {
+        from: activeDeviceId || "(unknown/default)",
+        to: explicitMic.deviceId,
+        label: explicitMic.label,
+      });
+      stream.getTracks().forEach((track) => track.stop());
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          deviceId: { exact: explicitMic.deviceId },
+          echoCancellation: true,
+          noiseSuppression: false,
+          autoGainControl: true,
+        },
+      });
+      sharedMicStream = stream;
+      activeTrack = stream.getAudioTracks()[0];
+      activeDeviceId = activeTrack?.getSettings?.().deviceId;
+    }
+    const activeMic = refreshedInputs.find((d) => d.deviceId === activeDeviceId) ?? explicitMic;
     console.log("AVAILABLE MICS AFTER GUM:", refreshedInputs);
     console.log("USING MIC:", activeMic ?? selectedMic, activeTrack?.getSettings?.());
   } catch (err) {
