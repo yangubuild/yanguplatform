@@ -56,6 +56,7 @@ const releaseSharedMicStream = (immediate = false) => {
   const stop = () => {
     try { sharedMicStream?.getTracks().forEach((track) => track.stop()); } catch { /* ignore */ }
     sharedMicStream = null;
+    prewarmedMicStreamPromise = null;
   };
   if (immediate) {
     stop();
