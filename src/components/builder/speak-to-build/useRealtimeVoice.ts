@@ -271,13 +271,6 @@ export function useRealtimeVoice({
       pcRef.current = pc;
       console.log("[useRealtimeVoice] RTCPeerConnection created with STUN");
 
-      // NOTE: do NOT add a recvonly transceiver here. We will add the mic
-      // track below as a sendrecv transceiver
-      // that handles BOTH directions (mic up, ADA audio down). Adding a
-      // recvonly transceiver first creates a separate m=audio section that
-      // can mask the sendrecv one in the answer, leaving the server with
-      // no inbound audio (no speech_started events ever fire).
-
       pc.addEventListener("connectionstatechange", () => {
         console.log("PC state:", pc.connectionState);
         if (pc.connectionState === "connected") {
@@ -383,7 +376,11 @@ export function useRealtimeVoice({
       });
       console.log("ADDING TRACK BEFORE OFFER");
       micTracks.forEach((track) => {
-        const sender = pc.addTrack(track, micStream);
+        const transceiver = pc.addTransceiver(track, {
+          direction: "sendrecv",
+          streams: [micStream],
+        });
+        const sender = transceiver.sender;
         console.log("addTrack sender:", {
           kind: sender.track?.kind,
           enabled: sender.track?.enabled,
@@ -678,7 +675,7 @@ export function useRealtimeVoice({
     if (!enabled) {
       stop();
     } else if (!pcRef.current && !startingRef.current) {
-      setAudioBlocked(true);
+      void start();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]);
