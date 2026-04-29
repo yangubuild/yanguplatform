@@ -80,87 +80,24 @@ const releaseSharedMicStream = (immediate = false) => {
 const createRealtimeMicStream = async () => {
   cancelSharedMicRelease();
   if (isLiveMicStream(sharedMicStream)) return sharedMicStream!;
-  // Keep this as the ONLY getUserMedia call for the initial stream. It is
-  // invoked directly from the original Speak-to-Build click via prewarm;
-  // stopping it and opening a second stream after await can produce a
-  // live-but-silent track in Chrome/Safari.
-  let audioInputs: MediaDeviceInfo[] = [];
-  let selectedMic: MediaDeviceInfo | null = null;
-  try {
-    audioInputs = await getAudioInputs();
-    selectedMic = pickExplicitMic(audioInputs);
-    console.log("AVAILABLE MICS BEFORE GUM:", audioInputs.map((device) => ({
-      label: device.label || "(label hidden — permission needed)",
-      deviceId: device.deviceId || "(empty)",
-      groupId: device.groupId || "(empty)",
-    })));
-    console.log("SELECTED MIC BEFORE GUM:", selectedMic ? {
-      label: selectedMic.label || "(label hidden — permission needed)",
-      deviceId: selectedMic.deviceId || "(empty)",
-      groupId: selectedMic.groupId || "(empty)",
-    } : null);
-  } catch (err) {
-    console.warn("[useRealtimeVoice] enumerateDevices before getUserMedia failed", err);
-  }
-
+  // IMPORTANT: this must be the first media operation in this function.
+  // Browsers tie microphone capture to the original click/tap gesture; doing
+  // enumerateDevices or opening a second stream first can produce a live but
+  // silent track even though WebRTC reports bytes being sent.
   const audioConstraints: MediaTrackConstraints = {
-    ...(selectedMic?.deviceId && selectedMic.deviceId !== "default" && selectedMic.deviceId !== "communications"
-      ? { deviceId: { exact: selectedMic.deviceId } }
-      : {}),
     echoCancellation: true,
     noiseSuppression: false,
     autoGainControl: true,
   };
   console.log("[useRealtimeVoice] requesting getUserMedia…", audioConstraints);
-  let stream: MediaStream;
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
-  } catch (err) {
-    if (selectedMic?.deviceId && selectedMic.deviceId !== "default" && selectedMic.deviceId !== "communications") {
-      console.warn("[useRealtimeVoice] selected mic unavailable, retrying without stale exact deviceId", err);
-      stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: false,
-          autoGainControl: true,
-        },
-      });
-    } else {
-      throw err;
-    }
-  }
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
   sharedMicStream = stream;
 
   try {
     const refreshedInputs = await getAudioInputs();
-    let activeTrack = stream.getAudioTracks()[0];
-    let activeDeviceId = activeTrack?.getSettings?.().deviceId;
-    const explicitMic = pickExplicitMic(refreshedInputs);
-    if (
-      explicitMic?.deviceId &&
-      explicitMic.deviceId !== "default" &&
-      explicitMic.deviceId !== "communications" &&
-      activeDeviceId !== explicitMic.deviceId
-    ) {
-      console.log("SWITCHING MIC TO EXPLICIT DEVICE:", {
-        from: activeDeviceId || "(unknown/default)",
-        to: explicitMic.deviceId,
-        label: explicitMic.label,
-      });
-      stream.getTracks().forEach((track) => track.stop());
-      stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          deviceId: { exact: explicitMic.deviceId },
-          echoCancellation: true,
-          noiseSuppression: false,
-          autoGainControl: true,
-        },
-      });
-      sharedMicStream = stream;
-      activeTrack = stream.getAudioTracks()[0];
-      activeDeviceId = activeTrack?.getSettings?.().deviceId;
-    }
-    const activeMic = refreshedInputs.find((d) => d.deviceId === activeDeviceId) ?? explicitMic;
+    const activeTrack = stream.getAudioTracks()[0];
+    const activeDeviceId = activeTrack?.getSettings?.().deviceId;
+    const activeMic = refreshedInputs.find((d) => d.deviceId === activeDeviceId) ?? pickExplicitMic(refreshedInputs);
     console.log("AVAILABLE MICS AFTER GUM:", refreshedInputs);
     console.log("USING MIC:", activeMic ?? selectedMic, activeTrack?.getSettings?.());
   } catch (err) {
