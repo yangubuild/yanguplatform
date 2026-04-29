@@ -118,7 +118,58 @@ export function useRealtimeVoice({
     const isStale = () => myStartId !== activeStartId;
     setUiState("connecting");
     try {
-      // 1. Mint ephemeral token
+      // 1. Acquire mic FIRST, before any network await, so capture is tied as
+      // closely as possible to the user's original navigation gesture.
+      const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      micStreamRef.current = micStream;
+      console.log("MIC STREAM:", micStream);
+      console.log("AUDIO TRACKS:", micStream.getAudioTracks());
+      micStream.getAudioTracks().forEach((track) => {
+        if (!track.enabled) track.enabled = true;
+        console.log("TRACK:", {
+          enabled: track.enabled,
+          muted: track.muted,
+          readyState: track.readyState,
+        });
+      });
+
+      // Audio energy detection — verify mic is actually producing signal.
+      try {
+        const AudioCtx =
+          (window as any).AudioContext || (window as any).webkitAudioContext;
+        const audioContext = new AudioCtx({ latencyHint: "interactive" } as AudioContextOptions);
+        if (audioContext.state === "suspended") {
+          await audioContext.resume();
+        }
+        const source = audioContext.createMediaStreamSource(micStream);
+        micAudioCtxRef.current = audioContext;
+        micSourceRef.current = source;
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 1024;
+        analyser.smoothingTimeConstant = 0.4;
+        source.connect(analyser);
+        const data = new Uint8Array(analyser.frequencyBinCount);
+        if (micVolumeTimerRef.current != null) {
+          window.clearInterval(micVolumeTimerRef.current);
+        }
+        micVolumeTimerRef.current = window.setInterval(() => {
+          analyser.getByteFrequencyData(data);
+          let sum = 0;
+          for (let i = 0; i < data.length; i++) sum += data[i];
+          console.log("MIC VOLUME:", sum);
+        }, 500);
+        micStream.getAudioTracks()[0]?.addEventListener("ended", () => {
+          if (micVolumeTimerRef.current != null) {
+            window.clearInterval(micVolumeTimerRef.current);
+            micVolumeTimerRef.current = null;
+          }
+          audioContext.close().catch(() => {});
+        });
+      } catch (err) {
+        console.warn("[useRealtimeVoice] mic volume analyser failed", err);
+      }
+
+      // 2. Mint ephemeral token
       const { data: tokenData, error: tokenErr } = await supabase.functions.invoke("realtime-token", {
         body: { language, voice: "marin" },
       });
@@ -237,63 +288,8 @@ export function useRealtimeVoice({
         }
       };
 
-      // 4. Mic — MUST be added BEFORE createOffer so the SDP advertises
-      // a sendrecv audio m-section. Without this OpenAI never receives
-      // user audio and no speech_started / transcription events fire.
-      const micStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          channelCount: 1,
-        },
-      });
-      micStreamRef.current = micStream;
-      console.log("MIC STREAM:", micStream);
-      console.log("AUDIO TRACKS:", micStream.getAudioTracks());
-      micStream.getAudioTracks().forEach((track) => {
-        console.log("TRACK:", {
-          enabled: track.enabled,
-          muted: track.muted,
-          readyState: track.readyState,
-        });
-      });
-      // Audio energy detection — verify mic is actually producing signal.
-      try {
-        const AudioCtx =
-          (window as any).AudioContext || (window as any).webkitAudioContext;
-        const audioContext = new AudioCtx({ latencyHint: "interactive" } as AudioContextOptions);
-        if (audioContext.state === "suspended") {
-          await audioContext.resume();
-        }
-        const source = audioContext.createMediaStreamSource(micStream);
-        micAudioCtxRef.current = audioContext;
-        micSourceRef.current = source;
-        const analyser = audioContext.createAnalyser();
-        analyser.fftSize = 1024;
-        analyser.smoothingTimeConstant = 0.4;
-        source.connect(analyser);
-        const data = new Uint8Array(analyser.frequencyBinCount);
-        if (micVolumeTimerRef.current != null) {
-          window.clearInterval(micVolumeTimerRef.current);
-        }
-        micVolumeTimerRef.current = window.setInterval(() => {
-          analyser.getByteFrequencyData(data);
-          let sum = 0;
-          for (let i = 0; i < data.length; i++) sum += data[i];
-          console.log("MIC VOLUME:", sum);
-        }, 500);
-        // Stop monitoring when track ends.
-        micStream.getAudioTracks()[0]?.addEventListener("ended", () => {
-          if (micVolumeTimerRef.current != null) {
-            window.clearInterval(micVolumeTimerRef.current);
-            micVolumeTimerRef.current = null;
-          }
-          audioContext.close().catch(() => {});
-        });
-      } catch (err) {
-        console.warn("[useRealtimeVoice] mic volume analyser failed", err);
-      }
+      // 4. Attach the already-acquired mic BEFORE createOffer so the SDP
+      // advertises a sendrecv audio m-section.
       const micTracks = micStream.getAudioTracks();
       console.log("Mic tracks acquired:", micTracks.length);
       micTracks.forEach((t, i) => {
@@ -308,16 +304,12 @@ export function useRealtimeVoice({
       });
       console.log("ADDING TRACK BEFORE OFFER");
       micTracks.forEach((track) => {
-        const transceiver = pc.addTransceiver(track, {
-          direction: "sendrecv",
-          streams: [micStream],
-        });
-        console.log("addTransceiver sender:", {
-          direction: transceiver.direction,
-          currentDirection: transceiver.currentDirection,
-          kind: transceiver.sender.track?.kind,
-          enabled: transceiver.sender.track?.enabled,
-          readyState: transceiver.sender.track?.readyState,
+        const sender = pc.addTrack(track, micStream);
+        console.log("addTrack sender:", {
+          kind: sender.track?.kind,
+          enabled: sender.track?.enabled,
+          muted: sender.track?.muted,
+          readyState: sender.track?.readyState,
         });
       });
       console.log("SENDERS AFTER ADD:", pc.getSenders());
@@ -326,7 +318,7 @@ export function useRealtimeVoice({
           console.log("SENDER TRACK:", sender.track.kind, sender.track.readyState);
         }
       });
-      console.log("TRANSCEIVERS AFTER ADD:", pc.getTransceivers().map((t) => ({
+      console.log("TRANSCEIVERS AFTER ADDTRACK:", pc.getTransceivers().map((t) => ({
         mid: t.mid,
         direction: t.direction,
         currentDirection: t.currentDirection,
@@ -335,7 +327,7 @@ export function useRealtimeVoice({
         receiverKind: t.receiver.track?.kind,
       })));
       const audioSenders = pc.getSenders().filter((s) => s.track?.kind === "audio");
-      console.log("PC audio senders after addTransceiver:", audioSenders.length);
+      console.log("PC audio senders after addTrack:", audioSenders.length);
       if (audioSenders.length === 0) {
         throw new Error("No audio sender on RTCPeerConnection — mic not attached");
       }
