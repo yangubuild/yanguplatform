@@ -161,6 +161,24 @@ export function useRealtimeVoice({
         throw new Error("No audio track on mic stream");
       }
 
+      // Diagnostic: enumerate audio input devices so we can see what the
+      // browser actually has access to.
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const mics = devices.filter((d) => d.kind === "audioinput");
+        console.log("AUDIO INPUT DEVICES:", mics.map((d) => ({
+          label: d.label || "(label hidden — permission needed)",
+          deviceId: d.deviceId.slice(0, 12) + "…",
+        })));
+      } catch (err) {
+        console.warn("[useRealtimeVoice] enumerateDevices failed", err);
+      }
+      try {
+        // @ts-expect-error - permissions API not in all TS lib versions
+        const status = await navigator.permissions?.query?.({ name: "microphone" });
+        if (status) console.log("MIC PERMISSION STATE:", status.state);
+      } catch { /* ignore */ }
+
       // Audio energy detection — verify mic is actually producing signal.
       try {
         const AudioCtx =
