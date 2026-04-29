@@ -591,6 +591,9 @@ export function useRealtimeVoice({
   // Lifecycle
   useEffect(() => {
     mountedRef.current = true;
+    // Defensively clear any stale module-level guard left by a previous
+    // mount/HMR cycle, otherwise start() will be skipped forever.
+    hasActiveSession = false;
     return () => {
       mountedRef.current = false;
       cleanup();
