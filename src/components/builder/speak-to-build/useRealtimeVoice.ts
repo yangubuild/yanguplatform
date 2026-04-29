@@ -210,7 +210,6 @@ export function useRealtimeVoice({
       // 1. Use the stream opened by the original Speak-to-Build click.
       const micStream = await takeRealtimeMicStream();
       if (isStale() || !mountedRef.current) {
-        releaseSharedMicStream();
         startingRef.current = false;
         return;
       }
