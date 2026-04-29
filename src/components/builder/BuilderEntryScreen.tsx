@@ -2,6 +2,7 @@ import { MessageSquare, Mic } from "lucide-react";
 import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
 import type { BuilderEngine } from "@/lib/builder/types";
+import { prewarmRealtimeMicStream } from "./speak-to-build/useRealtimeVoice";
 
 interface Props {
   engine: BuilderEngine;
@@ -25,6 +26,9 @@ export function BuilderEntryScreen({ engine, onComplete, onChatPath, onAiPath, o
   };
 
   const handleSpeak = () => {
+    void prewarmRealtimeMicStream().catch((err) => {
+      if (import.meta.env.DEV) console.error("[BuilderEntryScreen] mic prewarm failed", err);
+    });
     onSpeakPath?.();
   };
 
