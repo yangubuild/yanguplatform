@@ -72,11 +72,9 @@ export const prewarmRealtimeMicStream = () => {
 };
 
 const takeRealtimeMicStream = async () => {
-  const stream = prewarmedMicStreamPromise
-    ? await prewarmedMicStreamPromise
-    : await createRealtimeMicStream();
+  const pendingStream = prewarmedMicStreamPromise;
   prewarmedMicStreamPromise = null;
-  return stream;
+  return pendingStream ? await pendingStream : await createRealtimeMicStream();
 };
 
 export function useRealtimeVoice({
@@ -109,6 +107,7 @@ export function useRealtimeVoice({
   const userTranscriptBufRef = useRef<string>("");
 
   const cleanup = useCallback(() => {
+    activeStartId += 1;
     greetedRef.current = false;
     startingRef.current = false;
     hasActiveSession = false;
@@ -165,6 +164,11 @@ export function useRealtimeVoice({
     try {
       // 1. Use the stream opened by the original Speak-to-Build click.
       const micStream = await takeRealtimeMicStream();
+      if (isStale() || !mountedRef.current) {
+        micStream.getTracks().forEach((track) => track.stop());
+        startingRef.current = false;
+        return;
+      }
       micStreamRef.current = micStream;
       console.log("MIC STREAM:", micStream);
       console.log("AUDIO TRACKS:", micStream.getAudioTracks());
