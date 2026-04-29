@@ -535,7 +535,14 @@ export function useRealtimeVoice({
               type: "realtime",
               audio: {
                 input: {
-                  turn_detection: { type: "server_vad" },
+                  turn_detection: {
+                    type: "server_vad",
+                    threshold: 0.35,
+                    prefix_padding_ms: 300,
+                    silence_duration_ms: 500,
+                    create_response: true,
+                    interrupt_response: true,
+                  },
                   transcription: { model: "gpt-4o-mini-transcribe" },
                 },
               },
@@ -670,6 +677,9 @@ export function useRealtimeVoice({
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
       console.log("SDP SENT", { len: offer.sdp?.length, model });
+      if (!offer.sdp?.includes("m=audio") || !offer.sdp?.includes("a=sendrecv")) {
+        throw new Error("SDP offer does not advertise sendrecv audio");
+      }
 
       const sdpHeaders = {
         Authorization: `Bearer ${ephemeral}`,
@@ -703,6 +713,32 @@ export function useRealtimeVoice({
       await pc.setRemoteDescription(answer);
 
       console.log("[useRealtimeVoice] connected");
+      if (outboundStatsTimerRef.current != null) {
+        window.clearInterval(outboundStatsTimerRef.current);
+      }
+      outboundStatsTimerRef.current = window.setInterval(async () => {
+        try {
+          const sender = pc.getSenders().find((s) => s.track?.kind === "audio");
+          if (!sender) {
+            console.error("RTC OUTBOUND AUDIO: missing audio sender");
+            return;
+          }
+          const stats = await sender.getStats();
+          stats.forEach((report) => {
+            if (report.type === "outbound-rtp" && (report as RTCOutboundRtpStreamStats).kind === "audio") {
+              console.log("RTC OUTBOUND AUDIO:", {
+                bytesSent: (report as RTCOutboundRtpStreamStats).bytesSent,
+                packetsSent: (report as RTCOutboundRtpStreamStats).packetsSent,
+                trackEnabled: sender.track?.enabled,
+                trackMuted: sender.track?.muted,
+                trackState: sender.track?.readyState,
+              });
+            }
+          });
+        } catch (err) {
+          console.warn("[useRealtimeVoice] outbound audio stats failed", err);
+        }
+      }, 1000);
       startingRef.current = false;
 
       // Watchdog: if 8s after start we are still "connecting", surface error.
