@@ -241,6 +241,29 @@ export function useRealtimeVoice({
           readyState: track.readyState,
         });
       });
+      // Audio energy detection — verify mic is actually producing signal.
+      try {
+        const AudioCtx =
+          (window as any).AudioContext || (window as any).webkitAudioContext;
+        const audioContext = new AudioCtx();
+        const source = audioContext.createMediaStreamSource(micStream);
+        const analyser = audioContext.createAnalyser();
+        source.connect(analyser);
+        const data = new Uint8Array(analyser.frequencyBinCount);
+        const volIntervalId = window.setInterval(() => {
+          analyser.getByteFrequencyData(data);
+          let sum = 0;
+          for (let i = 0; i < data.length; i++) sum += data[i];
+          console.log("MIC VOLUME:", sum);
+        }, 500);
+        // Stop monitoring when track ends.
+        micStream.getAudioTracks()[0]?.addEventListener("ended", () => {
+          clearInterval(volIntervalId);
+          audioContext.close().catch(() => {});
+        });
+      } catch (err) {
+        console.warn("[useRealtimeVoice] mic volume analyser failed", err);
+      }
       const micTracks = micStream.getAudioTracks();
       console.log("Mic tracks acquired:", micTracks.length);
       micTracks.forEach((t, i) => {
