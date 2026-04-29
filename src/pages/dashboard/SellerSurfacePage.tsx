@@ -168,7 +168,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
 
   // Speak-to-Build path handler
   const handleSpeakPath = useCallback(() => {
-    navigate(`/dashboard/seller/${sellerKey}/speak`);
+    navigate(`/speak/seller/${sellerKey}`);
   }, [navigate, sellerKey]);
 
   /** Handle wizard/AI completion — build seed sections and navigate to editor */
