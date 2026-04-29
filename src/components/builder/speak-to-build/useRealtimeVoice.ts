@@ -54,6 +54,9 @@ export function useRealtimeVoice({
   const audioElRef = useRef<HTMLAudioElement | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const micAudioCtxRef = useRef<AudioContext | null>(null);
+  const micSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const micVolumeTimerRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
   const [audioBlocked, setAudioBlocked] = useState(false);
@@ -75,6 +78,11 @@ export function useRealtimeVoice({
     try { dcRef.current?.close(); } catch { /* ignore */ }
     try { pcRef.current?.close(); } catch { /* ignore */ }
     try { micStreamRef.current?.getTracks().forEach((t) => t.stop()); } catch { /* ignore */ }
+    if (micVolumeTimerRef.current != null) {
+      window.clearInterval(micVolumeTimerRef.current);
+      micVolumeTimerRef.current = null;
+    }
+    try { micAudioCtxRef.current?.close(); } catch { /* ignore */ }
     try { audioCtxRef.current?.close(); } catch { /* ignore */ }
     if (audioElRef.current) {
       try { audioElRef.current.pause(); } catch { /* ignore */ }
@@ -85,6 +93,8 @@ export function useRealtimeVoice({
     dcRef.current = null;
     pcRef.current = null;
     micStreamRef.current = null;
+    micSourceRef.current = null;
+    micAudioCtxRef.current = null;
     analyserRef.current = null;
     audioCtxRef.current = null;
   }, []);
