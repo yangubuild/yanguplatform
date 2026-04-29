@@ -99,7 +99,7 @@ const createRealtimeMicStream = async () => {
     const activeDeviceId = activeTrack?.getSettings?.().deviceId;
     const activeMic = refreshedInputs.find((d) => d.deviceId === activeDeviceId) ?? pickExplicitMic(refreshedInputs);
     console.log("AVAILABLE MICS AFTER GUM:", refreshedInputs);
-    console.log("USING MIC:", activeMic ?? selectedMic, activeTrack?.getSettings?.());
+    console.log("USING MIC:", activeMic, activeTrack?.getSettings?.());
   } catch (err) {
     console.warn("[useRealtimeVoice] mic device log failed", err);
   }
