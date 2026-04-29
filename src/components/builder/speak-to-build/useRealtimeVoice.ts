@@ -118,7 +118,58 @@ export function useRealtimeVoice({
     const isStale = () => myStartId !== activeStartId;
     setUiState("connecting");
     try {
-      // 1. Mint ephemeral token
+      // 1. Acquire mic FIRST, before any network await, so capture is tied as
+      // closely as possible to the user's original navigation gesture.
+      const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      micStreamRef.current = micStream;
+      console.log("MIC STREAM:", micStream);
+      console.log("AUDIO TRACKS:", micStream.getAudioTracks());
+      micStream.getAudioTracks().forEach((track) => {
+        if (!track.enabled) track.enabled = true;
+        console.log("TRACK:", {
+          enabled: track.enabled,
+          muted: track.muted,
+          readyState: track.readyState,
+        });
+      });
+
+      // Audio energy detection — verify mic is actually producing signal.
+      try {
+        const AudioCtx =
+          (window as any).AudioContext || (window as any).webkitAudioContext;
+        const audioContext = new AudioCtx({ latencyHint: "interactive" } as AudioContextOptions);
+        if (audioContext.state === "suspended") {
+          await audioContext.resume();
+        }
+        const source = audioContext.createMediaStreamSource(micStream);
+        micAudioCtxRef.current = audioContext;
+        micSourceRef.current = source;
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 1024;
+        analyser.smoothingTimeConstant = 0.4;
+        source.connect(analyser);
+        const data = new Uint8Array(analyser.frequencyBinCount);
+        if (micVolumeTimerRef.current != null) {
+          window.clearInterval(micVolumeTimerRef.current);
+        }
+        micVolumeTimerRef.current = window.setInterval(() => {
+          analyser.getByteFrequencyData(data);
+          let sum = 0;
+          for (let i = 0; i < data.length; i++) sum += data[i];
+          console.log("MIC VOLUME:", sum);
+        }, 500);
+        micStream.getAudioTracks()[0]?.addEventListener("ended", () => {
+          if (micVolumeTimerRef.current != null) {
+            window.clearInterval(micVolumeTimerRef.current);
+            micVolumeTimerRef.current = null;
+          }
+          audioContext.close().catch(() => {});
+        });
+      } catch (err) {
+        console.warn("[useRealtimeVoice] mic volume analyser failed", err);
+      }
+
+      // 2. Mint ephemeral token
       const { data: tokenData, error: tokenErr } = await supabase.functions.invoke("realtime-token", {
         body: { language, voice: "marin" },
       });
