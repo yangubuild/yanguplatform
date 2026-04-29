@@ -54,6 +54,9 @@ export function useRealtimeVoice({
   const audioElRef = useRef<HTMLAudioElement | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const micAudioCtxRef = useRef<AudioContext | null>(null);
+  const micSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const micVolumeTimerRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
   const [audioBlocked, setAudioBlocked] = useState(false);
@@ -75,6 +78,11 @@ export function useRealtimeVoice({
     try { dcRef.current?.close(); } catch { /* ignore */ }
     try { pcRef.current?.close(); } catch { /* ignore */ }
     try { micStreamRef.current?.getTracks().forEach((t) => t.stop()); } catch { /* ignore */ }
+    if (micVolumeTimerRef.current != null) {
+      window.clearInterval(micVolumeTimerRef.current);
+      micVolumeTimerRef.current = null;
+    }
+    try { micAudioCtxRef.current?.close(); } catch { /* ignore */ }
     try { audioCtxRef.current?.close(); } catch { /* ignore */ }
     if (audioElRef.current) {
       try { audioElRef.current.pause(); } catch { /* ignore */ }
@@ -85,6 +93,8 @@ export function useRealtimeVoice({
     dcRef.current = null;
     pcRef.current = null;
     micStreamRef.current = null;
+    micSourceRef.current = null;
+    micAudioCtxRef.current = null;
     analyserRef.current = null;
     audioCtxRef.current = null;
   }, []);
@@ -110,7 +120,7 @@ export function useRealtimeVoice({
     try {
       // 1. Mint ephemeral token
       const { data: tokenData, error: tokenErr } = await supabase.functions.invoke("realtime-token", {
-        body: { language, voice: "shimmer" },
+        body: { language, voice: "marin" },
       });
       if (isStale()) { console.log("[useRealtimeVoice] stale after token, abort"); return; }
       if (tokenErr) throw new Error(tokenErr.message || "Failed to mint realtime token");
@@ -132,7 +142,7 @@ export function useRealtimeVoice({
       console.log("[useRealtimeVoice] RTCPeerConnection created with STUN");
 
       // NOTE: do NOT add a recvonly transceiver here. We will add the mic
-      // track below via pc.addTrack(), which creates a sendrecv transceiver
+      // track below as a sendrecv transceiver
       // that handles BOTH directions (mic up, ADA audio down). Adding a
       // recvonly transceiver first creates a separate m=audio section that
       // can mask the sendrecv one in the answer, leaving the server with
@@ -230,7 +240,14 @@ export function useRealtimeVoice({
       // 4. Mic — MUST be added BEFORE createOffer so the SDP advertises
       // a sendrecv audio m-section. Without this OpenAI never receives
       // user audio and no speech_started / transcription events fire.
-      const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const micStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          channelCount: 1,
+        },
+      });
       micStreamRef.current = micStream;
       console.log("MIC STREAM:", micStream);
       console.log("AUDIO TRACKS:", micStream.getAudioTracks());
@@ -245,12 +262,22 @@ export function useRealtimeVoice({
       try {
         const AudioCtx =
           (window as any).AudioContext || (window as any).webkitAudioContext;
-        const audioContext = new AudioCtx();
+        const audioContext = new AudioCtx({ latencyHint: "interactive" } as AudioContextOptions);
+        if (audioContext.state === "suspended") {
+          await audioContext.resume();
+        }
         const source = audioContext.createMediaStreamSource(micStream);
+        micAudioCtxRef.current = audioContext;
+        micSourceRef.current = source;
         const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 1024;
+        analyser.smoothingTimeConstant = 0.4;
         source.connect(analyser);
         const data = new Uint8Array(analyser.frequencyBinCount);
-        const volIntervalId = window.setInterval(() => {
+        if (micVolumeTimerRef.current != null) {
+          window.clearInterval(micVolumeTimerRef.current);
+        }
+        micVolumeTimerRef.current = window.setInterval(() => {
           analyser.getByteFrequencyData(data);
           let sum = 0;
           for (let i = 0; i < data.length; i++) sum += data[i];
@@ -258,7 +285,10 @@ export function useRealtimeVoice({
         }, 500);
         // Stop monitoring when track ends.
         micStream.getAudioTracks()[0]?.addEventListener("ended", () => {
-          clearInterval(volIntervalId);
+          if (micVolumeTimerRef.current != null) {
+            window.clearInterval(micVolumeTimerRef.current);
+            micVolumeTimerRef.current = null;
+          }
           audioContext.close().catch(() => {});
         });
       } catch (err) {
@@ -277,12 +307,17 @@ export function useRealtimeVoice({
         if (!t.enabled) t.enabled = true;
       });
       console.log("ADDING TRACK BEFORE OFFER");
-      micStream.getTracks().forEach((track) => {
-        const sender = pc.addTrack(track, micStream);
-        console.log("addTrack sender:", {
-          kind: sender.track?.kind,
-          enabled: sender.track?.enabled,
-          readyState: sender.track?.readyState,
+      micTracks.forEach((track) => {
+        const transceiver = pc.addTransceiver(track, {
+          direction: "sendrecv",
+          streams: [micStream],
+        });
+        console.log("addTransceiver sender:", {
+          direction: transceiver.direction,
+          currentDirection: transceiver.currentDirection,
+          kind: transceiver.sender.track?.kind,
+          enabled: transceiver.sender.track?.enabled,
+          readyState: transceiver.sender.track?.readyState,
         });
       });
       console.log("SENDERS AFTER ADD:", pc.getSenders());
@@ -291,8 +326,16 @@ export function useRealtimeVoice({
           console.log("SENDER TRACK:", sender.track.kind, sender.track.readyState);
         }
       });
+      console.log("TRANSCEIVERS AFTER ADD:", pc.getTransceivers().map((t) => ({
+        mid: t.mid,
+        direction: t.direction,
+        currentDirection: t.currentDirection,
+        senderKind: t.sender.track?.kind,
+        senderState: t.sender.track?.readyState,
+        receiverKind: t.receiver.track?.kind,
+      })));
       const audioSenders = pc.getSenders().filter((s) => s.track?.kind === "audio");
-      console.log("PC audio senders after addTrack:", audioSenders.length);
+      console.log("PC audio senders after addTransceiver:", audioSenders.length);
       if (audioSenders.length === 0) {
         throw new Error("No audio sender on RTCPeerConnection — mic not attached");
       }
@@ -312,6 +355,7 @@ export function useRealtimeVoice({
               audio: {
                 input: {
                   turn_detection: { type: "server_vad" },
+                  transcription: { model: "gpt-4o-mini-transcribe" },
                 },
               },
             },
