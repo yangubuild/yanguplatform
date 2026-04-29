@@ -41,6 +41,18 @@ let prewarmedMicStreamPromise: Promise<MediaStream> | null = null;
 let sharedMicStream: MediaStream | null = null;
 let sharedMicReleaseTimer: number | null = null;
 
+const getAudioInputs = async () => {
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  return devices.filter((device) => device.kind === "audioinput");
+};
+
+const pickExplicitMic = (audioInputs: MediaDeviceInfo[]) => {
+  return audioInputs.find((device) => {
+    const id = device.deviceId?.toLowerCase();
+    return id && id !== "default" && id !== "communications";
+  }) ?? audioInputs[0] ?? null;
+};
+
 const isLiveMicStream = (stream: MediaStream | null) =>
   !!stream && stream.getAudioTracks().some((track) => track.readyState === "live");
 
@@ -72,23 +84,85 @@ const createRealtimeMicStream = async () => {
   // invoked directly from the original Speak-to-Build click via prewarm;
   // stopping it and opening a second stream after await can produce a
   // live-but-silent track in Chrome/Safari.
+  let audioInputs: MediaDeviceInfo[] = [];
+  let selectedMic: MediaDeviceInfo | null = null;
+  try {
+    audioInputs = await getAudioInputs();
+    selectedMic = pickExplicitMic(audioInputs);
+    console.log("AVAILABLE MICS BEFORE GUM:", audioInputs.map((device) => ({
+      label: device.label || "(label hidden — permission needed)",
+      deviceId: device.deviceId || "(empty)",
+      groupId: device.groupId || "(empty)",
+    })));
+    console.log("SELECTED MIC BEFORE GUM:", selectedMic ? {
+      label: selectedMic.label || "(label hidden — permission needed)",
+      deviceId: selectedMic.deviceId || "(empty)",
+      groupId: selectedMic.groupId || "(empty)",
+    } : null);
+  } catch (err) {
+    console.warn("[useRealtimeVoice] enumerateDevices before getUserMedia failed", err);
+  }
+
   const audioConstraints: MediaTrackConstraints = {
+    ...(selectedMic?.deviceId && selectedMic.deviceId !== "default" && selectedMic.deviceId !== "communications"
+      ? { deviceId: { exact: selectedMic.deviceId } }
+      : {}),
     echoCancellation: true,
     noiseSuppression: false,
     autoGainControl: true,
   };
   console.log("[useRealtimeVoice] requesting getUserMedia…", audioConstraints);
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+  let stream: MediaStream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+  } catch (err) {
+    if (selectedMic?.deviceId && selectedMic.deviceId !== "default" && selectedMic.deviceId !== "communications") {
+      console.warn("[useRealtimeVoice] selected mic unavailable, retrying without stale exact deviceId", err);
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: false,
+          autoGainControl: true,
+        },
+      });
+    } else {
+      throw err;
+    }
+  }
   sharedMicStream = stream;
 
   try {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const audioInputs = devices.filter((d) => d.kind === "audioinput");
-    const activeTrack = stream.getAudioTracks()[0];
-    const activeDeviceId = activeTrack?.getSettings?.().deviceId;
-    const selectedMic = audioInputs.find((d) => d.deviceId === activeDeviceId) ?? audioInputs[0];
-    console.log("AVAILABLE MICS:", audioInputs);
-    console.log("USING MIC:", selectedMic, activeTrack?.getSettings?.());
+    const refreshedInputs = await getAudioInputs();
+    let activeTrack = stream.getAudioTracks()[0];
+    let activeDeviceId = activeTrack?.getSettings?.().deviceId;
+    const explicitMic = pickExplicitMic(refreshedInputs);
+    if (
+      explicitMic?.deviceId &&
+      explicitMic.deviceId !== "default" &&
+      explicitMic.deviceId !== "communications" &&
+      activeDeviceId !== explicitMic.deviceId
+    ) {
+      console.log("SWITCHING MIC TO EXPLICIT DEVICE:", {
+        from: activeDeviceId || "(unknown/default)",
+        to: explicitMic.deviceId,
+        label: explicitMic.label,
+      });
+      stream.getTracks().forEach((track) => track.stop());
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          deviceId: { exact: explicitMic.deviceId },
+          echoCancellation: true,
+          noiseSuppression: false,
+          autoGainControl: true,
+        },
+      });
+      sharedMicStream = stream;
+      activeTrack = stream.getAudioTracks()[0];
+      activeDeviceId = activeTrack?.getSettings?.().deviceId;
+    }
+    const activeMic = refreshedInputs.find((d) => d.deviceId === activeDeviceId) ?? explicitMic;
+    console.log("AVAILABLE MICS AFTER GUM:", refreshedInputs);
+    console.log("USING MIC:", activeMic ?? selectedMic, activeTrack?.getSettings?.());
   } catch (err) {
     console.warn("[useRealtimeVoice] mic device log failed", err);
   }
@@ -136,6 +210,7 @@ export function useRealtimeVoice({
   const micAudioCtxRef = useRef<AudioContext | null>(null);
   const micSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const micVolumeTimerRef = useRef<number | null>(null);
+  const outboundStatsTimerRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
   const startTimerRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
@@ -166,6 +241,10 @@ export function useRealtimeVoice({
     if (micVolumeTimerRef.current != null) {
       window.clearInterval(micVolumeTimerRef.current);
       micVolumeTimerRef.current = null;
+    }
+    if (outboundStatsTimerRef.current != null) {
+      window.clearInterval(outboundStatsTimerRef.current);
+      outboundStatsTimerRef.current = null;
     }
     try { micAudioCtxRef.current?.close(); } catch { /* ignore */ }
     try { audioCtxRef.current?.close(); } catch { /* ignore */ }
@@ -436,6 +515,9 @@ export function useRealtimeVoice({
         });
         // Force-enable defensively.
         if (!t.enabled) t.enabled = true;
+        if (!t.enabled || t.readyState !== "live") {
+          throw new Error(`Mic track is not active before createOffer (enabled=${t.enabled}, readyState=${t.readyState})`);
+        }
       });
       console.log("ADDING TRACK BEFORE OFFER");
       micTracks.forEach((track) => {
@@ -481,7 +563,14 @@ export function useRealtimeVoice({
               type: "realtime",
               audio: {
                 input: {
-                  turn_detection: { type: "server_vad" },
+                  turn_detection: {
+                    type: "server_vad",
+                    threshold: 0.35,
+                    prefix_padding_ms: 300,
+                    silence_duration_ms: 500,
+                    create_response: true,
+                    interrupt_response: true,
+                  },
                   transcription: { model: "gpt-4o-mini-transcribe" },
                 },
               },
@@ -616,6 +705,9 @@ export function useRealtimeVoice({
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
       console.log("SDP SENT", { len: offer.sdp?.length, model });
+      if (!offer.sdp?.includes("m=audio") || !offer.sdp?.includes("a=sendrecv")) {
+        throw new Error("SDP offer does not advertise sendrecv audio");
+      }
 
       const sdpHeaders = {
         Authorization: `Bearer ${ephemeral}`,
@@ -649,6 +741,32 @@ export function useRealtimeVoice({
       await pc.setRemoteDescription(answer);
 
       console.log("[useRealtimeVoice] connected");
+      if (outboundStatsTimerRef.current != null) {
+        window.clearInterval(outboundStatsTimerRef.current);
+      }
+      outboundStatsTimerRef.current = window.setInterval(async () => {
+        try {
+          const sender = pc.getSenders().find((s) => s.track?.kind === "audio");
+          if (!sender) {
+            console.error("RTC OUTBOUND AUDIO: missing audio sender");
+            return;
+          }
+          const stats = await sender.getStats();
+          stats.forEach((report) => {
+            if (report.type === "outbound-rtp" && (report as RTCOutboundRtpStreamStats).kind === "audio") {
+              console.log("RTC OUTBOUND AUDIO:", {
+                bytesSent: (report as RTCOutboundRtpStreamStats).bytesSent,
+                packetsSent: (report as RTCOutboundRtpStreamStats).packetsSent,
+                trackEnabled: sender.track?.enabled,
+                trackMuted: sender.track?.muted,
+                trackState: sender.track?.readyState,
+              });
+            }
+          });
+        } catch (err) {
+          console.warn("[useRealtimeVoice] outbound audio stats failed", err);
+        }
+      }, 1000);
       startingRef.current = false;
 
       // Watchdog: if 8s after start we are still "connecting", surface error.
