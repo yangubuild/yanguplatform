@@ -59,7 +59,7 @@ export function useRealtimeVoice({
   const micVolumeTimerRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
-  const [audioBlocked, setAudioBlocked] = useState(false);
+  const [audioBlocked, setAudioBlocked] = useState(true);
   const startingRef = useRef(false);
   const greetedRef = useRef(false);
 
@@ -615,9 +615,13 @@ export function useRealtimeVoice({
     };
   }, [cleanup]);
 
-  /** Called from a user gesture to retry playback if autoplay was blocked. */
+  /** Called from a user gesture to start/retry audio. */
   const unlockAudio = useCallback(async () => {
     try {
+      if (!pcRef.current && !startingRef.current) {
+        await start();
+        return;
+      }
       if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
         await audioCtxRef.current.resume();
       }
@@ -628,7 +632,7 @@ export function useRealtimeVoice({
     } catch (err) {
       console.warn("[useRealtimeVoice] unlockAudio failed", err);
     }
-  }, []);
+  }, [start]);
 
   /**
    * Trigger ADA's next spoken turn with custom instructions.
@@ -652,12 +656,12 @@ export function useRealtimeVoice({
     }
   }, []);
 
-  // Start/stop on enabled flag
+  // Stop on disabled. Do NOT auto-start here: getUserMedia must run from a real tap/click.
   useEffect(() => {
-    if (enabled) {
-      void start();
-    } else {
+    if (!enabled) {
       stop();
+    } else if (!pcRef.current && !startingRef.current) {
+      setAudioBlocked(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]);
