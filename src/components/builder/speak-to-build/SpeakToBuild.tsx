@@ -433,17 +433,6 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
           onTap={voice.audioBlocked ? voice.unlockAudio : undefined}
           ariaLabel={labels.mic}
         />
-        {voice.audioBlocked && (
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
-            <Button
-              size="lg"
-              className="rounded-2xl px-6 h-12 shadow-lg"
-              onClick={(e) => { e.stopPropagation(); void voice.unlockAudio(); }}
-            >
-              Start conversation
-            </Button>
-          </div>
-        )}
       </main>
 
       {/* Bottom actions */}
