@@ -174,8 +174,9 @@ export function useRealtimeVoice({
         console.warn("[useRealtimeVoice] enumerateDevices failed", err);
       }
       try {
-        // @ts-expect-error - permissions API not in all TS lib versions
-        const status = await navigator.permissions?.query?.({ name: "microphone" });
+        const status = await navigator.permissions?.query?.(
+          { name: "microphone" as PermissionName },
+        );
         if (status) console.log("MIC PERMISSION STATE:", status.state);
       } catch { /* ignore */ }
 
