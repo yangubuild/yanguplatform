@@ -304,16 +304,12 @@ export function useRealtimeVoice({
       });
       console.log("ADDING TRACK BEFORE OFFER");
       micTracks.forEach((track) => {
-        const transceiver = pc.addTransceiver(track, {
-          direction: "sendrecv",
-          streams: [micStream],
-        });
-        console.log("addTransceiver sender:", {
-          direction: transceiver.direction,
-          currentDirection: transceiver.currentDirection,
-          kind: transceiver.sender.track?.kind,
-          enabled: transceiver.sender.track?.enabled,
-          readyState: transceiver.sender.track?.readyState,
+        const sender = pc.addTrack(track, micStream);
+        console.log("addTrack sender:", {
+          kind: sender.track?.kind,
+          enabled: sender.track?.enabled,
+          muted: sender.track?.muted,
+          readyState: sender.track?.readyState,
         });
       });
       console.log("SENDERS AFTER ADD:", pc.getSenders());
@@ -322,7 +318,7 @@ export function useRealtimeVoice({
           console.log("SENDER TRACK:", sender.track.kind, sender.track.readyState);
         }
       });
-      console.log("TRANSCEIVERS AFTER ADD:", pc.getTransceivers().map((t) => ({
+      console.log("TRANSCEIVERS AFTER ADDTRACK:", pc.getTransceivers().map((t) => ({
         mid: t.mid,
         direction: t.direction,
         currentDirection: t.currentDirection,
@@ -331,7 +327,7 @@ export function useRealtimeVoice({
         receiverKind: t.receiver.track?.kind,
       })));
       const audioSenders = pc.getSenders().filter((s) => s.track?.kind === "audio");
-      console.log("PC audio senders after addTransceiver:", audioSenders.length);
+      console.log("PC audio senders after addTrack:", audioSenders.length);
       if (audioSenders.length === 0) {
         throw new Error("No audio sender on RTCPeerConnection — mic not attached");
       }
