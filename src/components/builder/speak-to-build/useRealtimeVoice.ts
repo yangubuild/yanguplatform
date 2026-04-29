@@ -37,6 +37,47 @@ const REALTIME_CALLS = "https://api.openai.com/v1/realtime/calls";
 // mints two ephemeral tokens and creates two RTCPeerConnections in parallel.
 let activeStartId = 0;
 let hasActiveSession = false;
+let prewarmedMicStreamPromise: Promise<MediaStream> | null = null;
+
+const createRealtimeMicStream = async () => {
+  console.log("[useRealtimeVoice] probing mic permission…");
+  const probeStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  probeStream.getTracks().forEach((track) => track.stop());
+
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  const audioInputs = devices.filter((d) => d.kind === "audioinput");
+  const selectedMic = audioInputs.find((d) => d.deviceId && d.deviceId !== "default" && d.deviceId !== "communications") ?? audioInputs[0];
+  const audioConstraints: MediaTrackConstraints = {
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true,
+  };
+  if (selectedMic?.deviceId) {
+    audioConstraints.deviceId = { exact: selectedMic.deviceId };
+  }
+  console.log("AVAILABLE MICS:", audioInputs);
+  console.log("USING MIC:", selectedMic);
+  console.log("[useRealtimeVoice] requesting getUserMedia…", audioConstraints);
+  return navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+};
+
+export const prewarmRealtimeMicStream = () => {
+  if (!prewarmedMicStreamPromise) {
+    prewarmedMicStreamPromise = createRealtimeMicStream().catch((err) => {
+      prewarmedMicStreamPromise = null;
+      throw err;
+    });
+  }
+  return prewarmedMicStreamPromise;
+};
+
+const takeRealtimeMicStream = async () => {
+  const stream = prewarmedMicStreamPromise
+    ? await prewarmedMicStreamPromise
+    : await createRealtimeMicStream();
+  prewarmedMicStreamPromise = null;
+  return stream;
+};
 
 export function useRealtimeVoice({
   language = "en",
@@ -59,7 +100,7 @@ export function useRealtimeVoice({
   const micVolumeTimerRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
-  const [audioBlocked, setAudioBlocked] = useState(true);
+  const [audioBlocked, setAudioBlocked] = useState(false);
   const startingRef = useRef(false);
   const greetedRef = useRef(false);
 
@@ -109,13 +150,12 @@ export function useRealtimeVoice({
 
   const start = useCallback(async () => {
     if (pcRef.current || startingRef.current || hasActiveSession) {
-      console.warn("[useRealtimeVoice] start skipped — forcing reset", {
+      console.warn("[useRealtimeVoice] start skipped — session already active", {
         hasPc: !!pcRef.current,
         starting: startingRef.current,
         hasActiveSession,
       });
-      // Force-reset stale module-level guard from a prior mount/HMR.
-      cleanup();
+      return;
     }
     startingRef.current = true;
     hasActiveSession = true;
@@ -123,31 +163,8 @@ export function useRealtimeVoice({
     const isStale = () => myStartId !== activeStartId;
     setUiState("connecting");
     try {
-      // 1. Acquire mic FIRST, before any network await, so capture is tied as
-      // closely as possible to the user's original navigation gesture.
-      console.log("[useRealtimeVoice] probing mic permission…");
-      const probeStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      probeStream.getTracks().forEach((track) => track.stop());
-
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const audioInputs = devices.filter((d) => d.kind === "audioinput");
-      const selectedMic = audioInputs.find((d) => d.deviceId && d.deviceId !== "default" && d.deviceId !== "communications") ?? audioInputs[0];
-      const audioConstraints: MediaTrackConstraints = {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true,
-      };
-      if (selectedMic?.deviceId) {
-        audioConstraints.deviceId = { exact: selectedMic.deviceId };
-      }
-      console.log("AVAILABLE MICS:", audioInputs);
-      console.log("USING MIC:", selectedMic);
-      console.log("[useRealtimeVoice] requesting getUserMedia…", audioConstraints);
-      const micStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          ...audioConstraints,
-        },
-      });
+      // 1. Use the stream opened by the original Speak-to-Build click.
+      const micStream = await takeRealtimeMicStream();
       micStreamRef.current = micStream;
       console.log("MIC STREAM:", micStream);
       console.log("AUDIO TRACKS:", micStream.getAudioTracks());
