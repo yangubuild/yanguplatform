@@ -38,8 +38,35 @@ const REALTIME_CALLS = "https://api.openai.com/v1/realtime/calls";
 let activeStartId = 0;
 let hasActiveSession = false;
 let prewarmedMicStreamPromise: Promise<MediaStream> | null = null;
+let sharedMicStream: MediaStream | null = null;
+let sharedMicReleaseTimer: number | null = null;
+
+const isLiveMicStream = (stream: MediaStream | null) =>
+  !!stream && stream.getAudioTracks().some((track) => track.readyState === "live");
+
+const cancelSharedMicRelease = () => {
+  if (sharedMicReleaseTimer != null) {
+    window.clearTimeout(sharedMicReleaseTimer);
+    sharedMicReleaseTimer = null;
+  }
+};
+
+const releaseSharedMicStream = (immediate = false) => {
+  cancelSharedMicRelease();
+  const stop = () => {
+    try { sharedMicStream?.getTracks().forEach((track) => track.stop()); } catch { /* ignore */ }
+    sharedMicStream = null;
+  };
+  if (immediate) {
+    stop();
+  } else {
+    sharedMicReleaseTimer = window.setTimeout(stop, 3000);
+  }
+};
 
 const createRealtimeMicStream = async () => {
+  cancelSharedMicRelease();
+  if (isLiveMicStream(sharedMicStream)) return sharedMicStream!;
   // Keep this as the ONLY getUserMedia call for the initial stream. It is
   // invoked directly from the original Speak-to-Build click via prewarm;
   // stopping it and opening a second stream after await can produce a
@@ -51,6 +78,7 @@ const createRealtimeMicStream = async () => {
   };
   console.log("[useRealtimeVoice] requesting getUserMedia…", audioConstraints);
   const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+  sharedMicStream = stream;
 
   try {
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -68,6 +96,8 @@ const createRealtimeMicStream = async () => {
 };
 
 export const prewarmRealtimeMicStream = () => {
+  cancelSharedMicRelease();
+  if (isLiveMicStream(sharedMicStream)) return Promise.resolve(sharedMicStream!);
   if (!prewarmedMicStreamPromise) {
     prewarmedMicStreamPromise = createRealtimeMicStream().catch((err) => {
       prewarmedMicStreamPromise = null;
@@ -78,9 +108,12 @@ export const prewarmRealtimeMicStream = () => {
 };
 
 const takeRealtimeMicStream = async () => {
+  cancelSharedMicRelease();
+  if (isLiveMicStream(sharedMicStream)) return sharedMicStream!;
   const pendingStream = prewarmedMicStreamPromise;
-  prewarmedMicStreamPromise = null;
-  return pendingStream ? await pendingStream : await createRealtimeMicStream();
+  const stream = pendingStream ? await pendingStream : await createRealtimeMicStream();
+  sharedMicStream = stream;
+  return stream;
 };
 
 export function useRealtimeVoice({
