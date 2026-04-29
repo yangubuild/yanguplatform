@@ -232,6 +232,15 @@ export function useRealtimeVoice({
       // user audio and no speech_started / transcription events fire.
       const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       micStreamRef.current = micStream;
+      console.log("MIC STREAM:", micStream);
+      console.log("AUDIO TRACKS:", micStream.getAudioTracks());
+      micStream.getAudioTracks().forEach((track) => {
+        console.log("TRACK:", {
+          enabled: track.enabled,
+          muted: track.muted,
+          readyState: track.readyState,
+        });
+      });
       const micTracks = micStream.getAudioTracks();
       console.log("Mic tracks acquired:", micTracks.length);
       micTracks.forEach((t, i) => {
@@ -244,6 +253,7 @@ export function useRealtimeVoice({
         // Force-enable defensively.
         if (!t.enabled) t.enabled = true;
       });
+      console.log("ADDING TRACK BEFORE OFFER");
       micStream.getTracks().forEach((track) => {
         const sender = pc.addTrack(track, micStream);
         console.log("addTrack sender:", {
@@ -251,6 +261,12 @@ export function useRealtimeVoice({
           enabled: sender.track?.enabled,
           readyState: sender.track?.readyState,
         });
+      });
+      console.log("SENDERS AFTER ADD:", pc.getSenders());
+      pc.getSenders().forEach((sender) => {
+        if (sender.track) {
+          console.log("SENDER TRACK:", sender.track.kind, sender.track.readyState);
+        }
       });
       const audioSenders = pc.getSenders().filter((s) => s.track?.kind === "audio");
       console.log("PC audio senders after addTrack:", audioSenders.length);
