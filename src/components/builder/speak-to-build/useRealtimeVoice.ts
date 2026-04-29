@@ -40,25 +40,31 @@ let hasActiveSession = false;
 let prewarmedMicStreamPromise: Promise<MediaStream> | null = null;
 
 const createRealtimeMicStream = async () => {
-  console.log("[useRealtimeVoice] probing mic permission…");
-  const probeStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  probeStream.getTracks().forEach((track) => track.stop());
-
-  const devices = await navigator.mediaDevices.enumerateDevices();
-  const audioInputs = devices.filter((d) => d.kind === "audioinput");
-  const selectedMic = audioInputs.find((d) => d.deviceId && d.deviceId !== "default" && d.deviceId !== "communications") ?? audioInputs[0];
+  // Keep this as the ONLY getUserMedia call for the initial stream. It is
+  // invoked directly from the original Speak-to-Build click via prewarm;
+  // stopping it and opening a second stream after await can produce a
+  // live-but-silent track in Chrome/Safari.
   const audioConstraints: MediaTrackConstraints = {
     echoCancellation: true,
-    noiseSuppression: true,
+    noiseSuppression: false,
     autoGainControl: true,
   };
-  if (selectedMic?.deviceId) {
-    audioConstraints.deviceId = { exact: selectedMic.deviceId };
-  }
-  console.log("AVAILABLE MICS:", audioInputs);
-  console.log("USING MIC:", selectedMic);
   console.log("[useRealtimeVoice] requesting getUserMedia…", audioConstraints);
-  return navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const audioInputs = devices.filter((d) => d.kind === "audioinput");
+    const activeTrack = stream.getAudioTracks()[0];
+    const activeDeviceId = activeTrack?.getSettings?.().deviceId;
+    const selectedMic = audioInputs.find((d) => d.deviceId === activeDeviceId) ?? audioInputs[0];
+    console.log("AVAILABLE MICS:", audioInputs);
+    console.log("USING MIC:", selectedMic, activeTrack?.getSettings?.());
+  } catch (err) {
+    console.warn("[useRealtimeVoice] mic device log failed", err);
+  }
+
+  return stream;
 };
 
 export const prewarmRealtimeMicStream = () => {
