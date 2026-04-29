@@ -263,7 +263,10 @@ export function useRealtimeVoice({
       // Audio energy detection — verify mic is actually producing signal.
       try {
         const AudioCtx =
-          (window as any).AudioContext || (window as any).webkitAudioContext;
+          (window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext })
+            .AudioContext ||
+          (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        if (!AudioCtx) throw new Error("AudioContext is not supported");
         const audioContext = new AudioCtx({ latencyHint: "interactive" } as AudioContextOptions);
         if (audioContext.state === "suspended") {
           await audioContext.resume();
