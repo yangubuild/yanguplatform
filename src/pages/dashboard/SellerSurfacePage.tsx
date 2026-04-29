@@ -168,7 +168,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
 
   // Speak-to-Build path handler
   const handleSpeakPath = useCallback(() => {
-    navigate(`/dashboard/seller/${sellerKey}/speak`);
+    navigate(`/speak/seller/${sellerKey}`);
   }, [navigate, sellerKey]);
 
   /** Handle wizard/AI completion — build seed sections and navigate to editor */
@@ -276,7 +276,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
 
   // Legacy ?mode=speak → redirect to dedicated full-screen route
   if (mode === "speak") {
-    navigate(`/dashboard/seller/${sellerKey}/speak`, { replace: true });
+    navigate(`/speak/seller/${sellerKey}`, { replace: true });
     return null;
   }
 
