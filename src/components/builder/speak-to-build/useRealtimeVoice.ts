@@ -142,7 +142,7 @@ export function useRealtimeVoice({
       console.log("[useRealtimeVoice] RTCPeerConnection created with STUN");
 
       // NOTE: do NOT add a recvonly transceiver here. We will add the mic
-      // track below via pc.addTrack(), which creates a sendrecv transceiver
+      // track below as a sendrecv transceiver
       // that handles BOTH directions (mic up, ADA audio down). Adding a
       // recvonly transceiver first creates a separate m=audio section that
       // can mask the sendrecv one in the answer, leaving the server with
@@ -335,7 +335,7 @@ export function useRealtimeVoice({
         receiverKind: t.receiver.track?.kind,
       })));
       const audioSenders = pc.getSenders().filter((s) => s.track?.kind === "audio");
-      console.log("PC audio senders after addTrack:", audioSenders.length);
+      console.log("PC audio senders after addTransceiver:", audioSenders.length);
       if (audioSenders.length === 0) {
         throw new Error("No audio sender on RTCPeerConnection — mic not attached");
       }
