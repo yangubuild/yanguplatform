@@ -407,12 +407,18 @@ export function useRealtimeVoice({
       await pc.setLocalDescription(offer);
       console.log("SDP SENT", { len: offer.sdp?.length, model });
 
+      const sdpHeaders = {
+        Authorization: `Bearer ${ephemeral}`,
+        "Content-Type": "application/sdp",
+      };
+      console.log("HEADERS", {
+        Authorization: "Bearer ek_…",
+        "Content-Type": sdpHeaders["Content-Type"],
+      });
+
       const sdpResp = await fetch(`${REALTIME_CALLS}?model=${encodeURIComponent(model)}`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${ephemeral}`,
-          "Content-Type": "application/sdp",
-        },
+        headers: sdpHeaders,
         body: offer.sdp,
       });
 

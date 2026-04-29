@@ -57,12 +57,18 @@ Deno.serve(async (req) => {
       BASE_PROMPT + "\n" + (LANGUAGE_ADDONS[language] ?? LANGUAGE_ADDONS.en);
 
     // GA Realtime API: POST /v1/realtime/client_secrets with { session: {...} }
+    const openAiHeaders = {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    };
+    console.log("HEADERS", {
+      Authorization: "Bearer sk_…",
+      "Content-Type": openAiHeaders["Content-Type"],
+    });
+
     const r = await fetch("https://api.openai.com/v1/realtime/client_secrets", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
+      headers: openAiHeaders,
       body: JSON.stringify({
         session: {
           type: "realtime",
