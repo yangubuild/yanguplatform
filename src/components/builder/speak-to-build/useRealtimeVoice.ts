@@ -209,7 +209,7 @@ export function useRealtimeVoice({
       // 1. Use the stream opened by the original Speak-to-Build click.
       const micStream = await takeRealtimeMicStream();
       if (isStale() || !mountedRef.current) {
-        micStream.getTracks().forEach((track) => track.stop());
+        releaseSharedMicStream();
         startingRef.current = false;
         return;
       }
