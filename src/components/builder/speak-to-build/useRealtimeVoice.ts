@@ -109,8 +109,13 @@ export function useRealtimeVoice({
 
   const start = useCallback(async () => {
     if (pcRef.current || startingRef.current || hasActiveSession) {
-      console.log("[useRealtimeVoice] start skipped (already starting/connected)");
-      return;
+      console.warn("[useRealtimeVoice] start skipped — forcing reset", {
+        hasPc: !!pcRef.current,
+        starting: startingRef.current,
+        hasActiveSession,
+      });
+      // Force-reset stale module-level guard from a prior mount/HMR.
+      cleanup();
     }
     startingRef.current = true;
     hasActiveSession = true;
@@ -120,18 +125,60 @@ export function useRealtimeVoice({
     try {
       // 1. Acquire mic FIRST, before any network await, so capture is tied as
       // closely as possible to the user's original navigation gesture.
-      const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log("[useRealtimeVoice] requesting getUserMedia…");
+      const micStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
       micStreamRef.current = micStream;
       console.log("MIC STREAM:", micStream);
       console.log("AUDIO TRACKS:", micStream.getAudioTracks());
       micStream.getAudioTracks().forEach((track) => {
         if (!track.enabled) track.enabled = true;
         console.log("TRACK:", {
+          label: track.label,
           enabled: track.enabled,
           muted: track.muted,
           readyState: track.readyState,
         });
+        // CRITICAL: detect when OS/browser mutes the track. This is why
+        // VAD never fires even though the stream looks "live".
+        track.addEventListener("mute", () => {
+          console.error("🔇 MIC TRACK MUTED by OS/browser — no audio will reach OpenAI");
+        });
+        track.addEventListener("unmute", () => {
+          console.log("🔊 MIC TRACK UNMUTED — audio flowing");
+        });
       });
+
+      // If the track came in already muted, abort with a clear error so the
+      // user knows the mic isn't actually capturing.
+      const firstTrack = micStream.getAudioTracks()[0];
+      if (!firstTrack) {
+        throw new Error("No audio track on mic stream");
+      }
+
+      // Diagnostic: enumerate audio input devices so we can see what the
+      // browser actually has access to.
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const mics = devices.filter((d) => d.kind === "audioinput");
+        console.log("AUDIO INPUT DEVICES:", mics.map((d) => ({
+          label: d.label || "(label hidden — permission needed)",
+          deviceId: d.deviceId.slice(0, 12) + "…",
+        })));
+      } catch (err) {
+        console.warn("[useRealtimeVoice] enumerateDevices failed", err);
+      }
+      try {
+        const status = await navigator.permissions?.query?.(
+          { name: "microphone" as PermissionName },
+        );
+        if (status) console.log("MIC PERMISSION STATE:", status.state);
+      } catch { /* ignore */ }
 
       // Audio energy detection — verify mic is actually producing signal.
       try {
@@ -544,6 +591,9 @@ export function useRealtimeVoice({
   // Lifecycle
   useEffect(() => {
     mountedRef.current = true;
+    // Defensively clear any stale module-level guard left by a previous
+    // mount/HMR cycle, otherwise start() will be skipped forever.
+    hasActiveSession = false;
     return () => {
       mountedRef.current = false;
       cleanup();
