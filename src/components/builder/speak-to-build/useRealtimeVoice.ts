@@ -240,7 +240,14 @@ export function useRealtimeVoice({
       // 4. Mic — MUST be added BEFORE createOffer so the SDP advertises
       // a sendrecv audio m-section. Without this OpenAI never receives
       // user audio and no speech_started / transcription events fire.
-      const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const micStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          channelCount: 1,
+        },
+      });
       micStreamRef.current = micStream;
       console.log("MIC STREAM:", micStream);
       console.log("AUDIO TRACKS:", micStream.getAudioTracks());
@@ -255,12 +262,22 @@ export function useRealtimeVoice({
       try {
         const AudioCtx =
           (window as any).AudioContext || (window as any).webkitAudioContext;
-        const audioContext = new AudioCtx();
+        const audioContext = new AudioCtx({ latencyHint: "interactive" } as AudioContextOptions);
+        if (audioContext.state === "suspended") {
+          await audioContext.resume();
+        }
         const source = audioContext.createMediaStreamSource(micStream);
+        micAudioCtxRef.current = audioContext;
+        micSourceRef.current = source;
         const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 1024;
+        analyser.smoothingTimeConstant = 0.4;
         source.connect(analyser);
         const data = new Uint8Array(analyser.frequencyBinCount);
-        const volIntervalId = window.setInterval(() => {
+        if (micVolumeTimerRef.current != null) {
+          window.clearInterval(micVolumeTimerRef.current);
+        }
+        micVolumeTimerRef.current = window.setInterval(() => {
           analyser.getByteFrequencyData(data);
           let sum = 0;
           for (let i = 0; i < data.length; i++) sum += data[i];
@@ -268,7 +285,10 @@ export function useRealtimeVoice({
         }, 500);
         // Stop monitoring when track ends.
         micStream.getAudioTracks()[0]?.addEventListener("ended", () => {
-          clearInterval(volIntervalId);
+          if (micVolumeTimerRef.current != null) {
+            window.clearInterval(micVolumeTimerRef.current);
+            micVolumeTimerRef.current = null;
+          }
           audioContext.close().catch(() => {});
         });
       } catch (err) {
