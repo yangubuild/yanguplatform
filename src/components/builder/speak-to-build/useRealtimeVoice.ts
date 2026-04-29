@@ -275,24 +275,26 @@ export function useRealtimeVoice({
         analyser.fftSize = 1024;
         analyser.smoothingTimeConstant = 0.4;
         source.connect(analyser);
-        const data = new Uint8Array(analyser.frequencyBinCount);
+        const data = new Uint8Array(analyser.fftSize);
         let zeroVolumeTicks = 0;
         if (micVolumeTimerRef.current != null) {
           window.clearInterval(micVolumeTimerRef.current);
         }
         micVolumeTimerRef.current = window.setInterval(() => {
-          analyser.getByteFrequencyData(data);
+          analyser.getByteTimeDomainData(data);
           let sum = 0;
-          for (let i = 0; i < data.length; i++) sum += data[i];
+          for (let i = 0; i < data.length; i++) {
+            const centered = Math.abs(data[i] - 128);
+            if (centered > 2) sum += centered;
+          }
           console.log("MIC VOLUME:", sum);
           zeroVolumeTicks = sum > 0 ? 0 : zeroVolumeTicks + 1;
           if (zeroVolumeTicks === 8) {
-            console.error("[useRealtimeVoice] mic stream is silent", {
+            console.warn("[useRealtimeVoice] mic input still reads silent", {
               track: micStream.getAudioTracks()[0]?.getSettings?.(),
               muted: micStream.getAudioTracks()[0]?.muted,
               readyState: micStream.getAudioTracks()[0]?.readyState,
             });
-            onError?.(new Error("Microphone is connected but silent. Check the selected browser/system microphone."));
           }
         }, 500);
         micStream.getAudioTracks()[0]?.addEventListener("ended", () => {
@@ -434,11 +436,7 @@ export function useRealtimeVoice({
       });
       console.log("ADDING TRACK BEFORE OFFER");
       micTracks.forEach((track) => {
-        const transceiver = pc.addTransceiver(track, {
-          direction: "sendrecv",
-          streams: [micStream],
-        });
-        const sender = transceiver.sender;
+        const sender = pc.addTrack(track, micStream);
         console.log("addTrack sender:", {
           kind: sender.track?.kind,
           enabled: sender.track?.enabled,
