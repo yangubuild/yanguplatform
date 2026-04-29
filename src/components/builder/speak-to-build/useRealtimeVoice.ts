@@ -38,8 +38,36 @@ const REALTIME_CALLS = "https://api.openai.com/v1/realtime/calls";
 let activeStartId = 0;
 let hasActiveSession = false;
 let prewarmedMicStreamPromise: Promise<MediaStream> | null = null;
+let sharedMicStream: MediaStream | null = null;
+let sharedMicReleaseTimer: number | null = null;
+
+const isLiveMicStream = (stream: MediaStream | null) =>
+  !!stream && stream.getAudioTracks().some((track) => track.readyState === "live");
+
+const cancelSharedMicRelease = () => {
+  if (sharedMicReleaseTimer != null) {
+    window.clearTimeout(sharedMicReleaseTimer);
+    sharedMicReleaseTimer = null;
+  }
+};
+
+const releaseSharedMicStream = (immediate = false) => {
+  cancelSharedMicRelease();
+  const stop = () => {
+    try { sharedMicStream?.getTracks().forEach((track) => track.stop()); } catch { /* ignore */ }
+    sharedMicStream = null;
+    prewarmedMicStreamPromise = null;
+  };
+  if (immediate) {
+    stop();
+  } else {
+    sharedMicReleaseTimer = window.setTimeout(stop, 3000);
+  }
+};
 
 const createRealtimeMicStream = async () => {
+  cancelSharedMicRelease();
+  if (isLiveMicStream(sharedMicStream)) return sharedMicStream!;
   // Keep this as the ONLY getUserMedia call for the initial stream. It is
   // invoked directly from the original Speak-to-Build click via prewarm;
   // stopping it and opening a second stream after await can produce a
@@ -51,6 +79,7 @@ const createRealtimeMicStream = async () => {
   };
   console.log("[useRealtimeVoice] requesting getUserMedia…", audioConstraints);
   const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+  sharedMicStream = stream;
 
   try {
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -68,6 +97,8 @@ const createRealtimeMicStream = async () => {
 };
 
 export const prewarmRealtimeMicStream = () => {
+  cancelSharedMicRelease();
+  if (isLiveMicStream(sharedMicStream)) return Promise.resolve(sharedMicStream!);
   if (!prewarmedMicStreamPromise) {
     prewarmedMicStreamPromise = createRealtimeMicStream().catch((err) => {
       prewarmedMicStreamPromise = null;
@@ -78,9 +109,12 @@ export const prewarmRealtimeMicStream = () => {
 };
 
 const takeRealtimeMicStream = async () => {
+  cancelSharedMicRelease();
+  if (isLiveMicStream(sharedMicStream)) return sharedMicStream!;
   const pendingStream = prewarmedMicStreamPromise;
-  prewarmedMicStreamPromise = null;
-  return pendingStream ? await pendingStream : await createRealtimeMicStream();
+  const stream = pendingStream ? await pendingStream : await createRealtimeMicStream();
+  sharedMicStream = stream;
+  return stream;
 };
 
 export function useRealtimeVoice({
@@ -128,7 +162,7 @@ export function useRealtimeVoice({
     }
     try { dcRef.current?.close(); } catch { /* ignore */ }
     try { pcRef.current?.close(); } catch { /* ignore */ }
-    try { micStreamRef.current?.getTracks().forEach((t) => t.stop()); } catch { /* ignore */ }
+    releaseSharedMicStream();
     if (micVolumeTimerRef.current != null) {
       window.clearInterval(micVolumeTimerRef.current);
       micVolumeTimerRef.current = null;
@@ -176,7 +210,6 @@ export function useRealtimeVoice({
       // 1. Use the stream opened by the original Speak-to-Build click.
       const micStream = await takeRealtimeMicStream();
       if (isStale() || !mountedRef.current) {
-        micStream.getTracks().forEach((track) => track.stop());
         startingRef.current = false;
         return;
       }
@@ -230,7 +263,10 @@ export function useRealtimeVoice({
       // Audio energy detection — verify mic is actually producing signal.
       try {
         const AudioCtx =
-          (window as any).AudioContext || (window as any).webkitAudioContext;
+          (window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext })
+            .AudioContext ||
+          (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        if (!AudioCtx) throw new Error("AudioContext is not supported");
         const audioContext = new AudioCtx({ latencyHint: "interactive" } as AudioContextOptions);
         if (audioContext.state === "suspended") {
           await audioContext.resume();
@@ -242,24 +278,26 @@ export function useRealtimeVoice({
         analyser.fftSize = 1024;
         analyser.smoothingTimeConstant = 0.4;
         source.connect(analyser);
-        const data = new Uint8Array(analyser.frequencyBinCount);
+        const data = new Uint8Array(analyser.fftSize);
         let zeroVolumeTicks = 0;
         if (micVolumeTimerRef.current != null) {
           window.clearInterval(micVolumeTimerRef.current);
         }
         micVolumeTimerRef.current = window.setInterval(() => {
-          analyser.getByteFrequencyData(data);
+          analyser.getByteTimeDomainData(data);
           let sum = 0;
-          for (let i = 0; i < data.length; i++) sum += data[i];
+          for (let i = 0; i < data.length; i++) {
+            const centered = Math.abs(data[i] - 128);
+            if (centered > 2) sum += centered;
+          }
           console.log("MIC VOLUME:", sum);
           zeroVolumeTicks = sum > 0 ? 0 : zeroVolumeTicks + 1;
           if (zeroVolumeTicks === 8) {
-            console.error("[useRealtimeVoice] mic stream is silent", {
+            console.warn("[useRealtimeVoice] mic input still reads silent", {
               track: micStream.getAudioTracks()[0]?.getSettings?.(),
               muted: micStream.getAudioTracks()[0]?.muted,
               readyState: micStream.getAudioTracks()[0]?.readyState,
             });
-            onError?.(new Error("Microphone is connected but silent. Check the selected browser/system microphone."));
           }
         }, 500);
         micStream.getAudioTracks()[0]?.addEventListener("ended", () => {
@@ -401,11 +439,7 @@ export function useRealtimeVoice({
       });
       console.log("ADDING TRACK BEFORE OFFER");
       micTracks.forEach((track) => {
-        const transceiver = pc.addTransceiver(track, {
-          direction: "sendrecv",
-          streams: [micStream],
-        });
-        const sender = transceiver.sender;
+        const sender = pc.addTrack(track, micStream);
         console.log("addTrack sender:", {
           kind: sender.track?.kind,
           enabled: sender.track?.enabled,
