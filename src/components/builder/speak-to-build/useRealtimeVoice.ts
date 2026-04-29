@@ -490,6 +490,9 @@ export function useRealtimeVoice({
         });
         // Force-enable defensively.
         if (!t.enabled) t.enabled = true;
+        if (!t.enabled || t.readyState !== "live") {
+          throw new Error(`Mic track is not active before createOffer (enabled=${t.enabled}, readyState=${t.readyState})`);
+        }
       });
       console.log("ADDING TRACK BEFORE OFFER");
       micTracks.forEach((track) => {
