@@ -97,6 +97,7 @@ export function useRealtimeVoice({
   const micSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const micVolumeTimerRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
+  const startTimerRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
   const [audioBlocked, setAudioBlocked] = useState(false);
   const startingRef = useRef(false);
@@ -111,6 +112,10 @@ export function useRealtimeVoice({
     greetedRef.current = false;
     startingRef.current = false;
     hasActiveSession = false;
+    if (startTimerRef.current != null) {
+      window.clearTimeout(startTimerRef.current);
+      startTimerRef.current = null;
+    }
     if (rafRef.current != null) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
@@ -679,7 +684,10 @@ export function useRealtimeVoice({
     if (!enabled) {
       stop();
     } else if (!pcRef.current && !startingRef.current) {
-      void start();
+      startTimerRef.current = window.setTimeout(() => {
+        startTimerRef.current = null;
+        void start();
+      }, 0);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]);
