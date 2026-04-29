@@ -555,7 +555,7 @@ const App = () => (
 
                 {/* Speak to Build (full-screen voice flow, outside dashboard shell) */}
                 <Route
-                  path="/dashboard/seller/:sellerKey/speak"
+                  path="/speak/seller/:sellerKey"
                   element={
                     <ProtectedRoute>
                       <SellerSpeakToBuildPage />
