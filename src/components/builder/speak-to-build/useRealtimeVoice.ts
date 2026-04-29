@@ -243,6 +243,7 @@ export function useRealtimeVoice({
         analyser.smoothingTimeConstant = 0.4;
         source.connect(analyser);
         const data = new Uint8Array(analyser.frequencyBinCount);
+        let zeroVolumeTicks = 0;
         if (micVolumeTimerRef.current != null) {
           window.clearInterval(micVolumeTimerRef.current);
         }
@@ -251,6 +252,15 @@ export function useRealtimeVoice({
           let sum = 0;
           for (let i = 0; i < data.length; i++) sum += data[i];
           console.log("MIC VOLUME:", sum);
+          zeroVolumeTicks = sum > 0 ? 0 : zeroVolumeTicks + 1;
+          if (zeroVolumeTicks === 8) {
+            console.error("[useRealtimeVoice] mic stream is silent", {
+              track: micStream.getAudioTracks()[0]?.getSettings?.(),
+              muted: micStream.getAudioTracks()[0]?.muted,
+              readyState: micStream.getAudioTracks()[0]?.readyState,
+            });
+            onError?.(new Error("Microphone is connected but silent. Check the selected browser/system microphone."));
+          }
         }, 500);
         micStream.getAudioTracks()[0]?.addEventListener("ended", () => {
           if (micVolumeTimerRef.current != null) {
