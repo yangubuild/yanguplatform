@@ -276,7 +276,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
 
   // Legacy ?mode=speak → redirect to dedicated full-screen route
   if (mode === "speak") {
-    navigate(`/dashboard/seller/${sellerKey}/speak`, { replace: true });
+    navigate(`/speak/seller/${sellerKey}`, { replace: true });
     return null;
   }
 
