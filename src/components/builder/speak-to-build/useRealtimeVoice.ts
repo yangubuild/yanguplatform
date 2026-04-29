@@ -120,7 +120,7 @@ export function useRealtimeVoice({
     try {
       // 1. Mint ephemeral token
       const { data: tokenData, error: tokenErr } = await supabase.functions.invoke("realtime-token", {
-        body: { language, voice: "shimmer" },
+        body: { language, voice: "marin" },
       });
       if (isStale()) { console.log("[useRealtimeVoice] stale after token, abort"); return; }
       if (tokenErr) throw new Error(tokenErr.message || "Failed to mint realtime token");
@@ -355,6 +355,7 @@ export function useRealtimeVoice({
               audio: {
                 input: {
                   turn_detection: { type: "server_vad" },
+                  transcription: { model: "gpt-4o-mini-transcribe" },
                 },
               },
             },
