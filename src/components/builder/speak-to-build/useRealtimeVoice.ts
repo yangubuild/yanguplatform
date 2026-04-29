@@ -86,12 +86,16 @@ const createRealtimeMicStream = async () => {
   // silent track even though WebRTC reports bytes being sent.
   const audioConstraints: MediaTrackConstraints = {
     echoCancellation: true,
-    noiseSuppression: false,
+    noiseSuppression: true,
     autoGainControl: true,
   };
   console.log("[useRealtimeVoice] requesting getUserMedia…", audioConstraints);
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+  const stream = await navigator.mediaDevices.getUserMedia({
+    audio: audioConstraints,
+    video: false,
+  });
   sharedMicStream = stream;
+  console.log("ACTIVE MIC:", stream.getAudioTracks()[0]?.label);
 
   try {
     const refreshedInputs = await getAudioInputs();
