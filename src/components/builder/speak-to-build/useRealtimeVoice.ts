@@ -161,7 +161,7 @@ export function useRealtimeVoice({
     }
     try { dcRef.current?.close(); } catch { /* ignore */ }
     try { pcRef.current?.close(); } catch { /* ignore */ }
-    try { micStreamRef.current?.getTracks().forEach((t) => t.stop()); } catch { /* ignore */ }
+    releaseSharedMicStream();
     if (micVolumeTimerRef.current != null) {
       window.clearInterval(micVolumeTimerRef.current);
       micVolumeTimerRef.current = null;
