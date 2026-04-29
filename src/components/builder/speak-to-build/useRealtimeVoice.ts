@@ -41,6 +41,18 @@ let prewarmedMicStreamPromise: Promise<MediaStream> | null = null;
 let sharedMicStream: MediaStream | null = null;
 let sharedMicReleaseTimer: number | null = null;
 
+const getAudioInputs = async () => {
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  return devices.filter((device) => device.kind === "audioinput");
+};
+
+const pickExplicitMic = (audioInputs: MediaDeviceInfo[]) => {
+  return audioInputs.find((device) => {
+    const id = device.deviceId?.toLowerCase();
+    return id && id !== "default" && id !== "communications";
+  }) ?? audioInputs[0] ?? null;
+};
+
 const isLiveMicStream = (stream: MediaStream | null) =>
   !!stream && stream.getAudioTracks().some((track) => track.readyState === "live");
 
@@ -72,23 +84,60 @@ const createRealtimeMicStream = async () => {
   // invoked directly from the original Speak-to-Build click via prewarm;
   // stopping it and opening a second stream after await can produce a
   // live-but-silent track in Chrome/Safari.
+  let audioInputs: MediaDeviceInfo[] = [];
+  let selectedMic: MediaDeviceInfo | null = null;
+  try {
+    audioInputs = await getAudioInputs();
+    selectedMic = pickExplicitMic(audioInputs);
+    console.log("AVAILABLE MICS BEFORE GUM:", audioInputs.map((device) => ({
+      label: device.label || "(label hidden — permission needed)",
+      deviceId: device.deviceId || "(empty)",
+      groupId: device.groupId || "(empty)",
+    })));
+    console.log("SELECTED MIC BEFORE GUM:", selectedMic ? {
+      label: selectedMic.label || "(label hidden — permission needed)",
+      deviceId: selectedMic.deviceId || "(empty)",
+      groupId: selectedMic.groupId || "(empty)",
+    } : null);
+  } catch (err) {
+    console.warn("[useRealtimeVoice] enumerateDevices before getUserMedia failed", err);
+  }
+
   const audioConstraints: MediaTrackConstraints = {
+    ...(selectedMic?.deviceId && selectedMic.deviceId !== "default" && selectedMic.deviceId !== "communications"
+      ? { deviceId: { exact: selectedMic.deviceId } }
+      : {}),
     echoCancellation: true,
     noiseSuppression: false,
     autoGainControl: true,
   };
   console.log("[useRealtimeVoice] requesting getUserMedia…", audioConstraints);
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+  let stream: MediaStream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+  } catch (err) {
+    if (selectedMic?.deviceId && selectedMic.deviceId !== "default" && selectedMic.deviceId !== "communications") {
+      console.warn("[useRealtimeVoice] selected mic unavailable, retrying without stale exact deviceId", err);
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: false,
+          autoGainControl: true,
+        },
+      });
+    } else {
+      throw err;
+    }
+  }
   sharedMicStream = stream;
 
   try {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const audioInputs = devices.filter((d) => d.kind === "audioinput");
+    const refreshedInputs = await getAudioInputs();
     const activeTrack = stream.getAudioTracks()[0];
     const activeDeviceId = activeTrack?.getSettings?.().deviceId;
-    const selectedMic = audioInputs.find((d) => d.deviceId === activeDeviceId) ?? audioInputs[0];
-    console.log("AVAILABLE MICS:", audioInputs);
-    console.log("USING MIC:", selectedMic, activeTrack?.getSettings?.());
+    const activeMic = refreshedInputs.find((d) => d.deviceId === activeDeviceId) ?? null;
+    console.log("AVAILABLE MICS AFTER GUM:", refreshedInputs);
+    console.log("USING MIC:", activeMic ?? selectedMic, activeTrack?.getSettings?.());
   } catch (err) {
     console.warn("[useRealtimeVoice] mic device log failed", err);
   }
