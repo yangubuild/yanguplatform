@@ -167,11 +167,12 @@ export function useRealtimeVoice({
   const micSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const micVolumeTimerRef = useRef<number | null>(null);
   const outboundStatsTimerRef = useRef<number | null>(null);
+  const speechRecognitionRef = useRef<BrowserSpeechRecognition | null>(null);
+  const speechRecognitionRestartTimerRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
   const startTimerRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
   const [audioBlocked, setAudioBlocked] = useState(false);
-  const [needsUserStart, setNeedsUserStart] = useState(false);
   const startingRef = useRef(false);
   const greetedRef = useRef(false);
 
