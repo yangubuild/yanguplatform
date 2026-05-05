@@ -537,6 +537,26 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
           onTap={voice.audioBlocked ? voice.unlockAudio : undefined}
           ariaLabel={labels.mic}
         />
+        {step === "building" && buildTimedOut && (
+          <div className="absolute inset-x-6 bottom-8 text-center">
+            <p className="text-sm text-muted-foreground mb-3">
+              Build is taking longer than expected — tap here to try again.
+            </p>
+            <Button
+              variant="default"
+              size="lg"
+              className="rounded-2xl px-6 h-12"
+              onClick={(e) => {
+                e.stopPropagation();
+                setBuildTimedOut(false);
+                buildTriggeredRef.current = false;
+                setStep("style");
+              }}
+            >
+              Retry build
+            </Button>
+          </div>
+        )}
       </main>
 
       {/* Bottom actions */}
