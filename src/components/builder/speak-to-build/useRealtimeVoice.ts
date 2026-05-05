@@ -661,21 +661,10 @@ export function useRealtimeVoice({
       }
       outboundStatsTimerRef.current = window.setInterval(async () => {
         try {
-          const sender = pc.getSenders().find((s) => s.track?.kind === "audio");
-          if (!sender) {
-            console.error("RTC OUTBOUND AUDIO: missing audio sender");
-            return;
-          }
-          const stats = await sender.getStats();
+          const stats = await pc.getStats();
           stats.forEach((report) => {
             if (report.type === "outbound-rtp" && (report as RTCOutboundRtpStreamStats).kind === "audio") {
-              console.log("RTC OUTBOUND AUDIO:", {
-                bytesSent: (report as RTCOutboundRtpStreamStats).bytesSent,
-                packetsSent: (report as RTCOutboundRtpStreamStats).packetsSent,
-                trackEnabled: sender.track?.enabled,
-                trackMuted: sender.track?.muted,
-                trackState: sender.track?.readyState,
-              });
+              console.log("AUDIO BYTES SENT:", (report as RTCOutboundRtpStreamStats).bytesSent);
             }
           });
         } catch (err) {
