@@ -7,6 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
 import { sanitizeEditorHtml } from "@/lib/builder/editorHtml";
+import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
+import { renderToStaticMarkup } from "react-dom/server";
 import { EditorColorPickerDialog } from "@/components/builder-new/EditorColorPickerDialog";
 import { EditorImagePickerDialog } from "@/components/builder-new/EditorImagePickerDialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,7 +20,7 @@ import {
 } from "lucide-react";
 import { useAdaBuilderChat } from "@/components/builder-new/ada/useAdaBuilderChat";
 import { AdaBuilderPanel } from "@/components/builder-new/ada/AdaBuilderPanel";
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, createElement, Fragment } from "react";
 import { EditablePreview } from "@/components/builder-new/EditablePreview";
 import { EditorToolsPanel } from "@/components/builder-new/EditorToolsPanel";
 import { EmenuEditorPanel } from "@/components/builder-new/EmenuEditorPanel";
@@ -351,7 +353,43 @@ export default function EmenuNewEditor() {
 
   // Load HTML when page/surface changes
   useEffect(() => {
-    if (!currentPageSavedHtml) { setLiveHtml(null); return; }
+    if (!currentPageSavedHtml) {
+      // Fallback: compile JSON sections from builder_sections into HTML so the
+      // editor canvas loads with AI-built content even after stale-HTML cleanup.
+      const pageSections = activePage?.sections || sections || [];
+      if (pageSections.length > 0) {
+        try {
+          const children = pageSections
+            .filter((s: any) => s.is_visible !== false)
+            .map((s: any, i: number) => {
+              const Preview = PREVIEW_MAP[s.section_type];
+              if (!Preview) return null;
+              return createElement(
+                "section",
+                {
+                  key: `${s.section_type}-${i}`,
+                  "data-section-type": s.section_type,
+                  "data-section-id": s.id,
+                },
+                createElement(Preview as any, { schema: s.schema || {} }),
+              );
+            })
+            .filter(Boolean);
+          const inner = renderToStaticMarkup(
+            createElement(Fragment, null, ...children),
+          );
+          const compiled = `<div class="yangu-compiled-canvas">${inner}</div>`;
+          setLiveHtml(compiled);
+          initHistory(compiled);
+          setHasUnsavedChanges(true);
+          return;
+        } catch (err) {
+          console.warn("Failed to compile sections to HTML", err);
+        }
+      }
+      setLiveHtml(null);
+      return;
+    }
 
     if (currentPageSavedHtml.includes("blob:")) {
       (async () => {
@@ -374,7 +412,7 @@ export default function EmenuNewEditor() {
       setLiveHtml(currentPageSavedHtml);
       initHistory(currentPageSavedHtml);
     }
-  }, [currentPageSavedHtml, activePageId]);
+  }, [currentPageSavedHtml, activePageId, activePage, sections, initHistory]);
 
 
   const saveHtml = useCallback(async (html: string) => {
