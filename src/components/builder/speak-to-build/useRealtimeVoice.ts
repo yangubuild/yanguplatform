@@ -976,9 +976,30 @@ export function useRealtimeVoice({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]);
 
+  const selectMicDevice = useCallback((deviceId: string | null) => {
+    const resolve = pendingMicResolveRef.current;
+    pendingMicResolveRef.current = null;
+    if (mountedRef.current) setNeedsMicPicker(false);
+    if (resolve) resolve(deviceId);
+  }, []);
+
   // Stable return shape: same keys every render, regardless of state.
   return useMemo(
-    () => ({ uiState, level, start, stop, audioBlocked, unlockAudio, sendInstruction }),
-    [uiState, level, start, stop, audioBlocked, unlockAudio, sendInstruction],
+    () => ({
+      uiState,
+      level,
+      start,
+      stop,
+      audioBlocked,
+      unlockAudio,
+      sendInstruction,
+      needsMicPicker,
+      micDevices,
+      selectMicDevice,
+    }),
+    [
+      uiState, level, start, stop, audioBlocked, unlockAudio, sendInstruction,
+      needsMicPicker, micDevices, selectMicDevice,
+    ],
   );
 }
