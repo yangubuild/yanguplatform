@@ -280,9 +280,16 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
 
   // ---- Build trigger ----------------------------------------------------
   const buildTriggeredRef = useRef(false);
+  const [buildTimedOut, setBuildTimedOut] = useState(false);
   useEffect(() => {
     if (step !== "building" || buildTriggeredRef.current) return;
     buildTriggeredRef.current = true;
+
+    // FIX 2: Fully terminate voice session before build starts.
+    // 1) Clear any pending audio buffer over the data channel
+    // 2) Close data channel + RTCPeerConnection cleanly via voice.stop()
+    try { voice.sendRaw({ type: "input_audio_buffer.clear" }); } catch { /* ignore */ }
+    try { voice.stop(); } catch { /* ignore */ }
 
     const buildLine = getCopy(language, "building");
     logTurn("assistant", buildLine);
@@ -308,6 +315,11 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     };
 
     (async () => {
+      // FIX 3: Build timeout watchdog — if not navigated within 30s, surface retry.
+      const timeoutId = window.setTimeout(() => {
+        setBuildTimedOut(true);
+      }, 30000);
+
       let draftResult: Record<string, unknown> | null = null;
       try {
         const { data, error } = await supabase.functions.invoke(
@@ -383,6 +395,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
 
       return Promise.resolve(onComplete(draftResult))
       .then(async () => {
+        window.clearTimeout(timeoutId);
         // Completion line + brief pause + fade to editor.
         const done: Record<AdaLanguage, string> = {
           en: "Your website is ready.",
@@ -402,13 +415,14 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         toast.success("Built with Speak to Build");
       })
       .catch((err) => {
+        window.clearTimeout(timeoutId);
         console.error("[SpeakToBuild] build failed:", err);
         toast.error("Build failed — please try again.");
         buildTriggeredRef.current = false;
         setStep("style");
       });
     })();
-  }, [step, answers, onComplete, language, logTurn]);
+  }, [step, answers, onComplete, language, logTurn, voice]);
 
   // ---- cleanup on unmount ----------------------------------------------
   // CRITICAL: `voice` identity changes ~60×/sec (audio level updates).
@@ -523,6 +537,26 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
           onTap={voice.audioBlocked ? voice.unlockAudio : undefined}
           ariaLabel={labels.mic}
         />
+        {step === "building" && buildTimedOut && (
+          <div className="absolute inset-x-6 bottom-8 text-center">
+            <p className="text-sm text-muted-foreground mb-3">
+              Build is taking longer than expected — tap here to try again.
+            </p>
+            <Button
+              variant="default"
+              size="lg"
+              className="rounded-2xl px-6 h-12"
+              onClick={(e) => {
+                e.stopPropagation();
+                setBuildTimedOut(false);
+                buildTriggeredRef.current = false;
+                setStep("style");
+              }}
+            >
+              Retry build
+            </Button>
+          </div>
+        )}
       </main>
 
       {/* Bottom actions */}
