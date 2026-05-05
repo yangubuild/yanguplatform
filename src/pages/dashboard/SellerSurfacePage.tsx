@@ -1,3 +1,5 @@
+// ARCHITECTURE RULE: generateWebsiteVariants() MUST be called before initAndNavigate().
+// AI fills content only. Templates render layout. Never pass seedSections as layout source.
 import { useCallback } from "react";
 import { useBuilderSurfaceInit } from "@/hooks/useBuilderSurfaceInit";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,6 +10,17 @@ import { BuilderEntryScreen } from "@/components/builder/BuilderEntryScreen";
 import { BuilderAiOnboarding } from "@/components/builder/BuilderAiOnboarding";
 import { mergeIntoDefault } from "@/lib/builderDefaults";
 import BuilderNewPage from "@/pages/BuilderNewPage";
+import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteGenerator";
+import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
+
+const DEFAULT_TEMPLATE_KEY: Record<string, string> = {
+  eshop: "eshop_aema",
+  emenu: "emenu_plateria",
+  estore: "eshop_aema",
+  esite: "",
+  influencer: "",
+  community: "",
+};
 
 /** Map legacy seller keys → engine keys */
 const SELLER_KEY_MAP: Record<string, string> = {
@@ -237,6 +250,31 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
       };
     }
 
+    // Templates are the ONLY source of layout. Render real template HTML.
+    const templateKey = DEFAULT_TEMPLATE_KEY[engineKey] ?? "";
+    if (templateKey) {
+      const variants = generateWebsiteVariants({
+        category: engineKey as never,
+        businessName,
+        location: String(answers.location || ""),
+        scope: String(answers.scope || "showcase"),
+        style: templateKey,
+        styleSpecific: "",
+        sections: [],
+        deliveryApps: [],
+        userIdea: String(answers.business_description || ""),
+        userLogoUrl: typeof answers.logo_url === "string" ? answers.logo_url : undefined,
+        userBrandColors: [primaryColor],
+        userImages: [],
+      });
+      let templateHtml = variants[0] || "";
+      try {
+        if (templateHtml) templateHtml = await persistBlobUrls(templateHtml, user.id);
+      } catch { /* keep original */ }
+      metadata.builder_new_template = templateKey;
+      metadata.builder_new_html = templateHtml;
+    }
+
     return initAndNavigate({
       surfaceType: engine.surfaceType,
       slug,
@@ -244,7 +282,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
       seedSections,
       metadata,
     });
-  }, [user, engine, initAndNavigate]);
+  }, [user, engine, engineKey, initAndNavigate]);
 
   if (!engine) {
     return (

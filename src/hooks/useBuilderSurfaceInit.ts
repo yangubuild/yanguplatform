@@ -165,25 +165,29 @@ export function useBuilderSurfaceInit() {
           sectionTypes: sections.map((section) => section.type),
         });
 
-        // Clear stale HTML so a fresh AI build doesn't get overwritten by
-        // legacy canvas HTML during publish.
+        // Clear stale HTML ONLY if the caller did not provide fresh template HTML.
+        // ARCHITECTURE RULE: Templates are the source of layout. If metadata
+        // includes builder_new_html, keep it.
         try {
-          const { data: surfaceRow } = await supabase
-            .from("builder_surfaces")
-            .select("metadata")
-            .eq("id", surfaceId)
-            .single();
-          const meta = ((surfaceRow?.metadata as Record<string, unknown>) || {}) as Record<string, unknown>;
-          const cleared: Record<string, unknown> = {
-            ...meta,
-            builder_new_html: null,
-            pages_html: {},
-          };
-          await supabase
-            .from("builder_surfaces")
-            .update({ metadata: cleared as unknown as Json })
-            .eq("id", surfaceId);
-          console.log("AI_CLEAR_STALE_HTML", { surfaceId });
+          const incomingHtml = (opts.metadata as Record<string, unknown> | undefined)?.builder_new_html;
+          if (!incomingHtml) {
+            const { data: surfaceRow } = await supabase
+              .from("builder_surfaces")
+              .select("metadata")
+              .eq("id", surfaceId)
+              .single();
+            const meta = ((surfaceRow?.metadata as Record<string, unknown>) || {}) as Record<string, unknown>;
+            const cleared: Record<string, unknown> = {
+              ...meta,
+              builder_new_html: null,
+              pages_html: {},
+            };
+            await supabase
+              .from("builder_surfaces")
+              .update({ metadata: cleared as unknown as Json })
+              .eq("id", surfaceId);
+            console.log("AI_CLEAR_STALE_HTML", { surfaceId });
+          }
         } catch (clearErr) {
           console.warn("AI_CLEAR_STALE_HTML_FAILED", clearErr);
         }
