@@ -213,6 +213,11 @@ export function useRealtimeVoice({
   const startingRef = useRef(false);
   const greetedRef = useRef(false);
 
+  // Mic device picker state — surfaced when energy probe finds zero signal.
+  const [needsMicPicker, setNeedsMicPicker] = useState(false);
+  const [micDevices, setMicDevices] = useState<MicPickerDevice[]>([]);
+  const pendingMicResolveRef = useRef<((id: string | null) => void) | null>(null);
+
   // Per-turn buffers
   const assistantTextBufRef = useRef<string>("");
   const userTranscriptBufRef = useRef<string>("");
