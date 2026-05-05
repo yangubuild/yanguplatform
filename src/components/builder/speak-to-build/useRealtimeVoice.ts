@@ -343,7 +343,6 @@ export function useRealtimeVoice({
         }
         if (
           pc.connectionState === "failed" ||
-          pc.connectionState === "disconnected" ||
           pc.connectionState === "closed"
         ) {
           if (mountedRef.current && pc === pcRef.current) {
@@ -769,17 +768,14 @@ export function useRealtimeVoice({
     if (!enabled) {
       stop();
     } else if (!pcRef.current && !startingRef.current) {
-      startTimerRef.current = window.setTimeout(() => {
-        startTimerRef.current = null;
-        void start();
-      }, 0);
+      setNeedsUserStart(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]);
 
   // Stable return shape: same keys every render, regardless of state.
   return useMemo(
-    () => ({ uiState, level, start, stop, audioBlocked, unlockAudio, sendInstruction }),
-    [uiState, level, start, stop, audioBlocked, unlockAudio, sendInstruction],
+    () => ({ uiState, level, start, stop, audioBlocked, needsUserStart, unlockAudio, sendInstruction }),
+    [uiState, level, start, stop, audioBlocked, needsUserStart, unlockAudio, sendInstruction],
   );
 }
