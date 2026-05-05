@@ -412,7 +412,7 @@ export default function EmenuNewEditor() {
       setLiveHtml(currentPageSavedHtml);
       initHistory(currentPageSavedHtml);
     }
-  }, [currentPageSavedHtml, activePageId]);
+  }, [currentPageSavedHtml, activePageId, activePage, sections, initHistory]);
 
 
   const saveHtml = useCallback(async (html: string) => {
