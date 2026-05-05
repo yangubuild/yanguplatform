@@ -1,10 +1,9 @@
+// HTML snapshot publishing is retired. All surfaces render from compiled JSON sections in published_schema only. Do not re-introduce emenu_html or builder_new_html rendering.
 import { useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { usePublicCommerceConfig } from "@/hooks/useSurfaceCommerceConfig";
 import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
-import { PublishedEmenuFrame } from "@/components/routing/PublishedEmenuFrame";
 import { PublicCommerceShell } from "@/components/commerce/PublicCommerceShell";
 import { YanguBadge } from "@/components/routing/YanguBadge";
 import { DEFAULT_THEME, type BuilderTheme } from "@/components/builder/BuilderSettingsDrawer";
@@ -17,8 +16,8 @@ import { Loader2 } from "lucide-react";
 
 /**
  * Public published page renderer.
- * For emenu surfaces: renders the exact published HTML in an iframe with commerce overlays.
- * For other surfaces: reads from builder_get_public_schema RPC with React commerce shell.
+ * All surfaces render from compiled JSON sections in published_schema via the React
+ * commerce shell. HTML snapshot rendering is retired.
  */
 export default function PublicSurfacePage() {
   const location = useLocation();
@@ -46,9 +45,6 @@ export default function PublicSurfacePage() {
   });
 
   const surfaceType = (data?.published_schema?.surface as any)?.surface_type;
-  // Unified HTML render path: any surface that has published canvas HTML uses the iframe path.
-  const publishedEmenuHtml =
-    ((data?.published_schema?.surface as any)?.emenu_html as string | null) || null;
 
   const surfaceData = (data?.published_schema?.surface || {}) as any;
   const pageTitle = surfaceData.seo_title || surfaceData.title || "Untitled";
@@ -97,36 +93,8 @@ export default function PublicSurfacePage() {
     return <PublicNotFound host={host} slug={pathSlug} />;
   }
 
-  // ═══ Unified HTML iframe + commerce shell (all surfaces with published canvas HTML) ═══
+  // JSON-section render path is the only publish renderer for all surface types.
   const pubSurfaceType = surfaceData.surface_type;
-
-  // Compute JSON sections first — if present, prefer them over legacy HTML so freshly
-  // built AI sections always win over any stale canvas HTML.
-  const schemaForPriority = data.published_schema;
-  const pageForPriority = schemaForPriority.pages?.[0];
-  const sectionsForPriority = pageForPriority?.sections ?? [];
-  const hasJsonSections = sectionsForPriority.length > 0;
-
-  if (publishedEmenuHtml && !hasJsonSections) {
-    return (
-      <EmenuPublicView
-        surfaceId={surfaceId}
-        ownerId={ownerId}
-        businessName={businessName}
-        publishedEmenuHtml={publishedEmenuHtml}
-        pageTitle={pageTitle}
-        faviconUrl={faviconUrl || null}
-        showBadge={showBadge}
-        surfaceType={surfaceType}
-      />
-    );
-  }
-
-  if (pubSurfaceType === "emenu" && !hasJsonSections) {
-    return <PublicNotFound host={host} slug={pathSlug} message="This menu needs to be republished." />;
-  }
-
-  // ═══ Non-emenu surfaces ═══
   const schema = data.published_schema;
   const page = schema.pages?.[0];
   const rawSections = page?.sections
