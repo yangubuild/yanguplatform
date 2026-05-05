@@ -24,6 +24,9 @@ import { toast } from "sonner";
 import { resolveLanguage, type AdaLanguage } from "@/lib/voice/languageDetect";
 import { useRealtimeVoice } from "./useRealtimeVoice";
 import { VoiceOrb } from "./VoiceOrb";
+import { supabase } from "@/integrations/supabase/client";
+import { getEngine } from "@/lib/builder/engineRegistry";
+import { validateDraft } from "@/lib/builder/aiPipeline";
 import {
   ACTION_LABELS,
   STYLE_OPTIONS,
@@ -229,6 +232,19 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         handleTextAnswer(text);
       } else {
         logTurn("assistant", text);
+        // Build-handoff trigger: ADA confirms intake is complete.
+        if (
+          /\b(building|creating|generating)\b[^.]{0,40}\b(your|the)\b[^.]{0,20}\b(shop|store|site|menu|page|website)\b/i.test(
+            text,
+          ) ||
+          /\b(let's build|let me build|i('?ll| will) build|now building)\b/i.test(text)
+        ) {
+          if (stepRef.current !== "building" && stepRef.current !== "done") {
+            console.log("[SpeakToBuild] build trigger phrase detected →", text);
+            pendingNextPromptRef.current = null;
+            setStep("building");
+          }
+        }
       }
     },
     [handleTextAnswer, logTurn],
@@ -268,30 +284,104 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     if (step !== "building" || buildTriggeredRef.current) return;
     buildTriggeredRef.current = true;
 
-    // Speak "I'm building your website now." then run the build.
     const buildLine = getCopy(language, "building");
     logTurn("assistant", buildLine);
-    // Realtime session is stopped at this point; surface the line via toast.
     toast.info(buildLine);
 
-    const payload: Record<string, unknown> = {
+    // Same request shape as the chat builder uses (BuilderAiOnboarding).
+    const engineKey = answers.category || "eshop";
+    const engine = getEngine(engineKey);
+    const allowedTypes =
+      engine?.aiGenerationRules?.allowedSectionTypes || ["hero", "text", "contact"];
+
+    const aiAnswers: Record<string, unknown> = {
       business_name: answers.business_name || "Untitled",
-      display_name: answers.business_name || "Untitled",
-      community_name: answers.business_name || "Untitled",
       business_description: answers.business_description,
       industry: answers.category || "",
       location: answers.location,
       primary_color: answers.primary_color,
-      _speak_to_build: true,
-      _speak_language: answers.language,
-      _speak_style: answers.style,
-      _speak_has_logo: answers.has_logo,
-      _speak_wants_ai_logo: answers.wants_ai_logo,
-      _speak_brand_colors: answers.brand_colors,
-      _speak_category: answers.category,
+      style: answers.style,
+      brand_colors: answers.brand_colors,
+      has_logo: answers.has_logo,
+      wants_ai_logo: answers.wants_ai_logo,
+      language: answers.language,
     };
 
-    Promise.resolve(onComplete(payload))
+    (async () => {
+      let draftResult: Record<string, unknown> | null = null;
+      try {
+        const { data, error } = await supabase.functions.invoke(
+          "builder-ai-generate-draft",
+          {
+            body: {
+              engineKey,
+              answers: aiAnswers,
+              allowedSectionTypes: allowedTypes,
+              source: "speak_to_build",
+            },
+          },
+        );
+        if (error) throw new Error(error.message);
+        if (!data?.ok) throw new Error(data?.error || "Generation failed");
+
+        const validation = validateDraft(
+          engineKey,
+          (data.sections || []).map((s: { type: string; schema?: Record<string, unknown> }) => ({
+            type: s.type,
+            schema: s.schema || {},
+          })),
+        );
+        const businessName =
+          (data.business_name as string) ||
+          (aiAnswers.business_name as string) ||
+          "Untitled";
+
+        draftResult = {
+          ...aiAnswers,
+          business_name: businessName,
+          display_name: businessName,
+          community_name: businessName,
+          business_description: (data.description as string) || aiAnswers.business_description || "",
+          primary_color: (data.primary_color as string) || answers.primary_color || "#2563eb",
+          slug: String(businessName)
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)/g, "")
+            .slice(0, 40),
+          _ai_setup: true,
+          _ai_source: "speak_to_build",
+          _ai_sections: validation.cleanedSections,
+          _ai_repairs: validation.repairs,
+          _ai_answers: aiAnswers,
+          _ai_profile: {
+            businessName,
+            description: (data.description as string) || "",
+            primaryColor: (data.primary_color as string) || "#2563eb",
+            source: "speak_to_build",
+          },
+          _speak_to_build: true,
+          _speak_language: answers.language,
+          _speak_style: answers.style,
+          _speak_category: answers.category,
+        };
+      } catch (err) {
+        console.warn("[SpeakToBuild] AI draft generation failed, falling back:", err);
+        draftResult = {
+          business_name: answers.business_name || "Untitled",
+          display_name: answers.business_name || "Untitled",
+          community_name: answers.business_name || "Untitled",
+          business_description: answers.business_description,
+          industry: answers.category || "",
+          location: answers.location,
+          primary_color: answers.primary_color,
+          _speak_to_build: true,
+          _speak_language: answers.language,
+          _speak_style: answers.style,
+          _speak_category: answers.category,
+        };
+      }
+
+      return Promise.resolve(onComplete(draftResult))
       .then(async () => {
         // Completion line + brief pause + fade to editor.
         const done: Record<AdaLanguage, string> = {
@@ -310,7 +400,6 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         setFadingOut(true);
         await new Promise((r) => setTimeout(r, 300));
         toast.success("Built with Speak to Build");
-        // Parent's onComplete already handled navigation; nothing to do here.
       })
       .catch((err) => {
         console.error("[SpeakToBuild] build failed:", err);
@@ -318,6 +407,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         buildTriggeredRef.current = false;
         setStep("style");
       });
+    })();
   }, [step, answers, onComplete, language, logTurn]);
 
   // ---- cleanup on unmount ----------------------------------------------
@@ -379,7 +469,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
 
   // ---- header status ----------------------------------------------------
   const status = useMemo(() => {
-    if (step === "building") return labels.build + "…";
+    if (step === "building") return "Building your shop…";
     if (step === "done") return labels.next;
     switch (voice.uiState) {
       case "speaking":  return "ADA is speaking…";
