@@ -100,7 +100,14 @@ export default function PublicSurfacePage() {
   // ═══ Unified HTML iframe + commerce shell (all surfaces with published canvas HTML) ═══
   const pubSurfaceType = surfaceData.surface_type;
 
-  if (publishedEmenuHtml) {
+  // Compute JSON sections first — if present, prefer them over legacy HTML so freshly
+  // built AI sections always win over any stale canvas HTML.
+  const schemaForPriority = data.published_schema;
+  const pageForPriority = schemaForPriority.pages?.[0];
+  const sectionsForPriority = pageForPriority?.sections ?? [];
+  const hasJsonSections = sectionsForPriority.length > 0;
+
+  if (publishedEmenuHtml && !hasJsonSections) {
     return (
       <EmenuPublicView
         surfaceId={surfaceId}
@@ -115,7 +122,7 @@ export default function PublicSurfacePage() {
     );
   }
 
-  if (pubSurfaceType === "emenu") {
+  if (pubSurfaceType === "emenu" && !hasJsonSections) {
     return <PublicNotFound host={host} slug={pathSlug} message="This menu needs to be republished." />;
   }
 
