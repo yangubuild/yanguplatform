@@ -130,6 +130,7 @@ export function useRealtimeVoice({
   const startTimerRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
   const [audioBlocked, setAudioBlocked] = useState(false);
+  const [needsUserStart, setNeedsUserStart] = useState(false);
   const startingRef = useRef(false);
   const greetedRef = useRef(false);
 
@@ -187,6 +188,7 @@ export function useRealtimeVoice({
   }, [cleanup]);
 
   const start = useCallback(async () => {
+    setNeedsUserStart(false);
     if (pcRef.current || startingRef.current || hasActiveSession) {
       console.warn("[useRealtimeVoice] start skipped — session already active", {
         hasPc: !!pcRef.current,
