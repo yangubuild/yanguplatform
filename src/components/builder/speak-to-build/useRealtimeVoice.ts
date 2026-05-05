@@ -850,26 +850,22 @@ export function useRealtimeVoice({
     }
   }, []);
 
-  // Stop on disabled. Do NOT auto-start here: getUserMedia must run from a real tap/click.
+  // Start from the prewarmed stream captured by the original Speak-to-Build click.
   useEffect(() => {
     if (!enabled) {
       stop();
     } else if (!pcRef.current && !startingRef.current) {
-      if (isLiveMicStream(sharedMicStream) || prewarmedMicStreamPromise) {
-        startTimerRef.current = window.setTimeout(() => {
-          startTimerRef.current = null;
-          void start();
-        }, 0);
-      } else {
-        setNeedsUserStart(true);
-      }
+      startTimerRef.current = window.setTimeout(() => {
+        startTimerRef.current = null;
+        void start();
+      }, 0);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]);
 
   // Stable return shape: same keys every render, regardless of state.
   return useMemo(
-    () => ({ uiState, level, start, stop, audioBlocked, needsUserStart, unlockAudio, sendInstruction }),
-    [uiState, level, start, stop, audioBlocked, needsUserStart, unlockAudio, sendInstruction],
+    () => ({ uiState, level, start, stop, audioBlocked, unlockAudio, sendInstruction }),
+    [uiState, level, start, stop, audioBlocked, unlockAudio, sendInstruction],
   );
 }
