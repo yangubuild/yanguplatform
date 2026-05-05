@@ -204,6 +204,12 @@ export function useRealtimeVoice({
       window.clearInterval(outboundStatsTimerRef.current);
       outboundStatsTimerRef.current = null;
     }
+    if (speechRecognitionRestartTimerRef.current != null) {
+      window.clearTimeout(speechRecognitionRestartTimerRef.current);
+      speechRecognitionRestartTimerRef.current = null;
+    }
+    try { speechRecognitionRef.current?.abort(); } catch { /* ignore */ }
+    speechRecognitionRef.current = null;
     try { micAudioCtxRef.current?.close(); } catch { /* ignore */ }
     try { audioCtxRef.current?.close(); } catch { /* ignore */ }
     if (audioElRef.current) {
