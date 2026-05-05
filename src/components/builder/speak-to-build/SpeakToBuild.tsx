@@ -456,6 +456,40 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
           Open Chat
         </Button>
       </footer>
+
+      {voice.needsMicPicker && (
+        <div className="fixed inset-0 z-[60] bg-background/80 backdrop-blur-sm flex items-center justify-center p-6">
+          <div className="w-full max-w-sm rounded-lg border bg-card text-card-foreground shadow-lg p-5">
+            <h2 className="text-lg font-medium">Choose your microphone</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              We didn't hear any audio from your current mic. Pick a different input device.
+            </p>
+            <div className="mt-4 flex flex-col gap-2 max-h-64 overflow-y-auto">
+              {voice.micDevices.length === 0 && (
+                <p className="text-sm text-muted-foreground">No input devices found.</p>
+              )}
+              {voice.micDevices.map((d) => (
+                <button
+                  key={d.deviceId}
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); voice.selectMicDevice(d.deviceId); }}
+                  className="w-full text-left rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
+                >
+                  {d.label}
+                </button>
+              ))}
+            </div>
+            <div className="mt-4 flex justify-end">
+              <Button
+                variant="ghost"
+                onClick={(e) => { e.stopPropagation(); voice.selectMicDevice(null); }}
+              >
+                Skip
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
