@@ -18,6 +18,8 @@ import { supabase } from "@/integrations/supabase/client";
 export type RealtimeUiState = "idle" | "connecting" | "listening" | "speaking" | "thinking" | "error";
 export type RealtimeRole = "assistant" | "user";
 
+export type MicPickerDevice = { deviceId: string; label: string };
+
 type BrowserSpeechRecognitionResult = {
   isFinal: boolean;
   0?: { transcript?: string };
@@ -126,6 +128,41 @@ const createRealtimeMicStream = async () => {
   return stream;
 };
 
+/**
+ * Poll an AnalyserNode for ~3s. Returns true if any frequency byte > 5
+ * (i.e. the mic is producing real acoustic energy, not pure silence).
+ */
+const probeMicEnergy = async (stream: MediaStream): Promise<boolean> => {
+  const Ctx: typeof AudioContext | undefined =
+    (window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext })
+      .AudioContext ||
+    (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!Ctx) return true; // can't probe → assume ok
+  const ac = new Ctx();
+  try {
+    if (ac.state === "suspended") await ac.resume().catch(() => {});
+    const analyser = ac.createAnalyser();
+    analyser.fftSize = 1024;
+    ac.createMediaStreamSource(stream).connect(analyser);
+    const buf = new Uint8Array(analyser.frequencyBinCount);
+    let gotSignal = false;
+    let peak = 0;
+    for (let i = 0; i < 30; i++) {
+      await new Promise((r) => setTimeout(r, 100));
+      analyser.getByteFrequencyData(buf);
+      for (let j = 0; j < buf.length; j++) {
+        if (buf[j] > peak) peak = buf[j];
+        if (buf[j] > 5) { gotSignal = true; break; }
+      }
+      if (gotSignal) break;
+    }
+    console.log("[useRealtimeVoice] mic energy probe", { gotSignal, peak });
+    return gotSignal;
+  } finally {
+    try { await ac.close(); } catch { /* ignore */ }
+  }
+};
+
 export const prewarmRealtimeMicStream = () => {
   cancelSharedMicRelease();
   if (isLiveMicStream(sharedMicStream)) return Promise.resolve(sharedMicStream!);
@@ -176,6 +213,11 @@ export function useRealtimeVoice({
   const startingRef = useRef(false);
   const greetedRef = useRef(false);
 
+  // Mic device picker state — surfaced when energy probe finds zero signal.
+  const [needsMicPicker, setNeedsMicPicker] = useState(false);
+  const [micDevices, setMicDevices] = useState<MicPickerDevice[]>([]);
+  const pendingMicResolveRef = useRef<((id: string | null) => void) | null>(null);
+
   // Per-turn buffers
   const assistantTextBufRef = useRef<string>("");
   const userTranscriptBufRef = useRef<string>("");
@@ -185,6 +227,10 @@ export function useRealtimeVoice({
     greetedRef.current = false;
     startingRef.current = false;
     hasActiveSession = false;
+    if (pendingMicResolveRef.current) {
+      try { pendingMicResolveRef.current(null); } catch { /* ignore */ }
+      pendingMicResolveRef.current = null;
+    }
     if (startTimerRef.current != null) {
       window.clearTimeout(startTimerRef.current);
       startTimerRef.current = null;
@@ -303,6 +349,70 @@ export function useRealtimeVoice({
         );
         if (status) console.log("MIC PERMISSION STATE:", status.state);
       } catch { /* ignore */ }
+
+      // Energy probe: ensure the mic is actually producing signal. If not,
+      // surface a device picker so the user can choose a different input.
+      let activeMicStream: MediaStream = micStream;
+      const initialEnergy = await probeMicEnergy(activeMicStream);
+      if (isStale() || !mountedRef.current) {
+        startingRef.current = false;
+        hasActiveSession = false;
+        return;
+      }
+      if (!initialEnergy) {
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const mics: MicPickerDevice[] = devices
+            .filter((d) => d.kind === "audioinput")
+            .map((d, idx) => ({
+              deviceId: d.deviceId,
+              label: d.label || `Microphone ${idx + 1}`,
+            }));
+          if (mics.length > 1) {
+            const chosenId = await new Promise<string | null>((resolve) => {
+              pendingMicResolveRef.current = resolve;
+              if (mountedRef.current) {
+                setMicDevices(mics);
+                setNeedsMicPicker(true);
+              }
+            });
+            if (mountedRef.current) {
+              setNeedsMicPicker(false);
+            }
+            if (isStale() || !mountedRef.current) {
+              startingRef.current = false;
+              hasActiveSession = false;
+              return;
+            }
+            if (chosenId) {
+              try {
+                // Drop the silent stream and re-acquire from the chosen device.
+                releaseSharedMicStream(true);
+                const replacement = await navigator.mediaDevices.getUserMedia({
+                  audio: { deviceId: { exact: chosenId } },
+                  video: false,
+                });
+                sharedMicStream = replacement;
+                activeMicStream = replacement;
+                micStreamRef.current = replacement;
+                const newTrack = replacement.getAudioTracks()[0];
+                console.log("[useRealtimeVoice] picker chose mic", {
+                  label: newTrack?.label,
+                  deviceId: chosenId.slice(0, 12) + "…",
+                });
+                const recheck = await probeMicEnergy(replacement);
+                console.log("[useRealtimeVoice] picker re-verify energy:", recheck);
+              } catch (err) {
+                console.warn("[useRealtimeVoice] picker getUserMedia failed", err);
+              }
+            }
+          } else {
+            console.warn("[useRealtimeVoice] silent mic but no alternate audioinput devices to pick");
+          }
+        } catch (err) {
+          console.warn("[useRealtimeVoice] mic picker enumeration failed", err);
+        }
+      }
 
       // Audio energy detection — verify mic is actually producing signal.
       try {
@@ -516,7 +626,7 @@ export function useRealtimeVoice({
 
       // 4. Attach the already-acquired mic BEFORE createOffer so the SDP
       // advertises a sendrecv audio m-section.
-      const micTracks = micStream.getAudioTracks();
+      const micTracks = activeMicStream.getAudioTracks();
       console.log("Mic tracks acquired:", micTracks.length);
       micTracks.forEach((t, i) => {
         console.log(`Mic track[${i}]`, {
@@ -533,7 +643,7 @@ export function useRealtimeVoice({
       });
       console.log("ADDING TRACK BEFORE OFFER");
       micTracks.forEach((track) => {
-        const sender = pc.addTrack(track, micStream);
+        const sender = pc.addTrack(track, activeMicStream);
         console.log("addTrack sender:", {
           kind: sender.track?.kind,
           enabled: sender.track?.enabled,
@@ -866,9 +976,30 @@ export function useRealtimeVoice({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]);
 
+  const selectMicDevice = useCallback((deviceId: string | null) => {
+    const resolve = pendingMicResolveRef.current;
+    pendingMicResolveRef.current = null;
+    if (mountedRef.current) setNeedsMicPicker(false);
+    if (resolve) resolve(deviceId);
+  }, []);
+
   // Stable return shape: same keys every render, regardless of state.
   return useMemo(
-    () => ({ uiState, level, start, stop, audioBlocked, unlockAudio, sendInstruction }),
-    [uiState, level, start, stop, audioBlocked, unlockAudio, sendInstruction],
+    () => ({
+      uiState,
+      level,
+      start,
+      stop,
+      audioBlocked,
+      unlockAudio,
+      sendInstruction,
+      needsMicPicker,
+      micDevices,
+      selectMicDevice,
+    }),
+    [
+      uiState, level, start, stop, audioBlocked, unlockAudio, sendInstruction,
+      needsMicPicker, micDevices, selectMicDevice,
+    ],
   );
 }
