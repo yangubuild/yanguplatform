@@ -18,6 +18,8 @@ import { supabase } from "@/integrations/supabase/client";
 export type RealtimeUiState = "idle" | "connecting" | "listening" | "speaking" | "thinking" | "error";
 export type RealtimeRole = "assistant" | "user";
 
+export type MicPickerDevice = { deviceId: string; label: string };
+
 type BrowserSpeechRecognitionResult = {
   isFinal: boolean;
   0?: { transcript?: string };
