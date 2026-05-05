@@ -227,6 +227,10 @@ export function useRealtimeVoice({
     greetedRef.current = false;
     startingRef.current = false;
     hasActiveSession = false;
+    if (pendingMicResolveRef.current) {
+      try { pendingMicResolveRef.current(null); } catch { /* ignore */ }
+      pendingMicResolveRef.current = null;
+    }
     if (startTimerRef.current != null) {
       window.clearTimeout(startTimerRef.current);
       startTimerRef.current = null;
