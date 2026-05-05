@@ -1,3 +1,5 @@
+// ARCHITECTURE RULE: generateWebsiteVariants() MUST be called before initAndNavigate().
+// AI fills content only. Templates render layout. Never pass seedSections as layout source.
 import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -6,6 +8,18 @@ import { useBuilderSurfaceInit } from "@/hooks/useBuilderSurfaceInit";
 import { getEngine } from "@/lib/builder/engineRegistry";
 import { SpeakToBuild } from "@/components/builder/speak-to-build/SpeakToBuild";
 import { mergeIntoDefault } from "@/lib/builderDefaults";
+import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteGenerator";
+import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
+import { supabase } from "@/integrations/supabase/client";
+
+const DEFAULT_TEMPLATE_KEY: Record<string, string> = {
+  eshop: "eshop_aema",
+  emenu: "emenu_plateria",
+  estore: "eshop_aema",
+  esite: "",
+  influencer: "",
+  community: "",
+};
 
 const SELLER_KEY_MAP: Record<string, string> = {
   emenu: "emenu",
@@ -65,6 +79,28 @@ export default function SellerSpeakToBuildPage() {
           }
           return { type: s.type, schema, core_slot: s.core_slot };
         });
+
+    // Templates are the ONLY source of layout. Render real template HTML now.
+    const templateKey = DEFAULT_TEMPLATE_KEY[engineKey] ?? "";
+    const variants = generateWebsiteVariants({
+      category: engineKey as never,
+      businessName,
+      location: String(answers.location || ""),
+      scope: String(answers.scope || "showcase"),
+      style: templateKey,
+      styleSpecific: "",
+      sections: [],
+      deliveryApps: [],
+      userIdea: String(answers.business_description || ""),
+      userLogoUrl: typeof answers.logo_url === "string" ? answers.logo_url : undefined,
+      userBrandColors: [String(answers.primary_color || "#2563eb")],
+      userImages: [],
+    });
+    let templateHtml = variants[0] || "";
+    try {
+      if (templateHtml) templateHtml = await persistBlobUrls(templateHtml, user.id);
+    } catch { /* keep original */ }
+
     return initAndNavigate({
       surfaceType: engine.surfaceType,
       slug,
@@ -77,9 +113,11 @@ export default function SellerSpeakToBuildPage() {
         ai_source: typeof answers._ai_source === "string" ? answers._ai_source : "speak_to_build",
         ai_answers: answers._ai_answers || {},
         ai_profile: answers._ai_profile || {},
+        builder_new_template: templateKey || "default",
+        builder_new_html: templateHtml,
       },
     });
-  }, [engine, user, initAndNavigate]);
+  }, [engine, engineKey, user, initAndNavigate]);
 
   if (!engine) {
     return (
