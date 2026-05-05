@@ -205,12 +205,16 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
       }
 
       const sanitizedHtml = sanitizeEditorHtml(resolvedHtml);
-      if (!sanitizedHtml) {
-        throw new Error("Couldn't find the latest page content to publish.");
+      // Only write emenu_html when there is real, fresh canvas HTML.
+      // If empty/null, leave it absent so the JSON-section render path takes over.
+      if (sanitizedHtml && sanitizedHtml.trim().length > 0) {
+        // Field name kept as `emenu_html` for runtime compatibility; semantically this is the
+        // unified published canvas HTML for any surface type.
+        updatedSurface.emenu_html = sanitizedHtml;
+      } else {
+        // Ensure no stale HTML survives from a prior publish.
+        delete (updatedSurface as Record<string, unknown>).emenu_html;
       }
-      // Field name kept as `emenu_html` for runtime compatibility; semantically this is the
-      // unified published canvas HTML for any surface type.
-      updatedSurface.emenu_html = sanitizedHtml;
     }
 
     // 7. Write updated schema back
