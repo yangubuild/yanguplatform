@@ -353,7 +353,43 @@ export default function EmenuNewEditor() {
 
   // Load HTML when page/surface changes
   useEffect(() => {
-    if (!currentPageSavedHtml) { setLiveHtml(null); return; }
+    if (!currentPageSavedHtml) {
+      // Fallback: compile JSON sections from builder_sections into HTML so the
+      // editor canvas loads with AI-built content even after stale-HTML cleanup.
+      const pageSections = activePage?.sections || sections || [];
+      if (pageSections.length > 0) {
+        try {
+          const children = pageSections
+            .filter((s: any) => s.is_visible !== false)
+            .map((s: any, i: number) => {
+              const Preview = PREVIEW_MAP[s.section_type];
+              if (!Preview) return null;
+              return createElement(
+                "section",
+                {
+                  key: `${s.section_type}-${i}`,
+                  "data-section-type": s.section_type,
+                  "data-section-id": s.id,
+                },
+                createElement(Preview as any, { schema: s.schema || {} }),
+              );
+            })
+            .filter(Boolean);
+          const inner = renderToStaticMarkup(
+            createElement(Fragment, null, ...children),
+          );
+          const compiled = `<div class="yangu-compiled-canvas">${inner}</div>`;
+          setLiveHtml(compiled);
+          initHistory(compiled);
+          setHasUnsavedChanges(true);
+          return;
+        } catch (err) {
+          console.warn("Failed to compile sections to HTML", err);
+        }
+      }
+      setLiveHtml(null);
+      return;
+    }
 
     if (currentPageSavedHtml.includes("blob:")) {
       (async () => {
