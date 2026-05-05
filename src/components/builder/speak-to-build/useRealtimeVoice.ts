@@ -207,6 +207,7 @@ export function useRealtimeVoice({
       const micStream = await takeRealtimeMicStream();
       if (isStale() || !mountedRef.current) {
         startingRef.current = false;
+        hasActiveSession = false;
         return;
       }
       micStreamRef.current = micStream;
@@ -311,7 +312,12 @@ export function useRealtimeVoice({
       const { data: tokenData, error: tokenErr } = await supabase.functions.invoke("realtime-token", {
         body: { language, voice: "marin" },
       });
-      if (isStale()) { console.log("[useRealtimeVoice] stale after token, abort"); return; }
+      if (isStale()) {
+        console.log("[useRealtimeVoice] stale after token, abort");
+        startingRef.current = false;
+        hasActiveSession = false;
+        return;
+      }
       if (tokenErr) throw new Error(tokenErr.message || "Failed to mint realtime token");
       const ephemeral: string | undefined = tokenData?.client_secret;
       const model: string = tokenData?.model || "gpt-realtime";
@@ -648,7 +654,12 @@ export function useRealtimeVoice({
       }
 
       const answerSdp = await sdpResp.text();
-      if (isStale()) { console.log("[useRealtimeVoice] stale after SDP answer, abort"); return; }
+      if (isStale()) {
+        console.log("[useRealtimeVoice] stale after SDP answer, abort");
+        startingRef.current = false;
+        hasActiveSession = false;
+        return;
+      }
       if (!answerSdp.startsWith("v=")) {
         console.error("Invalid SDP answer (does not start with 'v='):", answerSdp.slice(0, 200));
         throw new Error("Invalid SDP answer from Realtime API");
