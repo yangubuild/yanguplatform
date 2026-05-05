@@ -126,6 +126,41 @@ const createRealtimeMicStream = async () => {
   return stream;
 };
 
+/**
+ * Poll an AnalyserNode for ~3s. Returns true if any frequency byte > 5
+ * (i.e. the mic is producing real acoustic energy, not pure silence).
+ */
+const probeMicEnergy = async (stream: MediaStream): Promise<boolean> => {
+  const Ctx: typeof AudioContext | undefined =
+    (window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext })
+      .AudioContext ||
+    (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!Ctx) return true; // can't probe → assume ok
+  const ac = new Ctx();
+  try {
+    if (ac.state === "suspended") await ac.resume().catch(() => {});
+    const analyser = ac.createAnalyser();
+    analyser.fftSize = 1024;
+    ac.createMediaStreamSource(stream).connect(analyser);
+    const buf = new Uint8Array(analyser.frequencyBinCount);
+    let gotSignal = false;
+    let peak = 0;
+    for (let i = 0; i < 30; i++) {
+      await new Promise((r) => setTimeout(r, 100));
+      analyser.getByteFrequencyData(buf);
+      for (let j = 0; j < buf.length; j++) {
+        if (buf[j] > peak) peak = buf[j];
+        if (buf[j] > 5) { gotSignal = true; break; }
+      }
+      if (gotSignal) break;
+    }
+    console.log("[useRealtimeVoice] mic energy probe", { gotSignal, peak });
+    return gotSignal;
+  } finally {
+    try { await ac.close(); } catch { /* ignore */ }
+  }
+};
+
 export const prewarmRealtimeMicStream = () => {
   cancelSharedMicRelease();
   if (isLiveMicStream(sharedMicStream)) return Promise.resolve(sharedMicStream!);
