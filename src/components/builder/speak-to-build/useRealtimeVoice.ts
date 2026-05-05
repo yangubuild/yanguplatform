@@ -386,7 +386,10 @@ export function useRealtimeVoice({
       const SpeechRecognitionCtor = getBrowserSpeechRecognition();
       if (SpeechRecognitionCtor) {
         try {
-          speechRecognitionRestartTimerRef.current && window.clearTimeout(speechRecognitionRestartTimerRef.current);
+          if (speechRecognitionRestartTimerRef.current != null) {
+            window.clearTimeout(speechRecognitionRestartTimerRef.current);
+            speechRecognitionRestartTimerRef.current = null;
+          }
           try { speechRecognitionRef.current?.abort(); } catch { /* ignore */ }
           const recognition = new SpeechRecognitionCtor();
           recognition.continuous = true;
