@@ -7,8 +7,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
 import { sanitizeEditorHtml } from "@/lib/builder/editorHtml";
-import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
-import { renderToStaticMarkup } from "react-dom/server";
 import { EditorColorPickerDialog } from "@/components/builder-new/EditorColorPickerDialog";
 import { EditorImagePickerDialog } from "@/components/builder-new/EditorImagePickerDialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,7 +18,7 @@ import {
 } from "lucide-react";
 import { useAdaBuilderChat } from "@/components/builder-new/ada/useAdaBuilderChat";
 import { AdaBuilderPanel } from "@/components/builder-new/ada/AdaBuilderPanel";
-import { useState, useCallback, useEffect, useRef, createElement, Fragment } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { EditablePreview } from "@/components/builder-new/EditablePreview";
 import { EditorToolsPanel } from "@/components/builder-new/EditorToolsPanel";
 import { EmenuEditorPanel } from "@/components/builder-new/EmenuEditorPanel";
@@ -354,39 +352,6 @@ export default function EmenuNewEditor() {
   // Load HTML when page/surface changes
   useEffect(() => {
     if (!currentPageSavedHtml) {
-      // Fallback: compile JSON sections from builder_sections into HTML so the
-      // editor canvas loads with AI-built content even after stale-HTML cleanup.
-      const pageSections = activePage?.sections || sections || [];
-      if (pageSections.length > 0) {
-        try {
-          const children = pageSections
-            .filter((s: any) => s.is_visible !== false)
-            .map((s: any, i: number) => {
-              const Preview = PREVIEW_MAP[s.section_type];
-              if (!Preview) return null;
-              return createElement(
-                "section",
-                {
-                  key: `${s.section_type}-${i}`,
-                  "data-section-type": s.section_type,
-                  "data-section-id": s.id,
-                },
-                createElement(Preview as any, { schema: s.schema || {} }),
-              );
-            })
-            .filter(Boolean);
-          const inner = renderToStaticMarkup(
-            createElement(Fragment, null, ...children),
-          );
-          const compiled = `<div class="yangu-compiled-canvas">${inner}</div>`;
-          setLiveHtml(compiled);
-          initHistory(compiled);
-          setHasUnsavedChanges(true);
-          return;
-        } catch (err) {
-          console.warn("Failed to compile sections to HTML", err);
-        }
-      }
       setLiveHtml(null);
       return;
     }
@@ -412,7 +377,7 @@ export default function EmenuNewEditor() {
       setLiveHtml(currentPageSavedHtml);
       initHistory(currentPageSavedHtml);
     }
-  }, [currentPageSavedHtml, activePageId, activePage, sections, initHistory]);
+  }, [currentPageSavedHtml, activePageId, initHistory]);
 
 
   const saveHtml = useCallback(async (html: string) => {
@@ -1486,8 +1451,8 @@ export default function EmenuNewEditor() {
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="max-w-md w-full p-8 text-center space-y-4">
           <AlertTriangle className="h-10 w-10 text-warning mx-auto" />
-          <h1 className="text-xl font-bold">No generated page found</h1>
-          <p className="text-sm text-muted-foreground">This surface doesn't have a generated template page yet.</p>
+          <h1 className="text-xl font-bold">No template loaded</h1>
+          <p className="text-sm text-muted-foreground">No template loaded — please rebuild from the dashboard.</p>
           <Button variant="outline" onClick={() => navigate("/dashboard")}>
             <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
           </Button>
