@@ -164,6 +164,29 @@ export function useBuilderSurfaceInit() {
           sectionCount: sections.length,
           sectionTypes: sections.map((section) => section.type),
         });
+
+        // Clear stale HTML so a fresh AI build doesn't get overwritten by
+        // legacy canvas HTML during publish.
+        try {
+          const { data: surfaceRow } = await supabase
+            .from("builder_surfaces")
+            .select("metadata")
+            .eq("id", surfaceId)
+            .single();
+          const meta = ((surfaceRow?.metadata as Record<string, unknown>) || {}) as Record<string, unknown>;
+          const cleared: Record<string, unknown> = {
+            ...meta,
+            builder_new_html: null,
+            pages_html: {},
+          };
+          await supabase
+            .from("builder_surfaces")
+            .update({ metadata: cleared as unknown as Json })
+            .eq("id", surfaceId);
+          console.log("AI_CLEAR_STALE_HTML", { surfaceId });
+        } catch (clearErr) {
+          console.warn("AI_CLEAR_STALE_HTML_FAILED", clearErr);
+        }
       };
 
       // Prevent concurrent init calls (React StrictMode double-effect, rapid re-renders)
