@@ -1005,6 +1005,20 @@ export function useRealtimeVoice({
     }
   }, []);
 
+  /**
+   * Send a raw event over the data channel (e.g. input_audio_buffer.clear).
+   * No-op if the data channel is not open.
+   */
+  const sendRaw = useCallback((event: Record<string, unknown>) => {
+    const dc = dcRef.current;
+    if (!dc || dc.readyState !== "open") return;
+    try {
+      dc.send(JSON.stringify(event));
+    } catch (err) {
+      console.warn("[useRealtimeVoice] sendRaw failed", err);
+    }
+  }, []);
+
   // Start from the prewarmed stream captured by the original Speak-to-Build click.
   useEffect(() => {
     if (!enabled) {
@@ -1035,12 +1049,13 @@ export function useRealtimeVoice({
       audioBlocked,
       unlockAudio,
       sendInstruction,
+      sendRaw,
       needsMicPicker,
       micDevices,
       selectMicDevice,
     }),
     [
-      uiState, level, start, stop, audioBlocked, unlockAudio, sendInstruction,
+      uiState, level, start, stop, audioBlocked, unlockAudio, sendInstruction, sendRaw,
       needsMicPicker, micDevices, selectMicDevice,
     ],
   );
