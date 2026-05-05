@@ -230,7 +230,6 @@ export function useRealtimeVoice({
   }, [cleanup]);
 
   const start = useCallback(async () => {
-    setNeedsUserStart(false);
     if (pcRef.current || startingRef.current || hasActiveSession) {
       console.warn("[useRealtimeVoice] start skipped — session already active", {
         hasPc: !!pcRef.current,
@@ -377,6 +376,46 @@ export function useRealtimeVoice({
       });
       pcRef.current = pc;
       console.log("[useRealtimeVoice] RTCPeerConnection created with STUN");
+
+      const SpeechRecognitionCtor = getBrowserSpeechRecognition();
+      if (SpeechRecognitionCtor) {
+        try {
+          speechRecognitionRestartTimerRef.current && window.clearTimeout(speechRecognitionRestartTimerRef.current);
+          try { speechRecognitionRef.current?.abort(); } catch { /* ignore */ }
+          const recognition = new SpeechRecognitionCtor();
+          recognition.continuous = true;
+          recognition.interimResults = true;
+          recognition.maxAlternatives = 1;
+          recognition.lang = SPEECH_RECOGNITION_LANG[language] ?? SPEECH_RECOGNITION_LANG.en;
+          recognition.onresult = (event) => {
+            let finalTranscript = "";
+            for (let i = event.resultIndex; i < event.results.length; i += 1) {
+              const result = event.results[i];
+              if (result?.isFinal) finalTranscript += result[0]?.transcript || "";
+            }
+            const transcript = finalTranscript.trim();
+            if (transcript) {
+              console.log("USER SAID:", transcript);
+              onMessage?.(transcript, "user");
+              if (mountedRef.current) setUiState("thinking");
+            }
+          };
+          recognition.onerror = (event) => {
+            console.warn("[useRealtimeVoice] browser speech recognition error", event.error);
+          };
+          recognition.onend = () => {
+            if (!mountedRef.current || pcRef.current !== pc) return;
+            speechRecognitionRestartTimerRef.current = window.setTimeout(() => {
+              try { recognition.start(); } catch { /* already started or unavailable */ }
+            }, 350);
+          };
+          recognition.start();
+          speechRecognitionRef.current = recognition;
+          console.log("[useRealtimeVoice] browser speech recognition fallback started");
+        } catch (err) {
+          console.warn("[useRealtimeVoice] browser speech recognition fallback failed", err);
+        }
+      }
 
       pc.addEventListener("connectionstatechange", () => {
         console.log("PC state:", pc.connectionState);
