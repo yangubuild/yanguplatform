@@ -99,7 +99,12 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   // Unified HTML render path: any surface that has published canvas HTML uses the iframe path.
   const publishedEmenuHtml = (surfaceMeta.emenu_html as string | null) || null;
 
-  if (publishedEmenuHtml) {
+  // Prefer JSON sections over legacy canvas HTML so freshly built AI sections
+  // always win over any stale published HTML.
+  const sectionsForPriority = page?.sections ?? [];
+  const hasJsonSections = sectionsForPriority.length > 0;
+
+  if (publishedEmenuHtml && !hasJsonSections) {
     const surfaceId = surfaceMeta.id || "";
     const ownerId = surfaceMeta.user_id || "";
     const businessName = surfaceMeta.title || "";
@@ -117,7 +122,7 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
     );
   }
 
-  if (surfaceType === "emenu") {
+  if (surfaceType === "emenu" && !hasJsonSections) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
         <Layout className="h-12 w-12 text-muted-foreground" />
