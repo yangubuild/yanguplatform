@@ -39,16 +39,32 @@ export default function SellerSpeakToBuildPage() {
       answers.slug ||
         businessName.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40)
     );
-    const seedSections = engine.defaultSections.map((s) => {
-      const schema = mergeIntoDefault(s.type, s.schema);
-      if (s.type === "hero") {
-        if (!schema.headline) schema.headline = businessName;
-        if (!schema.subheadline && answers.business_description) {
-          schema.subheadline = String(answers.business_description);
-        }
-      }
-      return { type: s.type, schema, core_slot: s.core_slot };
-    });
+
+    // If SpeakToBuild generated AI sections via builder-ai-generate-draft,
+    // use them directly so the editor reflects the same output as Build-with-Chat.
+    const aiSections = Array.isArray(answers._ai_sections) ? answers._ai_sections : [];
+    const seedSections = aiSections.length > 0
+      ? aiSections
+          .map((entry) => {
+            if (!entry || typeof entry !== "object") return null;
+            const e = entry as { type?: string; schema?: Record<string, unknown> };
+            if (!e.type) return null;
+            return {
+              type: e.type,
+              schema: mergeIntoDefault(e.type, e.schema || {}),
+            };
+          })
+          .filter((x): x is { type: string; schema: Record<string, unknown> } => !!x)
+      : engine.defaultSections.map((s) => {
+          const schema = mergeIntoDefault(s.type, s.schema);
+          if (s.type === "hero") {
+            if (!schema.headline) schema.headline = businessName;
+            if (!schema.subheadline && answers.business_description) {
+              schema.subheadline = String(answers.business_description);
+            }
+          }
+          return { type: s.type, schema, core_slot: s.core_slot };
+        });
     return initAndNavigate({
       surfaceType: engine.surfaceType,
       slug,
@@ -57,6 +73,10 @@ export default function SellerSpeakToBuildPage() {
       metadata: {
         brand: { primary_color: String(answers.primary_color || "#2563eb") },
         industry: String(answers.industry || ""),
+        ai_setup: !!answers._ai_setup,
+        ai_source: typeof answers._ai_source === "string" ? answers._ai_source : "speak_to_build",
+        ai_answers: answers._ai_answers || {},
+        ai_profile: answers._ai_profile || {},
       },
     });
   }, [engine, user, initAndNavigate]);
