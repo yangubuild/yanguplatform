@@ -212,6 +212,8 @@ export function useRealtimeVoice({
   const [audioBlocked, setAudioBlocked] = useState(false);
   const startingRef = useRef(false);
   const greetedRef = useRef(false);
+  const isResponseInProgressRef = useRef(false);
+  const queuedInstructionRef = useRef<string | null>(null);
 
   // Mic device picker state — surfaced when energy probe finds zero signal.
   const [needsMicPicker, setNeedsMicPicker] = useState(false);
@@ -706,14 +708,21 @@ export function useRealtimeVoice({
         if (!greetedRef.current) {
           greetedRef.current = true;
           try {
-            dc.send(JSON.stringify({
-              type: "response.create",
-              response: {
-                instructions:
-                  "Hey I'm ADA AI. Tell me about your business — what's the name, what do you do, and what are you looking to build?",
-              },
-            }));
-            console.log("[useRealtimeVoice] greet response.create sent");
+            if (isResponseInProgressRef.current) {
+              queuedInstructionRef.current =
+                "Hey I'm ADA AI. Tell me about your business — what's the name, what do you do, and what are you looking to build?";
+              console.log("[useRealtimeVoice] greet queued — response in progress");
+            } else {
+              isResponseInProgressRef.current = true;
+              dc.send(JSON.stringify({
+                type: "response.create",
+                response: {
+                  instructions:
+                    "Hey I'm ADA AI. Tell me about your business — what's the name, what do you do, and what are you looking to build?",
+                },
+              }));
+              console.log("[useRealtimeVoice] greet response.create sent");
+            }
           } catch (err) {
             console.warn("[useRealtimeVoice] greet send failed", err);
           }
@@ -730,7 +739,12 @@ export function useRealtimeVoice({
         switch (msg.type) {
           case "session.created":
           case "session.updated":
+            if (mountedRef.current) {
+              setUiState((prev) => (prev === "connecting" ? "listening" : prev));
+            }
+            break;
           case "response.created":
+            isResponseInProgressRef.current = true;
             // Any of these prove the session is alive — leave "connecting".
             if (mountedRef.current) {
               setUiState((prev) => (prev === "connecting" ? "listening" : prev));
@@ -779,6 +793,24 @@ export function useRealtimeVoice({
             const full = assistantTextBufRef.current.trim();
             assistantTextBufRef.current = "";
             if (full) onMessage?.(full, "assistant");
+            if (msg.type === "response.done") {
+              isResponseInProgressRef.current = false;
+              const queued = queuedInstructionRef.current;
+              queuedInstructionRef.current = null;
+              if (queued && dcRef.current?.readyState === "open") {
+                try {
+                  isResponseInProgressRef.current = true;
+                  dcRef.current.send(JSON.stringify({
+                    type: "response.create",
+                    response: { instructions: queued },
+                  }));
+                  console.log("[useRealtimeVoice] queued response.create flushed");
+                } catch (err) {
+                  isResponseInProgressRef.current = false;
+                  console.warn("[useRealtimeVoice] flush queued failed", err);
+                }
+              }
+            }
             break;
           }
           case "conversation.item.input_audio_transcription.delta": {
@@ -952,13 +984,20 @@ export function useRealtimeVoice({
       console.warn("[useRealtimeVoice] sendInstruction skipped — dc not open", dc?.readyState);
       return;
     }
+    if (isResponseInProgressRef.current) {
+      queuedInstructionRef.current = instructions;
+      console.log("[useRealtimeVoice] sendInstruction queued — response in progress");
+      return;
+    }
     try {
+      isResponseInProgressRef.current = true;
       dc.send(JSON.stringify({
         type: "response.create",
         response: { instructions },
       }));
       console.log("[useRealtimeVoice] response.create sent ←", instructions.slice(0, 80));
     } catch (err) {
+      isResponseInProgressRef.current = false;
       console.warn("[useRealtimeVoice] sendInstruction failed", err);
     }
   }, []);
