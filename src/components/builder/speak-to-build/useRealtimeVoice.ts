@@ -685,6 +685,9 @@ export function useRealtimeVoice({
             type: "session.update",
             session: {
               type: "realtime",
+              // FIX: Lock language to English. Prevents ADA from drifting into
+              // other languages mid-conversation due to background noise.
+              language: "en",
               audio: {
                 input: {
                   turn_detection: {
@@ -695,7 +698,7 @@ export function useRealtimeVoice({
                     create_response: true,
                     interrupt_response: true,
                   },
-                  transcription: { model: "gpt-4o-mini-transcribe" },
+                  transcription: { model: "whisper-1", language: "en" },
                 },
               },
             },
