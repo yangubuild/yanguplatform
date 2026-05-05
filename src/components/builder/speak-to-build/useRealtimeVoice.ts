@@ -768,7 +768,14 @@ export function useRealtimeVoice({
     if (!enabled) {
       stop();
     } else if (!pcRef.current && !startingRef.current) {
-      setNeedsUserStart(true);
+      if (isLiveMicStream(sharedMicStream) || prewarmedMicStreamPromise) {
+        startTimerRef.current = window.setTimeout(() => {
+          startTimerRef.current = null;
+          void start();
+        }, 0);
+      } else {
+        setNeedsUserStart(true);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]);
