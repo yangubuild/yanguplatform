@@ -1,10 +1,9 @@
+// HTML snapshot publishing is retired. All surfaces render from compiled JSON sections in published_schema only. Do not re-introduce emenu_html or builder_new_html rendering.
 import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { BuilderSurfaceType } from "@/types/builder";
 import { validatePagesForPublish, type PublishPage, type PublishValidationError } from "@/lib/builder/publishValidation";
-import { sanitizeEditorHtml } from "@/lib/builder/editorHtml";
-import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
 import { supabase as supabaseClient } from "@/integrations/supabase/client";
 
 // ─── Domain mapping (mirrors builder_is_domain_allowed in SQL) ───
@@ -114,13 +113,9 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
     const surfaceRecord = surfaceData as {
       slug?: string | null;
       favicon_url?: string | null;
-      metadata?: {
-        builder_new_html?: string | null;
-        pages_html?: Record<string, string> | null;
-      } | null;
+      metadata?: Record<string, unknown> | null;
     } | null;
 
-    const metadata = surfaceRecord?.metadata || {};
     const publishedSlug = normalizePublishSlug(requestedSlug || customSlug || surfaceRecord?.slug) || surfaceRecord?.slug || "";
 
     if (!publishedSlug) {
@@ -164,58 +159,18 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
     const currentSchema = (publishData?.published_schema as Record<string, unknown> | null) || {};
     const currentSurface = ((currentSchema.surface as Record<string, unknown> | undefined) ?? {});
 
-    // 5. Build updated surface with favicon + badge for ALL surface types
+    // 5. Build updated surface with favicon + badge for ALL surface types.
+    // HTML snapshot publishing is retired — strip any legacy emenu_html and never write it back.
+    const { emenu_html: _legacyHtml, ...currentSurfaceNoHtml } = currentSurface as Record<string, unknown>;
+    void _legacyHtml;
     const updatedSurface: Record<string, unknown> = {
-      ...currentSurface,
+      ...currentSurfaceNoHtml,
       id: surfaceId,
       slug: publishedSlug,
       surface_type: surfaceType,
       favicon_url: surfaceRecord?.favicon_url || null,
       show_yangu_badge: showYanguBadge,
     };
-
-    // 6. For ALL surface types using the unified HTML editor, persist sanitized canvas HTML.
-    //    This ensures live runtime renders the exact HTML the user designed (1:1 parity),
-    //    matching the emenu publish behavior across eshop / esite / estore / influencer / community.
-    {
-      const fallbackPageHtml = Object.values(metadata.pages_html || {}).find(
-        (html): html is string => typeof html === "string" && html.trim().length > 0,
-      );
-      let resolvedHtml = metadata.builder_new_html || fallbackPageHtml || "";
-
-      // Persist blob URLs to permanent storage
-      try {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (session?.user?.id && resolvedHtml.includes("blob:")) {
-          resolvedHtml = await persistBlobUrls(resolvedHtml, session.user.id);
-          const updatedMeta = { ...metadata, builder_new_html: resolvedHtml };
-          if (metadata.pages_html) {
-            const updatedPages = { ...metadata.pages_html };
-            for (const [pageId, pageHtml] of Object.entries(updatedPages)) {
-              if (typeof pageHtml === "string" && pageHtml.includes("blob:")) {
-                updatedPages[pageId] = await persistBlobUrls(pageHtml, session.user.id);
-              }
-            }
-            updatedMeta.pages_html = updatedPages;
-          }
-          await supabase.from("builder_surfaces").update({ metadata: updatedMeta as any }).eq("id", surfaceId);
-        }
-      } catch (e) {
-        console.error("[syncPublishedRecord] blob persist error:", e);
-      }
-
-      const sanitizedHtml = sanitizeEditorHtml(resolvedHtml);
-      // Only write emenu_html when there is real, fresh canvas HTML.
-      // If empty/null, leave it absent so the JSON-section render path takes over.
-      if (sanitizedHtml && sanitizedHtml.trim().length > 0) {
-        // Field name kept as `emenu_html` for runtime compatibility; semantically this is the
-        // unified published canvas HTML for any surface type.
-        updatedSurface.emenu_html = sanitizedHtml;
-      } else {
-        // Ensure no stale HTML survives from a prior publish.
-        delete (updatedSurface as Record<string, unknown>).emenu_html;
-      }
-    }
 
     // 7. Write updated schema back
     const syncedSchema = { ...currentSchema, surface: updatedSurface };

@@ -1,9 +1,8 @@
+// HTML snapshot publishing is retired. All surfaces render from compiled JSON sections in published_schema only. Do not re-introduce emenu_html or builder_new_html rendering.
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { usePublicCommerceConfig } from "@/hooks/useSurfaceCommerceConfig";
 import { Loader2, Layout } from "lucide-react";
 import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
-import { PublishedEmenuFrame } from "@/components/routing/PublishedEmenuFrame";
 import { PublicCommerceShell } from "@/components/commerce/PublicCommerceShell";
 import { YanguBadge } from "@/components/routing/YanguBadge";
 import { DEFAULT_THEME, type BuilderTheme } from "@/components/builder/BuilderSettingsDrawer";
@@ -96,40 +95,7 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   const page = schema?.pages?.[0];
   const title = pageTitle;
   const surfaceType = surfaceMeta.surface_type;
-  // Unified HTML render path: any surface that has published canvas HTML uses the iframe path.
-  const publishedEmenuHtml = (surfaceMeta.emenu_html as string | null) || null;
-
-  // Prefer JSON sections over legacy canvas HTML so freshly built AI sections
-  // always win over any stale published HTML.
-  const sectionsForPriority = page?.sections ?? [];
-  const hasJsonSections = sectionsForPriority.length > 0;
-
-  if (publishedEmenuHtml && !hasJsonSections) {
-    const surfaceId = surfaceMeta.id || "";
-    const ownerId = surfaceMeta.user_id || "";
-    const businessName = surfaceMeta.title || "";
-
-    return (
-      <EmenuSurfaceView
-        surfaceId={surfaceId}
-        ownerId={ownerId}
-        businessName={businessName}
-        publishedEmenuHtml={publishedEmenuHtml}
-        pageTitle={title}
-        faviconUrl={faviconUrl}
-        showBadge={showBadge}
-      />
-    );
-  }
-
-  if (surfaceType === "emenu" && !hasJsonSections) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
-        <Layout className="h-12 w-12 text-muted-foreground" />
-        <p className="text-muted-foreground">This menu needs to be republished.</p>
-      </div>
-    );
-  }
+  // JSON-section render path is the only publish renderer for all surface types.
 
   const rawSections = page?.sections
     ?.slice()
@@ -222,41 +188,3 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   );
 }
 
-/** Emenu surface view with commerce wiring — mirrors PublicSurfacePage's EmenuPublicView */
-function EmenuSurfaceView({
-  surfaceId, ownerId, businessName, publishedEmenuHtml, pageTitle, faviconUrl, showBadge, surfaceType,
-}: {
-  surfaceId: string; ownerId: string; businessName: string;
-  publishedEmenuHtml: string; pageTitle: string; faviconUrl: string | null; showBadge: boolean;
-  surfaceType?: string;
-}) {
-  const { data: commerceConfig } = usePublicCommerceConfig(surfaceId);
-  const currency = commerceConfig?.currency ?? "USD";
-  const orderingEnabled = commerceConfig?.ordering_enabled ?? true;
-
-  return (
-    <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName} surfaceType={surfaceType}>
-      <PublishedEmenuFrame
-        html={publishedEmenuHtml}
-        title={pageTitle}
-        faviconUrl={faviconUrl}
-        showBadge={showBadge}
-        orderingEnabled={orderingEnabled}
-        currency={currency}
-        surfaceId={surfaceId}
-        surfaceType={surfaceType}
-        onPostMessage={(msg) => {
-          if (msg.type === "yangu_add_to_cart" && msg.item) {
-            (window as any).__yangu_add_to_cart?.(msg.item);
-          } else if (msg.type === "yangu_open_cart") {
-            (window as any).__yangu_open_cart?.();
-          } else if (msg.type === "yangu_open_wishlist") {
-            (window as any).__yangu_open_wishlist?.();
-          } else if (msg.type === "yangu_open_product_detail" && msg.product) {
-            (window as any).__yangu_open_product_detail?.(msg.product);
-          }
-        }}
-      />
-    </PublicCommerceShell>
-  );
-}
