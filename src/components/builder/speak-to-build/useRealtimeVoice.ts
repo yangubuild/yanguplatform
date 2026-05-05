@@ -18,6 +18,31 @@ import { supabase } from "@/integrations/supabase/client";
 export type RealtimeUiState = "idle" | "connecting" | "listening" | "speaking" | "thinking" | "error";
 export type RealtimeRole = "assistant" | "user";
 
+type BrowserSpeechRecognitionResult = {
+  isFinal: boolean;
+  0?: { transcript?: string };
+};
+
+type BrowserSpeechRecognitionEvent = Event & {
+  resultIndex: number;
+  results: { length: number; [index: number]: BrowserSpeechRecognitionResult };
+};
+
+type BrowserSpeechRecognition = {
+  continuous: boolean;
+  interimResults: boolean;
+  maxAlternatives: number;
+  lang: string;
+  onresult: ((event: BrowserSpeechRecognitionEvent) => void) | null;
+  onerror: ((event: Event & { error?: string }) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+};
+
+type BrowserSpeechRecognitionConstructor = new () => BrowserSpeechRecognition;
+
 interface UseRealtimeVoiceOptions {
   language?: string;
   /** Fired for each finalized turn (user transcript or assistant text). */
@@ -32,6 +57,22 @@ interface UseRealtimeVoiceOptions {
 
 // GA Realtime API: SDP exchange goes to /v1/realtime/calls (not /v1/realtime)
 const REALTIME_CALLS = "https://api.openai.com/v1/realtime/calls";
+const SPEECH_RECOGNITION_LANG: Record<string, string> = {
+  en: "en-US",
+  sw: "sw-KE",
+  fr: "fr-FR",
+  ar: "ar-SA",
+  lg: "en-UG",
+  rw: "en-RW",
+};
+
+const getBrowserSpeechRecognition = (): BrowserSpeechRecognitionConstructor | null => {
+  const speechWindow = window as unknown as {
+    SpeechRecognition?: BrowserSpeechRecognitionConstructor;
+    webkitSpeechRecognition?: BrowserSpeechRecognitionConstructor;
+  };
+  return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition ?? null;
+};
 
 // Module-level guard: defeats React StrictMode double-mount which otherwise
 // mints two ephemeral tokens and creates two RTCPeerConnections in parallel.
