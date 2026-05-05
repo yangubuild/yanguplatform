@@ -288,15 +288,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     // FIX 2: Fully terminate voice session before build starts.
     // 1) Clear any pending audio buffer over the data channel
     // 2) Close data channel + RTCPeerConnection cleanly via voice.stop()
-    try {
-      const dc = (voice as unknown as { _dc?: RTCDataChannel })._dc;
-      // Best-effort: send buffer clear if the hook exposes a data channel.
-      // The hook's stop() will close dc + pc cleanly regardless.
-      if (dc && dc.readyState === "open") {
-        dc.send(JSON.stringify({ type: "input_audio_buffer.clear" }));
-      }
-    } catch { /* ignore */ }
-    try { voice.sendRaw?.({ type: "input_audio_buffer.clear" }); } catch { /* ignore */ }
+    try { voice.sendRaw({ type: "input_audio_buffer.clear" }); } catch { /* ignore */ }
     try { voice.stop(); } catch { /* ignore */ }
 
     const buildLine = getCopy(language, "building");
