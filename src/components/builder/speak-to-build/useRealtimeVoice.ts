@@ -622,7 +622,7 @@ export function useRealtimeVoice({
 
       // 4. Attach the already-acquired mic BEFORE createOffer so the SDP
       // advertises a sendrecv audio m-section.
-      const micTracks = micStream.getAudioTracks();
+      const micTracks = activeMicStream.getAudioTracks();
       console.log("Mic tracks acquired:", micTracks.length);
       micTracks.forEach((t, i) => {
         console.log(`Mic track[${i}]`, {
@@ -639,7 +639,7 @@ export function useRealtimeVoice({
       });
       console.log("ADDING TRACK BEFORE OFFER");
       micTracks.forEach((track) => {
-        const sender = pc.addTrack(track, micStream);
+        const sender = pc.addTrack(track, activeMicStream);
         console.log("addTrack sender:", {
           kind: sender.track?.kind,
           enabled: sender.track?.enabled,
