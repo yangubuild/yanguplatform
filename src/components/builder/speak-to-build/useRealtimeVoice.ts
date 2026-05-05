@@ -346,6 +346,70 @@ export function useRealtimeVoice({
         if (status) console.log("MIC PERMISSION STATE:", status.state);
       } catch { /* ignore */ }
 
+      // Energy probe: ensure the mic is actually producing signal. If not,
+      // surface a device picker so the user can choose a different input.
+      let activeMicStream: MediaStream = micStream;
+      const initialEnergy = await probeMicEnergy(activeMicStream);
+      if (isStale() || !mountedRef.current) {
+        startingRef.current = false;
+        hasActiveSession = false;
+        return;
+      }
+      if (!initialEnergy) {
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const mics: MicPickerDevice[] = devices
+            .filter((d) => d.kind === "audioinput")
+            .map((d, idx) => ({
+              deviceId: d.deviceId,
+              label: d.label || `Microphone ${idx + 1}`,
+            }));
+          if (mics.length > 1) {
+            const chosenId = await new Promise<string | null>((resolve) => {
+              pendingMicResolveRef.current = resolve;
+              if (mountedRef.current) {
+                setMicDevices(mics);
+                setNeedsMicPicker(true);
+              }
+            });
+            if (mountedRef.current) {
+              setNeedsMicPicker(false);
+            }
+            if (isStale() || !mountedRef.current) {
+              startingRef.current = false;
+              hasActiveSession = false;
+              return;
+            }
+            if (chosenId) {
+              try {
+                // Drop the silent stream and re-acquire from the chosen device.
+                releaseSharedMicStream(true);
+                const replacement = await navigator.mediaDevices.getUserMedia({
+                  audio: { deviceId: { exact: chosenId } },
+                  video: false,
+                });
+                sharedMicStream = replacement;
+                activeMicStream = replacement;
+                micStreamRef.current = replacement;
+                const newTrack = replacement.getAudioTracks()[0];
+                console.log("[useRealtimeVoice] picker chose mic", {
+                  label: newTrack?.label,
+                  deviceId: chosenId.slice(0, 12) + "…",
+                });
+                const recheck = await probeMicEnergy(replacement);
+                console.log("[useRealtimeVoice] picker re-verify energy:", recheck);
+              } catch (err) {
+                console.warn("[useRealtimeVoice] picker getUserMedia failed", err);
+              }
+            }
+          } else {
+            console.warn("[useRealtimeVoice] silent mic but no alternate audioinput devices to pick");
+          }
+        } catch (err) {
+          console.warn("[useRealtimeVoice] mic picker enumeration failed", err);
+        }
+      }
+
       // Audio energy detection — verify mic is actually producing signal.
       try {
         const AudioCtx =
