@@ -41,18 +41,6 @@ let prewarmedMicStreamPromise: Promise<MediaStream> | null = null;
 let sharedMicStream: MediaStream | null = null;
 let sharedMicReleaseTimer: number | null = null;
 
-const getAudioInputs = async () => {
-  const devices = await navigator.mediaDevices.enumerateDevices();
-  return devices.filter((device) => device.kind === "audioinput");
-};
-
-const pickExplicitMic = (audioInputs: MediaDeviceInfo[]) => {
-  return audioInputs.find((device) => {
-    const id = device.deviceId?.toLowerCase();
-    return id && id !== "default" && id !== "communications";
-  }) ?? audioInputs[0] ?? null;
-};
-
 const isLiveMicStream = (stream: MediaStream | null) =>
   !!stream && stream.getAudioTracks().some((track) => track.readyState === "live");
 
@@ -80,33 +68,19 @@ const releaseSharedMicStream = (immediate = false) => {
 const createRealtimeMicStream = async () => {
   cancelSharedMicRelease();
   if (isLiveMicStream(sharedMicStream)) return sharedMicStream!;
-  // IMPORTANT: this must be the first media operation in this function.
-  // Browsers tie microphone capture to the original click/tap gesture; doing
-  // enumerateDevices or opening a second stream first can produce a live but
-  // silent track even though WebRTC reports bytes being sent.
-  const audioConstraints: MediaTrackConstraints = {
-    echoCancellation: true,
-    noiseSuppression: true,
-    autoGainControl: true,
-  };
-  console.log("[useRealtimeVoice] requesting getUserMedia…", audioConstraints);
+  console.log("[useRealtimeVoice] requesting raw getUserMedia debug capture…");
   const stream = await navigator.mediaDevices.getUserMedia({
-    audio: audioConstraints,
+    audio: true,
     video: false,
   });
   sharedMicStream = stream;
-  console.log("ACTIVE MIC:", stream.getAudioTracks()[0]?.label);
-
-  try {
-    const refreshedInputs = await getAudioInputs();
-    const activeTrack = stream.getAudioTracks()[0];
-    const activeDeviceId = activeTrack?.getSettings?.().deviceId;
-    const activeMic = refreshedInputs.find((d) => d.deviceId === activeDeviceId) ?? pickExplicitMic(refreshedInputs);
-    console.log("AVAILABLE MICS AFTER GUM:", refreshedInputs);
-    console.log("USING MIC:", activeMic, activeTrack?.getSettings?.());
-  } catch (err) {
-    console.warn("[useRealtimeVoice] mic device log failed", err);
-  }
+  const track = stream.getAudioTracks()[0];
+  console.log("MIC TRACK:", {
+    label: track?.label,
+    enabled: track?.enabled,
+    muted: track?.muted,
+    readyState: track?.readyState,
+  });
 
   return stream;
 };
