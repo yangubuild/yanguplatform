@@ -18,6 +18,31 @@ import { supabase } from "@/integrations/supabase/client";
 export type RealtimeUiState = "idle" | "connecting" | "listening" | "speaking" | "thinking" | "error";
 export type RealtimeRole = "assistant" | "user";
 
+type BrowserSpeechRecognitionResult = {
+  isFinal: boolean;
+  0?: { transcript?: string };
+};
+
+type BrowserSpeechRecognitionEvent = Event & {
+  resultIndex: number;
+  results: { length: number; [index: number]: BrowserSpeechRecognitionResult };
+};
+
+type BrowserSpeechRecognition = {
+  continuous: boolean;
+  interimResults: boolean;
+  maxAlternatives: number;
+  lang: string;
+  onresult: ((event: BrowserSpeechRecognitionEvent) => void) | null;
+  onerror: ((event: Event & { error?: string }) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+};
+
+type BrowserSpeechRecognitionConstructor = new () => BrowserSpeechRecognition;
+
 interface UseRealtimeVoiceOptions {
   language?: string;
   /** Fired for each finalized turn (user transcript or assistant text). */
@@ -32,6 +57,22 @@ interface UseRealtimeVoiceOptions {
 
 // GA Realtime API: SDP exchange goes to /v1/realtime/calls (not /v1/realtime)
 const REALTIME_CALLS = "https://api.openai.com/v1/realtime/calls";
+const SPEECH_RECOGNITION_LANG: Record<string, string> = {
+  en: "en-US",
+  sw: "sw-KE",
+  fr: "fr-FR",
+  ar: "ar-SA",
+  lg: "en-UG",
+  rw: "en-RW",
+};
+
+const getBrowserSpeechRecognition = (): BrowserSpeechRecognitionConstructor | null => {
+  const speechWindow = window as unknown as {
+    SpeechRecognition?: BrowserSpeechRecognitionConstructor;
+    webkitSpeechRecognition?: BrowserSpeechRecognitionConstructor;
+  };
+  return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition ?? null;
+};
 
 // Module-level guard: defeats React StrictMode double-mount which otherwise
 // mints two ephemeral tokens and creates two RTCPeerConnections in parallel.
@@ -126,11 +167,12 @@ export function useRealtimeVoice({
   const micSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const micVolumeTimerRef = useRef<number | null>(null);
   const outboundStatsTimerRef = useRef<number | null>(null);
+  const speechRecognitionRef = useRef<BrowserSpeechRecognition | null>(null);
+  const speechRecognitionRestartTimerRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
   const startTimerRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
   const [audioBlocked, setAudioBlocked] = useState(false);
-  const [needsUserStart, setNeedsUserStart] = useState(false);
   const startingRef = useRef(false);
   const greetedRef = useRef(false);
 
@@ -162,6 +204,12 @@ export function useRealtimeVoice({
       window.clearInterval(outboundStatsTimerRef.current);
       outboundStatsTimerRef.current = null;
     }
+    if (speechRecognitionRestartTimerRef.current != null) {
+      window.clearTimeout(speechRecognitionRestartTimerRef.current);
+      speechRecognitionRestartTimerRef.current = null;
+    }
+    try { speechRecognitionRef.current?.abort(); } catch { /* ignore */ }
+    speechRecognitionRef.current = null;
     try { micAudioCtxRef.current?.close(); } catch { /* ignore */ }
     try { audioCtxRef.current?.close(); } catch { /* ignore */ }
     if (audioElRef.current) {
@@ -188,7 +236,6 @@ export function useRealtimeVoice({
   }, [cleanup]);
 
   const start = useCallback(async () => {
-    setNeedsUserStart(false);
     if (pcRef.current || startingRef.current || hasActiveSession) {
       console.warn("[useRealtimeVoice] start skipped — session already active", {
         hasPc: !!pcRef.current,
@@ -335,6 +382,49 @@ export function useRealtimeVoice({
       });
       pcRef.current = pc;
       console.log("[useRealtimeVoice] RTCPeerConnection created with STUN");
+
+      const SpeechRecognitionCtor = getBrowserSpeechRecognition();
+      if (SpeechRecognitionCtor) {
+        try {
+          if (speechRecognitionRestartTimerRef.current != null) {
+            window.clearTimeout(speechRecognitionRestartTimerRef.current);
+            speechRecognitionRestartTimerRef.current = null;
+          }
+          try { speechRecognitionRef.current?.abort(); } catch { /* ignore */ }
+          const recognition = new SpeechRecognitionCtor();
+          recognition.continuous = true;
+          recognition.interimResults = true;
+          recognition.maxAlternatives = 1;
+          recognition.lang = SPEECH_RECOGNITION_LANG[language] ?? SPEECH_RECOGNITION_LANG.en;
+          recognition.onresult = (event) => {
+            let finalTranscript = "";
+            for (let i = event.resultIndex; i < event.results.length; i += 1) {
+              const result = event.results[i];
+              if (result?.isFinal) finalTranscript += result[0]?.transcript || "";
+            }
+            const transcript = finalTranscript.trim();
+            if (transcript) {
+              console.log("USER SAID:", transcript);
+              onMessage?.(transcript, "user");
+              if (mountedRef.current) setUiState("thinking");
+            }
+          };
+          recognition.onerror = (event) => {
+            console.warn("[useRealtimeVoice] browser speech recognition error", event.error);
+          };
+          recognition.onend = () => {
+            if (!mountedRef.current || pcRef.current !== pc) return;
+            speechRecognitionRestartTimerRef.current = window.setTimeout(() => {
+              try { recognition.start(); } catch { /* already started or unavailable */ }
+            }, 350);
+          };
+          recognition.start();
+          speechRecognitionRef.current = recognition;
+          console.log("[useRealtimeVoice] browser speech recognition fallback started");
+        } catch (err) {
+          console.warn("[useRealtimeVoice] browser speech recognition fallback failed", err);
+        }
+      }
 
       pc.addEventListener("connectionstatechange", () => {
         console.log("PC state:", pc.connectionState);
@@ -763,26 +853,22 @@ export function useRealtimeVoice({
     }
   }, []);
 
-  // Stop on disabled. Do NOT auto-start here: getUserMedia must run from a real tap/click.
+  // Start from the prewarmed stream captured by the original Speak-to-Build click.
   useEffect(() => {
     if (!enabled) {
       stop();
     } else if (!pcRef.current && !startingRef.current) {
-      if (isLiveMicStream(sharedMicStream) || prewarmedMicStreamPromise) {
-        startTimerRef.current = window.setTimeout(() => {
-          startTimerRef.current = null;
-          void start();
-        }, 0);
-      } else {
-        setNeedsUserStart(true);
-      }
+      startTimerRef.current = window.setTimeout(() => {
+        startTimerRef.current = null;
+        void start();
+      }, 0);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]);
 
   // Stable return shape: same keys every render, regardless of state.
   return useMemo(
-    () => ({ uiState, level, start, stop, audioBlocked, needsUserStart, unlockAudio, sendInstruction }),
-    [uiState, level, start, stop, audioBlocked, needsUserStart, unlockAudio, sendInstruction],
+    () => ({ uiState, level, start, stop, audioBlocked, unlockAudio, sendInstruction }),
+    [uiState, level, start, stop, audioBlocked, unlockAudio, sendInstruction],
   );
 }
