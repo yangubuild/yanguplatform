@@ -381,6 +381,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
   const status = useMemo(() => {
     if (step === "building") return labels.build + "…";
     if (step === "done") return labels.next;
+    if (voice.needsUserStart) return "Tap the orb to start ADA";
     switch (voice.uiState) {
       case "speaking":  return "ADA is speaking…";
       case "thinking":  return "Thinking…";
@@ -389,7 +390,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       case "error":     return "Voice unavailable";
       default:          return "Connecting…";
     }
-  }, [voice.uiState, step, labels]);
+  }, [voice.uiState, voice.needsUserStart, step, labels]);
 
   // Map realtime states → orb visual states (orb only knows 4 states).
   const orbState = useMemo(() => {
@@ -430,7 +431,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         <VoiceOrb
           state={orbState}
           level={voice.level}
-          onTap={voice.audioBlocked ? voice.unlockAudio : undefined}
+          onTap={voice.audioBlocked || voice.needsUserStart ? voice.unlockAudio : undefined}
           ariaLabel={labels.mic}
         />
       </main>

@@ -28,6 +28,7 @@ const INTERNAL_ROUTES = [
   "/kyc",
   "/billing",
   "/studio",
+  "/speak",
   "/surfaces/",
   "/s/",
   "/dev/",

@@ -130,6 +130,7 @@ export function useRealtimeVoice({
   const startTimerRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
   const [audioBlocked, setAudioBlocked] = useState(false);
+  const [needsUserStart, setNeedsUserStart] = useState(false);
   const startingRef = useRef(false);
   const greetedRef = useRef(false);
 
@@ -187,6 +188,7 @@ export function useRealtimeVoice({
   }, [cleanup]);
 
   const start = useCallback(async () => {
+    setNeedsUserStart(false);
     if (pcRef.current || startingRef.current || hasActiveSession) {
       console.warn("[useRealtimeVoice] start skipped — session already active", {
         hasPc: !!pcRef.current,
@@ -205,6 +207,7 @@ export function useRealtimeVoice({
       const micStream = await takeRealtimeMicStream();
       if (isStale() || !mountedRef.current) {
         startingRef.current = false;
+        hasActiveSession = false;
         return;
       }
       micStreamRef.current = micStream;
@@ -309,7 +312,12 @@ export function useRealtimeVoice({
       const { data: tokenData, error: tokenErr } = await supabase.functions.invoke("realtime-token", {
         body: { language, voice: "marin" },
       });
-      if (isStale()) { console.log("[useRealtimeVoice] stale after token, abort"); return; }
+      if (isStale()) {
+        console.log("[useRealtimeVoice] stale after token, abort");
+        startingRef.current = false;
+        hasActiveSession = false;
+        return;
+      }
       if (tokenErr) throw new Error(tokenErr.message || "Failed to mint realtime token");
       const ephemeral: string | undefined = tokenData?.client_secret;
       const model: string = tokenData?.model || "gpt-realtime";
@@ -335,7 +343,6 @@ export function useRealtimeVoice({
         }
         if (
           pc.connectionState === "failed" ||
-          pc.connectionState === "disconnected" ||
           pc.connectionState === "closed"
         ) {
           if (mountedRef.current && pc === pcRef.current) {
@@ -646,7 +653,12 @@ export function useRealtimeVoice({
       }
 
       const answerSdp = await sdpResp.text();
-      if (isStale()) { console.log("[useRealtimeVoice] stale after SDP answer, abort"); return; }
+      if (isStale()) {
+        console.log("[useRealtimeVoice] stale after SDP answer, abort");
+        startingRef.current = false;
+        hasActiveSession = false;
+        return;
+      }
       if (!answerSdp.startsWith("v=")) {
         console.error("Invalid SDP answer (does not start with 'v='):", answerSdp.slice(0, 200));
         throw new Error("Invalid SDP answer from Realtime API");
@@ -756,17 +768,21 @@ export function useRealtimeVoice({
     if (!enabled) {
       stop();
     } else if (!pcRef.current && !startingRef.current) {
-      startTimerRef.current = window.setTimeout(() => {
-        startTimerRef.current = null;
-        void start();
-      }, 0);
+      if (isLiveMicStream(sharedMicStream) || prewarmedMicStreamPromise) {
+        startTimerRef.current = window.setTimeout(() => {
+          startTimerRef.current = null;
+          void start();
+        }, 0);
+      } else {
+        setNeedsUserStart(true);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]);
 
   // Stable return shape: same keys every render, regardless of state.
   return useMemo(
-    () => ({ uiState, level, start, stop, audioBlocked, unlockAudio, sendInstruction }),
-    [uiState, level, start, stop, audioBlocked, unlockAudio, sendInstruction],
+    () => ({ uiState, level, start, stop, audioBlocked, needsUserStart, unlockAudio, sendInstruction }),
+    [uiState, level, start, stop, audioBlocked, needsUserStart, unlockAudio, sendInstruction],
   );
 }
