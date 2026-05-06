@@ -11,15 +11,7 @@ import { mergeIntoDefault } from "@/lib/builderDefaults";
 import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteGenerator";
 import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
 import { supabase } from "@/integrations/supabase/client";
-
-const DEFAULT_TEMPLATE_KEY: Record<string, string> = {
-  eshop: "eshop_aema",
-  emenu: "emenu_plateria",
-  estore: "eshop_aema",
-  esite: "",
-  influencer: "",
-  community: "",
-};
+import { selectTemplate } from "@/lib/builder/selectTemplate";
 
 const SELLER_KEY_MAP: Record<string, string> = {
   emenu: "emenu",
@@ -81,19 +73,31 @@ export default function SellerSpeakToBuildPage() {
         });
 
     // Templates are the ONLY source of layout. Render real template HTML now.
-    const templateKey = DEFAULT_TEMPLATE_KEY[engineKey] ?? "";
+    const tone = String(answers.style || answers._speak_style || "");
+    const templateKey = selectTemplate(engineKey, tone);
+    const secondaryColor = typeof answers.secondary_color === "string" ? answers.secondary_color : "";
+    const primaryColor = String(answers.primary_color || "#2563eb");
+    const brandColors = secondaryColor ? [primaryColor, secondaryColor] : [primaryColor];
+    const menuItems = Array.isArray(answers.menu_items) ? (answers.menu_items as string[]) : [];
+    const productItems = Array.isArray(answers.products) ? (answers.products as string[]) : [];
+    const sectionsArr = engineKey === "emenu"
+      ? (menuItems.length ? menuItems : productItems)
+      : productItems;
+    const deliveryAppsArr = engineKey === "emenu" && Array.isArray(answers.delivery_apps)
+      ? (answers.delivery_apps as string[])
+      : [];
     const variants = generateWebsiteVariants({
       category: engineKey as never,
       businessName,
       location: String(answers.location || ""),
       scope: String(answers.scope || "showcase"),
       style: templateKey,
-      styleSpecific: "",
-      sections: [],
-      deliveryApps: [],
+      styleSpecific: tone,
+      sections: sectionsArr,
+      deliveryApps: deliveryAppsArr,
       userIdea: String(answers.business_description || ""),
       userLogoUrl: typeof answers.logo_url === "string" ? answers.logo_url : undefined,
-      userBrandColors: [String(answers.primary_color || "#2563eb")],
+      userBrandColors: brandColors,
       userImages: [],
     });
     let templateHtml = variants[0] || "";
