@@ -281,15 +281,28 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
   // ---- Build trigger ----------------------------------------------------
   const buildTriggeredRef = useRef(false);
   const [buildTimedOut, setBuildTimedOut] = useState(false);
+
+  // FIX 5: Reset build state on every fresh mount so a second speak-to-build
+  // attempt in the same SPA session always starts clean.
+  useEffect(() => {
+    buildTriggeredRef.current = false;
+    setBuildTimedOut(false);
+  }, []);
+
   useEffect(() => {
     if (step !== "building" || buildTriggeredRef.current) return;
     buildTriggeredRef.current = true;
 
-    // FIX 2: Fully terminate voice session before build starts.
-    // 1) Clear any pending audio buffer over the data channel
-    // 2) Close data channel + RTCPeerConnection cleanly via voice.stop()
+    // FIX 4: Terminate voice session with a 3s hard timeout. If voice.stop()
+    // hangs (data channel mid-close, ICE teardown), do NOT block the build.
     try { voice.sendRaw({ type: "input_audio_buffer.clear" }); } catch { /* ignore */ }
-    try { voice.stop(); } catch { /* ignore */ }
+    void Promise.race([
+      new Promise<void>((resolve) => {
+        try { voice.stop(); } catch { /* ignore */ }
+        resolve();
+      }),
+      new Promise<void>((resolve) => setTimeout(resolve, 3000)),
+    ]).catch(() => { /* never block build */ });
 
     const buildLine = getCopy(language, "building");
     logTurn("assistant", buildLine);
@@ -393,7 +406,20 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         };
       }
 
-      return Promise.resolve(onComplete(draftResult))
+      // FIX 4: Wrap handleComplete so any throw resets to retry state immediately.
+      let completePromise: Promise<unknown>;
+      try {
+        completePromise = Promise.resolve(onComplete(draftResult));
+      } catch (syncErr) {
+        window.clearTimeout(timeoutId);
+        console.error("[SpeakToBuild] onComplete threw synchronously:", syncErr);
+        toast.error("Build failed — please try again.");
+        buildTriggeredRef.current = false;
+        setBuildTimedOut(true);
+        setStep("style");
+        return;
+      }
+      return completePromise
       .then(async () => {
         window.clearTimeout(timeoutId);
         // Completion line + brief pause + fade to editor.
@@ -419,6 +445,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         console.error("[SpeakToBuild] build failed:", err);
         toast.error("Build failed — please try again.");
         buildTriggeredRef.current = false;
+        setBuildTimedOut(true);
         setStep("style");
       });
     })();
