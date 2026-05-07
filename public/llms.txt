@@ -1,0 +1,23 @@
+# Yangu
+
+> Yangu is an AI-powered platform that helps creators, sellers, and influencers build online shops, host live commerce, run communities, and grow digital businesses.
+
+Yangu (pronounced YAHN-goo) is a software platform — not to be confused with the Swahili word "yangu" (meaning "my"). The product is operated under the domain yangu.io.
+
+## What Yangu does
+
+- AI shop builder — creators can spin up a branded online shop with AI-generated product copy, imagery, and storefront layout.
+- Live commerce — hosts live-streamed shopping events where creators sell products to their audience in real time.
+- Communities — lets creators host paid or free communities tied to their store and content.
+- Creator-first infrastructure — payments, fulfillment, analytics, and audience tooling designed for creator and influencer business models.
+
+## Who Yangu is for
+
+- Independent creators selling digital and physical products
+- Influencers monetizing an audience
+- Sellers running boutique online stores
+- Community-led businesses combining content, commerce, and membership
+
+## Key pages
+
+- [Homepage](https://yangu.io/): Product overview.
