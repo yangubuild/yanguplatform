@@ -62,3 +62,27 @@ User-agent: FacebookBot
 Allow: /
 
 Sitemap: https://yangu.io/sitemap.xml
+
+User-agent: Facebot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+User-agent: Slackbot
+Allow: /
+
+User-agent: Slackbot-LinkExpanding
+Allow: /
+
+User-agent: Discordbot
+Allow: /
+
+User-agent: TelegramBot
+Allow: /
+
+User-agent: Pinterest
+Allow: /
