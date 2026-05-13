@@ -14,7 +14,7 @@ export function AdminFootSoldiers() {
   };
   useEffect(() => { load(); }, []);
 
-  const setStatus = async (id: string, status: string) => {
+  const setStatus = async (id: string, status: "paid" | "rejected" | "approved" | "requested") => {
     await supabase.from("offline_bounty_payouts").update({ status }).eq("id", id);
     load();
   };
