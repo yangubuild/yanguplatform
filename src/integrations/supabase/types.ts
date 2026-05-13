@@ -6087,6 +6087,314 @@ export type Database = {
           },
         ]
       }
+      offline_app_admins: {
+        Row: {
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      offline_bounty_payouts: {
+        Row: {
+          amount: number
+          created_at: string
+          foot_soldier_id: string
+          id: string
+          method: string
+          notes: string | null
+          status: Database["public"]["Enums"]["offline_payout_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          foot_soldier_id: string
+          id?: string
+          method?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["offline_payout_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          foot_soldier_id?: string
+          id?: string
+          method?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["offline_payout_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offline_bounty_payouts_foot_soldier_id_fkey"
+            columns: ["foot_soldier_id"]
+            isOneToOne: false
+            referencedRelation: "offline_foot_soldiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      offline_bounty_rates: {
+        Row: {
+          created_at: string
+          effective_from: string
+          id: string
+          rate_per_sale_pct: number
+          rate_per_shop: number
+          tier: string
+        }
+        Insert: {
+          created_at?: string
+          effective_from?: string
+          id?: string
+          rate_per_sale_pct?: number
+          rate_per_shop?: number
+          tier: string
+        }
+        Update: {
+          created_at?: string
+          effective_from?: string
+          id?: string
+          rate_per_sale_pct?: number
+          rate_per_shop?: number
+          tier?: string
+        }
+        Relationships: []
+      }
+      offline_catalogs: {
+        Row: {
+          category: string | null
+          client_uuid: string
+          created_at: string
+          description: string | null
+          id: string
+          language: string
+          name: string
+          photo_url: string | null
+          price: number
+          shop_id: string
+          stock_count: number
+          sync_version: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          client_uuid: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          language?: string
+          name: string
+          photo_url?: string | null
+          price?: number
+          shop_id: string
+          stock_count?: number
+          sync_version?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          client_uuid?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          language?: string
+          name?: string
+          photo_url?: string | null
+          price?: number
+          shop_id?: string
+          stock_count?: number
+          sync_version?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offline_catalogs_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "offline_shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      offline_foot_soldiers: {
+        Row: {
+          bounty_balance: number
+          created_at: string
+          id: string
+          joined_at: string
+          name: string | null
+          phone: string
+          region: string | null
+          tier: string
+          updated_at: string
+        }
+        Insert: {
+          bounty_balance?: number
+          created_at?: string
+          id: string
+          joined_at?: string
+          name?: string | null
+          phone: string
+          region?: string | null
+          tier?: string
+          updated_at?: string
+        }
+        Update: {
+          bounty_balance?: number
+          created_at?: string
+          id?: string
+          joined_at?: string
+          name?: string | null
+          phone?: string
+          region?: string | null
+          tier?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      offline_sales: {
+        Row: {
+          amount: number
+          client_uuid: string
+          customer_phone: string | null
+          id: string
+          occurred_at: string
+          payment_method: string
+          product_id: string | null
+          shop_id: string
+          synced_at: string
+        }
+        Insert: {
+          amount: number
+          client_uuid: string
+          customer_phone?: string | null
+          id?: string
+          occurred_at: string
+          payment_method?: string
+          product_id?: string | null
+          shop_id: string
+          synced_at?: string
+        }
+        Update: {
+          amount?: number
+          client_uuid?: string
+          customer_phone?: string | null
+          id?: string
+          occurred_at?: string
+          payment_method?: string
+          product_id?: string | null
+          shop_id?: string
+          synced_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offline_sales_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "offline_catalogs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offline_sales_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "offline_shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      offline_shops: {
+        Row: {
+          api_token_hash: string
+          created_at: string
+          id: string
+          language: string
+          last_seen_at: string | null
+          location: string | null
+          onboarded_by: string | null
+          owner_name: string
+          owner_phone: string
+          status: Database["public"]["Enums"]["offline_shop_status"]
+          updated_at: string
+        }
+        Insert: {
+          api_token_hash: string
+          created_at?: string
+          id?: string
+          language?: string
+          last_seen_at?: string | null
+          location?: string | null
+          onboarded_by?: string | null
+          owner_name: string
+          owner_phone: string
+          status?: Database["public"]["Enums"]["offline_shop_status"]
+          updated_at?: string
+        }
+        Update: {
+          api_token_hash?: string
+          created_at?: string
+          id?: string
+          language?: string
+          last_seen_at?: string | null
+          location?: string | null
+          onboarded_by?: string | null
+          owner_name?: string
+          owner_phone?: string
+          status?: Database["public"]["Enums"]["offline_shop_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offline_shops_onboarded_by_fkey"
+            columns: ["onboarded_by"]
+            isOneToOne: false
+            referencedRelation: "offline_foot_soldiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      offline_sync_log: {
+        Row: {
+          event_type: string
+          id: string
+          payload: Json
+          received_at: string
+          shop_id: string | null
+        }
+        Insert: {
+          event_type: string
+          id?: string
+          payload?: Json
+          received_at?: string
+          shop_id?: string | null
+        }
+        Update: {
+          event_type?: string
+          id?: string
+          payload?: Json
+          received_at?: string
+          shop_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offline_sync_log_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "offline_shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string
@@ -11079,6 +11387,19 @@ export type Database = {
         }
         Returns: number
       }
+      offline_can_access_shop: {
+        Args: { _shop: string; _uid: string }
+        Returns: boolean
+      }
+      offline_is_admin: { Args: { _uid: string }; Returns: boolean }
+      offline_is_foot_soldier_for_shop: {
+        Args: { _shop: string; _uid: string }
+        Returns: boolean
+      }
+      offline_is_shop_owner: {
+        Args: { _shop: string; _uid: string }
+        Returns: boolean
+      }
       org_has_active_subscription: {
         Args: { p_org_id: string }
         Returns: boolean
@@ -11377,6 +11698,8 @@ export type Database = {
         | "general"
       kyc_status: "pending" | "submitted" | "approved" | "rejected"
       login_mode: "disabled" | "optional" | "required"
+      offline_payout_status: "requested" | "approved" | "paid" | "rejected"
+      offline_shop_status: "pending" | "active" | "blocked"
       payment_status: "pending" | "completed" | "failed" | "refunded"
       post_job_status:
         | "queued"
@@ -11635,6 +11958,8 @@ export const Constants = {
       ],
       kyc_status: ["pending", "submitted", "approved", "rejected"],
       login_mode: ["disabled", "optional", "required"],
+      offline_payout_status: ["requested", "approved", "paid", "rejected"],
+      offline_shop_status: ["pending", "active", "blocked"],
       payment_status: ["pending", "completed", "failed", "refunded"],
       post_job_status: [
         "queued",

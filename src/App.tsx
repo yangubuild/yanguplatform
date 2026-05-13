@@ -76,6 +76,12 @@ const SupportPage = lazy(() => lazyRetry(() => import("./pages/SupportPage")));
 const HelpCenter = lazy(() => lazyRetry(() => import("./pages/HelpCenter")));
 const PlatformUpdates = lazy(() => lazyRetry(() => import("./pages/PlatformUpdates")));
 
+// Yangu Offline (Phase 1)
+const OfflineHome = lazy(() => lazyRetry(() => import("./pages/offline/OfflineHome")));
+const OfflineAgentApp = lazy(() => lazyRetry(() => import("./pages/offline/agent/AgentApp")));
+const OfflineAdminApp = lazy(() => lazyRetry(() => import("./pages/offline/admin/AdminApp")));
+const OfflineShopApp = lazy(() => lazyRetry(() => import("./pages/offline/shop/ShopApp")));
+
 // Visionaire pages (lazy)
 const VisionaireHome = lazy(() => lazyRetry(() => import("./pages/dashboard/visionaire/VisionaireHome")));
 const SavedProducts = lazy(() => lazyRetry(() => import("./pages/dashboard/visionaire/SavedProducts")));
@@ -304,6 +310,12 @@ const App = () => (
                 <Route path="/support" element={<SupportPage />} />
                 <Route path="/help-center" element={<HelpCenter />} />
                 <Route path="/updates" element={<PlatformUpdates />} />
+
+                {/* Yangu Offline — foot soldier, admin, shop owner */}
+                <Route path="/offline" element={<OfflineHome />} />
+                <Route path="/offline/agent/*" element={<OfflineAgentApp />} />
+                <Route path="/offline/admin/*" element={<OfflineAdminApp />} />
+                <Route path="/offline/shop/*" element={<OfflineShopApp />} />
 
                 {/* Developer platform */}
                 <Route path="/developers" element={<DevelopersLayout />}>
