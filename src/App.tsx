@@ -311,6 +311,12 @@ const App = () => (
                 <Route path="/help-center" element={<HelpCenter />} />
                 <Route path="/updates" element={<PlatformUpdates />} />
 
+                {/* Yangu Offline — foot soldier, admin, shop owner */}
+                <Route path="/offline" element={<OfflineHome />} />
+                <Route path="/offline/agent/*" element={<OfflineAgentApp />} />
+                <Route path="/offline/admin/*" element={<OfflineAdminApp />} />
+                <Route path="/offline/shop/*" element={<OfflineShopApp />} />
+
                 {/* Developer platform */}
                 <Route path="/developers" element={<DevelopersLayout />}>
                   <Route index element={<DevelopersHome />} />
