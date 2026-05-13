@@ -1,157 +1,116 @@
-# Speak to Build — Real Root Cause + Fix Plan
+# Yangu Offline — Phase 1 Plan
 
-## What the logs actually prove
+Parking (kept in code, no further work this phase): Speak-to-Build flow, Seller categories with page templates. Out of scope this phase: marketplace search across shops, public shop pages, write-from-web for shop owners.
 
-The latest run shows ADA **is** generating audio:
+This phase builds the **cloud half** of Yangu Offline. The desktop app lives outside Lovable; here we ship the database, sync APIs, and the web dashboards that talk to it.
 
-```
-Realtime event: response.audio.delta        ← ADA speaking
-... (many deltas) ...
-Realtime event: response.audio.done
-Realtime event: response.audio_transcript.done
-Realtime event: response.done
-Realtime event: output_audio_buffer.stopped ← ADA finished
-```
+## 1. Database schema (single migration)
 
-So the connection works. The data channel works. ADA spoke a full greeting.
-**You just didn't hear it, and the UI never left "Connecting…".**
+Tables under `public`:
 
-That changes the diagnosis completely. This is not a connection problem.
-It is three small client bugs.
+- `shops` — `id`, `owner_name`, `owner_phone`, `location`, `language`, `onboarded_by` (foot_soldier id), `status` (`active|blocked|pending`), `api_token_hash`, `last_seen_at`, `created_at`
+- `catalogs` — `id`, `shop_id`, `name`, `description`, `price` (numeric), `stock_count`, `category`, `photo_url`, `language`, `sync_version` (bigint), `client_uuid` (for idempotency), `updated_at`
+- `sales` — `id`, `shop_id`, `product_id` (nullable FK to catalogs), `amount`, `customer_phone`, `payment_method`, `client_uuid` (unique per shop, idempotency), `occurred_at`, `synced_at`
+- `foot_soldiers` — `id` (= auth.users.id), `name`, `phone`, `region`, `bounty_balance` (numeric), `tier`, `joined_at`
+- `bounty_payouts` — `id`, `foot_soldier_id`, `amount`, `method`, `status`, `created_at`
+- `sync_log` — `id`, `shop_id`, `event_type`, `payload` (jsonb), `received_at`
+- `bounty_rates` — `id`, `tier`, `rate_per_shop`, `rate_per_sale_pct`, `effective_from` (admin-tunable)
+- `app_admins` — `user_id` PK (admin allow-list, separate from foot soldiers)
 
----
+Indexes on `shop_id`, `(shop_id, client_uuid)` unique for idempotency, `occurred_at`, `received_at`.
 
-## The 3 real bugs
+**RLS**
+- `shops`: foot soldier sees rows where `onboarded_by = auth.uid()`; shop owner sees rows where `owner_phone = auth.jwt().phone`; admins see all.
+- `catalogs` / `sales` / `sync_log`: same shop-scoping via a `SECURITY DEFINER` helper `can_access_shop(shop_id)`.
+- `foot_soldiers`: self-row read/update; admins all.
+- `bounty_payouts`: foot soldier sees own; admins all.
+- `bounty_rates`: read for authenticated; write admin-only.
+- `app_admins`: admin-only.
+- Helper: `is_app_admin(uid)` SECURITY DEFINER to avoid recursion.
 
-### Bug 1 — Two sessions minted in parallel (React StrictMode)
+Edge functions write with the service role and bypass RLS — RLS exists to protect dashboard reads.
 
-Network log shows:
-```
-10:05:40Z  POST /realtime-token  (session A)
-10:05:40Z  POST /realtime-token  (session B)
-10:05:41Z  POST api.openai.com/v1/realtime  (session A SDP)
-10:05:41Z  POST api.openai.com/v1/realtime  (session B SDP)
-```
+## 2. Sync API (Edge Functions)
 
-React 18 StrictMode mounts the effect twice in dev. Our `startingRef` guard
-doesn't help because both invocations enter `start()` before either sets
-`pcRef.current`. Result: session A is created, then immediately torn down by
-session B's cleanup, but session B's `pc.ontrack` never fires reliably because
-the wiring happens after `setRemoteDescription` resolves on a racing PC.
+All functions: validate input with Zod, return CORS headers, write to `sync_log`, idempotent via `(shop_id, client_uuid)` unique constraint.
 
-Net effect: zero `TRACK RECEIVED` log, zero remote `<audio>` playback.
+Auth model: per-shop API token issued at registration. Header `x-shop-token: <token>`. Functions hash and look up `shops.api_token_hash`. `verify_jwt = false` for these (device tokens, not user JWTs).
 
-### Bug 2 — No `recvonly` transceiver = unreliable inbound audio
+- `POST /sync-register` — body: `{ owner_name, owner_phone, location, language, foot_soldier_phone }`. Creates shop, returns `{ shop_id, api_token }` (token shown once).
+- `POST /sync-catalog` — body: `{ items: [{ client_uuid, name, price, stock_count, ... , sync_version }] }`. Upsert by `(shop_id, client_uuid)`, last-write-wins on `sync_version`.
+- `POST /sync-sales` — body: `{ sales: [{ client_uuid, product_id?, amount, customer_phone?, payment_method, occurred_at }] }`. Insert ignoring conflicts on `(shop_id, client_uuid)`.
+- `GET /sync-pull?since=<iso>` — returns `{ catalogs: [...], cursor }` for catalog rows updated since cursor (sales are device-authoritative, no pull needed in V1).
 
-We do:
-```ts
-pc.ontrack = ...
-const dc = pc.createDataChannel(...)
-const mic = await getUserMedia(...)
-mic.getTracks().forEach(t => pc.addTrack(t, mic))
-```
+Every call updates `shops.last_seen_at`.
 
-We never explicitly add an audio receiver. OpenAI's answer is `sendrecv`, but
-without `pc.addTransceiver("audio", { direction: "recvonly" })` the `ontrack`
-event can race the `setRemoteDescription` resolution — especially when a second
-PC is being created in parallel (Bug 1). This is the actual reason no audio
-plays even though SDP handshake succeeds.
+## 3. Foot-soldier dashboard (web)
 
-### Bug 3 — UI is stuck on "Connecting…"
+Route: `/offline/agent/*`. Phone OTP login (Supabase phone auth). Pages:
 
-`uiState` only leaves `connecting` when:
-- `dc.onopen` fires → sets `listening`, OR
-- a server event arrives that hits a case that sets state.
+- **Shops list** — table of shops onboarded by this agent: name, phone, location, last-seen badge (green <24h, amber <7d, red older), catalog count, sales last 7d.
+- **Shop detail** — header with owner info + status, tabs: Catalog (rows w/ price + stock), Recent sales (last 50), Sync activity (from `sync_log`).
+- **Bounty** — current balance, tier, payout history, "Request payout" button (creates `bounty_payouts` row with status `requested`).
+- **Add new shop** — manual fallback form; calls `sync-register` server-side, then shows generated API token + a printable card to hand to the owner.
 
-Looking at the logs, the FIRST event seen is `response.audio_transcript.delta`
-— which we currently **don't** map to a state change. We only handle
-`response.audio.delta`. Result: even though the session is fully alive, the
-header shows "Connecting…" and the orb stays grey.
+## 4. Admin panel
 
----
+Route: `/offline/admin/*`. Gated by `app_admins`. Pages:
 
-## Fix Plan (small, surgical, no architecture change)
+- **Overview** — KPIs: total shops, active foot soldiers, sales last 7/30d, total bounty owed.
+- **Shops** — searchable table, filters by status/region, row actions: block / unblock / view sync log.
+- **Foot soldiers** — list + drill-down to their shops & payouts; mark payouts as paid.
+- **Bounty config** — edit `bounty_rates` (tier table).
+- **Sync activity** — recent `sync_log` entries with event type filter.
 
-### File: `src/components/builder/speak-to-build/useRealtimeVoice.ts`
+## 5. Shop-owner web view (read-only)
 
-1. **Module-level lock** to defeat StrictMode double-start:
-   ```ts
-   // outside the hook
-   let activeSessionId = 0;
-   ```
-   In `start()`, take a local id, abort if a newer one starts, and skip
-   ALL side-effects (token mint, PC creation, SDP) when an active session
-   already exists. Pair with `pcRef.current` check.
+Route: `/offline/shop/*`. Phone OTP login; matches by `owner_phone`. Pages: catalog (read-only), sales (read-only), profile.
 
-2. **Explicit recvonly audio transceiver** before `addTrack`:
-   ```ts
-   pc.addTransceiver("audio", { direction: "recvonly" });
-   ```
-   This guarantees `ontrack` fires deterministically.
+## Branding
 
-3. **Move `pc.ontrack` assignment BEFORE creating the data channel and mic**
-   (it already is — keep it that way) AND attach the audio element to
-   `document.body` so iOS/Safari treat it as a user-visible sink:
-   ```ts
-   audioEl.setAttribute("playsinline", "true");
-   audioEl.style.display = "none";
-   document.body.appendChild(audioEl);
-   ```
-   Currently we create the element but never attach it to the DOM, which
-   on some browsers prevents playback.
+Tailwind tokens added to `index.css` + `tailwind.config.ts`:
+- `--offline-primary: 153 30% 12%` (#15261F dark green)
+- `--offline-accent: 19 90% 56%` (#F46D2A orange)
+- `--offline-bg: 43 25% 92%` (#F3F1EB cream)
+- `font-sans` Inter via existing system font stack
 
-4. **Broaden state transitions** so the UI exits "Connecting…" the moment
-   anything happens:
-   ```ts
-   case "session.created":
-   case "session.updated":
-   case "response.created":
-   case "response.audio_transcript.delta":   // ← first event we see
-     if (uiState === "connecting") setUiState("listening");
-     break;
-   ```
+Scoped to `/offline/*` routes only — does not touch the locked landing/auth/builder UI.
 
-5. **Watchdog**: 8s after `start()`, if still `connecting`, log a clear error
-   and call `onError`. This stops the silent-forever failure mode.
+## File layout
 
-### File: `src/components/builder/speak-to-build/SpeakToBuild.tsx`
-
-No structural changes. Just confirm:
-- The cleanup ref pattern (already in place) stays.
-- "Start conversation" CTA stays visible whenever `audioBlocked` is true.
-
----
-
-## Verification (after applying)
-
-After hard refresh on `/dashboard/seller/eshop/speak`, expect in console:
-
-```
-TOKEN OK { ... }                           ← only ONCE now
-[useRealtimeVoice] RTCPeerConnection created
-SDP SENT
-SDP ANSWER RECEIVED
-PC state: connecting
-ICE state: checking
-TRACK RECEIVED                             ← now fires
-AUDIO PLAYING                              ← now fires
-DATA CHANNEL OPEN
-Realtime event: session.created
-Realtime event: response.audio_transcript.delta
+```text
+supabase/functions/
+  sync-register/index.ts
+  sync-catalog/index.ts
+  sync-sales/index.ts
+  sync-pull/index.ts
+src/pages/offline/
+  agent/{Login,Shops,ShopDetail,Bounty,AddShop}.tsx
+  admin/{Overview,Shops,FootSoldiers,BountyConfig,SyncActivity}.tsx
+  shop/{Login,Catalog,Sales,Profile}.tsx
+src/components/offline/
+  OfflineLayout.tsx, AgentNav.tsx, AdminNav.tsx, StatusBadge.tsx, ...
+src/hooks/offline/
+  useShops.ts, useShopDetail.ts, useBounty.ts, useSyncLog.ts, useAdminShops.ts, ...
+src/lib/offline/
+  shopToken.ts (client-side helpers), bountyMath.ts
 ```
 
-UI: header transitions Connecting → Listening within ~1.5s. Orb pulses green
-when ADA speaks. You hear the greeting.
+Mounted in `src/App.tsx` under three new route groups; no changes to existing landing, builder, or auth routes.
 
-If autoplay is blocked, the "Start conversation" button appears — one tap
-unlocks audio.
+## Build order
 
----
+1. Migration (schema + RLS + helper functions + seed `bounty_rates`).
+2. Edge functions + idempotency tests via `curl_edge_functions`.
+3. Brand tokens + `OfflineLayout`.
+4. Foot-soldier dashboard.
+5. Admin panel.
+6. Shop-owner read-only view.
+7. Smoke-test end-to-end with a fake "device" curl script.
 
-## Out of scope for this fix
+## Notes for the desktop app team (not built here)
 
-- Migrating to GA `/v1/realtime/client_secrets` + `gpt-realtime` model.
-  The current beta endpoint works (events prove it). Migration is a separate
-  task once basic playback is confirmed.
-- VoiceOrb color mapping to YANGU orange / green. Separate cosmetic task.
-- Removing legacy `useVoiceCall.ts`. Cleanup task.
+- Auth: keep `x-shop-token` in OS keychain.
+- Generate `client_uuid` per row (catalog item / sale) and persist it; safe to retry.
+- Catalog uses last-write-wins on `sync_version`; bump it on every local edit.
+- `GET /sync-pull?since=<cursor>` returns server's `updated_at` cursor to store locally.
