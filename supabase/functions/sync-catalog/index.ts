@@ -1,7 +1,7 @@
 import {
   admin,
   authenticateShop,
-  corsHeaders,
+  buildCorsHeaders,
   json,
   logSync,
 } from "../_shared/offlineSync.ts";
@@ -19,18 +19,18 @@ interface CatalogItem {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+  if (req.method === "OPTIONS") return new Response("ok", { headers: buildCorsHeaders(req) });
+  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405, req);
 
   const auth = await authenticateShop(req);
-  if (!auth) return json({ error: "unauthorized" }, 401);
+  if (!auth) return json({ error: "unauthorized" }, 401, req);
 
   let body: { items?: CatalogItem[] };
-  try { body = await req.json(); } catch { return json({ error: "invalid_json" }, 400); }
+  try { body = await req.json(); } catch { return json({ error: "invalid_json" }, 400, req); }
 
   const items = Array.isArray(body.items) ? body.items : [];
-  if (items.length === 0) return json({ accepted: 0 });
-  if (items.length > 500) return json({ error: "too_many" }, 400);
+  if (items.length === 0) return json({ accepted: 0 }, 200, req);
+  if (items.length > 500) return json({ error: "too_many" }, 400, req);
 
   const sb = admin();
   const rows = items
@@ -54,9 +54,9 @@ Deno.serve(async (req) => {
     .from("offline_catalogs")
     .upsert(rows, { onConflict: "shop_id,client_uuid", count: "exact" });
 
-  if (error) return json({ error: "upsert_failed", detail: error.message }, 500);
+  if (error) return json({ error: "upsert_failed", detail: error.message }, 500, req);
 
   await logSync(auth.shop_id, "catalog", { count: rows.length });
 
-  return json({ accepted: count ?? rows.length });
+  return json({ accepted: count ?? rows.length }, 200, req);
 });

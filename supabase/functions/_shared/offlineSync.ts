@@ -1,16 +1,39 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-export const corsHeaders = {
+const ALLOWED_ORIGIN_PATTERNS: RegExp[] = [
+  /^tauri:\/\/localhost$/,
+  /^http:\/\/localhost(:\d+)?$/,
+  /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
+  /^https:\/\/([a-z0-9-]+\.)*lovable\.app$/i,
+  /^https:\/\/([a-z0-9-]+\.)*yangu\.(io|store|studio|site|community|live|shop)$/i,
+];
+
+export function buildCorsHeaders(req: Request): Record<string, string> {
+  const origin = req.headers.get("Origin") ?? "";
+  const allowed = ALLOWED_ORIGIN_PATTERNS.some((re) => re.test(origin));
+  return {
+    "Access-Control-Allow-Origin": allowed ? origin : "*",
+    "Vary": "Origin",
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type, x-shop-token",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Max-Age": "86400",
+  };
+}
+
+// Backwards-compatible default (no per-request origin echo).
+export const corsHeaders: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-shop-token",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
-export function json(body: unknown, status = 200): Response {
+export function json(body: unknown, status = 200, req?: Request): Response {
+  const headers = req ? buildCorsHeaders(req) : corsHeaders;
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...headers, "Content-Type": "application/json" },
   });
 }
 

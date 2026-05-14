@@ -1,6 +1,6 @@
 import {
   admin,
-  corsHeaders,
+  buildCorsHeaders,
   generateToken,
   hashToken,
   json,
@@ -8,11 +8,11 @@ import {
 } from "../_shared/offlineSync.ts";
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+  if (req.method === "OPTIONS") return new Response("ok", { headers: buildCorsHeaders(req) });
+  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405, req);
 
   let body: Record<string, unknown>;
-  try { body = await req.json(); } catch { return json({ error: "invalid_json" }, 400); }
+  try { body = await req.json(); } catch { return json({ error: "invalid_json" }, 400, req); }
 
   const owner_name = String(body.owner_name ?? "").trim();
   const owner_phone = String(body.owner_phone ?? "").trim();
@@ -22,8 +22,8 @@ Deno.serve(async (req) => {
     ? String(body.foot_soldier_phone).trim()
     : null;
 
-  if (!owner_name || owner_name.length > 200) return json({ error: "invalid_owner_name" }, 400);
-  if (!owner_phone || owner_phone.length > 30) return json({ error: "invalid_owner_phone" }, 400);
+  if (!owner_name || owner_name.length > 200) return json({ error: "invalid_owner_name" }, 400, req);
+  if (!owner_phone || owner_phone.length > 30) return json({ error: "invalid_owner_phone" }, 400, req);
 
   const sb = admin();
 
@@ -55,9 +55,9 @@ Deno.serve(async (req) => {
     .select("id")
     .single();
 
-  if (error || !data) return json({ error: "insert_failed", detail: error?.message }, 500);
+  if (error || !data) return json({ error: "insert_failed", detail: error?.message }, 500, req);
 
   await logSync(data.id, "register", { owner_phone, onboarded_by });
 
-  return json({ shop_id: data.id, api_token: token });
+  return json({ shop_id: data.id, api_token: token }, 200, req);
 });
