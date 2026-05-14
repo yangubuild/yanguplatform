@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PhoneOtpLogin } from "../PhoneOtpLogin";
 import { OfflineLayout, Card, Table, Badge, lastSeenLabel, lastSeenTone } from "../OfflineLayout";
+import { offlineTheme as t } from "../theme";
 
 function ShopHome({ shop }: { shop: any }) {
   return (
@@ -75,11 +76,16 @@ export default function ShopApp() {
 
   if (!shop) {
     return (
-      <div style={{ minHeight: "100vh", background: "#F3F1EB", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-        <Card>
-          <h2 style={{ marginTop: 0 }}>No shop linked</h2>
-          <p>We could not find a shop registered with this phone number. Ask your foot soldier to register you.</p>
-          <button onClick={() => supabase.auth.signOut()}>Sign out</button>
+      <div style={{ minHeight: "100vh", background: t.bg, color: t.text, fontFamily: t.fontFamily, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+        <Card style={{ maxWidth: 420, color: t.text }}>
+          <h2 style={{ marginTop: 0, color: t.text }}>No shop linked</h2>
+          <p style={{ color: t.text, lineHeight: 1.5 }}>
+            We could not find a shop registered with this phone number. Ask your foot soldier to register you.
+          </p>
+          <button
+            onClick={() => supabase.auth.signOut()}
+            style={{ background: t.accent, color: "#fff", border: "none", borderRadius: 8, padding: "10px 16px", fontWeight: 600, fontSize: 14, cursor: "pointer" }}
+          >Sign out</button>
         </Card>
       </div>
     );
