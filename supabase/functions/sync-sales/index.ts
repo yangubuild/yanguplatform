@@ -1,7 +1,7 @@
 import {
   admin,
   authenticateShop,
-  corsHeaders,
+  buildCorsHeaders,
   json,
   logSync,
 } from "../_shared/offlineSync.ts";
@@ -16,18 +16,18 @@ interface SaleRow {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+  if (req.method === "OPTIONS") return new Response("ok", { headers: buildCorsHeaders(req) });
+  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405, req);
 
   const auth = await authenticateShop(req);
-  if (!auth) return json({ error: "unauthorized" }, 401);
+  if (!auth) return json({ error: "unauthorized" }, 401, req);
 
   let body: { sales?: SaleRow[] };
-  try { body = await req.json(); } catch { return json({ error: "invalid_json" }, 400); }
+  try { body = await req.json(); } catch { return json({ error: "invalid_json" }, 400, req); }
 
   const sales = Array.isArray(body.sales) ? body.sales : [];
-  if (sales.length === 0) return json({ accepted: 0 });
-  if (sales.length > 1000) return json({ error: "too_many" }, 400);
+  if (sales.length === 0) return json({ accepted: 0 }, 200, req);
+  if (sales.length > 1000) return json({ error: "too_many" }, 400, req);
 
   const rows = sales
     .filter((s) => s && s.client_uuid && s.occurred_at && Number.isFinite(Number(s.amount)))
@@ -49,9 +49,9 @@ Deno.serve(async (req) => {
     .from("offline_sales")
     .upsert(rows, { onConflict: "shop_id,client_uuid", ignoreDuplicates: true, count: "exact" });
 
-  if (error) return json({ error: "insert_failed", detail: error.message }, 500);
+  if (error) return json({ error: "insert_failed", detail: error.message }, 500, req);
 
   await logSync(auth.shop_id, "sales", { count: rows.length });
 
-  return json({ accepted: count ?? rows.length });
+  return json({ accepted: count ?? rows.length }, 200, req);
 });
