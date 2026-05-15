@@ -5,6 +5,7 @@ import {
   json,
   logSync,
 } from "../_shared/offlineSync.ts";
+import { capturePostHog } from "../_shared/posthog.ts";
 
 interface SaleRow {
   client_uuid: string;
@@ -52,6 +53,13 @@ Deno.serve(async (req) => {
   if (error) return json({ error: "insert_failed", detail: error.message }, 500, req);
 
   await logSync(auth.shop_id, "sales", { count: rows.length });
+
+  const total = rows.reduce((sum, r) => sum + (r.amount || 0), 0);
+  capturePostHog("offline_sale_recorded", auth.shop_id, {
+    shop_id: auth.shop_id,
+    sale_count: rows.length,
+    total_amount: total,
+  });
 
   return json({ accepted: count ?? rows.length }, 200, req);
 });

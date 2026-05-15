@@ -17,6 +17,7 @@ import { ConsoleAuthGuard } from "@/components/developers/ConsoleAuthGuard";
 import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
 import { DeveloperPortalGuard } from "@/components/developers/DeveloperPortalGuard";
 import { resolveAppMode } from "@/lib/routing/appMode";
+import { OfflineAnalytics } from "@/components/offline/OfflineAnalytics";
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -276,6 +277,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <RouteMeta />
+          {/* PostHog: scoped to /offline/* only — no-op elsewhere, respects DNT */}
+          <OfflineAnalytics />
           <DomainProvider>
             <PublicRouteResolver>
               <DomainGate>
