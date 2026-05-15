@@ -38,6 +38,7 @@ const INTERNAL_ROUTES = [
   "/blog",
   "/ada-ai",
   "/ada",
+  "/offline",
   "/privacy",
   "/terms",
   
