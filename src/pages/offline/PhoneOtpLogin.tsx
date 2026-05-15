@@ -2,6 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { offlineTheme as t } from "./theme";
 import { Button, Card, Field, Input } from "./OfflineLayout";
+import { trackOffline } from "@/lib/posthog";
 
 export function PhoneOtpLogin({
   title,
@@ -31,6 +32,7 @@ export function PhoneOtpLogin({
     const { error } = await supabase.auth.verifyOtp({ phone, token: code, type: "sms" });
     setLoading(false);
     if (error) { setErr(error.message); return; }
+    trackOffline("offline_login_success", { surface: title });
     onSuccess();
   };
 
