@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+// offline routes active — force-publish marker 2026-05-15
 import { lazyRetry } from "@/lib/lazyRetry";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
