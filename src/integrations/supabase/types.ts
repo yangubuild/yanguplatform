@@ -4835,6 +4835,51 @@ export type Database = {
         }
         Relationships: []
       }
+      gift_card_orders: {
+        Row: {
+          amount_cents: number
+          buyer_user_id: string | null
+          card_design: string
+          created_at: string
+          delivery_date: string | null
+          delivery_method: string
+          id: string
+          message: string | null
+          recipient_email: string | null
+          recipient_name: string | null
+          sender_name: string | null
+          status: string
+        }
+        Insert: {
+          amount_cents: number
+          buyer_user_id?: string | null
+          card_design: string
+          created_at?: string
+          delivery_date?: string | null
+          delivery_method: string
+          id?: string
+          message?: string | null
+          recipient_email?: string | null
+          recipient_name?: string | null
+          sender_name?: string | null
+          status?: string
+        }
+        Update: {
+          amount_cents?: number
+          buyer_user_id?: string | null
+          card_design?: string
+          created_at?: string
+          delivery_date?: string | null
+          delivery_method?: string
+          id?: string
+          message?: string | null
+          recipient_email?: string | null
+          recipient_name?: string | null
+          sender_name?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       global_chat_messages: {
         Row: {
           content: string
@@ -8897,6 +8942,63 @@ export type Database = {
           updated_at?: string
           user_id?: string
           website_url?: string | null
+        }
+        Relationships: []
+      }
+      special_program_applications: {
+        Row: {
+          application_type: string
+          consent_given: boolean
+          country: string | null
+          created_at: string
+          email: string
+          explanation: string | null
+          full_name: string
+          id: string
+          organization_name: string
+          phone: string | null
+          role: string | null
+          status: string
+          updated_at: string
+          uploaded_documents: Json
+          user_id: string | null
+          website: string | null
+        }
+        Insert: {
+          application_type: string
+          consent_given?: boolean
+          country?: string | null
+          created_at?: string
+          email: string
+          explanation?: string | null
+          full_name: string
+          id?: string
+          organization_name: string
+          phone?: string | null
+          role?: string | null
+          status?: string
+          updated_at?: string
+          uploaded_documents?: Json
+          user_id?: string | null
+          website?: string | null
+        }
+        Update: {
+          application_type?: string
+          consent_given?: boolean
+          country?: string | null
+          created_at?: string
+          email?: string
+          explanation?: string | null
+          full_name?: string
+          id?: string
+          organization_name?: string
+          phone?: string | null
+          role?: string | null
+          status?: string
+          updated_at?: string
+          uploaded_documents?: Json
+          user_id?: string | null
+          website?: string | null
         }
         Relationships: []
       }

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check, Star, CreditCard, Settings } from "lucide-react";
 import { useCredits } from "@/hooks/useCredits";
+import { ExtendedPlansSection } from "@/components/subscription/ExtendedPlansSection";
 
 const personalPlans = [
   {
@@ -191,6 +192,8 @@ export default function SubscriptionPage() {
           </p>
         </div>
       </div>
+
+      <ExtendedPlansSection />
     </div>
   );
 }

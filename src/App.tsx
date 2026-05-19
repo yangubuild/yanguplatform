@@ -253,6 +253,7 @@ const EmenuOrdersPage = lazy(() => lazyRetry(() => import("./pages/dashboard/Eme
 const PaymentsSettingsPage = lazy(() => lazyRetry(() => import("./pages/dashboard/PaymentsSettingsPage")));
 const SettingsPage = lazy(() => lazyRetry(() => import("./pages/dashboard/SettingsPage")));
 const EshopCheckoutPage = lazy(() => lazyRetry(() => import("./pages/EshopCheckoutPage")));
+const GiftCards = lazy(() => lazyRetry(() => import("./pages/GiftCards")));
 import { DashboardRoleGate } from "@/components/auth/DashboardRoleGate";
 
 // Supabase client auto-configured via environment
@@ -303,6 +304,7 @@ const App = () => (
                 <Route path="/project/:slug" element={<EntityDetailPage />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/affiliates" element={<Affiliates />} />
+                <Route path="/gift-cards" element={<GiftCards />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/termsofservice" element={<TermsOfService />} />
