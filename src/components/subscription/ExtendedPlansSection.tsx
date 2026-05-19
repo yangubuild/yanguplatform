@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { ShieldCheck, Globe2, Award } from "lucide-react";
 import giftCardClassic from "@/assets/gift-card-classic.png";
 import giftCardBuild from "@/assets/gift-card-build.png";
 import giftCardAbstract from "@/assets/gift-card-abstract.png";
+import badgeSoc2 from "@/assets/badge-soc2.png";
+import badgeGdpr from "@/assets/badge-gdpr.png";
+import badgeIso from "@/assets/badge-iso27001.png";
 import { SpecialProgramApplyDialog, type ProgramType } from "./SpecialProgramApplyDialog";
 
 const benefitCards: Array<{
@@ -105,9 +107,9 @@ export function ExtendedPlansSection() {
           </p>
         </div>
         <div className="flex items-center gap-4 sm:gap-6 shrink-0">
-          <ComplianceBadge icon={<ShieldCheck className="w-5 h-5" />} label="SOC 2" sub="TYPE II" />
-          <ComplianceBadge icon={<Globe2 className="w-5 h-5" />} label="GDPR" />
-          <ComplianceBadge icon={<Award className="w-5 h-5" />} label="ISO 27001" />
+          <img src={badgeSoc2} alt="SOC 2 Type II" className="w-16 h-16 sm:w-20 sm:h-20 object-contain" />
+          <img src={badgeGdpr} alt="GDPR" className="w-16 h-16 sm:w-20 sm:h-20 object-contain" />
+          <img src={badgeIso} alt="ISO 27001" className="w-16 h-16 sm:w-20 sm:h-20 object-contain" />
         </div>
         <button className="shrink-0 inline-flex items-center justify-center rounded-lg border border-border bg-background/40 px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted transition-colors">
           Learn more
@@ -120,23 +122,5 @@ export function ExtendedPlansSection() {
         onOpenChange={(open) => !open && setApplyOpen(null)}
       />
     </section>
-  );
-}
-
-function ComplianceBadge({
-  icon,
-  label,
-  sub,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  sub?: string;
-}) {
-  return (
-    <div className="w-[78px] h-[78px] rounded-full border border-border flex flex-col items-center justify-center text-muted-foreground gap-0.5">
-      {icon}
-      <span className="text-[10px] font-bold tracking-wide text-foreground">{label}</span>
-      {sub && <span className="text-[8px] tracking-wider text-muted-foreground">{sub}</span>}
-    </div>
   );
 }
