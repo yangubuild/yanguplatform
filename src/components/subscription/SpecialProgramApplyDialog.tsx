@@ -95,14 +95,49 @@ export function SpecialProgramApplyDialog({ open, type, onOpenChange }: Props) {
     }
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("special_program_applications").insert({
+      const { data: inserted, error } = await supabase.from("special_program_applications").insert({
         user_id: user?.id ?? null,
         ...form,
         application_type: type,
         uploaded_documents: docs,
         consent_given: consent,
-      });
+      }).select("id").single();
       if (error) throw error;
+
+      // Notify admin at info@yangu.io
+      try {
+        await supabase.functions.invoke("send-transactional-email", {
+          body: {
+            templateName: "support-ticket-alert",
+            recipientEmail: "info@yangu.io",
+            idempotencyKey: `special-program-${inserted?.id ?? Date.now()}`,
+            templateData: {
+              name: form.full_name,
+              email: form.email,
+              category: `yangu for ${TYPE_LABELS[type]} application`,
+              description: [
+                `Application Type: ${TYPE_LABELS[type]}`,
+                `Organization: ${form.organization_name}`,
+                `Country: ${form.country}`,
+                `Phone: ${form.phone}`,
+                `Website: ${form.website}`,
+                `Role: ${form.role}`,
+                `Status: pending`,
+                ``,
+                `Why applying:`,
+                form.explanation,
+                ``,
+                `Uploaded documents:`,
+                ...docs.map((d) => `- ${d.label}: ${d.name} (${d.path})`),
+              ].join("\n"),
+              ticketId: inserted?.id ?? "",
+            },
+          },
+        });
+      } catch (notifyErr) {
+        console.error("Failed to notify admin:", notifyErr);
+      }
+
       setSuccess(true);
     } catch (e) {
       toast.error((e as Error).message);
