@@ -95,14 +95,49 @@ export function SpecialProgramApplyDialog({ open, type, onOpenChange }: Props) {
     }
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("special_program_applications").insert({
+      const { data: inserted, error } = await supabase.from("special_program_applications").insert({
         user_id: user?.id ?? null,
         ...form,
         application_type: type,
         uploaded_documents: docs,
         consent_given: consent,
-      });
+      }).select("id").single();
       if (error) throw error;
+
+      // Notify admin at info@yangu.io
+      try {
+        await supabase.functions.invoke("send-transactional-email", {
+          body: {
+            templateName: "support-ticket-alert",
+            recipientEmail: "info@yangu.io",
+            idempotencyKey: `special-program-${inserted?.id ?? Date.now()}`,
+            templateData: {
+              name: form.full_name,
+              email: form.email,
+              category: `yangu for ${TYPE_LABELS[type]} application`,
+              description: [
+                `Application Type: ${TYPE_LABELS[type]}`,
+                `Organization: ${form.organization_name}`,
+                `Country: ${form.country}`,
+                `Phone: ${form.phone}`,
+                `Website: ${form.website}`,
+                `Role: ${form.role}`,
+                `Status: pending`,
+                ``,
+                `Why applying:`,
+                form.explanation,
+                ``,
+                `Uploaded documents:`,
+                ...docs.map((d) => `- ${d.label}: ${d.name} (${d.path})`),
+              ].join("\n"),
+              ticketId: inserted?.id ?? "",
+            },
+          },
+        });
+      } catch (notifyErr) {
+        console.error("Failed to notify admin:", notifyErr);
+      }
+
       setSuccess(true);
     } catch (e) {
       toast.error((e as Error).message);
@@ -124,7 +159,7 @@ export function SpecialProgramApplyDialog({ open, type, onOpenChange }: Props) {
             <CheckCircle2 className="w-12 h-12 mx-auto mb-4 text-green-500" />
             <DialogTitle className="text-xl mb-2">Application Received</DialogTitle>
             <p className="text-sm text-muted-foreground mb-6">
-              Our YANGU team will review your application and get back to you if you qualify.
+              Our yangu team will review your application and get back to you if you qualify.
             </p>
             <button
               onClick={() => handleClose(false)}
@@ -136,7 +171,7 @@ export function SpecialProgramApplyDialog({ open, type, onOpenChange }: Props) {
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle>Apply for YANGU for {TYPE_LABELS[type]}</DialogTitle>
+              <DialogTitle>Apply for yangu for {TYPE_LABELS[type]}</DialogTitle>
               <DialogDescription>Fill in the form below. Our team reviews applications within 5–7 business days.</DialogDescription>
             </DialogHeader>
 
@@ -161,7 +196,7 @@ export function SpecialProgramApplyDialog({ open, type, onOpenChange }: Props) {
                   rows={3}
                   value={form.explanation}
                   onChange={(e) => setForm({ ...form, explanation: e.target.value })}
-                  placeholder="Tell us briefly about your needs and how YANGU will help."
+                  placeholder="Tell us briefly about your needs and how yangu will help."
                 />
               </div>
 
@@ -214,7 +249,7 @@ export function SpecialProgramApplyDialog({ open, type, onOpenChange }: Props) {
               <label className="flex items-start gap-2 cursor-pointer">
                 <Checkbox checked={consent} onCheckedChange={(v) => setConsent(!!v)} className="mt-0.5" />
                 <span className="text-xs text-muted-foreground">
-                  I confirm the submitted information is valid and YANGU may review my application.
+                  I confirm the submitted information is valid and yangu may review my application.
                 </span>
               </label>
 
