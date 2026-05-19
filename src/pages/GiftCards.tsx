@@ -120,7 +120,7 @@ export default function GiftCards() {
 
         <div className="rounded-2xl border border-border bg-card p-6 sm:p-8">
           <h2 className="text-center text-2xl sm:text-3xl font-bold text-foreground mb-8">
-            Buy a YANGU gift card
+            Buy a yangu gift card
           </h2>
 
           {/* Card design selector */}
@@ -171,7 +171,7 @@ export default function GiftCards() {
               </div>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              This amount will be applied as account balance and automatically used for YANGU subscription payments.
+              This amount will be applied as account balance and automatically used for yangu subscription payments.
             </p>
           </div>
 

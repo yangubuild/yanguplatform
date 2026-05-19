@@ -5,7 +5,6 @@ import App from "./App.tsx";
 import { startBuildVersionGuard } from "./lib/lazyRetry";
 import { initCapacitor } from "./lib/capacitor";
 import { initSentry, Sentry } from "./lib/sentry";
-import { DevErrorButton } from "./components/DevErrorButton";
 import "./index.css";
 
 // Initialize Sentry as early as possible (skips Lovable preview hosts)
@@ -48,7 +47,6 @@ createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <Sentry.ErrorBoundary fallback={<div style={{ padding: 24 }}>Something went wrong. The team has been notified.</div>}>
         <App />
-        <DevErrorButton />
       </Sentry.ErrorBoundary>
     </QueryClientProvider>
   </React.StrictMode>

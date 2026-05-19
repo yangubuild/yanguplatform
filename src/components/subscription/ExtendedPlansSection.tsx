@@ -13,19 +13,19 @@ const benefitCards: Array<{
 }> = [
   {
     type: "student",
-    title: "YANGU for Students",
+    title: "yangu for Students",
     description:
-      "Give verified students discounted access to YANGU tools and creator workflows.",
+      "Give verified students discounted access to yangu tools and creator workflows.",
   },
   {
     type: "campus",
-    title: "YANGU for Campus",
+    title: "yangu for Campus",
     description:
-      "Billing, team access, administrative controls and scalable YANGU tools for universities and institutions.",
+      "Billing, team access, administrative controls and scalable yangu tools for universities and institutions.",
   },
   {
     type: "non_profit",
-    title: "YANGU for Non-Profit",
+    title: "yangu for Non-Profit",
     description:
       "Discounted access for NGOs, charities, social impact teams and registered non-profit organizations.",
   },
@@ -44,7 +44,7 @@ export function ExtendedPlansSection() {
             Gift Cards
           </h3>
           <p className="text-sm text-muted-foreground mb-5 max-w-md mx-auto md:mx-0">
-            Send a YANGU gift card to friends, teams, creators or businesses.
+            Send a yangu gift card to friends, teams, creators or businesses.
           </p>
           <button
             onClick={() => navigate("/gift-cards")}
@@ -66,7 +66,7 @@ export function ExtendedPlansSection() {
           />
           <img
             src={giftCardClassic}
-            alt="YANGU gift card"
+            alt="yangu gift card"
             className="absolute top-0 left-1/2 -translate-x-1/2 w-[180px] sm:w-[220px] rounded-xl shadow-2xl rotate-[2deg]"
           />
         </div>
