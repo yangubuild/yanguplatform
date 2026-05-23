@@ -107,7 +107,7 @@ export function ExtendedPlansSection() {
           </p>
         </div>
         <div className="flex items-center gap-4 sm:gap-6 shrink-0">
-          <img src={badgeSoc2} alt="SOC 2 Type II" className="w-16 h-16 sm:w-20 sm:h-20 object-contain" />
+          <img src={badgeSoc2} alt="SOC 2 Type II" className="w-20 h-20 sm:w-24 sm:h-24 object-contain scale-125" />
           <img src={badgeGdpr} alt="GDPR" className="w-16 h-16 sm:w-20 sm:h-20 object-contain" />
           <img src={badgeIso} alt="ISO 27001" className="w-16 h-16 sm:w-20 sm:h-20 object-contain" />
         </div>

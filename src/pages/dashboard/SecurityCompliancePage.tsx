@@ -113,20 +113,20 @@ function Overview({ go }: { go: (id: SectionId) => void }) {
           Independently audited and certified
         </p>
         <div className="flex flex-wrap items-center justify-center gap-10">
-          {[
-            { img: badgeSoc2, label: "SOC 2 Type II" },
-            { img: badgeGdpr, label: "GDPR compliant" },
-            { img: badgeIso, label: "ISO 27001" },
-          ].map((b) => (
-            <div key={b.label} className="flex flex-col items-center gap-2">
-              <img src={b.img} alt={b.label} className="w-20 h-20 object-contain" />
-              <p className="text-xs text-muted-foreground">{b.label}</p>
-            </div>
-          ))}
-        </div>
-      </Card>
+           {[
+             { img: badgeSoc2, label: "SOC 2 Type II", boost: true },
+             { img: badgeGdpr, label: "GDPR compliant", boost: false },
+             { img: badgeIso, label: "ISO 27001", boost: false },
+           ].map((b) => (
+             <div key={b.label} className="flex flex-col items-center gap-2">
+               <img src={b.img} alt={b.label} className={`object-contain ${b.boost ? "w-24 h-24 scale-125" : "w-20 h-20"}`} />
+               <p className="text-xs text-muted-foreground">{b.label}</p>
+             </div>
+           ))}
+         </div>
+       </Card>
 
-      <SectionTitle>Enterprise security controls</SectionTitle>
+       <SectionTitle>Enterprise security controls</SectionTitle>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {controls.map((c) => (
           <div key={c.title} className="rounded-2xl border border-border bg-card p-5">
@@ -393,18 +393,18 @@ function Compliance() {
     <>
       <SectionTitle>Compliance & certifications</SectionTitle>
       <Card className="mb-6">
-        <div className="flex flex-wrap items-center justify-center gap-10">
-          {[
-            { img: badgeSoc2, label: "SOC 2 Type II" },
-            { img: badgeGdpr, label: "GDPR compliant" },
-            { img: badgeIso, label: "ISO 27001" },
-          ].map((b) => (
-            <div key={b.label} className="flex flex-col items-center gap-2">
-              <img src={b.img} alt={b.label} className="w-20 h-20 object-contain" />
-              <p className="text-xs text-muted-foreground">{b.label}</p>
-            </div>
-          ))}
-        </div>
+         <div className="flex flex-wrap items-center justify-center gap-10">
+           {[
+             { img: badgeSoc2, label: "SOC 2 Type II", boost: true },
+             { img: badgeGdpr, label: "GDPR compliant", boost: false },
+             { img: badgeIso, label: "ISO 27001", boost: false },
+           ].map((b) => (
+             <div key={b.label} className="flex flex-col items-center gap-2">
+               <img src={b.img} alt={b.label} className={`object-contain ${b.boost ? "w-24 h-24 scale-125" : "w-20 h-20"}`} />
+               <p className="text-xs text-muted-foreground">{b.label}</p>
+             </div>
+           ))}
+         </div>
       </Card>
       <p className="text-sm text-muted-foreground max-w-2xl">
         SOC 2 Type II and ISO 27001 reports are available to current and prospective customers
