@@ -6,6 +6,7 @@ import { ExtendedPlansSection } from "@/components/subscription/ExtendedPlansSec
 import { ManagePlanDialog } from "@/components/subscription/ManagePlanDialog";
 import { TopUpCreditsDialog } from "@/components/subscription/TopUpCreditsDialog";
 import { Button } from "@/components/ui/button";
+import yanguLogoIcon from "@/assets/yangu-logo-icon.png";
 
 const personalPlans = [
   {
@@ -118,9 +119,10 @@ export default function SubscriptionPage() {
         {/* Current plan */}
         <div className="rounded-2xl border border-border bg-card p-6 flex flex-col">
           <div className="flex items-start gap-3 mb-4">
-            <div
-              className="w-12 h-12 rounded-xl shrink-0"
-              style={{ background: "linear-gradient(135deg, #1f4d36 0%, #152A20 100%)" }}
+            <img
+              src={yanguLogoIcon}
+              alt="yangu"
+              className="w-12 h-12 rounded-xl shrink-0 object-contain"
             />
             <div>
               <p className="font-semibold text-foreground">You're on {currentPlanName} plan</p>
@@ -168,9 +170,18 @@ export default function SubscriptionPage() {
 
           {/* Segmented bar */}
           <div className="w-full h-2 rounded-full overflow-hidden bg-muted flex mb-5">
-            <div className="h-full bg-emerald-700" style={{ width: `${dailyPct}%` }} />
-            <div className="h-full bg-emerald-500" style={{ width: `${monthlyPct}%` }} />
-            <div className="h-full bg-emerald-300" style={{ width: `${extraPct}%` }} />
+            <div
+              className="h-full"
+              style={{ width: `${dailyPct}%`, background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 100%)" }}
+            />
+            <div
+              className="h-full"
+              style={{ width: `${monthlyPct}%`, background: "linear-gradient(135deg, #b5622a 0%, #8a3f1a 100%)" }}
+            />
+            <div
+              className="h-full"
+              style={{ width: `${extraPct}%`, background: "linear-gradient(135deg, #8a3f1a 0%, #5c2a12 100%)" }}
+            />
           </div>
 
           <div className="space-y-3 text-sm">
