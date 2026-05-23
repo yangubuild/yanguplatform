@@ -431,7 +431,6 @@ function Report() {
             <li>Security & vulnerabilities: <a className="text-foreground underline" href="mailto:security@yangu.io">security@yangu.io</a></li>
             <li>Privacy & DSARs: <a className="text-foreground underline" href="mailto:privacy@yangu.io">privacy@yangu.io</a></li>
             <li>Legal & DPA: <a className="text-foreground underline" href="mailto:legal@yangu.io">legal@yangu.io</a></li>
-            <li>Abuse: <a className="text-foreground underline" href="mailto:abuse@yangu.io">abuse@yangu.io</a></li>
           </ul>
         </Card>
         <div className="flex flex-wrap gap-3">
