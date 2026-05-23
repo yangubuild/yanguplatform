@@ -74,7 +74,7 @@ function Card({ children, className = "" }: { children: React.ReactNode; classNa
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="text-2xl font-bold text-foreground mb-4">{children}</h2>;
+  return <h2 className="text-lg font-semibold text-foreground mb-4">{children}</h2>;
 }
 
 function Overview({ go }: { go: (id: SectionId) => void }) {
@@ -119,7 +119,7 @@ function Overview({ go }: { go: (id: SectionId) => void }) {
              { img: badgeIso, label: "ISO 27001", boost: false },
            ].map((b) => (
              <div key={b.label} className="flex flex-col items-center gap-2">
-               <img src={b.img} alt={b.label} className={`object-contain ${b.boost ? "w-24 h-24 scale-125" : "w-20 h-20"}`} />
+               <img src={b.img} alt={b.label} className={`object-contain w-20 h-20 ${b.boost ? "scale-110" : ""}`} />
                <p className="text-xs text-muted-foreground">{b.label}</p>
              </div>
            ))}
@@ -400,7 +400,7 @@ function Compliance() {
              { img: badgeIso, label: "ISO 27001", boost: false },
            ].map((b) => (
              <div key={b.label} className="flex flex-col items-center gap-2">
-               <img src={b.img} alt={b.label} className={`object-contain ${b.boost ? "w-24 h-24 scale-125" : "w-20 h-20"}`} />
+              <img src={b.img} alt={b.label} className={`object-contain w-20 h-20 ${b.boost ? "scale-110" : ""}`} />
                <p className="text-xs text-muted-foreground">{b.label}</p>
              </div>
            ))}
