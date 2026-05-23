@@ -154,7 +154,7 @@ export default function BillingDocsPage() {
                 <div className="space-y-6">
                   {s.body.map((b) => (
                     <div key={b.sub}>
-                      <h3 className="font-semibold text-foreground mb-2">{b.sub}</h3>
+                      <h3 className="text-lg font-semibold text-foreground mb-2">{b.sub}</h3>
                       <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                         {b.items.map((i) => (
                           <li key={i}>{i}</li>
