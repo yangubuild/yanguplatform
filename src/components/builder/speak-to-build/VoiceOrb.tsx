@@ -1,11 +1,7 @@
 /**
- * VoiceOrb — animated audio-reactive orb for the Speak-to-Build call screen.
- *
- * Pure presentational. Reacts to `level` (0..1) and `state`.
- *  - speaking: gentle pulse, primary glow
- *  - listening: scales with mic level, accent glow
- *  - thinking: rotating shimmer
- *  - idle: soft static
+ * VoiceOrb — fully circular, audio-reactive voice orb.
+ * No square wrappers, no bg-box blur halos, no rectangular artifacts.
+ * All glow comes from circular radial-gradients + box-shadow on rounded-full elements.
  */
 
 import { useEffect, useRef } from "react";
@@ -23,7 +19,6 @@ interface Props {
 export function VoiceOrb({ state, level = 0, onTap, ariaLabel }: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
 
-  // Map level to scale factor smoothly via rAF for the listening state.
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -33,6 +28,10 @@ export function VoiceOrb({ state, level = 0, onTap, ariaLabel }: Props) {
       state === "thinking"  ? 1.02 :
       1;
     el.style.setProperty("--orb-scale", String(target));
+
+    // Halo intensity reacts to voice level too
+    const haloScale = state === "listening" ? 1 + Math.min(0.25, level * 0.5) : 1;
+    el.style.setProperty("--halo-scale", String(haloScale));
   }, [level, state]);
 
   const stateClass =
@@ -41,40 +40,69 @@ export function VoiceOrb({ state, level = 0, onTap, ariaLabel }: Props) {
     state === "thinking"  ? "orb-thinking"  :
     "orb-idle";
 
+  const haloColor =
+    state === "speaking" ? "var(--primary)" :
+    state === "listening" ? "var(--accent)" :
+    state === "thinking" ? "var(--primary)" :
+    "var(--muted)";
+
   return (
     <button
       type="button"
       onClick={onTap}
       aria-label={ariaLabel || "Voice orb"}
-      className="relative grid place-items-center w-[260px] h-[260px] rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+      className="relative grid place-items-center w-[340px] h-[340px] rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 border-0 p-0"
+      style={{ background: "transparent" }}
     >
-      {/* Outer halo */}
-      <div className={`absolute inset-0 rounded-full blur-3xl opacity-60 ${
-        state === "speaking" ? "bg-primary/40" :
-        state === "listening" ? "bg-accent/40" :
-        state === "thinking" ? "bg-primary/30" :
-        "bg-muted/30"
-      }`} />
+      {/* Circular ambient halo — radial-gradient on a circular element, no blur-box edges */}
+      <div
+        aria-hidden
+        className="absolute left-1/2 top-1/2 rounded-full pointer-events-none transition-transform duration-200 ease-out"
+        style={{
+          width: 340,
+          height: 340,
+          transform: "translate(-50%, -50%) scale(var(--halo-scale, 1))",
+          background: `radial-gradient(circle at center, hsl(${haloColor} / 0.45) 0%, hsl(${haloColor} / 0.18) 25%, hsl(${haloColor} / 0.06) 45%, transparent 65%)`,
+        }}
+      />
 
-      {/* Concentric rings */}
-      <div className={`absolute inset-6 rounded-full border border-foreground/10 ${
-        state === "listening" ? "animate-ping-slow" : ""
-      }`} />
-      <div className={`absolute inset-12 rounded-full border border-foreground/10`} />
+      {/* Reactive ping rings — listening only */}
+      {state === "listening" && (
+        <>
+          <span
+            aria-hidden
+            className="absolute left-1/2 top-1/2 rounded-full pointer-events-none animate-ping-ring"
+            style={{
+              width: 200,
+              height: 200,
+              border: `1px solid hsl(${haloColor} / 0.35)`,
+            }}
+          />
+          <span
+            aria-hidden
+            className="absolute left-1/2 top-1/2 rounded-full pointer-events-none animate-ping-ring-2"
+            style={{
+              width: 200,
+              height: 200,
+              border: `1px solid hsl(${haloColor} / 0.22)`,
+            }}
+          />
+        </>
+      )}
 
       {/* Core orb */}
       <div
         ref={ref}
-        className={`relative w-[170px] h-[170px] rounded-full transition-transform duration-150 ease-out ${stateClass}`}
+        className={`relative w-[180px] h-[180px] rounded-full transition-transform duration-150 ease-out ${stateClass}`}
         style={{
           transform: "scale(var(--orb-scale, 1))",
           background:
-            "radial-gradient(circle at 30% 30%, hsl(var(--primary) / 0.95), hsl(var(--primary) / 0.55) 55%, hsl(var(--primary) / 0.15) 100%)",
+            "radial-gradient(circle at 32% 28%, hsl(var(--primary) / 0.98), hsl(var(--primary) / 0.6) 55%, hsl(var(--primary) / 0.18) 100%)",
           boxShadow:
-            "0 0 60px hsl(var(--primary) / 0.55), inset 0 0 40px hsl(var(--background) / 0.25)",
+            "0 0 80px 10px hsl(var(--primary) / 0.45), inset 0 0 40px hsl(var(--background) / 0.25)",
         }}
       >
-        {/* Inner shimmer */}
+        {/* Inner shimmer — circular only */}
         <div
           className={`absolute inset-0 rounded-full mix-blend-overlay ${
             state === "thinking" ? "animate-spin-slow" : ""
@@ -88,19 +116,21 @@ export function VoiceOrb({ state, level = 0, onTap, ariaLabel }: Props) {
 
       <style>{`
         .orb-speaking { animation: orb-pulse 1.6s ease-in-out infinite; }
-        .orb-idle     { animation: orb-breathe 4s ease-in-out infinite; opacity: 0.85; }
+        .orb-idle     { animation: orb-breathe 4s ease-in-out infinite; opacity: 0.9; }
+        .orb-listening { animation: orb-breathe 2.4s ease-in-out infinite; }
         @keyframes orb-pulse {
           0%, 100% { filter: brightness(1); }
           50%      { filter: brightness(1.2); }
         }
         @keyframes orb-breathe {
-          0%, 100% { transform: scale(0.98); }
-          50%      { transform: scale(1.02); }
+          0%, 100% { filter: brightness(1); }
+          50%      { filter: brightness(1.08); }
         }
-        .animate-ping-slow { animation: ping-slow 2.4s cubic-bezier(0,0,0.2,1) infinite; }
-        @keyframes ping-slow {
-          0%   { transform: scale(1); opacity: 0.6; }
-          80%, 100% { transform: scale(1.6); opacity: 0; }
+        .animate-ping-ring { animation: ping-ring 2.4s cubic-bezier(0,0,0.2,1) infinite; }
+        .animate-ping-ring-2 { animation: ping-ring 2.4s cubic-bezier(0,0,0.2,1) infinite 1.2s; }
+        @keyframes ping-ring {
+          0%   { transform: translate(-50%, -50%) scale(0.9); opacity: 0.7; }
+          80%, 100% { transform: translate(-50%, -50%) scale(1.7); opacity: 0; }
         }
         .animate-spin-slow { animation: spin-slow 3s linear infinite; }
         @keyframes spin-slow { to { transform: rotate(360deg); } }
