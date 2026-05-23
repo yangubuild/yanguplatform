@@ -239,6 +239,8 @@ const StudioShowcasePage = lazy(() => lazyRetry(() => import("./pages/dashboard/
 const ProfilePage = lazy(() => lazyRetry(() => import("./pages/dashboard/ProfilePage")));
 const EditProfilePage = lazy(() => lazyRetry(() => import("./pages/dashboard/EditProfilePage")));
 const SubscriptionPage = lazy(() => lazyRetry(() => import("./pages/dashboard/SubscriptionPage")));
+const BillingDocsPage = lazy(() => lazyRetry(() => import("./pages/dashboard/BillingDocsPage")));
+const SecurityCompliancePage = lazy(() => lazyRetry(() => import("./pages/dashboard/SecurityCompliancePage")));
 const DashboardBilling = lazy(() => lazyRetry(() => import("./pages/dashboard/DashboardBilling")));
 const PromoCodesPage = lazy(() => lazyRetry(() => import("./pages/dashboard/PromoCodesPage")));
 const AffiliatesPage = lazy(() => lazyRetry(() => import("./pages/dashboard/AffiliatesPage")));
@@ -485,6 +487,8 @@ const App = () => (
                   <Route path="settings" element={<SettingsPage />} />
                   <Route path="profile/edit" element={<EditProfilePage />} />
                   <Route path="profile/subscription" element={<SubscriptionPage />} />
+                  <Route path="profile/subscription/docs" element={<BillingDocsPage />} />
+                  <Route path="profile/subscription/security" element={<SecurityCompliancePage />} />
 
                   {/* Dashboard module pages (flat, no nesting) */}
                   <Route path="my-apps" element={<MyAppsPage />} />
