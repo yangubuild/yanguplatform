@@ -133,7 +133,7 @@ function Overview({ go }: { go: (id: SectionId) => void }) {
             <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center mb-4">
               <c.icon className="w-5 h-5 text-foreground" />
             </div>
-            <h3 className="font-semibold text-foreground mb-1">{c.title}</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-1">{c.title}</h3>
             <p className="text-sm text-muted-foreground">{c.desc}</p>
           </div>
         ))}
@@ -166,7 +166,7 @@ function TrustCenter({ go }: { go: (id: SectionId) => void }) {
             onClick={() => go(it.id)}
             className="text-left rounded-2xl border border-border bg-card p-5 hover:border-foreground/30 transition-colors"
           >
-            <h3 className="font-semibold text-foreground mb-1">{it.title}</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-1">{it.title}</h3>
             <p className="text-sm text-muted-foreground">{it.desc}</p>
           </button>
         ))}
@@ -189,7 +189,7 @@ function Dpa() {
           </p>
         </Card>
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Acknowledgements</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Acknowledgements</h3>
           <ol className="list-decimal pl-5 space-y-1.5">
             <li>This DPA does not establish a joint controllership arrangement under Article 26 of the GDPR.</li>
             <li>Each party remains solely responsible for its own compliance with Applicable Data Protection Laws in respect of its separate processing activities.</li>
@@ -199,11 +199,11 @@ function Dpa() {
           </ol>
         </Card>
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Data Protection Officer</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Data Protection Officer</h3>
           <p>You can contact our DPO at <a className="text-foreground underline" href="mailto:dpo@yangu.io">dpo@yangu.io</a>.</p>
         </Card>
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Scope of processing</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Scope of processing</h3>
           <p>
             yangu processes Customer Personal Data only to provide the services described in the
             Agreement, including hosting, storage, transmission, analytics required for service
@@ -212,7 +212,7 @@ function Dpa() {
           </p>
         </Card>
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Sub-processors & international transfers</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Sub-processors & international transfers</h3>
           <p>
             yangu engages vetted sub-processors listed in the Sub-processors section. International
             transfers rely on Standard Contractual Clauses (SCCs) and supplementary measures where
@@ -220,7 +220,7 @@ function Dpa() {
           </p>
         </Card>
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Request the signed DPA</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Request the signed DPA</h3>
           <p>
             Business and Enterprise customers can request a counter-signed copy of the DPA by
             emailing <a className="text-foreground underline" href="mailto:legal@yangu.io">legal@yangu.io</a>.
@@ -277,19 +277,19 @@ function Whitepaper() {
       <SectionTitle>Security whitepaper</SectionTitle>
       <div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Infrastructure</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Infrastructure</h3>
           <p>Hosted on hardened cloud infrastructure with isolated environments per tenant, encrypted volumes, and least-privilege IAM across all services.</p>
         </Card>
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Application security</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Application security</h3>
           <p>SDLC includes peer code review, dependency scanning, secret scanning, and automated security tests on every change. Row-Level Security enforces tenant isolation at the database layer.</p>
         </Card>
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Operational security</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Operational security</h3>
           <p>24/7 monitoring, centralized logging, on-call rotation, and quarterly access reviews. Production access requires MFA and is fully audited.</p>
         </Card>
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Request the full whitepaper</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Request the full whitepaper</h3>
           <p>Email <a className="text-foreground underline" href="mailto:security@yangu.io">security@yangu.io</a> to request the full security whitepaper or SOC 2 report under NDA.</p>
         </Card>
       </div>
@@ -310,7 +310,7 @@ function Vulnerability() {
           </p>
         </Card>
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Scope</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Scope</h3>
           <ul className="list-disc pl-5 space-y-1">
             <li>yangu web application and published surfaces</li>
             <li>yangu APIs and edge functions</li>
@@ -318,7 +318,7 @@ function Vulnerability() {
           </ul>
         </Card>
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Out of scope</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Out of scope</h3>
           <ul className="list-disc pl-5 space-y-1">
             <li>Denial of service or volumetric attacks</li>
             <li>Reports from automated scanners without verified impact</li>
@@ -326,7 +326,7 @@ function Vulnerability() {
           </ul>
         </Card>
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Submit a report</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Submit a report</h3>
           <p>Email <a className="text-foreground underline" href="mailto:security@yangu.io">security@yangu.io</a>. Encrypt sensitive details with our PGP key on request.</p>
         </Card>
       </div>
@@ -343,7 +343,7 @@ function Incident() {
           <p>Our incident response program is documented, drilled, and aligned with SOC 2 and GDPR requirements.</p>
         </Card>
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Lifecycle</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Lifecycle</h3>
           <ol className="list-decimal pl-5 space-y-1.5">
             <li><span className="text-foreground font-medium">Detect.</span> Automated alerts + 24/7 on-call.</li>
             <li><span className="text-foreground font-medium">Triage.</span> Severity assigned within 30 minutes of acknowledgement.</li>
@@ -354,7 +354,7 @@ function Incident() {
           </ol>
         </Card>
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Status & notifications</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Status & notifications</h3>
           <p>Subscribe to status updates and material incident notifications at status.yangu.io.</p>
         </Card>
       </div>
@@ -368,19 +368,19 @@ function Privacy() {
       <SectionTitle>Privacy & data residency</SectionTitle>
       <div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Where your data lives</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Where your data lives</h3>
           <p>You can select EU or US data residency for production data. Backups remain in the selected region.</p>
         </Card>
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Model training opt-out</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Model training opt-out</h3>
           <p>Customer prompts, code, and content are never used to train foundation models. AI providers are bound by contract not to retain customer data beyond what is required to return a response.</p>
         </Card>
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Retention</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Retention</h3>
           <p>Customer data is retained while the workspace is active and for up to 30 days after deletion, unless a longer retention is legally required.</p>
         </Card>
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Data subject requests</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Data subject requests</h3>
           <p>Submit DSARs (access, deletion, portability) to <a className="text-foreground underline" href="mailto:privacy@yangu.io">privacy@yangu.io</a>.</p>
         </Card>
       </div>
@@ -426,7 +426,7 @@ function Report() {
           </p>
         </Card>
         <Card>
-          <h3 className="font-semibold text-foreground mb-2">Contacts</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">Contacts</h3>
           <ul className="space-y-1.5">
             <li>Security & vulnerabilities: <a className="text-foreground underline" href="mailto:security@yangu.io">security@yangu.io</a></li>
             <li>Privacy & DSARs: <a className="text-foreground underline" href="mailto:privacy@yangu.io">privacy@yangu.io</a></li>
