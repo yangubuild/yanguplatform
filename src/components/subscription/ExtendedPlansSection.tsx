@@ -111,7 +111,10 @@ export function ExtendedPlansSection() {
           <img src={badgeGdpr} alt="GDPR" className="w-16 h-16 sm:w-20 sm:h-20 object-contain" />
           <img src={badgeIso} alt="ISO 27001" className="w-16 h-16 sm:w-20 sm:h-20 object-contain" />
         </div>
-        <button className="shrink-0 inline-flex items-center justify-center rounded-lg border border-border bg-background/40 px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted transition-colors">
+        <button
+          onClick={() => navigate("/dashboard/profile/subscription/security")}
+          className="shrink-0 inline-flex items-center justify-center rounded-lg border border-border bg-background/40 px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted transition-colors"
+        >
           Learn more
         </button>
       </div>

@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Check, Star, CreditCard, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Check, ArrowUpRight } from "lucide-react";
 import { useCredits } from "@/hooks/useCredits";
 import { ExtendedPlansSection } from "@/components/subscription/ExtendedPlansSection";
+import { ManagePlanDialog } from "@/components/subscription/ManagePlanDialog";
+import { TopUpCreditsDialog } from "@/components/subscription/TopUpCreditsDialog";
+import { Button } from "@/components/ui/button";
 
 const personalPlans = [
   {
@@ -71,18 +74,138 @@ const businessPlans = [
 ];
 
 export default function SubscriptionPage() {
-  const navigate = useNavigate();
   const [billingType, setBillingType] = useState<"personal" | "business">("personal");
   const { data: credits } = useCredits();
-  const balance = typeof credits === "number" ? credits : 1;
+  const balance = credits?.balance ?? 0;
+  const [manageOpen, setManageOpen] = useState(false);
+  const [topUpOpen, setTopUpOpen] = useState(false);
+
+  // Current plan (free baseline until billing engine wired)
+  const currentPlanName = "Free";
+  const dailyCredits = 5;
+  const dailyLimit = 5;
+  const monthlyCredits = 0;
+  const monthlyLimit = 30;
+  const extraCredits = 0;
+  const totalCredits = dailyCredits + monthlyCredits + extraCredits;
+  const totalLimit = Math.max(dailyLimit + monthlyLimit, 1);
+  const dailyPct = (dailyCredits / totalLimit) * 100;
+  const monthlyPct = (monthlyCredits / totalLimit) * 100;
+  const extraPct = (extraCredits / totalLimit) * 100;
 
   const plans = billingType === "personal" ? personalPlans : businessPlans;
 
   return (
-    <div className="max-w-4xl mx-auto py-6 px-4 min-h-screen bg-background">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-8">
-        <h1 className="text-lg font-semibold text-foreground">Choose a plan that works for you</h1>
+    <div className="max-w-5xl mx-auto py-6 px-4 min-h-screen bg-background">
+      {/* New header: Plans & credits */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-3 mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Plans & credits</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Manage your subscription plan and credit balance.
+          </p>
+        </div>
+        <Link
+          to="/dashboard/profile/subscription/docs"
+          className="inline-flex items-center gap-1 text-sm text-foreground hover:text-primary transition-colors"
+        >
+          Open docs <ArrowUpRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+
+      {/* Top cards: Current plan + Credits remaining */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        {/* Current plan */}
+        <div className="rounded-2xl border border-border bg-card p-6 flex flex-col">
+          <div className="flex items-start gap-3 mb-4">
+            <div
+              className="w-12 h-12 rounded-xl shrink-0"
+              style={{ background: "linear-gradient(135deg, #1f4d36 0%, #152A20 100%)" }}
+            />
+            <div>
+              <p className="font-semibold text-foreground">You're on {currentPlanName} plan</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Current active plan</p>
+            </div>
+          </div>
+
+          <div className="space-y-1.5 mb-5 flex-1">
+            {[
+              "5 daily credits (up to 150/month)",
+              "Basic surface access",
+              "Community support",
+            ].map((f) => (
+              <div key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                <span>{f}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="rounded-lg"
+              onClick={() => setManageOpen(true)}
+            >
+              Manage
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-lg"
+              onClick={() => setTopUpOpen(true)}
+            >
+              Top up credits
+            </Button>
+          </div>
+        </div>
+
+        {/* Credits remaining */}
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="flex items-baseline justify-between mb-3">
+            <p className="font-semibold text-foreground">Credits remaining</p>
+            <p className="text-2xl font-bold text-foreground">{totalCredits + balance}</p>
+          </div>
+
+          {/* Segmented bar */}
+          <div className="w-full h-2 rounded-full overflow-hidden bg-muted flex mb-5">
+            <div className="h-full bg-emerald-700" style={{ width: `${dailyPct}%` }} />
+            <div className="h-full bg-emerald-500" style={{ width: `${monthlyPct}%` }} />
+            <div className="h-full bg-emerald-300" style={{ width: `${extraPct}%` }} />
+          </div>
+
+          <div className="space-y-3 text-sm">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="font-medium text-foreground">Daily credits</p>
+                <p className="text-xs text-muted-foreground">Resets to {dailyLimit} credits in 12 hours</p>
+              </div>
+              <p className="font-semibold text-foreground">{dailyCredits}</p>
+            </div>
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="font-medium text-foreground">Monthly credits</p>
+                <p className="text-xs text-muted-foreground">Resets to {monthlyLimit} in 30 days</p>
+              </div>
+              <p className="font-semibold text-foreground">{monthlyCredits}</p>
+            </div>
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="font-medium text-foreground">Extra credits</p>
+                <p className="text-xs text-muted-foreground">
+                  {extraCredits > 0
+                    ? `${extraCredits} top-up credits expire in 12 months`
+                    : "No top-up credits"}
+                </p>
+              </div>
+              <p className="font-semibold text-foreground">{extraCredits}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Pricing toggle */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+        <h2 className="text-lg font-semibold text-foreground">Available plans</h2>
         <div className="flex rounded-lg overflow-hidden border border-border shrink-0">
           {(["personal", "business"] as const).map((t) => (
             <button
@@ -157,43 +280,18 @@ export default function SubscriptionPage() {
         ))}
       </div>
 
-      {/* Bottom cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Current plan */}
-        <div className="rounded-2xl p-5 border border-border bg-card">
-          <div className="flex items-center justify-between mb-1">
-            <p className="text-xs font-medium text-muted-foreground">Your Current Plan</p>
-            <Star className="w-4 h-4 text-muted-foreground" />
-          </div>
-          <p className="text-lg font-bold text-foreground mb-0.5">Free</p>
-          <p className="text-xs mb-4 text-muted-foreground">Member since Dec 25, 2025</p>
-            <button
-              onClick={() => navigate("/dashboard/profile/subscription")}
-              className="flex items-center gap-2 w-full justify-center py-2 rounded-lg text-sm border border-border hover:bg-muted transition-colors">
-            <Settings className="w-4 h-4" /> Manage Subscription
-          </button>
-        </div>
-
-        {/* Credits */}
-        <div className="rounded-2xl p-5 border border-border bg-card">
-          <div className="flex items-center justify-between mb-1">
-            <p className="text-xs font-medium text-muted-foreground">Credits Remaining</p>
-            <CreditCard className="w-4 h-4 text-muted-foreground" />
-          </div>
-          <div className="flex items-baseline gap-2 mb-2">
-            <p className="text-2xl font-bold text-foreground">{balance}</p>
-            <p className="text-xs text-muted-foreground">of 1</p>
-          </div>
-          <div className="w-full h-2 rounded-full overflow-hidden bg-muted">
-            <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(balance * 100, 100)}%` }} />
-          </div>
-          <p className="text-xs mt-2 text-muted-foreground">
-            You get 1 credit per month, this will refresh monthly.
-          </p>
-        </div>
-      </div>
-
       <ExtendedPlansSection />
+
+      <ManagePlanDialog
+        open={manageOpen}
+        onOpenChange={setManageOpen}
+        planName={currentPlanName}
+      />
+      <TopUpCreditsDialog
+        open={topUpOpen}
+        onOpenChange={setTopUpOpen}
+        currentPlan={currentPlanName}
+      />
     </div>
   );
 }
