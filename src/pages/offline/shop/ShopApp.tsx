@@ -14,7 +14,6 @@ function ShopHome({ shop }: { shop: any }) {
         <Badge tone={lastSeenTone(shop.last_seen_at)}>Last sync: {lastSeenLabel(shop.last_seen_at)}</Badge>
         <span style={{ color: "#6B6660", fontSize: 14 }}>{shop.owner_phone} · {shop.location ?? "—"}</span>
       </div>
-      <Card>This is a read-only mirror of your shop. Editing from the web is coming soon.</Card>
     </>
   );
 }
