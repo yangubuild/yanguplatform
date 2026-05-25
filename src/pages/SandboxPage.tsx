@@ -4,10 +4,9 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { AdaMainPanel } from "@/components/mass/ada/AdaMainPanel";
 import { SpeakToBuild } from "@/components/builder/speak-to-build/SpeakToBuild";
 import { SurfaceProvider } from "@/contexts/SurfaceContext";
-import RouteMeta from "@/components/seo/RouteMeta";
+import { AdaMainPanel } from "@/components/mass/ada/AdaMainPanel";
 
 type Note = {
   id: string;
@@ -143,8 +142,6 @@ export default function SandboxPage() {
 
   return (
     <div className="min-h-dvh w-full" style={{ background: "#050A07" }}>
-      <RouteMeta title="Sandbox — yangu" description="Playground for trying Ada AI, Speak to Build, and ideas. Nothing here is saved." />
-
       {/* Top banner */}
       <div
         className="sticky top-0 z-30 border-b border-amber-500/20"
