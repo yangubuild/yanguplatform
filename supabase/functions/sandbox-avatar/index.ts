@@ -68,7 +68,10 @@ async function createDIDTalk(apiKey: string, imageUrl: string, text: string): Pr
   });
   if (!createRes.ok) {
     const t = await createRes.text();
-    throw new Error(`D-ID talks ${createRes.status}: ${t.slice(0, 200)}`);
+    const err: any = new Error(`D-ID talks ${createRes.status}: ${t.slice(0, 200)}`);
+    err.status = createRes.status;
+    err.body = t;
+    throw err;
   }
   const create = await createRes.json();
   const id = create.id;
