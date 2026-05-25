@@ -297,6 +297,18 @@ export function useRealtimeVoice({
     const myStartId = ++activeStartId;
     const isStale = () => myStartId !== activeStartId;
     setUiState("connecting");
+    // Hard 15s timeout: if we're still in "connecting" after 15s, abort.
+    if (startTimerRef.current != null) window.clearTimeout(startTimerRef.current);
+    startTimerRef.current = window.setTimeout(() => {
+      if (isStale() || !mountedRef.current) return;
+      setUiState((prev) => {
+        if (prev !== "connecting") return prev;
+        console.error("[useRealtimeVoice] connection timeout after 15s — aborting");
+        try { cleanup(); } catch { /* ignore */ }
+        onError?.(new Error("Voice connection timed out. Please check your mic and internet, then retry."));
+        return "error";
+      });
+    }, 15000);
     try {
       // 1. Use the stream opened by the original Speak-to-Build click.
       const micStream = await takeRealtimeMicStream();
@@ -903,6 +915,11 @@ export function useRealtimeVoice({
       await pc.setRemoteDescription(answer);
 
       console.log("[useRealtimeVoice] connected");
+      // Connected — clear the 15s hard timeout.
+      if (startTimerRef.current != null) {
+        window.clearTimeout(startTimerRef.current);
+        startTimerRef.current = null;
+      }
       if (outboundStatsTimerRef.current != null) {
         window.clearInterval(outboundStatsTimerRef.current);
       }

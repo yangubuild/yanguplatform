@@ -260,6 +260,10 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
   const [mode, setMode] = useState<"chat" | "voice">("chat");
   const [intent, setIntent] = useState<"search" | "discuss" | null>(null);
   const [inputValue, setInputValue] = useState(() => searchParams.get("prompt") || "");
+  // Capture the prefilled prompt so we can auto-submit it once handleSend exists.
+  const pendingAutoSubmitRef = useRef<string | null>(
+    searchParams.get("prompt")?.trim() || null
+  );
   // Clear the ?prompt= param after reading so it doesn't persist on refresh
   useEffect(() => {
     if (searchParams.has("prompt")) {
@@ -1285,6 +1289,18 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
       });
     }
   }, [inputValue, activeChatId, isAuthenticated, guestUsed, pendingAttachments, intent, forcedMode, selectedProvider, adaMode, adaSkill, advancedOverride, selectedAspectRatio, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss, handleImageGenerate, handleVideoGenerate, streamChatResponse, messages, addRoutingPill, requireAuth]);
+
+  // Auto-submit a prompt that was passed via ?prompt= (e.g. from the homepage
+  // Ada bar). Runs once on mount so the user doesn't have to press Send again.
+  useEffect(() => {
+    const pending = pendingAutoSubmitRef.current;
+    if (!pending) return;
+    pendingAutoSubmitRef.current = null;
+    // Defer to next tick so initial render/state settles first.
+    const t = window.setTimeout(() => { handleSend(pending); }, 0);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // --- Voice ---
   const handleVoiceTranscript = useCallback(async (
