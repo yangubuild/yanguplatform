@@ -69,6 +69,7 @@ const PrivacyPolicy = lazy(() => lazyRetry(() => import("./pages/PrivacyPolicy")
 const AiSafety = lazy(() => lazyRetry(() => import("./pages/AiSafety")));
 const AdaLanding = lazy(() => lazyRetry(() => import("./pages/AdaLanding")));
 const Affiliates = lazy(() => lazyRetry(() => import("./pages/Affiliates")));
+const SandboxPage = lazy(() => lazyRetry(() => import("./pages/SandboxPage")));
 const DashboardCommunityPage = lazy(() => lazyRetry(() => import("./pages/dashboard/DashboardCommunityPage")));
 const InvoicesPage = lazy(() => lazyRetry(() => import("./pages/dashboard/invoices/InvoicesPage")));
 const EmailPreviewPage = lazy(() => lazyRetry(() => import("./pages/dashboard/EmailPreviewPage")));
@@ -306,6 +307,7 @@ const App = () => (
                 <Route path="/project/:slug" element={<EntityDetailPage />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/affiliates" element={<Affiliates />} />
+                <Route path="/sandbox" element={<SandboxPage />} />
                 <Route path="/gift-cards" element={<GiftCards />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
