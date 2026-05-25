@@ -9,7 +9,7 @@ import {
   UtensilsCrossed, Home, Lightbulb, Bookmark, TrendingUp,
   Layers, Image, FileText, Settings, Zap, Sparkle, Grid3X3,
   Building2, CreditCard, FileBarChart, BarChart3, UserCircle,
-  ShieldCheck, Briefcase, GraduationCap,
+  ShieldCheck, Briefcase, GraduationCap, FlaskConical,
 } from "lucide-react";
 
 // ── Account type model ───────────────────────────────────────
@@ -68,6 +68,7 @@ export interface NavSection {
 export const PRIMARY_NAV_ITEMS: NavItem[] = [
   { icon: Compass, label: "Explore", chevron: true, to: "/dashboard/explore" },
   { icon: Tag, label: "Offers", chevron: false, badge: "+120%", dot: true, to: "/dashboard/offers" },
+  { icon: FlaskConical, label: "Sandbox", chevron: false, badge: "NEW", to: "/sandbox" },
   { icon: MessageCircle, label: "Messages", chevron: false, to: "/dashboard/messages" },
   { icon: LayoutDashboard, label: "Dashboard", chevron: true, to: "/dashboard/dashboard" },
   { icon: null, label: "Ada AI", chevron: true, customIcon: "ada", to: "/dashboard/ada" },
