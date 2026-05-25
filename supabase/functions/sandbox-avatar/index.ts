@@ -138,8 +138,33 @@ serve(async (req) => {
       const name = (body.name || "there").toString().slice(0, 40).replace(/[^\p{L}\p{N}\s'-]/gu, "");
       const script = `Hi, I'm ${name || "there"}, and I build with Yangu.`;
       const imageUrl = await uploadImageToDID(apiKey, body.image_base64);
-      const videoUrl = await createDIDTalk(apiKey, imageUrl, script);
-      return json({ ok: true, video_url: videoUrl, image_url: imageUrl });
+      try {
+        const videoUrl = await createDIDTalk(apiKey, imageUrl, script);
+        return json({ ok: true, video_url: videoUrl, image_url: imageUrl });
+      } catch (e: any) {
+        const status = e?.status as number | undefined;
+        const insufficient =
+          status === 402 ||
+          (typeof e?.body === "string" && e.body.includes("InsufficientCreditsError"));
+        if (insufficient) {
+          return json({
+            ok: true,
+            fallback: true,
+            image_url: imageUrl,
+            video_url: null,
+            notice:
+              "Talking avatar preview is at capacity right now. Your photo is ready to use in your brand card.",
+          });
+        }
+        if (status && status >= 400 && status < 500) {
+          return json({
+            ok: false,
+            fallback: true,
+            error: "Couldn't generate a talking preview from that photo. Try a clearer face-on shot.",
+          }, 200);
+        }
+        throw e;
+      }
     }
 
     if (action === "creatify-avatars") {
