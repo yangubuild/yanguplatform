@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { SpeakToBuild } from "@/components/builder/speak-to-build/SpeakToBuild";
 import { SurfaceProvider } from "@/contexts/SurfaceContext";
 import { AdaMainPanel } from "@/components/mass/ada/AdaMainPanel";
+import { AvatarStudio } from "@/components/sandbox/AvatarStudio";
 
 type Note = {
   id: string;
@@ -140,6 +141,17 @@ export default function SandboxPage() {
     };
   }, []);
 
+  // "Create Avatar" Ada quick-action dispatches this event; we scroll to the studio.
+  useEffect(() => {
+    const handler = () => {
+      document
+        .getElementById("avatar-studio")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+    window.addEventListener("yangu:create-avatar", handler);
+    return () => window.removeEventListener("yangu:create-avatar", handler);
+  }, []);
+
   return (
     <div className="min-h-dvh w-full" style={{ background: "#050A07" }}>
       {/* Top banner */}
@@ -209,6 +221,9 @@ export default function SandboxPage() {
             </SurfaceProvider>
           </div>
         </section>
+
+        {/* Avatar Studio */}
+        <AvatarStudio />
 
         {/* Idea canvas */}
         <StickyCanvas />
