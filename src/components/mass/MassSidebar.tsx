@@ -27,9 +27,9 @@ const topNavItems = [
 
 const bottomNavItems = [
   { icon: null, customIcon: adaIcon, label: "Ada ai", id: "ada-ai" },
-  { icon: FlaskConical, label: "Sandbox", id: "sandbox" },
   { icon: PenLine, label: "Blog", id: "blog" },
   { icon: Users, label: "Community", id: "community" },
+  { icon: FlaskConical, label: "Sandbox", id: "sandbox" },
   { icon: Sparkle, label: "Affiliates", id: "affiliates" },
   { icon: Info, label: "Terms of Service", id: "termsofservice" },
   { icon: Shield, label: "Privacy Policy", id: "privacypolicy" },
