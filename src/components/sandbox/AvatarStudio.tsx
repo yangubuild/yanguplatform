@@ -62,9 +62,13 @@ function PhotoTab({ onResult, name }: { onResult: (s: Selected) => void; name: s
       });
       if (error) throw error;
       if (!data?.ok) throw new Error(data?.error || "Generation failed");
-      setVideoUrl(data.video_url);
-      onResult({ kind: "photo", imageDataUrl: preview, videoUrl: data.video_url });
-      toast.success("Avatar preview ready");
+      setVideoUrl(data.video_url || null);
+      onResult({ kind: "photo", imageDataUrl: preview, videoUrl: data.video_url || undefined });
+      if (data.video_url) {
+        toast.success("Avatar preview ready");
+      } else if (data.fallback) {
+        toast.message(data.notice || "Talking preview unavailable — using your photo.");
+      }
     } catch (e: any) {
       toast.error(e?.message || "Could not generate avatar");
     } finally {
