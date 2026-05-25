@@ -347,6 +347,14 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent side="top" align="start" className="w-56 mb-1">
+                    {canInstall && (
+                      <>
+                        <DropdownMenuItem onClick={() => { void install(); }}>
+                          <Download className="w-4 h-4 mr-2" /> Install app
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
                     <DropdownMenuItem onClick={() => navigate("/dashboard/profile/subscription")}>
                       <CreditCardIcon className="w-4 h-4 mr-2" /> Manage subscription
                     </DropdownMenuItem>
