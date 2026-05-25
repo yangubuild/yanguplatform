@@ -915,6 +915,11 @@ export function useRealtimeVoice({
       await pc.setRemoteDescription(answer);
 
       console.log("[useRealtimeVoice] connected");
+      // Connected — clear the 15s hard timeout.
+      if (startTimerRef.current != null) {
+        window.clearTimeout(startTimerRef.current);
+        startTimerRef.current = null;
+      }
       if (outboundStatsTimerRef.current != null) {
         window.clearInterval(outboundStatsTimerRef.current);
       }
