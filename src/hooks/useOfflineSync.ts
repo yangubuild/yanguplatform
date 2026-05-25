@@ -2,6 +2,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  addToCart as cartAdd,
+  removeFromCart as cartRemove,
+  updateCartItemQuantity as cartUpdate,
+  type CartItem,
+} from "@/lib/cart/cartStore";
+import {
   getPendingActions,
   getPendingCount,
   incrementRetry,
@@ -38,6 +44,37 @@ async function replayAction(action: OfflineAction): Promise<void> {
         payload as never,
       );
       if (error) throw new Error(error.message);
+      return;
+    }
+    case "add_to_cart": {
+      const { surface_id, item, quantity } = payload as {
+        surface_id: string;
+        item: Omit<CartItem, "quantity" | "surface_id">;
+        quantity?: number;
+      };
+      if (!surface_id || !item) return;
+      cartAdd(surface_id, item, quantity ?? 1);
+      return;
+    }
+    case "remove_from_cart": {
+      const { surface_id, item_id, variant } = payload as {
+        surface_id: string;
+        item_id: string;
+        variant?: string | null;
+      };
+      if (!surface_id || !item_id) return;
+      cartRemove(surface_id, item_id, variant ?? null);
+      return;
+    }
+    case "update_cart_quantity": {
+      const { surface_id, item_id, quantity, variant } = payload as {
+        surface_id: string;
+        item_id: string;
+        quantity: number;
+        variant?: string | null;
+      };
+      if (!surface_id || !item_id) return;
+      cartUpdate(surface_id, item_id, quantity, variant ?? null);
       return;
     }
     default:

@@ -9,6 +9,9 @@ const STORE_NAME = "yangu_offline_actions";
 export type OfflineActionType =
   | "upsert_section"
   | "delete_section"
+  | "add_to_cart"
+  | "remove_from_cart"
+  | "update_cart_quantity"
   | "edit"
   | "create"
   | "delete";
