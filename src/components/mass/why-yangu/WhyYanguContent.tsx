@@ -9,6 +9,8 @@ import {
   Link,
   TrendingUp,
   Check,
+  FlaskConical,
+  ArrowRight,
 } from "lucide-react";
 import { DocsTypography } from "./docs-typography";
 import { Button } from "@/components/ui/button";
@@ -56,6 +58,40 @@ export function WhyYanguContent() {
       <p className={`${DocsTypography.subtitle} text-muted-foreground`}>
         No code required. Pick the features you need, and we'll set everything up for you.
       </p>
+
+      {/* Try yangu for free — sandbox CTA */}
+      <div
+        className="rounded-xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center gap-4 justify-between"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(244,109,42,0.10) 0%, rgba(21,42,32,0.55) 100%)",
+          border: "1px solid rgba(244,109,42,0.35)",
+        }}
+      >
+        <div className="flex items-start gap-3">
+          <div
+            className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+            style={{ background: "rgba(244,109,42,0.18)" }}
+          >
+            <FlaskConical className="w-5 h-5" style={{ color: "#F46D2A" }} />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-foreground">
+              Try yangu for free
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Explore Ada AI, voice builder, and your idea canvas in a live sandbox. No account needed.
+            </p>
+          </div>
+        </div>
+        <Button
+          onClick={() => navigate("/sandbox")}
+          className="shrink-0"
+          style={{ background: "#F46D2A", color: "#fff" }}
+        >
+          Open sandbox <ArrowRight className="w-4 h-4 ml-1" />
+        </Button>
+      </div>
 
       {/* Feature cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
