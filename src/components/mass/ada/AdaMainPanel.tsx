@@ -1290,6 +1290,18 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
     }
   }, [inputValue, activeChatId, isAuthenticated, guestUsed, pendingAttachments, intent, forcedMode, selectedProvider, adaMode, adaSkill, advancedOverride, selectedAspectRatio, createDbChat, createAnonChat, persistMessage, handleSearch, handleDiscuss, handleImageGenerate, handleVideoGenerate, streamChatResponse, messages, addRoutingPill, requireAuth]);
 
+  // Auto-submit a prompt that was passed via ?prompt= (e.g. from the homepage
+  // Ada bar). Runs once on mount so the user doesn't have to press Send again.
+  useEffect(() => {
+    const pending = pendingAutoSubmitRef.current;
+    if (!pending) return;
+    pendingAutoSubmitRef.current = null;
+    // Defer to next tick so initial render/state settles first.
+    const t = window.setTimeout(() => { handleSend(pending); }, 0);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // --- Voice ---
   const handleVoiceTranscript = useCallback(async (
     transcript: string,
