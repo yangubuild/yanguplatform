@@ -14,6 +14,7 @@ import {
   Youtube,
   Twitter,
   Instagram,
+  FlaskConical,
 } from "lucide-react";
 import yanguLogo from "@/assets/yangu-logo-full.png";
 import adaIcon from "@/assets/ada-icon.png";
@@ -26,6 +27,7 @@ const topNavItems = [
 
 const bottomNavItems = [
   { icon: null, customIcon: adaIcon, label: "Ada ai", id: "ada-ai" },
+  { icon: FlaskConical, label: "Sandbox", id: "sandbox" },
   { icon: PenLine, label: "Blog", id: "blog" },
   { icon: Users, label: "Community", id: "community" },
   { icon: Sparkle, label: "Affiliates", id: "affiliates" },
@@ -63,6 +65,7 @@ export function MassSidebar({ isOpen = true, onClose }: MassSidebarProps) {
           if (item.id === "termsofservice") navigate("/termsofservice");
           if (item.id === "privacypolicy") navigate("/privacypolicy");
           if (item.id === "affiliates") navigate("/affiliates");
+          if (item.id === "sandbox") navigate("/sandbox");
         }}
         onMouseEnter={() => setHoveredItem(item.id)}
         onMouseLeave={() => setHoveredItem(null)}
