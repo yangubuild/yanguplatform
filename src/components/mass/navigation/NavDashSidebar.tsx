@@ -16,6 +16,7 @@ import {
   Moon,
   Settings,
   CreditCard as CreditCardIcon,
+  Download,
 } from "lucide-react";
 
 import {
@@ -28,6 +29,7 @@ import {
 
 import adaIcon from "@/assets/ada-icon.png";
 import { useRoles } from "@/hooks/useRoles";
+import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { useDailySalesCounter } from "@/hooks/useDailySalesCounter";
 import {
   PRIMARY_NAV_ITEMS,
@@ -57,6 +59,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
   const { isAdmin } = useRoles();
   const { user, profile, signOut } = useAuth();
   const { data: activeOrg } = useActiveOrg();
+  const { canInstall, install } = usePWAInstall();
 
   // Owner = the org's owner_user_id matches current user
   const isOrgOwner = !!(activeOrg && user && activeOrg.role === "owner");
