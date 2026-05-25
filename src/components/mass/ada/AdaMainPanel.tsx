@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useSurfaceContext } from "@/contexts/SurfaceContext";
-import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User, Loader2, Paperclip, Download, RefreshCw, Globe, CloudUpload, Palette, Code2, BarChart3, Image, Package, Megaphone, Users, UserCheck, Zap, Layout, Activity } from "lucide-react";
+import { X, Mic, Settings, ChevronDown, Smartphone, Plus, ArrowUp, AudioLines, User, Loader2, Paperclip, Download, RefreshCw, Globe, CloudUpload, Palette, Code2, BarChart3, Image, Package, Megaphone, Users, UserCheck, Zap, Layout, Activity, Sparkles } from "lucide-react";
 import adaLogo from "@/assets/ada-logo-full.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdaVoice } from "@/hooks/useAdaVoice";
@@ -2255,12 +2255,28 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                 { label: "Create Campaign", icon: Megaphone, mode: "text" as const, prompt: "Help me create an ad campaign plan:\n\n• Campaign goal: \n• Target audience: \n• Key message/hook: \n• Platforms: \n• Budget range: \n\nInclude creative angles, hooks, and a content checklist." },
                 { label: "Build Community", icon: Users, mode: "text" as const, prompt: "Help me build a community strategy:\n\n• Community purpose: \n• Target members: \n• Content posting cadence: \n• Engagement tactics: \n• Offers/incentives: " },
                 { label: "Optimize Profile", icon: UserCheck, mode: "text" as const, prompt: "Help me optimize my profile:\n\n• Current bio: \n• What I offer: \n• Target audience: \n\nSuggest improvements for my headline, bio, offers section, and CTA." },
+                { label: "Create Avatar", icon: Sparkles, mode: "text" as const, prompt: "__SCROLL_AVATAR__" },
               ].map((action) => {
                 const Icon = action.icon;
                 return (
                   <button
                     key={action.label}
                     onClick={() => {
+                      if (action.prompt === "__SCROLL_AVATAR__") {
+                        // Sandbox listens for this; elsewhere it's a no-op + helpful prompt.
+                        window.dispatchEvent(new CustomEvent("yangu:create-avatar"));
+                        const el = document.getElementById("avatar-studio");
+                        if (el) {
+                          el.scrollIntoView({ behavior: "smooth", block: "start" });
+                          return;
+                        }
+                        setForcedMode("text");
+                        setInputValue(
+                          "Help me create a talking avatar for my brand. Walk me through using a photo vs picking a stock avatar.",
+                        );
+                        textareaRef.current?.focus();
+                        return;
+                      }
                       setForcedMode(action.mode);
                       setInputValue(action.prompt);
                       textareaRef.current?.focus();
