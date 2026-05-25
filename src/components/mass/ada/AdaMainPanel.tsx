@@ -260,6 +260,10 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
   const [mode, setMode] = useState<"chat" | "voice">("chat");
   const [intent, setIntent] = useState<"search" | "discuss" | null>(null);
   const [inputValue, setInputValue] = useState(() => searchParams.get("prompt") || "");
+  // Capture the prefilled prompt so we can auto-submit it once handleSend exists.
+  const pendingAutoSubmitRef = useRef<string | null>(
+    searchParams.get("prompt")?.trim() || null
+  );
   // Clear the ?prompt= param after reading so it doesn't persist on refresh
   useEffect(() => {
     if (searchParams.has("prompt")) {
