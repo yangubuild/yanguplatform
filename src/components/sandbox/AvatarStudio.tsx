@@ -469,7 +469,7 @@ export function AvatarStudio() {
         <Tabs defaultValue="photo" className="w-full">
           <TabsList className="bg-white/[0.04] border border-white/10">
             <TabsTrigger value="photo">Use my photo</TabsTrigger>
-            <TabsTrigger value="stock">Pick an avatar</TabsTrigger>
+            <TabsTrigger value="stock">D-ID stock avatars</TabsTrigger>
           </TabsList>
           <TabsContent value="photo" className="mt-4">
             <PhotoTab onResult={setSelected} name={firstName} />
