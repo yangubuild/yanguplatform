@@ -15,13 +15,49 @@ type StockAvatar = {
   id: string;
   name: string;
   preview_url: string;
+  source_url: string;
   gender?: string | null;
 };
 
 type Selected =
   | { kind: "photo"; imageDataUrl: string; videoUrl?: string }
-  | { kind: "stock"; avatar: StockAvatar }
+  | { kind: "stock"; avatar: StockAvatar; videoUrl?: string }
   | null;
+
+const VOICE_OPTIONS = [
+  { value: "female_us", label: "Female — US English" },
+  { value: "male_us", label: "Male — US English" },
+  { value: "female_uk", label: "Female — UK English" },
+  { value: "male_uk", label: "Male — UK English" },
+];
+
+function VoiceSelect({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <label className="flex flex-col gap-1 text-[11px] text-muted-foreground">
+      Voice
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        className="bg-white/[0.03] border border-white/10 rounded-md px-2 py-1.5 text-sm text-foreground outline-none focus:border-[#F4A83D]/60"
+      >
+        {VOICE_OPTIONS.map((v) => (
+          <option key={v.value} value={v.value} className="bg-[#0A1410]">
+            {v.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
 
 function NotSavedBadge() {
   return (
@@ -36,6 +72,7 @@ function PhotoTab({ onResult, name }: { onResult: (s: Selected) => void; name: s
   const [preview, setPreview] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [voice, setVoice] = useState("female_us");
   const [usedUp, setUsedUp] = useState<boolean>(() => {
     try { return sessionStorage.getItem(DID_USED_KEY) === "1"; } catch { return false; }
   });
@@ -65,7 +102,7 @@ function PhotoTab({ onResult, name }: { onResult: (s: Selected) => void; name: s
     setVideoUrl(null);
     try {
       const { data, error } = await supabase.functions.invoke("sandbox-avatar", {
-        body: { action: "did-talk", image_base64: preview, name },
+        body: { action: "did-talk", image_base64: preview, name, voice },
       });
       if (error) throw error;
       if (!data?.ok) throw new Error(data?.error || "Generation failed");
@@ -135,7 +172,8 @@ function PhotoTab({ onResult, name }: { onResult: (s: Selected) => void; name: s
             </div>
           )}
         </div>
-        <div className="mt-3 flex items-center gap-2">
+        <div className="mt-3 flex flex-wrap items-end gap-3">
+          <VoiceSelect value={voice} onChange={setVoice} disabled={loading || usedUp} />
           <Button
             size="sm"
             variant="accent"
@@ -169,13 +207,19 @@ function StockTab({ onResult }: { onResult: (s: Selected) => void }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [voice, setVoice] = useState("female_us");
+  const [generating, setGenerating] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [usedUp, setUsedUp] = useState<boolean>(() => {
+    try { return sessionStorage.getItem(DID_USED_KEY) === "1"; } catch { return false; }
+  });
 
   const load = async () => {
     setLoading(true);
     setError(null);
     try {
       const { data, error } = await supabase.functions.invoke("sandbox-avatar", {
-        body: { action: "creatify-avatars" },
+        body: { action: "did-presenters" },
       });
       if (error) throw error;
       if (!data?.ok) throw new Error(data?.error || "Could not load avatars");
@@ -191,11 +235,39 @@ function StockTab({ onResult }: { onResult: (s: Selected) => void }) {
 
   const selected = avatars.find((a) => a.id === selectedId) || null;
 
+  const generate = async () => {
+    if (!selected || usedUp) return;
+    setGenerating(true);
+    setVideoUrl(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("sandbox-avatar", {
+        body: {
+          action: "did-talk",
+          presenter_image_url: selected.source_url,
+          name: selected.name?.split(/\s+/)[0] || "there",
+          voice,
+        },
+      });
+      if (error) throw error;
+      if (!data?.ok) throw new Error(data?.error || "Generation failed");
+      setVideoUrl(data.video_url || null);
+      onResult({ kind: "stock", avatar: selected, videoUrl: data.video_url || undefined });
+      try { sessionStorage.setItem(DID_USED_KEY, "1"); } catch {}
+      setUsedUp(true);
+      if (data.video_url) toast.success("Avatar preview ready");
+      else if (data.fallback) toast.message(data.notice || "Talking preview unavailable.");
+    } catch (e: any) {
+      toast.error(e?.message || "Could not generate avatar");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">
-          Pick an avatar to use as your face. This avatar will be available in your Studio once you sign up.
+          Pick a D-ID presenter to speak for your brand. Choose a voice and generate a preview.
         </p>
         <Button size="sm" variant="ghost" onClick={load}>
           <RefreshCw className="w-3.5 h-3.5" /> Refresh
@@ -214,7 +286,7 @@ function StockTab({ onResult }: { onResult: (s: Selected) => void }) {
           <ImageOff className="w-4 h-4" /> No avatars available right now.
         </div>
       ) : (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 max-h-[420px] overflow-y-auto pr-1">
           {avatars.map((a) => {
             const active = a.id === selectedId;
             return (
@@ -222,6 +294,7 @@ function StockTab({ onResult }: { onResult: (s: Selected) => void }) {
                 key={a.id}
                 onClick={() => {
                   setSelectedId(a.id);
+                  setVideoUrl(null);
                   onResult({ kind: "stock", avatar: a });
                 }}
                 className={`relative rounded-lg overflow-hidden border transition group ${
@@ -250,10 +323,37 @@ function StockTab({ onResult }: { onResult: (s: Selected) => void }) {
         </div>
       )}
       {selected && (
-        <div className="flex items-center gap-2 text-xs text-foreground">
-          <Check className="w-3.5 h-3.5 text-[#F4A83D]" />
-          Using <span className="font-medium">{selected.name}</span>
-          <NotSavedBadge />
+        <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3 flex flex-col gap-3">
+          <div className="flex items-center gap-2 text-xs text-foreground">
+            <Check className="w-3.5 h-3.5 text-[#F4A83D]" />
+            Using <span className="font-medium">{selected.name}</span>
+            <NotSavedBadge />
+          </div>
+          <div className="flex flex-wrap items-end gap-3">
+            <VoiceSelect value={voice} onChange={setVoice} disabled={generating || usedUp} />
+            <Button
+              size="sm"
+              variant="accent"
+              disabled={generating || usedUp}
+              onClick={generate}
+            >
+              {generating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+              Generate preview
+            </Button>
+          </div>
+          {videoUrl && (
+            <video src={videoUrl} controls autoPlay className="w-full max-h-72 rounded-md bg-black/50" />
+          )}
+          {usedUp && !videoUrl && (
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 flex items-center justify-between gap-3">
+              <p className="text-xs text-amber-100">
+                You've used your free preview. Sign up to generate unlimited avatars.
+              </p>
+              <Button asChild size="sm" variant="accent">
+                <Link to="/auth/signup">Sign up</Link>
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>
