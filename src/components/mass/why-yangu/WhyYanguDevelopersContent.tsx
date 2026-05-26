@@ -41,11 +41,14 @@ export function WhyYanguDevelopersContent() {
       </p>
 
       <div className="flex flex-wrap gap-3 mb-10">
-        <Button variant="solid" onClick={() => navigate("/developers")}>
-          Open Developer Docs
+        <Button variant="accent" onClick={() => navigate("/developers/portal")}>
+          Open Developer Portal
         </Button>
-        <Button variant="accent" onClick={() => navigate("/developers/console")}>
-          Developer Console
+        <Button variant="solid" onClick={() => navigate("/developers")}>
+          API Documentation
+        </Button>
+        <Button variant="outline" onClick={() => navigate("/marketplace")}>
+          Browse Marketplace
         </Button>
       </div>
 
