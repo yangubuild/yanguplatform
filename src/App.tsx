@@ -154,6 +154,8 @@ const PortalAppDetail = lazy(() => lazyRetry(() => import("./pages/developers/po
 const PortalProfile = lazy(() => lazyRetry(() => import("./pages/developers/portal/PortalProfile")));
 const PortalWebhooks = lazy(() => lazyRetry(() => import("./pages/developers/portal/PortalWebhooks")));
 const PortalLogs = lazy(() => lazyRetry(() => import("./pages/developers/portal/PortalLogs")));
+const PortalApiDocs = lazy(() => lazyRetry(() => import("./pages/developers/portal/PortalApiDocs")));
+const Marketplace = lazy(() => lazyRetry(() => import("./pages/Marketplace")));
 const BuilderDocsPage = lazy(() => lazyRetry(() => import("./pages/developers/docs/builders/BuilderDocsPage")));
 
 const ManageDashboard = lazy(() => lazyRetry(() => import("./pages/manage/ManageDashboard")));
@@ -389,7 +391,11 @@ const App = () => (
                   <Route path="profile" element={<PortalProfile />} />
                   <Route path="settings" element={<PortalSettings />} />
                   <Route path="billing" element={<PortalBilling />} />
+                  <Route path="api-docs" element={<PortalApiDocs />} />
                 </Route>
+
+                {/* Public App Marketplace */}
+                <Route path="/marketplace" element={<Marketplace />} />
                 
                 {/* Owner preview route - requires auth + ownership */}
                 <Route path="/s/:id/preview" element={<SurfacePreview />} />
