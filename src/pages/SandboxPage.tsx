@@ -1,13 +1,20 @@
-import { useEffect, useRef, useState } from "react";
-import { FlaskConical, Mic, Plus, X, RefreshCw, ArrowLeft } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { FlaskConical, Plus, X, RefreshCw, ArrowLeft, MessageSquare, Mic } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { SpeakToBuild } from "@/components/builder/speak-to-build/SpeakToBuild";
 import { SurfaceProvider } from "@/contexts/SurfaceContext";
 import { AdaMainPanel } from "@/components/mass/ada/AdaMainPanel";
 import { AvatarStudio } from "@/components/sandbox/AvatarStudio";
+import {
+  AiResearch,
+  AiEbook,
+  AudioToBuild,
+  DeveloperCta,
+  ProgressBar,
+  type FeatureKey,
+} from "@/components/sandbox/SandboxExtras";
 
 type Note = {
   id: string;
@@ -127,7 +134,15 @@ function StickyCanvas() {
 }
 
 export default function SandboxPage() {
-  const [voiceOpen, setVoiceOpen] = useState(false);
+  const [used, setUsed] = useState<Set<FeatureKey>>(new Set());
+  const markUsed = useCallback((k: FeatureKey) => {
+    setUsed((prev) => {
+      if (prev.has(k)) return prev;
+      const next = new Set(prev);
+      next.add(k);
+      return next;
+    });
+  }, []);
 
   // Ensure refresh = clean slate: clear Ada anon chats on mount/unmount.
   useEffect(() => {
@@ -147,10 +162,24 @@ export default function SandboxPage() {
       document
         .getElementById("avatar-studio")
         ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      markUsed("avatar");
     };
     window.addEventListener("yangu:create-avatar", handler);
     return () => window.removeEventListener("yangu:create-avatar", handler);
-  }, []);
+  }, [markUsed]);
+
+  // Track first interaction inside the Ada chat panel.
+  useEffect(() => {
+    const panel = document.getElementById("ada-panel");
+    if (!panel) return;
+    const mark = () => markUsed("chat");
+    panel.addEventListener("keydown", mark, { once: true });
+    panel.addEventListener("click", mark, { once: true });
+    return () => {
+      panel.removeEventListener("keydown", mark);
+      panel.removeEventListener("click", mark);
+    };
+  }, [markUsed]);
 
   return (
     <div className="min-h-dvh w-full" style={{ background: "#050A07" }}>
@@ -192,21 +221,18 @@ export default function SandboxPage() {
       </div>
 
       <main className="max-w-6xl mx-auto px-4 py-6 flex flex-col gap-6">
-        {/* Quick actions */}
-        <div className="flex flex-wrap items-center gap-3">
-          <Button variant="accent" onClick={() => setVoiceOpen(true)}>
-            <Mic className="w-4 h-4" /> Try Speak to Build
-          </Button>
-          <span className="text-xs text-muted-foreground">
-            Voice preview — your session is not saved.
-          </span>
-        </div>
+        <ProgressBar used={used} />
 
-        {/* Ada panel */}
-        <section className="rounded-lg border border-white/10 overflow-hidden" style={{ background: "#070D0A" }}>
+        {/* Ada panel — Chat to Build */}
+        <section
+          id="ada-panel"
+          className="rounded-lg border border-white/10 overflow-hidden scroll-mt-24"
+          style={{ background: "#070D0A" }}
+        >
           <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 bg-white/[0.02]">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-foreground">Ada AI — Test Mode</span>
+              <MessageSquare className="w-4 h-4 text-amber-300" />
+              <span className="text-sm font-medium text-foreground">Chat to Build — Ada AI</span>
               <Badge className="bg-amber-500/15 text-amber-200 border border-amber-500/30 hover:bg-amber-500/15 text-[10px]">
                 Not saved
               </Badge>
@@ -222,36 +248,64 @@ export default function SandboxPage() {
           </div>
         </section>
 
+        {/* Speak to Build — permanent section */}
+        <section
+          id="speak-to-build"
+          className="rounded-lg border border-white/10 overflow-hidden scroll-mt-24"
+          style={{ background: "#070D0A" }}
+        >
+          <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 bg-white/[0.02]">
+            <div className="flex items-center gap-2">
+              <Mic className="w-4 h-4 text-amber-300" />
+              <span className="text-sm font-medium text-foreground">Speak to Build</span>
+              <Badge className="bg-amber-500/15 text-amber-200 border border-amber-500/30 hover:bg-amber-500/15 text-[10px]">
+                Not saved
+              </Badge>
+            </div>
+            <span className="text-xs text-muted-foreground hidden sm:block">
+              Voice-first — tap and talk
+            </span>
+          </div>
+          <div
+            className="h-[520px]"
+            onClickCapture={() => markUsed("voice")}
+          >
+            <SpeakToBuild
+              onBack={() => {}}
+              onComplete={() => markUsed("voice")}
+              onSwitchToChat={() => {
+                document.getElementById("ada-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+            />
+          </div>
+        </section>
+
         {/* Avatar Studio */}
-        <AvatarStudio />
+        <div onClickCapture={() => markUsed("avatar")}>
+          <AvatarStudio />
+        </div>
+
+        {/* AI Research */}
+        <AiResearch onUsed={() => markUsed("research")} />
+
+        {/* AI Ebook */}
+        <AiEbook onUsed={() => markUsed("ebook")} />
+
+        {/* Audio to Build */}
+        <AudioToBuild onUsed={() => markUsed("audio")} />
 
         {/* Idea canvas */}
-        <StickyCanvas />
+        <div onClickCapture={() => markUsed("canvas")}>
+          <StickyCanvas />
+        </div>
+
+        {/* Developer CTA */}
+        <DeveloperCta />
 
         <p className="text-xs text-muted-foreground text-center pb-4">
           You're in Sandbox Mode. Sign in and use the full dashboard to save your work.
         </p>
       </main>
-
-      {/* Speak to Build dialog */}
-      <Dialog open={voiceOpen} onOpenChange={setVoiceOpen}>
-        <DialogContent className="max-w-2xl p-0 overflow-hidden bg-[#050A07] border-white/10">
-          <DialogTitle className="sr-only">Speak to Build — Preview</DialogTitle>
-          <div
-            className="px-4 py-2 border-b border-amber-500/20 text-xs text-amber-200"
-            style={{ background: "rgba(196,122,58,0.12)" }}
-          >
-            Preview — not saving your session
-          </div>
-          <div className="h-[560px]">
-            <SpeakToBuild
-              onBack={() => setVoiceOpen(false)}
-              onComplete={() => setVoiceOpen(false)}
-              onSwitchToChat={() => setVoiceOpen(false)}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
