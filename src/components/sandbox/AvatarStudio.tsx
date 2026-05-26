@@ -7,6 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
+
+const DID_USED_KEY = "yangu:sandbox:did-used";
 
 type StockAvatar = {
   id: string;
@@ -33,6 +36,9 @@ function PhotoTab({ onResult, name }: { onResult: (s: Selected) => void; name: s
   const [preview, setPreview] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [usedUp, setUsedUp] = useState<boolean>(() => {
+    try { return sessionStorage.getItem(DID_USED_KEY) === "1"; } catch { return false; }
+  });
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = (f: File | null) => {
@@ -54,6 +60,7 @@ function PhotoTab({ onResult, name }: { onResult: (s: Selected) => void; name: s
 
   const generate = async () => {
     if (!preview) return;
+    if (usedUp) return;
     setLoading(true);
     setVideoUrl(null);
     try {
@@ -64,6 +71,8 @@ function PhotoTab({ onResult, name }: { onResult: (s: Selected) => void; name: s
       if (!data?.ok) throw new Error(data?.error || "Generation failed");
       setVideoUrl(data.video_url || null);
       onResult({ kind: "photo", imageDataUrl: preview, videoUrl: data.video_url || undefined });
+      try { sessionStorage.setItem(DID_USED_KEY, "1"); } catch {}
+      setUsedUp(true);
       if (data.video_url) {
         toast.success("Avatar preview ready");
       } else if (data.fallback) {
@@ -130,7 +139,7 @@ function PhotoTab({ onResult, name }: { onResult: (s: Selected) => void; name: s
           <Button
             size="sm"
             variant="accent"
-            disabled={!preview || loading}
+            disabled={!preview || loading || usedUp}
             onClick={generate}
           >
             {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
@@ -140,6 +149,16 @@ function PhotoTab({ onResult, name }: { onResult: (s: Selected) => void; name: s
             Preview only — save to your account to use in videos.
           </p>
         </div>
+        {usedUp && (
+          <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 flex items-center justify-between gap-3">
+            <p className="text-xs text-amber-100">
+              You've used your free preview. Sign up to generate unlimited avatars.
+            </p>
+            <Button asChild size="sm" variant="accent">
+              <Link to="/auth/signup">Sign up</Link>
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
