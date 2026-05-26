@@ -122,7 +122,7 @@ export function PortalLayout() {
                 <div className="border-b border-white/10 mb-4" />
 
                 <button
-                  onClick={() => navigate("/developers/docs")}
+                  onClick={() => navigate("/developers/portal/api-docs")}
                   className="w-full text-left px-3 py-1.5 rounded-md text-sm leading-5 transition-colors flex items-center gap-2 text-muted-foreground hover:text-muted-foreground">
                   <BookOpen className="w-4 h-4" />
                   API Docs

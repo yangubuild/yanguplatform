@@ -19,6 +19,23 @@ const statusColors: Record<string, string> = {
   draft: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
   disabled: "bg-white/10 text-muted-foreground border-white/20",
 };
+const reviewColors: Record<string, string> = {
+  pending_review: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
+  approved: "bg-green-500/20 text-green-300 border-green-500/30",
+  rejected: "bg-red-500/20 text-red-300 border-red-500/30",
+};
+const reviewLabels: Record<string, string> = {
+  pending_review: "Pending review",
+  approved: "Approved",
+  rejected: "Rejected",
+};
+
+const CATEGORIES = [
+  { value: "ai_tool", label: "AI tool" },
+  { value: "shop_plugin", label: "Shop plugin" },
+  { value: "community_addon", label: "Community add-on" },
+  { value: "other", label: "Other" },
+];
 
 /** Ensure the current user has an org + membership; returns org_id or null */
 async function ensureDevOrg(userId: string): Promise<string | null> {
@@ -60,6 +77,10 @@ export default function PortalApps() {
   const [slugError, setSlugError] = useState("");
   const [search, setSearch] = useState("");
   const [orgBootstrapping, setOrgBootstrapping] = useState(false);
+  const [category, setCategory] = useState("ai_tool");
+  const [githubUrl, setGithubUrl] = useState("");
+  const [demoUrl, setDemoUrl] = useState("");
+  const [webhookUrl, setWebhookUrl] = useState("");
 
   // Auto-open create on ?new=1 — but only if authenticated
   useEffect(() => {
@@ -164,13 +185,23 @@ export default function PortalApps() {
         p_slug: slug,
       });
       if (error) throw error;
-      if (description.trim() && data) {
-        await supabase.from("developer_apps").update({ description: description.trim() }).eq("id", data);
+      if (data) {
+        await supabase
+          .from("developer_apps")
+          .update({
+            description: description.trim() || null,
+            category,
+            github_url: githubUrl.trim() || null,
+            demo_url: demoUrl.trim() || null,
+            webhook_url: webhookUrl.trim() || null,
+            review_status: "pending_review",
+          } as never)
+          .eq("id", data);
       }
       return data;
     },
     onSuccess: (appId) => {
-      toast.success("App created successfully");
+      toast.success("App submitted for review");
       queryClient.invalidateQueries({ queryKey: ["developer-apps"] });
       resetForm();
       navigate(`/developers/portal/apps/${appId}`);
@@ -184,6 +215,10 @@ export default function PortalApps() {
     setSlug("");
     setDescription("");
     setSlugError("");
+    setCategory("ai_tool");
+    setGithubUrl("");
+    setDemoUrl("");
+    setWebhookUrl("");
   };
 
   const canSubmit = name.trim().length> 0 && slug.length> 0 && SLUG_RE.test(slug) && !slugError && !createApp.isPending;
@@ -200,10 +235,13 @@ export default function PortalApps() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-lg font-semibold text-foreground">My Apps</h2>
-          <p className="text-sm text-muted-foreground">Create and manage your developer applications.</p>
+          <p className="text-sm text-muted-foreground">
+            Submit apps for review. Once approved, they appear on the{" "}
+            <a href="/marketplace" className="underline text-accent">public Yangu App Marketplace</a>.
+          </p>
         </div>
         <Button variant="accent" onClick={handleCreateClick} disabled={orgBootstrapping}>
-          {orgBootstrapping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Create App
+          {orgBootstrapping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Submit App
         </Button>
       </div>
 
@@ -262,12 +300,12 @@ export default function PortalApps() {
               <tr className="border-b border-white/10 bg-white/[0.02]">
                 <th className="text-left text-muted-foreground font-medium px-4 py-3">Name</th>
                 <th className="text-left text-muted-foreground font-medium px-4 py-3 hidden sm:table-cell">App Key</th>
-                <th className="text-left text-muted-foreground font-medium px-4 py-3 hidden md:table-cell">Status</th>
+                <th className="text-left text-muted-foreground font-medium px-4 py-3 hidden md:table-cell">Review</th>
                 <th className="text-left text-muted-foreground font-medium px-4 py-3 hidden lg:table-cell">Created</th>
               </tr>
             </thead>
             <tbody>
-              {filteredApps.map((app) => (
+              {filteredApps.map((app: any) => (
                 <tr
                   key={app.id}
                   onClick={() => navigate(`/developers/portal/apps/${app.id}`)}
@@ -282,7 +320,9 @@ export default function PortalApps() {
                     <code className="text-xs text-muted-foreground font-mono">{app.slug}</code>
                   </td>
                   <td className="px-4 py-3 hidden md:table-cell">
-                    <Badge className={`text-xs ${statusColors[app.status] || statusColors.draft}`}>{app.status}</Badge>
+                    <Badge className={`text-xs ${reviewColors[app.review_status] || statusColors.draft}`}>
+                      {reviewLabels[app.review_status] || app.status}
+                    </Badge>
                   </td>
                   <td className="px-4 py-3 hidden lg:table-cell text-muted-foreground text-xs">
                     {new Date(app.created_at).toLocaleDateString()}
@@ -295,18 +335,18 @@ export default function PortalApps() {
       ) : (
         <div className="rounded-xl p-12 text-center bg-white/[0.02] border border-white/10">
           <Code className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-          <p className="text-muted-foreground text-sm mb-4">No apps yet. Create your first one.</p>
+          <p className="text-muted-foreground text-sm mb-4">No apps yet. Submit your first one for review.</p>
           <Button variant="accent" onClick={handleCreateClick} disabled={orgBootstrapping}>
-            {orgBootstrapping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Create App
+            {orgBootstrapping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Submit App
           </Button>
         </div>
       )}
 
       {/* Create App Modal */}
       <Dialog open={showCreate} onOpenChange={(o) => !o && resetForm()}>
-        <DialogContent className="bg-[#111a14] border-white/10 text-foreground sm:max-w-md">
+        <DialogContent className="bg-[#111a14] border-white/10 text-foreground sm:max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-foreground">Create a new app</DialogTitle>
+            <DialogTitle className="text-foreground">Submit a new app</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
@@ -343,6 +383,51 @@ export default function PortalApps() {
                 maxLength={500}
               />
             </div>
+            <div>
+              <Label className="text-muted-foreground text-xs mb-1.5 block">Category *</Label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full h-10 px-3 rounded-md text-sm bg-white/5 border border-white/10 text-foreground">
+                {CATEGORIES.map((c) => (
+                  <option key={c.value} value={c.value} className="bg-[#111a14]">{c.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label className="text-muted-foreground text-xs mb-1.5 block">GitHub or demo URL</Label>
+              <Input
+                value={githubUrl}
+                onChange={(e) => setGithubUrl(e.target.value)}
+                placeholder="https://github.com/you/your-app"
+                className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
+                maxLength={500}
+              />
+            </div>
+            <div>
+              <Label className="text-muted-foreground text-xs mb-1.5 block">Live demo URL (optional)</Label>
+              <Input
+                value={demoUrl}
+                onChange={(e) => setDemoUrl(e.target.value)}
+                placeholder="https://demo.example.com"
+                className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
+                maxLength={500}
+              />
+            </div>
+            <div>
+              <Label className="text-muted-foreground text-xs mb-1.5 block">Webhook URL (optional)</Label>
+              <Input
+                value={webhookUrl}
+                onChange={(e) => setWebhookUrl(e.target.value)}
+                placeholder="https://your-app.com/webhooks/yangu"
+                className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
+                maxLength={500}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Your app will be marked <span className="text-yellow-300">pending review</span>. Once approved
+              by the Yangu team, it will appear on the public App Marketplace.
+            </p>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={resetForm} className="text-muted-foreground">Cancel</Button>
@@ -352,7 +437,7 @@ export default function PortalApps() {
               disabled={!canSubmit}
               className="gap-1.5">
               {createApp.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
-              Create App
+              Submit for Review
             </Button>
           </DialogFooter>
         </DialogContent>

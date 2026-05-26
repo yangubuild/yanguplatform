@@ -9,6 +9,7 @@ import {
   Sparkles,
   Square,
   Code2,
+  KeyRound,
 } from "lucide-react";
 import jsPDF from "jspdf";
 import { Button } from "@/components/ui/button";
@@ -386,17 +387,23 @@ export function DeveloperCta() {
         </h3>
         <p className="text-sm text-white/70 mt-2 max-w-xl">
           Ship apps, automations and AI tools to thousands of African and Middle East businesses.
-          Use our APIs, AI Gateway and storefront infrastructure.
+          Get an API key, submit your app to the Yangu Marketplace, and use our APIs, AI Gateway
+          and storefront infrastructure.
         </p>
       </div>
       <div className="flex flex-wrap gap-2 md:flex-shrink-0">
         <Button asChild variant="accent">
-          <Link to="/developers">
-            <FileText className="w-4 h-4" /> View API Docs
+          <Link to="/developers/portal">
+            <FileText className="w-4 h-4" /> Open Developer Portal
           </Link>
         </Button>
         <Button asChild variant="outline">
-          <Link to="/developers/console/submissions/new">
+          <Link to="/developers/portal/api-keys">
+            <KeyRound className="w-4 h-4" /> Get API Key
+          </Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link to="/developers/portal/apps">
             <Sparkles className="w-4 h-4" /> Submit your app
           </Link>
         </Button>
