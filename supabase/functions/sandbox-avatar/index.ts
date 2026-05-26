@@ -50,7 +50,19 @@ async function uploadImageToDID(apiKey: string, imageBase64: string): Promise<st
   return data.url as string;
 }
 
-async function createDIDTalk(apiKey: string, imageUrl: string, text: string): Promise<string> {
+const VOICE_MAP: Record<string, string> = {
+  female_us: "en-US-JennyNeural",
+  male_us: "en-US-GuyNeural",
+  female_uk: "en-GB-SoniaNeural",
+  male_uk: "en-GB-RyanNeural",
+};
+
+async function createDIDTalk(
+  apiKey: string,
+  imageUrl: string,
+  text: string,
+  voiceId: string,
+): Promise<string> {
   const createRes = await fetch("https://api.d-id.com/talks", {
     method: "POST",
     headers: {
@@ -62,7 +74,7 @@ async function createDIDTalk(apiKey: string, imageUrl: string, text: string): Pr
       script: {
         type: "text",
         input: text,
-        provider: { type: "microsoft", voice_id: "en-US-JennyNeural" },
+        provider: { type: "microsoft", voice_id: voiceId },
       },
     }),
   });
@@ -92,23 +104,24 @@ async function createDIDTalk(apiKey: string, imageUrl: string, text: string): Pr
   throw new Error("D-ID timed out");
 }
 
-async function listCreatifyAvatars(apiId: string, apiKey: string): Promise<unknown[]> {
-  const headers = { "X-API-ID": apiId, "X-API-KEY": apiKey };
-  // Try personas endpoint first, fall back to avatars
-  const endpoints = [
-    "https://api.creatify.ai/api/personas/",
-    "https://api.creatify.ai/api/avatars/",
-  ];
-  for (const url of endpoints) {
-    try {
-      const res = await fetch(url, { headers });
-      if (!res.ok) continue;
-      const data = await res.json();
-      const list = Array.isArray(data) ? data : data.results || data.data || [];
-      if (Array.isArray(list) && list.length) return list;
-    } catch (_) { /* try next */ }
+async function listDIDPresenters(apiKey: string): Promise<unknown[]> {
+  const headers = { Authorization: `Basic ${apiKey}` };
+  const out: any[] = [];
+  // Paginate a couple of pages so the grid has variety.
+  let token: string | undefined;
+  for (let i = 0; i < 3; i++) {
+    const url = new URL("https://api.d-id.com/clips/presenters");
+    url.searchParams.set("limit", "50");
+    if (token) url.searchParams.set("token", token);
+    const res = await fetch(url.toString(), { headers });
+    if (!res.ok) break;
+    const data = await res.json();
+    const list = data.presenters || data.results || [];
+    if (Array.isArray(list)) out.push(...list);
+    token = data.token;
+    if (!token) break;
   }
-  return [];
+  return out;
 }
 
 serve(async (req) => {
@@ -130,16 +143,22 @@ serve(async (req) => {
     if (action === "did-talk") {
       const apiKey = Deno.env.get("DID_API_KEY");
       if (!apiKey) return json({ ok: false, error: "D-ID not configured" }, 500);
-      if (!body.image_base64) return json({ ok: false, error: "image_base64 required" }, 400);
-      // 5MB cap on the decoded payload (~ length * 0.75)
-      if (body.image_base64.length > 7_000_000) {
+      const presenterImage = (body as any).presenter_image_url as string | undefined;
+      if (!body.image_base64 && !presenterImage) {
+        return json({ ok: false, error: "image_base64 or presenter_image_url required" }, 400);
+      }
+      if (body.image_base64 && body.image_base64.length > 7_000_000) {
         return json({ ok: false, error: "Image too large (max 5MB)" }, 400);
       }
+      const voiceKey = ((body as any).voice as string | undefined) || "female_us";
+      const voiceId = VOICE_MAP[voiceKey] || VOICE_MAP.female_us;
       const name = (body.name || "there").toString().slice(0, 40).replace(/[^\p{L}\p{N}\s'-]/gu, "");
       const script = `Hi, I'm ${name || "there"}, and I build with Yangu.`;
-      const imageUrl = await uploadImageToDID(apiKey, body.image_base64);
+      const imageUrl = presenterImage
+        ? presenterImage
+        : await uploadImageToDID(apiKey, body.image_base64!);
       try {
-        const videoUrl = await createDIDTalk(apiKey, imageUrl, script);
+        const videoUrl = await createDIDTalk(apiKey, imageUrl, script, voiceId);
         return json({ ok: true, video_url: videoUrl, image_url: imageUrl });
       } catch (e: any) {
         const status = e?.status as number | undefined;
@@ -167,23 +186,17 @@ serve(async (req) => {
       }
     }
 
-    if (action === "creatify-avatars") {
-      const apiId = Deno.env.get("CREATIFY_API_ID");
-      const apiKey = Deno.env.get("CREATIFY_API_KEY");
-      if (!apiId || !apiKey) return json({ ok: false, error: "Creatify not configured" }, 500);
-      const raw = await listCreatifyAvatars(apiId, apiKey);
-      const avatars = raw.slice(0, 24).map((a: any) => ({
-        id: a.id || a.persona_id || a.avatar_id,
-        name: a.name || a.label || a.title || "Avatar",
-        preview_url:
-          a.preview_image_url ||
-          a.preview_url ||
-          a.thumbnail_url ||
-          a.image_url ||
-          a.avatar_url ||
-          null,
+    if (action === "did-presenters" || action === "creatify-avatars") {
+      const apiKey = Deno.env.get("DID_API_KEY");
+      if (!apiKey) return json({ ok: false, error: "D-ID not configured" }, 500);
+      const raw = await listDIDPresenters(apiKey);
+      const avatars = raw.map((a: any) => ({
+        id: a.presenter_id || a.id,
+        name: a.name || a.presenter_id || "Presenter",
+        preview_url: a.thumbnail_url || a.image_url || a.preview_url || null,
+        source_url: a.image_url || a.source_url || a.thumbnail_url || null,
         gender: a.gender || null,
-      })).filter((a: any) => a.id && a.preview_url);
+      })).filter((a: any) => a.id && a.preview_url && a.source_url).slice(0, 48);
       return json({ ok: true, avatars });
     }
 
