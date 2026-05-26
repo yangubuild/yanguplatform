@@ -3258,37 +3258,52 @@ export type Database = {
       }
       developer_apps: {
         Row: {
+          category: string | null
           created_at: string
+          demo_url: string | null
           description: string | null
+          github_url: string | null
           id: string
           name: string
           org_id: string
           owner_user_id: string
+          review_status: string
           slug: string
           status: string
           updated_at: string
+          webhook_url: string | null
         }
         Insert: {
+          category?: string | null
           created_at?: string
+          demo_url?: string | null
           description?: string | null
+          github_url?: string | null
           id?: string
           name: string
           org_id: string
           owner_user_id: string
+          review_status?: string
           slug: string
           status?: string
           updated_at?: string
+          webhook_url?: string | null
         }
         Update: {
+          category?: string | null
           created_at?: string
+          demo_url?: string | null
           description?: string | null
+          github_url?: string | null
           id?: string
           name?: string
           org_id?: string
           owner_user_id?: string
+          review_status?: string
           slug?: string
           status?: string
           updated_at?: string
+          webhook_url?: string | null
         }
         Relationships: [
           {
