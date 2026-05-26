@@ -44,6 +44,9 @@ const INTERNAL_ROUTES = [
   
   "/builder",
   "/dev/agency",
+  "/sandbox",
+  "/affiliates",
+  "/gift-cards",
 ];
 
 const resolverFallback = <div className="bg-background min-h-screen"  />;
