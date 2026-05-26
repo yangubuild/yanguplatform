@@ -391,12 +391,12 @@ export function DeveloperCta() {
       </div>
       <div className="flex flex-wrap gap-2 md:flex-shrink-0">
         <Button asChild variant="accent">
-          <Link to="/developer">
+          <Link to="/developers">
             <FileText className="w-4 h-4" /> View API Docs
           </Link>
         </Button>
         <Button asChild variant="outline">
-          <Link to="/developer/submit">
+          <Link to="/developers/console/submissions/new">
             <Sparkles className="w-4 h-4" /> Submit your app
           </Link>
         </Button>
