@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SpeakToBuild } from "@/components/builder/speak-to-build/SpeakToBuild";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SurfaceProvider } from "@/contexts/SurfaceContext";
 import { AdaMainPanel } from "@/components/mass/ada/AdaMainPanel";
 import { AvatarStudio } from "@/components/sandbox/AvatarStudio";
@@ -135,6 +136,7 @@ function StickyCanvas() {
 
 export default function SandboxPage() {
   const [used, setUsed] = useState<Set<FeatureKey>>(new Set());
+  const [voiceOpen, setVoiceOpen] = useState(false);
   const markUsed = useCallback((k: FeatureKey) => {
     setUsed((prev) => {
       if (prev.has(k)) return prev;
@@ -248,7 +250,7 @@ export default function SandboxPage() {
           </div>
         </section>
 
-        {/* Speak to Build — permanent section */}
+        {/* Speak to Build — idle card; voice UI opens in a modal */}
         <section
           id="speak-to-build"
           className="rounded-lg border border-white/10 overflow-hidden scroll-mt-24"
@@ -266,19 +268,47 @@ export default function SandboxPage() {
               Voice-first — tap and talk
             </span>
           </div>
-          <div
-            className="h-[520px]"
-            onClickCapture={() => markUsed("voice")}
-          >
-            <SpeakToBuild
-              onBack={() => {}}
-              onComplete={() => markUsed("voice")}
-              onSwitchToChat={() => {
-                document.getElementById("ada-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          <div className="p-6 flex flex-col items-center text-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
+              <Mic className="w-6 h-6 text-amber-300" />
+            </div>
+            <p className="text-sm text-muted-foreground max-w-md">
+              Describe what you want to build out loud. Ada will listen and turn it into a prompt.
+            </p>
+            <Button
+              variant="accent"
+              onClick={() => {
+                setVoiceOpen(true);
+                markUsed("voice");
               }}
-            />
+            >
+              <Mic className="w-4 h-4" /> Start Voice Session
+            </Button>
           </div>
         </section>
+
+        <Dialog open={voiceOpen} onOpenChange={setVoiceOpen}>
+          <DialogContent className="max-w-3xl p-0 overflow-hidden">
+            <DialogHeader className="px-4 py-2 border-b border-white/10">
+              <DialogTitle className="text-sm">Speak to Build</DialogTitle>
+            </DialogHeader>
+            <div className="h-[70dvh]">
+              {voiceOpen && (
+                <SpeakToBuild
+                  onBack={() => setVoiceOpen(false)}
+                  onComplete={() => {
+                    markUsed("voice");
+                    setVoiceOpen(false);
+                  }}
+                  onSwitchToChat={() => {
+                    setVoiceOpen(false);
+                    document.getElementById("ada-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Avatar Studio */}
         <div onClickCapture={() => markUsed("avatar")}>
