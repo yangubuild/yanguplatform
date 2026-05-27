@@ -424,12 +424,12 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         window.clearTimeout(timeoutId);
         // Completion line + brief pause + fade to editor.
         const done: Record<AdaLanguage, string> = {
-          en: "Your website is ready.",
-          fr: "Votre site est prêt.",
-          ar: "موقعك جاهز.",
-          sw: "Tovuti yako iko tayari.",
-          lg: "Websaiti yo emaze.",
-          rw: "Urubuga rwawe rwiteguye.",
+          en: "Your site is ready! Go to your editor to set up payments and customer contact.",
+          fr: "Votre site est prêt ! Allez dans l'éditeur pour configurer les paiements et le contact client.",
+          ar: "موقعك جاهز! انتقل إلى المحرر لإعداد المدفوعات والتواصل مع العملاء.",
+          sw: "Tovuti yako iko tayari! Nenda kwa mhariri ili kuweka malipo na mawasiliano ya wateja.",
+          lg: "Websaiti yo emaze! Genda mu editor okuteekateeka payments n'okuyungibwa n'abaguzi.",
+          rw: "Urubuga rwawe rwiteguye! Jya muri editor ushyireho ubwishyu n'itumanaho n'abakiriya.",
         };
         const doneLine = done[language] || done.en;
         logTurn("assistant", doneLine);
