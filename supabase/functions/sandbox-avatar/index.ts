@@ -107,19 +107,35 @@ async function createDIDTalk(
 async function listDIDPresenters(apiKey: string): Promise<unknown[]> {
   const headers = { Authorization: `Basic ${apiKey}` };
   const out: any[] = [];
-  // Paginate a couple of pages so the grid has variety.
-  let token: string | undefined;
-  for (let i = 0; i < 3; i++) {
-    const url = new URL("https://api.d-id.com/clips/presenters");
-    url.searchParams.set("limit", "50");
-    if (token) url.searchParams.set("token", token);
-    const res = await fetch(url.toString(), { headers });
-    if (!res.ok) break;
-    const data = await res.json();
-    const list = data.presenters || data.results || [];
-    if (Array.isArray(list)) out.push(...list);
-    token = data.token;
-    if (!token) break;
+  // D-ID Studio "V3 Pro" presenters (Diana, Jaimie, Joseph, Lana, Anita, etc.)
+  // are served from /clips/presenters/v2. The legacy /clips/presenters endpoint
+  // returns multiple clip-looks of the same presenter (e.g. 12 cards of "Adam"),
+  // which is what the user was seeing. Try v2 first, fall back to v1.
+  const endpoints = [
+    "https://api.d-id.com/clips/presenters/v2",
+    "https://api.d-id.com/clips/presenters",
+  ];
+  for (const endpoint of endpoints) {
+    const collected: any[] = [];
+    let token: string | undefined;
+    let ok = false;
+    for (let i = 0; i < 8; i++) {
+      const url = new URL(endpoint);
+      url.searchParams.set("limit", "100");
+      if (token) url.searchParams.set("token", token);
+      const res = await fetch(url.toString(), { headers });
+      if (!res.ok) break;
+      ok = true;
+      const data = await res.json();
+      const list = data.presenters || data.results || [];
+      if (Array.isArray(list)) collected.push(...list);
+      token = data.token;
+      if (!token) break;
+    }
+    if (ok && collected.length > 0) {
+      out.push(...collected);
+      break;
+    }
   }
   return out;
 }
