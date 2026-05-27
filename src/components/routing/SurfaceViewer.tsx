@@ -1,5 +1,8 @@
-// HTML snapshot publishing is retired. All surfaces render from compiled JSON sections in published_schema only. Do not re-introduce emenu_html or builder_new_html rendering.
-import { useEffect, useState } from "react";
+// Public renderer (custom-domain path): prefers the sanitized HTML snapshot embedded by
+// useBuilderPublish (published_schema.surface.html / surface.pages_html[slug]). Falls back
+// to compiled JSON sections when no HTML is present.
+import { useEffect, useMemo, useState } from "react";
+import DOMPurify from "dompurify";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Layout } from "lucide-react";
 import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
@@ -28,6 +31,32 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   const pageTitle = surfaceMeta.seo_title || surfaceMeta.title || "Untitled";
   const faviconUrl = (surfaceMeta.favicon_url as string | null) || null;
   const showBadge = surfaceMeta.show_yangu_badge === true;
+  const pathSlugForHtml = (typeof window !== "undefined"
+    ? window.location.pathname.replace(/^\/+/, "").split("/")[0]
+    : "") || "home";
+  const pagesHtmlMap = (surfaceMeta.pages_html || {}) as Record<string, string>;
+  const rawHtml: string | null =
+    pagesHtmlMap[pathSlugForHtml] ||
+    pagesHtmlMap["home"] ||
+    (surfaceMeta.html as string | null) ||
+    null;
+  const sanitizedHtml = useMemo(() => {
+    if (!rawHtml) return null;
+    try {
+      return DOMPurify.sanitize(rawHtml, {
+        ADD_TAGS: ["style", "link", "iframe"],
+        ADD_ATTR: [
+          "target", "rel", "allow", "allowfullscreen",
+          "frameborder", "loading", "referrerpolicy", "data-yangu-node-id",
+        ],
+        FORBID_TAGS: ["script"],
+        FORBID_ATTR: ["onerror", "onload", "onclick"],
+      });
+    } catch (e) {
+      console.error("[SurfaceViewer] sanitize error:", e);
+      return null;
+    }
+  }, [rawHtml]);
 
   useEffect(() => {
     async function load() {
@@ -88,6 +117,16 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
         <Layout className="h-12 w-12 text-muted-foreground" />
         <p className="text-muted-foreground">{error ?? "Surface not found"}</p>
       </div>
+    );
+  }
+
+  // HTML snapshot render path (preferred)
+  if (sanitizedHtml) {
+    return (
+      <div
+        className="min-h-screen bg-background yangu-live"
+        dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+      />
     );
   }
 
