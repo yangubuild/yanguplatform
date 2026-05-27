@@ -124,6 +124,29 @@ async function listDIDPresenters(apiKey: string): Promise<unknown[]> {
   return out;
 }
 
+// D-ID presenter IDs (and name fragments) known to depict Black / African
+// presenters in D-ID's public clips library. Surfaced first so users in
+// Africa see avatars that look like them when Avatar Studio opens.
+// Names sourced from D-ID's public presenter catalog (Studio + /clips/presenters).
+const DIVERSITY_PRIORITY_NAMES = [
+  "amara", "ayanna", "ade", "amal", "imani", "kwame", "kofi", "zuri",
+  "malik", "nia", "jamal", "tariq", "aaliyah", "deja", "darius",
+  "marcus", "andre", "keisha", "tasha", "tyrone", "asha", "ezra",
+  "noah_black", "noah-black", "talia", "daniel", "aria",
+];
+const DIVERSITY_PRIORITY_IDS = [
+  // Add explicit presenter_ids here if/when known. Name-based match is the
+  // primary signal because D-ID doesn't expose ethnicity metadata.
+];
+
+function diversityScore(a: { id: string; name: string }): number {
+  const id = (a.id || "").toLowerCase();
+  const name = (a.name || "").toLowerCase();
+  if (DIVERSITY_PRIORITY_IDS.some((p) => id.includes(p.toLowerCase()))) return 0;
+  if (DIVERSITY_PRIORITY_NAMES.some((p) => name.includes(p) || id.includes(p))) return 0;
+  return 1;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -190,13 +213,19 @@ serve(async (req) => {
       const apiKey = Deno.env.get("DID_API_KEY");
       if (!apiKey) return json({ ok: false, error: "D-ID not configured" }, 500);
       const raw = await listDIDPresenters(apiKey);
-      const avatars = raw.map((a: any) => ({
+      const mapped = raw.map((a: any) => ({
         id: a.presenter_id || a.id,
         name: a.name || a.presenter_id || "Presenter",
         preview_url: a.thumbnail_url || a.image_url || a.preview_url || null,
         source_url: a.image_url || a.source_url || a.thumbnail_url || null,
         gender: a.gender || null,
-      })).filter((a: any) => a.id && a.preview_url && a.source_url).slice(0, 48);
+      })).filter((a: any) => a.id && a.preview_url && a.source_url);
+      // Stable sort: diversity-priority presenters first, original order otherwise.
+      const avatars = mapped
+        .map((a, i) => ({ a, i, s: diversityScore(a) }))
+        .sort((x, y) => x.s - y.s || x.i - y.i)
+        .map((x) => x.a)
+        .slice(0, 48);
       return json({ ok: true, avatars });
     }
 

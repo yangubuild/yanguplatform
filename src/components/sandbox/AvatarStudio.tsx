@@ -267,7 +267,7 @@ function StockTab({ onResult }: { onResult: (s: Selected) => void }) {
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">
-          Pick a D-ID presenter to speak for your brand. Choose a voice and generate a preview.
+          Pick a presenter to speak for your brand. Choose a voice and generate a preview.
         </p>
         <Button size="sm" variant="ghost" onClick={load}>
           <RefreshCw className="w-3.5 h-3.5" /> Refresh
@@ -469,7 +469,7 @@ export function AvatarStudio() {
         <Tabs defaultValue="photo" className="w-full">
           <TabsList className="bg-white/[0.04] border border-white/10">
             <TabsTrigger value="photo">Use my photo</TabsTrigger>
-            <TabsTrigger value="stock">D-ID stock avatars</TabsTrigger>
+                <TabsTrigger value="stock">Stock avatars</TabsTrigger>
           </TabsList>
           <TabsContent value="photo" className="mt-4">
             <PhotoTab onResult={setSelected} name={firstName} />
