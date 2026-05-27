@@ -6507,6 +6507,8 @@ export type Database = {
           owner_id: string | null
           payment_method: string | null
           status: string
+          stripe_payment_status: string | null
+          stripe_session_id: string | null
           surface_id: string
           total_cents: number
           tracking_code: string
@@ -6525,6 +6527,8 @@ export type Database = {
           owner_id?: string | null
           payment_method?: string | null
           status?: string
+          stripe_payment_status?: string | null
+          stripe_session_id?: string | null
           surface_id: string
           total_cents?: number
           tracking_code?: string
@@ -6543,6 +6547,8 @@ export type Database = {
           owner_id?: string | null
           payment_method?: string | null
           status?: string
+          stripe_payment_status?: string | null
+          stripe_session_id?: string | null
           surface_id?: string
           total_cents?: number
           tracking_code?: string
