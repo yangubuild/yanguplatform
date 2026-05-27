@@ -208,9 +208,10 @@ serve(async (req) => {
         source_url: a.image_url || a.source_url || a.thumbnail_url || null,
         gender: a.gender || null,
       })).filter((a: any) => a.id && a.preview_url && a.source_url);
-      // Stable sort: diversity-priority presenters first, original order otherwise.
+      // Stable sort: priority presenters (Diana, Jaimie, Joseph, Lana) first
+      // in that exact order, all others retain original API order.
       const avatars = mapped
-        .map((a, i) => ({ a, i, s: diversityScore(a) }))
+        .map((a, i) => ({ a, i, s: priorityRank(a) }))
         .sort((x, y) => x.s - y.s || x.i - y.i)
         .map((x) => x.a)
         .slice(0, 48);
