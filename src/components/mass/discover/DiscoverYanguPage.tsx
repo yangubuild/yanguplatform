@@ -126,6 +126,8 @@ const faqs = [
 /* ── MAIN PAGE ── */
 export function DiscoverYanguPage() {
   const [activeApp, setActiveApp] = useState(0);
+  const { data: counters } = useLandingCounters();
+  const fmt = (n: number) => n.toLocaleString("en-US");
 
   return (
     <div style={{ fontFamily: "'Lufga', sans-serif" }} className="max-w-[960px] mx-auto">
@@ -151,11 +153,11 @@ export function DiscoverYanguPage() {
           <p className="text-muted-foreground text-sm mt-4">No subscription required</p>
         </section>
 
-        {/* ─── Stats Bar ─── */}
+        {/* ─── Stats Bar (real platform stats) ─── */}
         <section className="flex items-center justify-center gap-8 md:gap-16 py-10 border-y border-white/6 max-w-[800px] mx-auto mb-20">
-          <StatItem value="$2.1B+" label="Made by sellers on yangu" />
-          <StatItem value="82K+" label="Sellers on yangu" />
-          <StatItem value="15M+" label="Users on yangu" />
+          <StatItem value={fmt(counters?.users ?? 0)} label="Users on yangu" />
+          <StatItem value={fmt(counters?.businesses ?? 0)} label="Active shops" />
+          <StatItem value={fmt(counters?.communities ?? 0)} label="Communities" />
         </section>
       </div>
 
