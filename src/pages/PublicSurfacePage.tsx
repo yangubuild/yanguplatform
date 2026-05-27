@@ -114,7 +114,7 @@ export default function PublicSurfacePage() {
   };
 
   // Determine if surface supports ordering (eshop, estore, emenu variants)
-  const ORDER_CAPABLE_TYPES = ["eshop", "estore", "live_selling", "store_listing"];
+  const ORDER_CAPABLE_TYPES = ["eshop", "estore", "live_selling", "store_listing", "emenu"];
   const isOrderCapable = ORDER_CAPABLE_TYPES.includes(pubSurfaceType || "");
   const PRODUCT_SECTION_TYPES = ["products", "product_grid", "listings", "listing_grid", "featured"];
 

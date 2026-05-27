@@ -71,8 +71,12 @@ export function CommerceConfigPanel({ surfaceId, ownerId, onClose }: CommerceCon
         mobile_money_phone: config.mobile_money_phone,
         mobile_money_provider: config.mobile_money_provider,
         mobile_money_country: config.mobile_money_country,
+        mobile_money_account_name: (config as any).mobile_money_account_name ?? null,
         stripe_enabled: config.stripe_enabled,
         paypal_enabled: config.paypal_enabled,
+        stripe_account_id: (config as any).stripe_account_id ?? null,
+        stripe_publishable_key: (config as any).stripe_publishable_key ?? null,
+        paypal_email: (config as any).paypal_email ?? null,
         support_email: config.support_email,
         support_phone: config.support_phone,
         support_whatsapp: config.support_whatsapp,
@@ -246,7 +250,12 @@ export function CommerceConfigPanel({ surfaceId, ownerId, onClose }: CommerceCon
                 onChange={(e) => setForm((p) => ({ ...p, mobile_money_phone: e.target.value }))}
               />
               <Input
-                placeholder="Registered Name"
+                placeholder="Registered Name *"
+                value={form.mobile_money_account_name || ""}
+                onChange={(e) => setForm((p) => ({ ...p, mobile_money_account_name: e.target.value }))}
+              />
+              <Input
+                placeholder="Provider (MTN, Airtel, M-Pesa…)"
                 value={form.mobile_money_provider || ""}
                 onChange={(e) => setForm((p) => ({ ...p, mobile_money_provider: e.target.value }))}
               />
@@ -254,6 +263,37 @@ export function CommerceConfigPanel({ surfaceId, ownerId, onClose }: CommerceCon
                 placeholder="Country (e.g. Uganda)"
                 value={form.mobile_money_country || ""}
                 onChange={(e) => setForm((p) => ({ ...p, mobile_money_country: e.target.value }))}
+              />
+            </div>
+          )}
+
+          {form.payment_methods.includes("card") && (
+            <div className="space-y-2 pl-4 border-l-2 border-primary/20">
+              <Label className="text-xs font-semibold text-muted-foreground">Stripe Settings</Label>
+              <Input
+                placeholder="Stripe Account ID (acct_…)"
+                value={form.stripe_account_id || ""}
+                onChange={(e) => setForm((p) => ({ ...p, stripe_account_id: e.target.value }))}
+              />
+              <Input
+                placeholder="Stripe Publishable Key (pk_live_… or pk_test_…)"
+                value={form.stripe_publishable_key || ""}
+                onChange={(e) => setForm((p) => ({ ...p, stripe_publishable_key: e.target.value }))}
+              />
+              <p className="text-[10px] text-muted-foreground">
+                Leave Account ID empty to collect to the platform Stripe account.
+              </p>
+            </div>
+          )}
+
+          {form.payment_methods.includes("paypal") && (
+            <div className="space-y-2 pl-4 border-l-2 border-primary/20">
+              <Label className="text-xs font-semibold text-muted-foreground">PayPal Settings</Label>
+              <Input
+                placeholder="PayPal email *"
+                type="email"
+                value={form.paypal_email || ""}
+                onChange={(e) => setForm((p) => ({ ...p, paypal_email: e.target.value }))}
               />
             </div>
           )}

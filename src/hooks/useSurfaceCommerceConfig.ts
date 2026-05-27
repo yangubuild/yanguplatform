@@ -18,8 +18,12 @@ export type CommerceConfig = {
   mobile_money_phone: string | null;
   mobile_money_provider: string | null;
   mobile_money_country: string | null;
+  mobile_money_account_name: string | null;
   stripe_enabled: boolean;
   paypal_enabled: boolean;
+  stripe_account_id: string | null;
+  stripe_publishable_key: string | null;
+  paypal_email: string | null;
   support_email: string | null;
   support_phone: string | null;
   support_whatsapp: string | null;
@@ -37,8 +41,12 @@ const DEFAULT_CONFIG: Omit<CommerceConfig, "surface_id" | "owner_id"> = {
   mobile_money_phone: null,
   mobile_money_provider: null,
   mobile_money_country: null,
+  mobile_money_account_name: null,
   stripe_enabled: false,
   paypal_enabled: false,
+  stripe_account_id: null,
+  stripe_publishable_key: null,
+  paypal_email: null,
   support_email: null,
   support_phone: null,
   support_whatsapp: null,
