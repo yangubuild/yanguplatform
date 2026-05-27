@@ -123,11 +123,13 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   // HTML snapshot render path (preferred)
   if (sanitizedHtml) {
     return (
-      <div
-        className="min-h-screen bg-background yangu-live"
-        dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
-      >
-      </div>
+      <>
+        <div
+          className="min-h-screen bg-background yangu-live"
+          dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+        />
+        {showBadge && <YanguBadge />}
+      </>
     );
   }
 
