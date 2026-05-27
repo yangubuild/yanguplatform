@@ -1,5 +1,31 @@
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
+import { supabase } from '@/integrations/supabase/client';
+
+function detectPlatform(): 'ios' | 'android' | 'web' {
+  const p = Capacitor.getPlatform();
+  if (p === 'ios' || p === 'android') return p;
+  return 'web';
+}
+
+async function persistToken(token: string) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.log('[YANGU Push] No authenticated user — token not persisted');
+      return;
+    }
+    const { error } = await supabase
+      .from('push_tokens')
+      .upsert(
+        { user_id: user.id, token, platform: detectPlatform() },
+        { onConflict: 'user_id,token' },
+      );
+    if (error) console.error('[YANGU Push] Failed to persist token:', error);
+  } catch (err) {
+    console.error('[YANGU Push] persistToken error:', err);
+  }
+}
 
 /**
  * Initialize push notifications for native platforms.
@@ -27,9 +53,8 @@ export async function initPushNotifications() {
 
   // Token received — log it; later store in Supabase
   PushNotifications.addListener('registration', (token) => {
-    console.log('[YANGU Push] Token:', token.value);
-    // TODO: Store token in Supabase push_tokens table
-    // e.g. supabase.from('push_tokens').upsert({ user_id, token: token.value, platform })
+    if (import.meta.env.DEV) console.log('[YANGU Push] Token received');
+    void persistToken(token.value);
   });
 
   PushNotifications.addListener('registrationError', (err) => {
