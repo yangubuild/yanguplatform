@@ -126,7 +126,8 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
       <div
         className="min-h-screen bg-background yangu-live"
         dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
-      />
+      >
+      </div>
     );
   }
 
