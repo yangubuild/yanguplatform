@@ -1302,6 +1302,20 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Listen for external "yangu:ada-prompt" events (e.g. sandbox quick-start chips,
+  // template cards, audio-to-build) — pre-fill the input and auto-submit.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { prompt?: string } | undefined;
+      const prompt = typeof detail?.prompt === "string" ? detail.prompt.trim() : "";
+      if (!prompt) return;
+      setInputValue(prompt);
+      window.setTimeout(() => { handleSend(prompt); }, 0);
+    };
+    window.addEventListener("yangu:ada-prompt", handler as EventListener);
+    return () => window.removeEventListener("yangu:ada-prompt", handler as EventListener);
+  }, [handleSend]);
+
   // --- Voice ---
   const handleVoiceTranscript = useCallback(async (
     transcript: string,
