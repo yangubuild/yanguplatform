@@ -1,4 +1,7 @@
-// HTML snapshot publishing is retired. All surfaces render from compiled JSON sections in published_schema only. Do not re-introduce emenu_html or builder_new_html rendering.
+// Publish embeds the editor's HTML snapshot (metadata.builder_new_html + metadata.pages_html)
+// into published_schema.surface.html and published_schema.surface.pages_html (slug-keyed) so
+// the live page renders exactly what the seller built. JSON sections remain as a fallback
+// when no HTML is present.
 import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -116,6 +119,26 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
       metadata?: Record<string, unknown> | null;
     } | null;
 
+    const surfaceMetadata = (surfaceRecord?.metadata as Record<string, unknown> | null) || {};
+    const builderMainHtml = (surfaceMetadata.builder_new_html as string | null) || null;
+    const rawPagesHtml = (surfaceMetadata.pages_html as Record<string, string> | null) || {};
+
+    // Map page_id -> slug so we can rekey pages_html by slug for the public renderer
+    const { data: pagesRows } = await supabase
+      .from("builder_pages")
+      .select("id, slug")
+      .eq("surface_id", surfaceId);
+    const pageIdToSlug = new Map<string, string>(
+      (pagesRows || []).map((p: { id: string; slug: string }) => [p.id, p.slug])
+    );
+    const pagesHtmlBySlug: Record<string, string> = {};
+    for (const [pageId, html] of Object.entries(rawPagesHtml)) {
+      const slug = pageIdToSlug.get(pageId);
+      if (slug && typeof html === "string" && html.length > 0) {
+        pagesHtmlBySlug[slug] = html;
+      }
+    }
+
     const publishedSlug = normalizePublishSlug(requestedSlug || customSlug || surfaceRecord?.slug) || surfaceRecord?.slug || "";
 
     if (!publishedSlug) {
@@ -159,8 +182,8 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
     const currentSchema = (publishData?.published_schema as Record<string, unknown> | null) || {};
     const currentSurface = ((currentSchema.surface as Record<string, unknown> | undefined) ?? {});
 
-    // 5. Build updated surface with favicon + badge for ALL surface types.
-    // HTML snapshot publishing is retired — strip any legacy emenu_html and never write it back.
+    // 5. Build updated surface with favicon + badge + HTML snapshot for ALL surface types.
+    // Strip any legacy emenu_html key before writing the fresh snapshot.
     const { emenu_html: _legacyHtml, ...currentSurfaceNoHtml } = currentSurface as Record<string, unknown>;
     void _legacyHtml;
     const updatedSurface: Record<string, unknown> = {
@@ -170,6 +193,8 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
       surface_type: surfaceType,
       favicon_url: surfaceRecord?.favicon_url || null,
       show_yangu_badge: showYanguBadge,
+      html: builderMainHtml,
+      pages_html: pagesHtmlBySlug,
     };
 
     // 7. Write updated schema back
