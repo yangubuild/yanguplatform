@@ -260,6 +260,7 @@ export function AiResearch({ onUsed }: { onUsed: () => void }) {
             </div>
           </div>
         )}
+        {brief && <MakeItRealBanner />}
       </div>
     </SectionShell>
   );
