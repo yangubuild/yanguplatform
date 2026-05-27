@@ -8,6 +8,7 @@ import {
 import yanguYIcon from "@/assets/yangu-y-icon.png";
 import { LegalFooter } from "@/components/LegalFooter";
 import { T } from "@/lib/typography";
+import { useLandingCounters } from "@/hooks/landing/useLandingCounters";
 // yanguLogoFull removed — nav is now in the shell
 
 /* ── Stats Counter ── */
