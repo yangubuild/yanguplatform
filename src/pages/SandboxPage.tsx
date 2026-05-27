@@ -14,6 +14,9 @@ import {
   AudioToBuild,
   DeveloperCta,
   ProgressBar,
+  QuickStartChips,
+  StarterTemplates,
+  MakeItRealBanner,
   type FeatureKey,
 } from "@/components/sandbox/SandboxExtras";
 
@@ -223,7 +226,20 @@ export default function SandboxPage() {
       </div>
 
       <main className="max-w-6xl mx-auto px-4 py-6 flex flex-col gap-6">
+        {/* Outcome-based hero */}
+        <div className="text-center pt-2">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
+            Turn Ideas Into <span className="text-[#F4A83D]">Income</span>
+          </h2>
+          <p className="text-sm text-muted-foreground mt-2 max-w-xl mx-auto">
+            Try Yangu free — no signup needed. Pick a goal, chat with Ada, and see what's possible.
+          </p>
+        </div>
+
         <ProgressBar used={used} />
+
+        {/* Quick-start outcome chips */}
+        <QuickStartChips />
 
         {/* Ada panel — Chat to Build */}
         <section
@@ -243,10 +259,17 @@ export default function SandboxPage() {
               Conversation resets on refresh
             </span>
           </div>
+          {/* African starter templates */}
+          <div className="px-4 pt-3">
+            <StarterTemplates />
+          </div>
           <div className="h-[640px] relative">
             <SurfaceProvider>
               <AdaMainPanel />
             </SurfaceProvider>
+          </div>
+          <div className="px-4 pb-4">
+            <MakeItRealBanner />
           </div>
         </section>
 
