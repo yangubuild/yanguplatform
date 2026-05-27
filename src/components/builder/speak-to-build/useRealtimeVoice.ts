@@ -693,24 +693,27 @@ export function useRealtimeVoice({
         console.log("DATA CHANNEL OPEN");
         // Configure GA session turn detection before creating the greeting.
         try {
+          // NOTE: `session.language` is NOT a valid Realtime API parameter and
+          // triggers "Unknown parameter" errors that destabilize the session.
+          // Language is controlled via the system prompt + transcription model.
           dc.send(JSON.stringify({
             type: "session.update",
             session: {
               type: "realtime",
-              // FIX: Lock language to English. Prevents ADA from drifting into
-              // other languages mid-conversation due to background noise.
-              language: "en",
               audio: {
                 input: {
                   turn_detection: {
                     type: "server_vad",
-                    threshold: 0.6,
-                    prefix_padding_ms: 500,
-                    silence_duration_ms: 1200,
+                    // Higher threshold + longer silence = less false interruption
+                    // from background noise / breaths / short pauses.
+                    threshold: 0.7,
+                    prefix_padding_ms: 400,
+                    silence_duration_ms: 1500,
                     create_response: true,
-                    interrupt_response: true,
+                    // Do NOT let stray noise interrupt ADA mid-sentence.
+                    interrupt_response: false,
                   },
-                  transcription: { model: "whisper-1", language: "en" },
+                  transcription: { model: "whisper-1" },
                 },
               },
             },
