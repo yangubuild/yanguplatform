@@ -44,6 +44,11 @@ export function PublicCommerceShell({
 }: PublicCommerceShellProps) {
   const [view, setView] = useState<CommerceView>("none");
   const [trackingCode, setTrackingCode] = useState("");
+  const [lastOrderInfo, setLastOrderInfo] = useState<{
+    paymentMethod: string;
+    orderId: string;
+    buyerUserId: string | null;
+  } | null>(null);
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const [detailProduct, setDetailProduct] = useState<import("./PublicProductDetailDialog").ProductDetailPayload | null>(null);
   const cart = useCart(surfaceId);
@@ -102,7 +107,7 @@ export function PublicCommerceShell({
   }, []);
 
   const handleOrderPlaced = useCallback(
-    (code: string) => {
+    (code: string, info?: { paymentMethod: string; orderId: string; buyerUserId: string | null }) => {
       // Persist a buyer-side reference so My Orders can show this order.
       try {
         recordBuyerOrder({
@@ -118,6 +123,7 @@ export function PublicCommerceShell({
         // non-fatal
       }
       setTrackingCode(code);
+      if (info) setLastOrderInfo(info);
       cart.clear();
       setView("success");
     },
@@ -259,6 +265,14 @@ export function PublicCommerceShell({
         businessName={businessName}
         onViewMyOrders={() => setView("orders")}
         onBackToShop={() => setView("none")}
+        paymentMethod={lastOrderInfo?.paymentMethod}
+        mobileMoney={{
+          phone: config?.mobile_money_phone,
+          name: (config as any)?.mobile_money_account_name,
+          provider: config?.mobile_money_provider,
+        }}
+        sellerId={ownerId}
+        buyerUserId={lastOrderInfo?.buyerUserId ?? null}
       />
 
       {/* My Orders (buyer-side history) */}
