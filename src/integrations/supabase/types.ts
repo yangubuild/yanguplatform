@@ -6499,6 +6499,7 @@ export type Database = {
           buyer_email: string | null
           buyer_name: string | null
           buyer_phone: string | null
+          buyer_user_id: string | null
           created_at: string
           currency: string
           id: string
@@ -6506,6 +6507,7 @@ export type Database = {
           order_type: string | null
           owner_id: string | null
           payment_method: string | null
+          payment_status: string | null
           status: string
           stripe_payment_status: string | null
           stripe_session_id: string | null
@@ -6519,6 +6521,7 @@ export type Database = {
           buyer_email?: string | null
           buyer_name?: string | null
           buyer_phone?: string | null
+          buyer_user_id?: string | null
           created_at?: string
           currency?: string
           id?: string
@@ -6526,6 +6529,7 @@ export type Database = {
           order_type?: string | null
           owner_id?: string | null
           payment_method?: string | null
+          payment_status?: string | null
           status?: string
           stripe_payment_status?: string | null
           stripe_session_id?: string | null
@@ -6539,6 +6543,7 @@ export type Database = {
           buyer_email?: string | null
           buyer_name?: string | null
           buyer_phone?: string | null
+          buyer_user_id?: string | null
           created_at?: string
           currency?: string
           id?: string
@@ -6546,6 +6551,7 @@ export type Database = {
           order_type?: string | null
           owner_id?: string | null
           payment_method?: string | null
+          payment_status?: string | null
           status?: string
           stripe_payment_status?: string | null
           stripe_session_id?: string | null
@@ -9323,6 +9329,7 @@ export type Database = {
           id: string
           metadata: Json | null
           min_order_value_cents: number | null
+          mobile_money_account_name: string | null
           mobile_money_country: string | null
           mobile_money_phone: string | null
           mobile_money_provider: string | null
@@ -9330,8 +9337,11 @@ export type Database = {
           ordering_enabled: boolean
           owner_id: string
           payment_methods: string[]
+          paypal_email: string | null
           paypal_enabled: boolean
+          stripe_account_id: string | null
           stripe_enabled: boolean
+          stripe_publishable_key: string | null
           support_email: string | null
           support_phone: string | null
           support_whatsapp: string | null
@@ -9347,6 +9357,7 @@ export type Database = {
           id?: string
           metadata?: Json | null
           min_order_value_cents?: number | null
+          mobile_money_account_name?: string | null
           mobile_money_country?: string | null
           mobile_money_phone?: string | null
           mobile_money_provider?: string | null
@@ -9354,8 +9365,11 @@ export type Database = {
           ordering_enabled?: boolean
           owner_id: string
           payment_methods?: string[]
+          paypal_email?: string | null
           paypal_enabled?: boolean
+          stripe_account_id?: string | null
           stripe_enabled?: boolean
+          stripe_publishable_key?: string | null
           support_email?: string | null
           support_phone?: string | null
           support_whatsapp?: string | null
@@ -9371,6 +9385,7 @@ export type Database = {
           id?: string
           metadata?: Json | null
           min_order_value_cents?: number | null
+          mobile_money_account_name?: string | null
           mobile_money_country?: string | null
           mobile_money_phone?: string | null
           mobile_money_provider?: string | null
@@ -9378,8 +9393,11 @@ export type Database = {
           ordering_enabled?: boolean
           owner_id?: string
           payment_methods?: string[]
+          paypal_email?: string | null
           paypal_enabled?: boolean
+          stripe_account_id?: string | null
           stripe_enabled?: boolean
+          stripe_publishable_key?: string | null
           support_email?: string | null
           support_phone?: string | null
           support_whatsapp?: string | null
