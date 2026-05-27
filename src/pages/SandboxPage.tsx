@@ -263,7 +263,7 @@ export default function SandboxPage() {
           <div className="px-4 pt-3">
             <StarterTemplates />
           </div>
-          <div className="h-[640px] relative">
+          <div className="h-[640px] relative overflow-hidden">
             <SurfaceProvider>
               <AdaMainPanel />
             </SurfaceProvider>
