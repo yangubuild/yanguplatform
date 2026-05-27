@@ -108,3 +108,6 @@ project_id = "xcipuyvcwfytlsjryhvs"
     verify_jwt = false
   [functions.sync-pull]
     verify_jwt = false
+
+[functions._audit-secrets]
+verify_jwt = false
