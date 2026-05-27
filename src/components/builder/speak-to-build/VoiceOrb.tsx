@@ -90,28 +90,37 @@ export function VoiceOrb({ state, level = 0, onTap, ariaLabel }: Props) {
         </>
       )}
 
-      {/* Core orb */}
+      {/* Core orb. `isolation: isolate` + `overflow: hidden` are required so
+          the inner mix-blend shimmer is clipped to a circle on iOS Safari,
+          which otherwise ignores border-radius on mix-blend layers and paints
+          a visible square box around the orb. */}
       <div
         ref={ref}
-        className={`relative w-[180px] h-[180px] rounded-full transition-transform duration-150 ease-out ${stateClass}`}
+        className={`relative w-[180px] h-[180px] rounded-full overflow-hidden transition-transform duration-150 ease-out ${stateClass}`}
         style={{
           transform: "scale(var(--orb-scale, 1))",
+          isolation: "isolate",
           background:
             "radial-gradient(circle at 32% 28%, hsl(var(--primary) / 0.98), hsl(var(--primary) / 0.6) 55%, hsl(var(--primary) / 0.18) 100%)",
           boxShadow:
             "0 0 80px 10px hsl(var(--primary) / 0.45), inset 0 0 40px hsl(var(--background) / 0.25)",
+          WebkitMaskImage: "radial-gradient(circle, #000 99%, transparent 100%)",
+          maskImage: "radial-gradient(circle, #000 99%, transparent 100%)",
         }}
       >
-        {/* Inner shimmer — circular only */}
-        <div
-          className={`absolute inset-0 rounded-full mix-blend-overlay ${
-            state === "thinking" ? "animate-spin-slow" : ""
-          }`}
-          style={{
-            background:
-              "conic-gradient(from 0deg, transparent, hsl(var(--background) / 0.35), transparent 40%, hsl(var(--background) / 0.2), transparent 80%)",
-          }}
-        />
+        {/* Inner shimmer — wrapped in its own rounded-full clip so the conic
+            gradient + mix-blend stay circular on iOS Safari. */}
+        <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none">
+          <div
+            className={`absolute inset-0 rounded-full mix-blend-overlay ${
+              state === "thinking" ? "animate-spin-slow" : ""
+            }`}
+            style={{
+              background:
+                "conic-gradient(from 0deg, transparent, hsl(var(--background) / 0.35), transparent 40%, hsl(var(--background) / 0.2), transparent 80%)",
+            }}
+          />
+        </div>
       </div>
 
       <style>{`
