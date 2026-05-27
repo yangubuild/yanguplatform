@@ -390,7 +390,7 @@ function ImageToAvatarTab() {
 function TextToAvatarTab() {
   const [gender, setGender] = useState("Male");
   const [ageGroup, setAgeGroup] = useState("Young Adult");
-  const [ethnicity, setEthnicity] = useState("Caucasian");
+  const [ethnicity, setEthnicity] = useState("Black / African");
   const [outfit, setOutfit] = useState("");
   const [details, setDetails] = useState("");
   const [scene, setScene] = useState("");
@@ -406,7 +406,7 @@ function TextToAvatarTab() {
         <div className="grid grid-cols-3 gap-3 mb-5">
           <SelectDropdown label="Gender" value={gender} onChange={setGender} options={["Male", "Female"]} />
           <SelectDropdown label="Age" value={ageGroup} onChange={setAgeGroup} options={["Young Adult", "Early Middle Age", "Late Middle Age", "Senior"]} />
-          <SelectDropdown label="Ethnicity" value={ethnicity} onChange={setEthnicity} options={["Caucasian", "Black / African American", "East Asian", "Southeast Asian", "South Asian", "Middle Eastern", "Hispanic / Latino", "Native American / Indigenous", "Multiracial"]} />
+          <SelectDropdown label="Ethnicity" value={ethnicity} onChange={setEthnicity} options={["Black / African", "Black / African American", "South Asian", "Middle Eastern", "Hispanic / Latino", "Southeast Asian", "East Asian", "Native American / Indigenous", "Multiracial", "Caucasian"]} />
         </div>
         <p className="text-sm font-semibold text-foreground mb-2">Outfit (Optional)</p>
         <textarea value={outfit} onChange={(e) => setOutfit(e.target.value)} placeholder="e.g. casual, formal, sporty, business, trendy, vintage..."

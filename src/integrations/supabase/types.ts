@@ -11078,6 +11078,7 @@ export type Database = {
           submitted_at: string
         }[]
       }
+      get_platform_stats: { Args: never; Returns: Json }
       get_public_profiles: {
         Args: { p_user_ids: string[] }
         Returns: {

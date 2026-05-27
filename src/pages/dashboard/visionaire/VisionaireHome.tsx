@@ -46,11 +46,12 @@ export default function VisionaireHome() {
   const [formatFilter, setFormatFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   
-  // Fetch all relevant categories
-  const allCategories = categoryFilter === "all"
-    ? ["master_library", "university", "evergreen", "ebooks", "audio", "bundles", "business_podcast", "checklists", "courses", "guide", "prompts", "templates", "toolstack", "video_learning", "workbook"]
-    : [categoryFilter];
-  const { data: items, isLoading } = useVisionaireItems(allCategories);
+  // When "all" is selected, fetch every active item (no category filter).
+  // Previously we passed a hardcoded category list which could drop newly
+  // added categories and silently return 0 results.
+  const { data: items, isLoading } = useVisionaireItems(
+    categoryFilter === "all" ? undefined : categoryFilter
+  );
 
   const filtered = useMemo(() => {
     if (!items) return [];

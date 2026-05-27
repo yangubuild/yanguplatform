@@ -1,11 +1,14 @@
 import { T } from "@/lib/typography";
 import { Button } from "@/components/ui/button";
+import { useLandingCounters } from "@/hooks/landing/useLandingCounters";
 
 interface BlogHeroProps {
   onSubscribeClick: () => void;
 }
 
 export function BlogHero({ onSubscribeClick }: BlogHeroProps) {
+  const { data: counters } = useLandingCounters();
+  const builders = (counters?.users ?? 0).toLocaleString("en-US");
   return (
     <section className="flex flex-col items-center text-center px-6 pt-12 pb-2">
       {/* Headline */}
@@ -22,7 +25,7 @@ export function BlogHero({ onSubscribeClick }: BlogHeroProps) {
 
       {/* Subtext */}
       <p className="mt-6 text-base" style={{ letterSpacing: "0.02em" }}>
-        Trusted by 100,000 builders
+        Trusted by {builders} builders
       </p>
 
       {/* CTA */}
