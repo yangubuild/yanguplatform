@@ -267,7 +267,7 @@ function StockTab({ onResult }: { onResult: (s: Selected) => void }) {
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">
-          Pick a D-ID presenter to speak for your brand. Choose a voice and generate a preview.
+          Pick a presenter to speak for your brand. Choose a voice and generate a preview.
         </p>
         <Button size="sm" variant="ghost" onClick={load}>
           <RefreshCw className="w-3.5 h-3.5" /> Refresh
