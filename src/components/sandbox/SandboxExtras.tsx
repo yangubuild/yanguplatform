@@ -369,6 +369,7 @@ export function AiEbook({ onUsed }: { onUsed: () => void }) {
             </ol>
           </div>
         )}
+        {ebook && <MakeItRealBanner />}
       </div>
     </SectionShell>
   );
