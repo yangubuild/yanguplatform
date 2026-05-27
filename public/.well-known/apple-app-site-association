@@ -3,7 +3,7 @@
     "apps": [],
     "details": [
       {
-        "appID": "TEAM_ID.com.yangu.app",
+        "appID": "REPLACE_WITH_APPLE_TEAM_ID.com.yangu.app",
         "paths": [
           "*"
         ]
@@ -12,7 +12,7 @@
   },
   "webcredentials": {
     "apps": [
-      "TEAM_ID.com.yangu.app"
+      "REPLACE_WITH_APPLE_TEAM_ID.com.yangu.app"
     ]
   }
 }

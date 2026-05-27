@@ -7,7 +7,7 @@
       "namespace": "android_app",
       "package_name": "com.yangu.app",
       "sha256_cert_fingerprints": [
-        "YOUR_SHA256_FINGERPRINT"
+        "REPLACE_WITH_PLAY_STORE_SHA256_FINGERPRINT_BEFORE_SUBMISSION"
       ]
     }
   }
