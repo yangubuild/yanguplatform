@@ -1,5 +1,8 @@
-// HTML snapshot publishing is retired. All surfaces render from compiled JSON sections in published_schema only. Do not re-introduce emenu_html or builder_new_html rendering.
-import { useEffect, useCallback } from "react";
+// Public renderer: prefers the sanitized HTML snapshot embedded by useBuilderPublish
+// (published_schema.surface.html / surface.pages_html[slug]) so the live page matches
+// the builder exactly. Falls back to compiled JSON sections when no HTML is present.
+import { useEffect, useMemo } from "react";
+import DOMPurify from "dompurify";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,6 +58,38 @@ export default function PublicSurfacePage() {
   const ownerId = surfaceData.user_id || "";
   const businessName = surfaceData.title || "";
 
+  // HTML snapshot (preferred): per-page slug map, then surface-wide fallback
+  const pagesHtmlMap = (surfaceData.pages_html || {}) as Record<string, string>;
+  const rawHtml: string | null =
+    pagesHtmlMap[pathSlug] ||
+    pagesHtmlMap["home"] ||
+    (surfaceData.html as string | null) ||
+    null;
+
+  const sanitizedHtml = useMemo(() => {
+    if (!rawHtml) return null;
+    try {
+      return DOMPurify.sanitize(rawHtml, {
+        ADD_TAGS: ["style", "link", "iframe"],
+        ADD_ATTR: [
+          "target",
+          "rel",
+          "allow",
+          "allowfullscreen",
+          "frameborder",
+          "loading",
+          "referrerpolicy",
+          "data-yangu-node-id",
+        ],
+        FORBID_TAGS: ["script"],
+        FORBID_ATTR: ["onerror", "onload", "onclick"],
+      });
+    } catch (e) {
+      console.error("[PublicSurfacePage] sanitize error:", e);
+      return null;
+    }
+  }, [rawHtml]);
+
   // Set document metadata
   useEffect(() => {
     if (!data) return;
@@ -93,8 +128,22 @@ export default function PublicSurfacePage() {
     return <PublicNotFound host={host} slug={pathSlug} />;
   }
 
-  // JSON-section render path is the only publish renderer for all surface types.
   const pubSurfaceType = surfaceData.surface_type;
+
+  // ─── HTML snapshot render path (preferred) ───
+  if (sanitizedHtml) {
+    return (
+      <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName}>
+        <div
+          className="min-h-screen bg-background yangu-live"
+          dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+        />
+        {showBadge && <YanguBadge />}
+      </PublicCommerceShell>
+    );
+  }
+
+  // ─── JSON-section fallback (legacy path) ───
   const schema = data.published_schema;
   const page = schema.pages?.[0];
   const rawSections = page?.sections
