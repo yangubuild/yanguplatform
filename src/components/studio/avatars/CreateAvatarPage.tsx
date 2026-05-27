@@ -3,14 +3,16 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Type, ImageIcon, Video, Upload, Lightbulb, AudioLines, ChevronDown, ChevronRight,
-  Wand2, Clock, Eye, Mic, Settings2, Users, CheckCircle2, XCircle, Loader2, AlertTriangle
+  Wand2, Clock, Eye, Mic, Settings2, Users, CheckCircle2, XCircle, Loader2, AlertTriangle, Sparkles, Download
 } from "lucide-react";
 import { VoiceLibraryModal } from "./VoiceLibraryModal";
 import { useAvatarTraining } from "@/hooks/useAvatarTraining";
 import { consumeAiAvatarCredit } from "@/lib/aiCredits";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useSaveToStudio } from "@/hooks/useStudioAssets";
 
-type ModeTab = "text" | "image" | "video";
+type ModeTab = "stock" | "text" | "image" | "video";
 type VoiceMode = "select" | "upload";
 
 const OUTFIT_CHIPS = ["Casual", "Formal", "Sporty", "Doctor", "Nurse", "Chef", "Worker"];
@@ -18,7 +20,7 @@ const SCENE_CHIPS = ["Living room", "Bedroom", "Kitchen", "Home office", "Gym", 
 
 export default function CreateAvatarPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<ModeTab>("image");
+  const [mode, setMode] = useState<ModeTab>("stock");
   const { startTraining, isStarting, latestJob, fetchJobs, jobs, isLoading } = useAvatarTraining();
 
   useEffect(() => { fetchJobs(); }, [fetchJobs]);
@@ -43,14 +45,15 @@ export default function CreateAvatarPage() {
 
       {/* Mode tabs */}
       <div className="flex justify-center pt-2 pb-6">
-        <div className="inline-flex rounded-full border border-border/40 bg-card/60 p-1">
+        <div className="inline-flex rounded-lg border border-border/40 bg-card/60 p-1 flex-wrap">
           {([
+            { key: "stock" as const, label: "Stock Avatar", icon: Sparkles },
             { key: "text" as const, label: "Text to Avatar", icon: Type },
             { key: "image" as const, label: "Image to Avatar", icon: ImageIcon },
             { key: "video" as const, label: "Video to Avatar", icon: Video },
           ]).map((t) => (
             <button key={t.key} onClick={() => setMode(t.key)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${mode === t.key ? "bg-muted/60 text-foreground border border-border/50" : "text-muted-foreground hover:text-foreground"}`}>
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${mode === t.key ? "bg-muted/60 text-foreground border border-border/50" : "text-muted-foreground hover:text-foreground"}`}>
               <t.icon className="h-4 w-4" /> {t.label}
             </button>
           ))}
@@ -59,17 +62,18 @@ export default function CreateAvatarPage() {
 
       {/* Content */}
       <div className="max-w-3xl mx-auto px-4 pb-20">
+        {mode === "stock" && <StockAvatarTab />}
         {mode === "image" && <ImageToAvatarTab />}
         {mode === "text" && <TextToAvatarTab />}
         {mode === "video" && <VideoToAvatarTab />}
 
         {/* Training job status */}
-        {latestJob && (
+        {mode !== "stock" && latestJob && (
           <TrainingJobStatus job={latestJob} />
         )}
 
         {/* Previous jobs */}
-        {jobs.length> 0 && (
+        {mode !== "stock" && jobs.length> 0 && (
           <div className="mt-6 space-y-2">
             <p className="text-sm font-semibold text-foreground">Training History</p>
             {jobs.slice(0, 5).map((job) => (
@@ -79,12 +83,209 @@ export default function CreateAvatarPage() {
         )}
 
         {/* Generate CTA */}
-        <div className="flex justify-center pt-8 pb-6">
-          <Button variant="accent" size="lg" onClick={handleGenerate} disabled={isStarting}>
-            {isStarting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Starting...</> : "Generate Avatar"}
+        {mode !== "stock" && (
+          <div className="flex justify-center pt-8 pb-6">
+            <Button variant="accent" size="lg" onClick={handleGenerate} disabled={isStarting}>
+              {isStarting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Starting...</> : "Generate Avatar"}
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─── STOCK AVATAR (D-ID, powers same flow as Sandbox Avatar Studio) ─── */
+interface DidAvatar {
+  id: string;
+  name: string;
+  preview_url: string;
+  source_url: string;
+  gender: string | null;
+}
+
+const STOCK_VOICES: { key: string; label: string }[] = [
+  { key: "female_us", label: "Jenny — US English (Female)" },
+  { key: "male_us", label: "Guy — US English (Male)" },
+  { key: "female_uk", label: "Sonia — UK English (Female)" },
+  { key: "male_uk", label: "Ryan — UK English (Male)" },
+];
+
+function StockAvatarTab() {
+  const [avatars, setAvatars] = useState<DidAvatar[]>([]);
+  const [loadingList, setLoadingList] = useState(true);
+  const [listError, setListError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<DidAvatar | null>(null);
+  const [voice, setVoice] = useState<string>("female_us");
+  const [script, setScript] = useState<string>("Hi, I'm your AI avatar — welcome to my channel.");
+  const [generating, setGenerating] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const saveToStudio = useSaveToStudio();
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      setLoadingList(true);
+      setListError(null);
+      const { data, error } = await supabase.functions.invoke("sandbox-avatar", {
+        body: { action: "did-presenters" },
+      });
+      if (!alive) return;
+      if (error || !data?.ok) {
+        setListError(error?.message || data?.error || "Could not load avatars.");
+        setLoadingList(false);
+        return;
+      }
+      const list = (data.avatars || []) as DidAvatar[];
+      setAvatars(list);
+      if (list.length > 0) setSelected(list[0]);
+      setLoadingList(false);
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  const handleGenerate = async () => {
+    if (!selected) {
+      toast({ title: "Pick an avatar first", variant: "destructive" });
+      return;
+    }
+    const text = script.trim();
+    if (text.length < 4) {
+      toast({ title: "Add a short script", description: "What should your avatar say?", variant: "destructive" });
+      return;
+    }
+    const credit = await consumeAiAvatarCredit();
+    if (!credit.allowed) {
+      toast({ title: credit.reason || "Monthly avatar limit reached.", variant: "destructive", description: "Upgrade your plan for more AI avatar credits." });
+      return;
+    }
+    setGenerating(true);
+    setVideoUrl(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("sandbox-avatar", {
+        body: {
+          action: "did-talk",
+          presenter_image_url: selected.source_url,
+          voice,
+          script: text,
+          name: selected.name,
+        },
+      });
+      if (error) throw new Error(error.message);
+      if (!data?.ok) throw new Error(data?.error || "Generation failed");
+      if (data.fallback || !data.video_url) {
+        toast({ title: "At capacity", description: data.notice || "Talking avatar preview is at capacity right now. Try again shortly." });
+        return;
+      }
+      setVideoUrl(data.video_url);
+      // Save to studio assets
+      try {
+        await saveToStudio.mutateAsync({
+          fileUrl: data.video_url,
+          assetType: "video",
+          title: `${selected.name} — talking avatar`,
+          prompt: text,
+          provider: "d-id",
+          metadata: { presenter_id: selected.id, presenter_name: selected.name, voice },
+        });
+      } catch {
+        // save failure already toasts in hook
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Generation failed";
+      toast({ title: "Couldn't generate video", description: msg, variant: "destructive" });
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-border/30 bg-card/40 p-6 space-y-5">
+        <div>
+          <h3 className="text-base font-semibold text-foreground">Pick a stock avatar</h3>
+          <p className="text-xs text-muted-foreground mt-1">Powered by D-ID. Diana, Jaimie, Joseph and Lana shown first.</p>
+        </div>
+        {loadingList ? (
+          <div className="flex items-center justify-center py-12 text-muted-foreground text-sm">
+            <Loader2 className="h-4 w-4 animate-spin mr-2" /> Loading avatars…
+          </div>
+        ) : listError ? (
+          <div className="flex items-center gap-2 text-sm text-amber-400 py-6">
+            <AlertTriangle className="h-4 w-4" /> {listError}
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 max-h-[420px] overflow-y-auto pr-1">
+            {avatars.map((a) => {
+              const isSel = selected?.id === a.id;
+              return (
+                <button
+                  key={a.id}
+                  onClick={() => setSelected(a)}
+                  className={`group relative aspect-[3/4] rounded-lg overflow-hidden border-2 transition-all ${isSel ? "border-primary ring-2 ring-primary/40" : "border-border/30 hover:border-border/60"}`}
+                >
+                  <img src={a.preview_url} alt={a.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-1.5">
+                    <p className="text-[11px] font-medium text-white truncate">{a.name}</p>
+                  </div>
+                  {isSel && (
+                    <div className="absolute top-1 right-1 h-5 w-5 rounded-full bg-primary flex items-center justify-center">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-primary-foreground" />
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-2xl border border-border/30 bg-card/40 p-6 space-y-5">
+        <div>
+          <h3 className="text-base font-semibold text-foreground mb-2">Voice</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {STOCK_VOICES.map((v) => (
+              <button
+                key={v.key}
+                onClick={() => setVoice(v.key)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg border text-left transition-all ${voice === v.key ? "border-primary bg-primary/5" : "border-border/30 hover:border-border/60"}`}
+              >
+                <AudioLines className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-foreground">{v.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <h3 className="text-base font-semibold text-foreground mb-2">Script</h3>
+          <textarea
+            value={script}
+            onChange={(e) => setScript(e.target.value.slice(0, 1000))}
+            rows={4}
+            placeholder="What should your avatar say?"
+            className="w-full rounded-lg bg-muted/15 border border-border/30 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none resize-none focus:border-primary/50"
+          />
+          <p className="text-[11px] text-muted-foreground mt-1 text-right">{script.length}/1000</p>
+        </div>
+        <div className="flex justify-end">
+          <Button variant="accent" size="lg" onClick={handleGenerate} disabled={generating || !selected}>
+            {generating ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Generating…</> : <><Sparkles className="h-4 w-4 mr-2" /> Generate Talking Video</>}
           </Button>
         </div>
       </div>
+
+      {videoUrl && (
+        <div className="rounded-2xl border border-border/30 bg-card/40 p-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-semibold text-foreground">Your talking avatar</h3>
+            <a href={videoUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline">
+              <Download className="h-4 w-4" /> Open
+            </a>
+          </div>
+          <video src={videoUrl} controls className="w-full rounded-lg bg-black aspect-video" />
+          <p className="text-xs text-muted-foreground">Saved to your Studio assets.</p>
+        </div>
+      )}
     </div>
   );
 }

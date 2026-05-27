@@ -180,7 +180,11 @@ serve(async (req) => {
       const voiceKey = ((body as any).voice as string | undefined) || "female_us";
       const voiceId = VOICE_MAP[voiceKey] || VOICE_MAP.female_us;
       const name = (body.name || "there").toString().slice(0, 40).replace(/[^\p{L}\p{N}\s'-]/gu, "");
-      const script = `Hi, I'm ${name || "there"}, and I build with Yangu.`;
+      // Optional custom script (used by Studio); sandbox uses default greeting.
+      const customScript = (body as any).script as string | undefined;
+      const script = customScript && customScript.trim().length > 0
+        ? customScript.toString().slice(0, 1000)
+        : `Hi, I'm ${name || "there"}, and I build with Yangu.`;
       const imageUrl = presenterImage
         ? presenterImage
         : await uploadImageToDID(apiKey, body.image_base64!);
