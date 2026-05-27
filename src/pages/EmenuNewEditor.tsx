@@ -1464,6 +1464,9 @@ export default function EmenuNewEditor() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {surfaceId && currentUserId && (
+        <CompleteSetupBanner surfaceId={surfaceId} ownerId={currentUserId} />
+      )}
       {/* ═══ TOP NAVBAR ═══ */}
       <header
         className="sticky top-0 z-40 h-14 border-b border-white/10 flex items-center px-3 lg:px-4 gap-2 lg:gap-3"
