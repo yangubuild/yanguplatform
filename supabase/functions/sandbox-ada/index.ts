@@ -39,7 +39,18 @@ serve(async (req) => {
       system?: string;
       prompt?: string;
     };
-    const system = (body.system || "You are Ada, a helpful assistant.").slice(0, 4000);
+    const baseSystem = body.system || "You are Ada, a helpful AI assistant for Yangu.";
+    // Skip coaching suffix for structured-output prompts (would break JSON parsing).
+    const isStructured = /\bjson\b/i.test(baseSystem);
+    const COACHING_SUFFIX = `\n\n--- COACHING TONE ---
+You are Ada in Yangu's sandbox: proactive, encouraging, and coaching-focused.
+After your main answer, ALWAYS end with exactly ONE short follow-up question that nudges the user toward publishing. Pick the most contextually relevant from:
+- "Want me to turn this into a real store?"
+- "Ready to publish this in 3 minutes?"
+- "Should I generate product images and a storefront for this?"
+Rotate between them based on context (commerce → store; content/outline → publish; visual/brand → images & storefront).
+Place the follow-up on its own final line. Never ask more than one follow-up.`;
+    const system = (isStructured ? baseSystem : baseSystem + COACHING_SUFFIX).slice(0, 4000);
     const prompt = (body.prompt || "").slice(0, 4000);
     if (!prompt.trim()) return json({ ok: false, error: "prompt required" }, 400);
 

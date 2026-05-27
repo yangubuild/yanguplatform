@@ -10,6 +10,8 @@ import {
   Square,
   Code2,
   KeyRound,
+  ArrowRight,
+  Rocket,
 } from "lucide-react";
 import jsPDF from "jspdf";
 import { Button } from "@/components/ui/button";
@@ -25,6 +27,113 @@ function NotSavedBadge() {
     <Badge className="bg-amber-500/15 text-amber-200 border border-amber-500/30 hover:bg-amber-500/15 text-[10px]">
       Not saved
     </Badge>
+  );
+}
+
+/* ----------------------- Quick-start chips + Templates + CTA ----------------------- */
+
+function fireAdaPrompt(prompt: string) {
+  window.dispatchEvent(new CustomEvent("yangu:ada-prompt", { detail: { prompt } }));
+  document.getElementById("ada-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+const QUICK_START_CHIPS: { label: string; prompt: string }[] = [
+  { label: "Start an Online Shop", prompt: "I want to start an online shop. Help me set it up, pick the right products, and build a brand that converts." },
+  { label: "Become an AI Creator", prompt: "I want to become an AI creator. Help me build my personal brand, content strategy, and revenue streams." },
+  { label: "Launch a Community", prompt: "Help me launch an online community for my audience. What should I build first?" },
+  { label: "Build an Agency", prompt: "I want to build a digital services agency. Help me design the offer, pricing, and a landing page." },
+  { label: "Sell Digital Products", prompt: "I want to sell digital products online. Help me pick what to sell and how to package it." },
+  { label: "Create AI Videos", prompt: "Help me create AI videos for my brand — give me ideas, scripts, and a production plan." },
+  { label: "Start Live Selling", prompt: "I want to start live selling my products. Help me plan my first live session and setup." },
+  { label: "Build a Business Website", prompt: "Help me build a professional business website. Ask me what I need and design the structure." },
+];
+
+export function QuickStartChips() {
+  return (
+    <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3">
+      <div className="flex items-center gap-2 mb-2">
+        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+        <span className="text-xs uppercase tracking-wider text-amber-300/80 font-medium">Quick start</span>
+        <span className="text-xs text-muted-foreground">Pick a goal — Ada takes it from there</span>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {QUICK_START_CHIPS.map((c) => (
+          <button
+            key={c.label}
+            onClick={() => fireAdaPrompt(c.prompt)}
+            className="text-xs px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-amber-500/10 hover:border-amber-500/30 hover:text-amber-200 text-foreground transition-colors"
+          >
+            {c.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const TEMPLATES: { label: string; flag: string; prompt: string; tag: string }[] = [
+  {
+    label: "Kampala Boutique",
+    flag: "🇺🇬",
+    tag: "Fashion · Retail",
+    prompt: "I run a boutique in Kampala selling women's fashion. Help me build my brand, set up an online presence, and start selling to customers across Uganda.",
+  },
+  {
+    label: "Nairobi Coffee Shop",
+    flag: "🇰🇪",
+    tag: "Food · Café",
+    prompt: "I run a coffee shop in Nairobi. Help me build a website with my menu, take orders, and grow regulars in the neighborhood.",
+  },
+  {
+    label: "Lagos Fashion Store",
+    flag: "🇳🇬",
+    tag: "Fashion · E-commerce",
+    prompt: "I run a fashion store in Lagos. Help me build a brand, set up an online shop, and start selling across Nigeria and beyond.",
+  },
+];
+
+export function StarterTemplates() {
+  return (
+    <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3">
+      <div className="flex items-center gap-2 mb-2">
+        <Rocket className="w-3.5 h-3.5 text-amber-300" />
+        <span className="text-xs uppercase tracking-wider text-amber-300/80 font-medium">Try an example</span>
+        <span className="text-xs text-muted-foreground">Tap to see Ada in action</span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        {TEMPLATES.map((t) => (
+          <button
+            key={t.label}
+            onClick={() => fireAdaPrompt(t.prompt)}
+            className="text-left p-3 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-amber-500/10 hover:border-amber-500/30 transition-colors group"
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-lg">{t.flag}</span>
+              <span className="text-sm font-semibold text-foreground group-hover:text-amber-200">{t.label}</span>
+            </div>
+            <div className="text-[11px] text-muted-foreground">{t.tag}</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function MakeItRealBanner() {
+  return (
+    <div
+      className="mt-3 rounded-lg border border-amber-500/30 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+      style={{ background: "linear-gradient(90deg, rgba(196,122,58,0.18) 0%, rgba(21,42,32,0.4) 100%)" }}
+    >
+      <div className="text-sm text-foreground">
+        ✨ Ready to make this real? <span className="text-muted-foreground">Sign up and publish in under 3 minutes.</span>
+      </div>
+      <Button asChild size="sm" variant="accent" className="flex-shrink-0">
+        <Link to="/auth/signup">
+          Start building free <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </Button>
+    </div>
   );
 }
 
@@ -151,6 +260,7 @@ export function AiResearch({ onUsed }: { onUsed: () => void }) {
             </div>
           </div>
         )}
+        {brief && <MakeItRealBanner />}
       </div>
     </SectionShell>
   );
@@ -259,6 +369,7 @@ export function AiEbook({ onUsed }: { onUsed: () => void }) {
             </ol>
           </div>
         )}
+        {ebook && <MakeItRealBanner />}
       </div>
     </SectionShell>
   );
