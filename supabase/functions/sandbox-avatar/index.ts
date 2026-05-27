@@ -224,19 +224,21 @@ serve(async (req) => {
         source_url: a.image_url || a.source_url || a.thumbnail_url || null,
         gender: a.gender || null,
       })).filter((a: any) => a.id && a.preview_url && a.source_url);
-      // Dedupe by name — D-ID returns multiple "looks" per presenter (same
-      // name, different outfit/pose). Keep the first look per name so the grid
-      // shows distinct people (Diana, Jaimie, Joseph, Lana, Anita, …).
-      const seen = new Set<string>();
-      const unique = mapped.filter((a) => {
+      // Dedupe non-priority presenters by name (D-ID returns multiple "looks"
+      // per presenter). For priority names (Diana, Jaimie, Joseph, Lana), keep
+      // ALL variations so users see the full range of diverse avatar options.
+      const seenOther = new Set<string>();
+      const filtered = mapped.filter((a) => {
         const key = (a.name || "").trim().toLowerCase();
-        if (!key || seen.has(key)) return false;
-        seen.add(key);
+        if (PRIORITY_NAMES.includes(key)) return true;
+        if (!key || seenOther.has(key)) return false;
+        seenOther.add(key);
         return true;
       });
-      // Stable sort: priority presenters (Diana, Jaimie, Joseph, Lana) first
-      // in that exact order, all others retain original API order.
-      const avatars = unique
+      // Stable sort: ALL variations of priority presenters first, grouped in
+      // the exact PRIORITY_NAMES order; all other presenters retain original
+      // API order after.
+      const avatars = filtered
         .map((a, i) => ({ a, i, s: priorityRank(a) }))
         .sort((x, y) => x.s - y.s || x.i - y.i)
         .map((x) => x.a)
