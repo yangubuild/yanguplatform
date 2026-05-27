@@ -8,10 +8,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Package, Clock, RefreshCw } from "lucide-react";
+import { Loader2, Package, Clock, RefreshCw, MessagesSquare, CheckCircle2 } from "lucide-react";
 import { formatPriceCents } from "@/types/commerce";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 const STATUS_OPTIONS = [
   { value: "pending", label: "Pending", color: "bg-yellow-100 text-yellow-800" },
@@ -29,6 +30,7 @@ interface OwnerOrdersPanelProps {
 
 export function OwnerOrdersPanel({ surfaceId }: OwnerOrdersPanelProps) {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const queryKey = ["owner_orders", surfaceId];
 
   const { data: orders, isLoading, refetch } = useQuery({
@@ -58,6 +60,21 @@ export function OwnerOrdersPanel({ surfaceId }: OwnerOrdersPanelProps) {
       toast.success("Order status updated");
     },
     onError: () => toast.error("Failed to update order status"),
+  });
+
+  const markPaid = useMutation({
+    mutationFn: async (orderId: string) => {
+      const { error } = await supabase
+        .from("orders")
+        .update({ payment_status: "paid", status: "confirmed" } as any)
+        .eq("id", orderId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey });
+      toast.success("Marked as paid & confirmed");
+    },
+    onError: () => toast.error("Failed to mark paid"),
   });
 
   if (isLoading) {
@@ -121,8 +138,35 @@ export function OwnerOrdersPanel({ surfaceId }: OwnerOrdersPanelProps) {
                 {order.buyer_email && <p>✉️ {order.buyer_email}</p>}
                 {order.buyer_address && <p>📍 {order.buyer_address}</p>}
                 {order.order_type && <p>🏷️ {order.order_type}</p>}
+                {order.payment_method && (
+                  <p>💳 {order.payment_method} · {order.payment_status || "unpaid"}</p>
+                )}
                 {order.notes && <p>📝 {order.notes}</p>}
                 <p>🕐 {format(new Date(order.created_at), "MMM d, yyyy h:mm a")}</p>
+              </div>
+
+              {/* Quick actions */}
+              <div className="flex flex-wrap gap-2">
+                {order.buyer_user_id && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1"
+                    onClick={() => navigate(`/dashboard/messages?tab=chats&user=${order.buyer_user_id}`)}
+                  >
+                    <MessagesSquare className="h-3.5 w-3.5" /> Chat with buyer
+                  </Button>
+                )}
+                {order.payment_method === "mobile_money" && order.payment_status !== "paid" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1"
+                    onClick={() => markPaid.mutate(order.id)}
+                  >
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Mark payment received
+                  </Button>
+                )}
               </div>
 
               {/* Status Update */}

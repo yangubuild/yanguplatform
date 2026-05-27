@@ -32,7 +32,11 @@ interface CheckoutDialogProps {
   supportPhone?: string | null;
   supportEmail?: string | null;
   supportWhatsapp?: string | null;
-  onOrderPlaced: (trackingCode: string) => void;
+  onOrderPlaced: (trackingCode: string, info?: {
+    paymentMethod: string;
+    orderId: string;
+    buyerUserId: string | null;
+  }) => void;
 }
 
 type OrderType = "delivery" | "takeaway" | "dine_in";
@@ -98,6 +102,8 @@ export function CheckoutDialog({
   const submitOrder = async () => {
     setIsSubmitting(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const buyerUserId = session?.user?.id ?? null;
       // Create order
       const { data: order, error: orderErr } = await supabase
         .from("orders")
@@ -114,6 +120,8 @@ export function CheckoutDialog({
           total_cents: grandTotal,
           currency,
           payment_method: paymentMethod,
+          buyer_user_id: buyerUserId,
+          payment_status: paymentMethod === "cash" ? "cod" : "unpaid",
         })
         .select("id, tracking_code")
         .single();
@@ -135,7 +143,42 @@ export function CheckoutDialog({
 
       if (itemsErr) throw itemsErr;
 
-      onOrderPlaced(order.tracking_code);
+      // Seed buyer↔seller DM thread with order context (best-effort).
+      if (buyerUserId && ownerId && buyerUserId !== ownerId) {
+        try {
+          await (supabase.from("direct_messages" as any).insert({
+            sender_id: buyerUserId,
+            receiver_id: ownerId,
+            content: `Hi! I just placed order ${order.tracking_code}. Looking forward to it!`,
+          } as any));
+        } catch (e) {
+          console.warn("Could not seed order chat:", e);
+        }
+      }
+
+      // Card / Stripe: redirect to Stripe Checkout instead of success dialog.
+      if (paymentMethod === "card") {
+        const { data, error } = await supabase.functions.invoke("stripe-checkout", {
+          body: {
+            order_id: order.id,
+            success_url: `${window.location.origin}${window.location.pathname}?stripe=success&order=${order.tracking_code}`,
+            cancel_url: `${window.location.origin}${window.location.pathname}?stripe=cancel`,
+          },
+        });
+        if (error || !(data as any)?.url) {
+          console.error("stripe-checkout failed:", error, data);
+          toast.error("Card payment unavailable. Try another method.");
+          return;
+        }
+        window.location.href = (data as any).url;
+        return;
+      }
+
+      onOrderPlaced(order.tracking_code, {
+        paymentMethod,
+        orderId: order.id,
+        buyerUserId,
+      });
     } catch (err: any) {
       console.error("Order placement failed:", err);
       toast.error("Failed to place order. Please try again.");

@@ -5,8 +5,9 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, MessageCircle, Mail, Phone, Copy, ListOrdered, ShoppingBag } from "lucide-react";
+import { CheckCircle2, MessageCircle, Mail, Phone, Copy, ListOrdered, ShoppingBag, Smartphone, MessagesSquare } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface OrderSuccessDialogProps {
   open: boolean;
@@ -18,15 +19,28 @@ interface OrderSuccessDialogProps {
   businessName?: string;
   onViewMyOrders?: () => void;
   onBackToShop?: () => void;
+  paymentMethod?: string;
+  mobileMoney?: {
+    phone?: string | null;
+    name?: string | null;
+    provider?: string | null;
+  } | null;
+  sellerId?: string | null;
+  buyerUserId?: string | null;
 }
 
 export function OrderSuccessDialog({
   open, onClose, trackingCode, supportPhone, supportEmail, supportWhatsapp, businessName,
-  onViewMyOrders, onBackToShop,
+  onViewMyOrders, onBackToShop, paymentMethod, mobileMoney, sellerId, buyerUserId,
 }: OrderSuccessDialogProps) {
+  const navigate = useNavigate();
   const copyCode = () => {
     navigator.clipboard.writeText(trackingCode);
     toast.success("Tracking code copied!");
+  };
+  const copyMm = (val: string) => {
+    navigator.clipboard.writeText(val);
+    toast.success("Copied!");
   };
 
   const openWhatsApp = () => {
@@ -64,6 +78,49 @@ export function OrderSuccessDialog({
               </button>
             </div>
           </div>
+
+          {paymentMethod === "mobile_money" && mobileMoney?.phone && (
+            <div className="w-full rounded-lg border border-primary/30 bg-primary/5 p-3 text-left">
+              <div className="flex items-center gap-2 mb-2">
+                <Smartphone className="h-4 w-4 text-primary" />
+                <p className="text-sm font-semibold">Send Mobile Money to:</p>
+              </div>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between gap-2">
+                  <span className="text-muted-foreground">Number</span>
+                  <button onClick={() => copyMm(mobileMoney.phone!)} className="font-mono font-semibold hover:underline">
+                    {mobileMoney.phone} <Copy className="inline h-3 w-3 ml-1" />
+                  </button>
+                </div>
+                {mobileMoney.name && (
+                  <div className="flex justify-between gap-2">
+                    <span className="text-muted-foreground">Name</span>
+                    <span className="font-semibold">{mobileMoney.name}</span>
+                  </div>
+                )}
+                {mobileMoney.provider && (
+                  <div className="flex justify-between gap-2">
+                    <span className="text-muted-foreground">Provider</span>
+                    <span className="font-semibold">{mobileMoney.provider}</span>
+                  </div>
+                )}
+                <p className="text-[11px] text-muted-foreground pt-2">
+                  Include <strong>{trackingCode}</strong> as the reference. The seller will confirm when received.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {buyerUserId && sellerId && buyerUserId !== sellerId && (
+            <Button
+              variant="default"
+              className="w-full gap-2"
+              onClick={() => navigate(`/dashboard/messages?tab=chats&user=${sellerId}`)}
+            >
+              <MessagesSquare className="h-4 w-4" />
+              Message seller about this order
+            </Button>
+          )}
 
           <div className="w-full space-y-2 pt-2">
             <p className="text-xs text-muted-foreground font-medium">Contact the seller:</p>
