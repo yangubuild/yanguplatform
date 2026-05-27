@@ -558,21 +558,30 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
 
       {/* Center orb */}
       <main className="flex-1 grid place-items-center px-6 relative">
-        <VoiceOrb
-          state={orbState}
-          level={voice.level}
-          onTap={voice.audioBlocked ? voice.unlockAudio : undefined}
-          ariaLabel={labels.mic}
-        />
+        <div
+          className={`transition-opacity duration-200 ${
+            step === "building" && buildTimedOut ? "opacity-30 pointer-events-none" : "opacity-100"
+          }`}
+        >
+          <VoiceOrb
+            state={orbState}
+            level={voice.level}
+            onTap={voice.audioBlocked ? voice.unlockAudio : undefined}
+            ariaLabel={labels.mic}
+          />
+        </div>
         {step === "building" && buildTimedOut && (
-          <div className="absolute inset-x-6 bottom-8 text-center">
-            <p className="text-sm text-muted-foreground mb-3">
-              Build is taking longer than expected — tap here to try again.
+          <div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-[min(92vw,420px)] rounded-2xl border border-border bg-background/95 backdrop-blur-md shadow-2xl p-5 text-center"
+            role="alert"
+          >
+            <p className="text-sm text-foreground mb-4">
+              Build is taking longer than expected. Tap below to try again.
             </p>
             <Button
               variant="default"
               size="lg"
-              className="rounded-2xl px-6 h-12"
+              className="w-full rounded-2xl h-12"
               onClick={(e) => {
                 e.stopPropagation();
                 setBuildTimedOut(false);
