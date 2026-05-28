@@ -59,8 +59,10 @@ export function PublicCommerceShell({
     queryKey: ["public_commerce_config", surfaceId],
     staleTime: 60_000,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("surface_commerce_config")
+      // Public-safe view: excludes payment credentials (paypal_email,
+      // mobile_money_phone, stripe_account_id, support email/phone PII).
+      const { data, error } = await (supabase as any)
+        .from("surface_commerce_config_public")
         .select("*")
         .eq("surface_id", surfaceId)
         .maybeSingle();
