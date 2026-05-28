@@ -10541,6 +10541,71 @@ export type Database = {
           },
         ]
       }
+      surface_commerce_config_public: {
+        Row: {
+          currency: string | null
+          delivery_fee_cents: number | null
+          id: string | null
+          min_order_value_cents: number | null
+          mobile_money_country: string | null
+          mobile_money_provider: string | null
+          order_types: string[] | null
+          ordering_enabled: boolean | null
+          payment_methods: string[] | null
+          paypal_enabled: boolean | null
+          stripe_enabled: boolean | null
+          stripe_publishable_key: string | null
+          support_whatsapp: string | null
+          surface_id: string | null
+          whatsapp_default_message: string | null
+          whatsapp_enabled: boolean | null
+        }
+        Insert: {
+          currency?: string | null
+          delivery_fee_cents?: number | null
+          id?: string | null
+          min_order_value_cents?: number | null
+          mobile_money_country?: string | null
+          mobile_money_provider?: string | null
+          order_types?: string[] | null
+          ordering_enabled?: boolean | null
+          payment_methods?: string[] | null
+          paypal_enabled?: boolean | null
+          stripe_enabled?: boolean | null
+          stripe_publishable_key?: string | null
+          support_whatsapp?: string | null
+          surface_id?: string | null
+          whatsapp_default_message?: string | null
+          whatsapp_enabled?: boolean | null
+        }
+        Update: {
+          currency?: string | null
+          delivery_fee_cents?: number | null
+          id?: string | null
+          min_order_value_cents?: number | null
+          mobile_money_country?: string | null
+          mobile_money_provider?: string | null
+          order_types?: string[] | null
+          ordering_enabled?: boolean | null
+          payment_methods?: string[] | null
+          paypal_enabled?: boolean | null
+          stripe_enabled?: boolean | null
+          stripe_publishable_key?: string | null
+          support_whatsapp?: string | null
+          surface_id?: string | null
+          whatsapp_default_message?: string | null
+          whatsapp_enabled?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "surface_commerce_config_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: true
+            referencedRelation: "builder_surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       _evaluate_publish_eligibility_internal: {
