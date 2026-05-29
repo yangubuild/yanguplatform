@@ -40,6 +40,13 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
     pagesHtmlMap["home"] ||
     (surfaceMeta.html as string | null) ||
     null;
+  // HTML snapshot is opt-in. Builder canvas HTML is desktop-only and breaks
+  // mobile layouts, so default to JSON-section rendering unless the publisher
+  // flags the snapshot as responsive/publish-ready.
+  const htmlSnapshotEnabled = surfaceMeta.html_snapshot_responsive === true;
+  const surfaceIdForShell = (surfaceMeta.id as string) || "";
+  const ownerIdForShell = (surfaceMeta.user_id as string) || "";
+  const businessNameForShell = (surfaceMeta.title as string) || "";
   const sanitizedHtml = useMemo(() => {
     if (!rawHtml) return null;
     try {
@@ -120,16 +127,45 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
     );
   }
 
-  // HTML snapshot render path (preferred)
-  if (sanitizedHtml) {
+  // HTML snapshot render path (opt-in only)
+  if (sanitizedHtml && htmlSnapshotEnabled) {
+    const handleCartDelegate = (e: React.MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const ctaBtn = target.closest('.yangu-cta');
+      const card = target.closest('.yangu-card');
+      if (!ctaBtn || !card) return;
+      const nameEl = card.querySelector('p.truncate, h3, h4');
+      const priceEl = card.querySelector('.text-primary');
+      const imgEl = card.querySelector('img');
+      const name = nameEl?.textContent?.trim() || "Product";
+      const priceText = priceEl?.textContent?.trim() || "$0";
+      const currencyMatch = priceText.match(/^([A-Z]{3}|[\$€£])/);
+      const cur = currencyMatch?.[1] || "USD";
+      const numStr = priceText.replace(/^[A-Z]{3}|[\$€£]/, "").replace(/,/g, "").trim();
+      const priceCents = Math.round((parseFloat(numStr) || 0) * 100);
+      const imageUrl = imgEl?.getAttribute("src") || null;
+      const itemId = btoa(`${name}_${priceCents}`).replace(/=/g, "");
+      (window as any).__yangu_add_to_cart?.({
+        id: itemId, name, price_cents: priceCents, currency: cur,
+        image_url: imageUrl, variant: null,
+      });
+      const btn = ctaBtn as HTMLElement;
+      btn.textContent = "✓ Added";
+      setTimeout(() => { btn.textContent = "Add to Cart"; }, 1200);
+    };
     return (
-      <>
+      <PublicCommerceShell
+        surfaceId={surfaceIdForShell}
+        ownerId={ownerIdForShell}
+        businessName={businessNameForShell}
+      >
         <div
           className="min-h-screen bg-background yangu-live"
+          onClick={handleCartDelegate}
           dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
         />
         {showBadge && <YanguBadge />}
-      </>
+      </PublicCommerceShell>
     );
   }
 
