@@ -201,6 +201,14 @@ export default function SellerEditor() {
   const allowedSectionTypes = engine?.aiGenerationRules?.allowedSectionTypes;
   const sellerMode = getSellerMode(surfaceType);
 
+  // Phase 13 — Influencer canvas is mobile-first. Snap the preview to a
+  // phone viewport on first load for live_bio surfaces; users can still
+  // toggle to desktop preview manually afterwards.
+  if (!bioViewportInitialised && sellerMode.defaultPreviewViewport === "mobile") {
+    setBioViewportInitialised(true);
+    setPreviewViewport("mobile");
+  }
+
   const handleSelectSection = (id: string) => {
     setSelectedSectionId(id);
     setRightPanel("section");
