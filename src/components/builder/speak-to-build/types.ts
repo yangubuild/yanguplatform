@@ -14,6 +14,10 @@ export type SpeakStepId =
   | "intro"
   | "category"
   | "business_info"
+  | "country"
+  | "products_services"
+  | "payment_methods"
+  | "sell_channel"
   | "logo"
   | "logo_create"
   | "colors"
@@ -34,6 +38,10 @@ export interface SpeakAnswers {
   category: SpeakCategory | null;
   business_name: string;
   business_description: string;
+  country: string;
+  products_services: string[];
+  payment_methods: string[];
+  sell_channel: "" | "website" | "social_media" | "whatsapp" | "combination";
   has_logo: boolean | null;
   wants_ai_logo: boolean | null;
   brand_colors: string;
@@ -52,6 +60,10 @@ export const DEFAULT_ANSWERS: SpeakAnswers = {
   category: null,
   business_name: "",
   business_description: "",
+  country: "",
+  products_services: [],
+  payment_methods: [],
+  sell_channel: "",
   has_logo: null,
   wants_ai_logo: null,
   brand_colors: "",

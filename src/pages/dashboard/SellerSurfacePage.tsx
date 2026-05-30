@@ -1,6 +1,6 @@
 // ARCHITECTURE RULE: generateWebsiteVariants() MUST be called before initAndNavigate().
 // AI fills content only. Templates render layout. Never pass seedSections as layout source.
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useBuilderSurfaceInit } from "@/hooks/useBuilderSurfaceInit";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -13,6 +13,7 @@ import BuilderNewPage from "@/pages/BuilderNewPage";
 import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteGenerator";
 import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
 import { selectTemplate } from "@/lib/builder/selectTemplate";
+import { VariantPreviewCarousel, type VariantPreviewItem } from "@/components/builder-new/VariantPreviewCarousel";
 
 /** Map legacy seller keys → engine keys */
 const SELLER_KEY_MAP: Record<string, string> = {
@@ -157,6 +158,39 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
   const engine = getEngine(engineKey);
   const mode = searchParams.get("mode");
 
+  // SPEC: ADA must generate 3 variations and the user must select one
+  // BEFORE the editor opens. Deferred payload stored here.
+  const [pendingVariants, setPendingVariants] = useState<VariantPreviewItem[]>([]);
+  const [pendingPayload, setPendingPayload] = useState<{
+    variants: string[];
+    businessName: string;
+    slug: string;
+    seedSections: Array<{ type: string; schema: Record<string, unknown>; core_slot?: string }>;
+    metadataBase: Record<string, unknown>;
+    templateKey: string;
+    surfaceType: string;
+  } | null>(null);
+
+  const handleChooseVariant = useCallback(async (index: number) => {
+    if (!user?.id || !pendingPayload) return;
+    const raw = pendingPayload.variants[index] || pendingPayload.variants[0] || "";
+    let templateHtml = raw;
+    try {
+      if (templateHtml) templateHtml = await persistBlobUrls(templateHtml, user.id);
+    } catch { /* keep original */ }
+    await initAndNavigate({
+      surfaceType: pendingPayload.surfaceType,
+      slug: pendingPayload.slug,
+      title: pendingPayload.businessName,
+      seedSections: pendingPayload.seedSections,
+      metadata: {
+        ...pendingPayload.metadataBase,
+        builder_new_template: pendingPayload.templateKey,
+        builder_new_html: templateHtml,
+      },
+    });
+  }, [user, pendingPayload, initAndNavigate]);
+
   // Shared chat path handler
   const handleChatPath = useCallback(() => {
     const next = new URLSearchParams(searchParams);
@@ -228,6 +262,12 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
       photos: photos,
     };
 
+    // SPEC: persist new ADA qualification fields when ADA captured them.
+    metadata.country = typeof answers.country === "string" ? answers.country : "";
+    metadata.products_services = Array.isArray(answers.products_services) ? answers.products_services : [];
+    metadata.payment_methods = Array.isArray(answers.payment_methods) ? answers.payment_methods : [];
+    metadata.sell_channel = typeof answers.sell_channel === "string" ? answers.sell_channel : "";
+
     if (answers._ai_setup) {
       metadata.ai_setup = true;
       metadata.ai_source = aiSource;
@@ -270,12 +310,19 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
         userBrandColors: brandColors,
         userImages: [],
       });
-      let templateHtml = variants[0] || "";
-      try {
-        if (templateHtml) templateHtml = await persistBlobUrls(templateHtml, user.id);
-      } catch { /* keep original */ }
-      metadata.builder_new_template = templateKey;
-      metadata.builder_new_html = templateHtml;
+      // SPEC: surface the 3 variants for user selection BEFORE initialising
+      // the editor. handleChooseVariant finalises the chosen variant.
+      setPendingPayload({
+        variants,
+        businessName,
+        slug,
+        seedSections,
+        templateKey,
+        metadataBase: { ...metadata },
+        surfaceType: engine.surfaceType,
+      });
+      setPendingVariants(variants.map((html, i) => ({ html, label: `Design ${i + 1}` })));
+      return null;
     }
 
     return initAndNavigate({
@@ -291,6 +338,25 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     return (
       <div className="max-w-lg mx-auto py-12 text-center">
         <p className="text-muted-foreground">Unknown builder category: {sellerKey}</p>
+      </div>
+    );
+  }
+
+  // SPEC: variant selection screen — must appear BEFORE the editor opens.
+  if (pendingVariants.length > 0) {
+    return (
+      <div className="fixed inset-0 z-50 bg-background flex flex-col">
+        <div className="px-4 py-3 border-b border-border">
+          <h2 className="text-base font-semibold">Choose your design</h2>
+          <p className="text-xs text-muted-foreground">Pick one of the 3 variations ADA created for you.</p>
+        </div>
+        <div className="flex-1 min-h-0">
+          <VariantPreviewCarousel
+            variants={pendingVariants}
+            onChoose={handleChooseVariant}
+            isGenerating={false}
+          />
+        </div>
       </div>
     );
   }

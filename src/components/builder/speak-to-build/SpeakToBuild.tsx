@@ -52,8 +52,9 @@ export const SPEAK_TO_CHAT_SEED_KEY = "speak_to_chat_seed_v1";
 type TranscriptEntry = { role: "assistant" | "user"; text: string; ts: number };
 
 const STEPS: SpeakStepId[] = [
-  "intro", "category", "business_info", "logo", "logo_create",
-  "colors", "location", "style", "building", "done",
+  "intro", "category", "business_info", "country", "logo", "logo_create",
+  "colors", "location", "style", "products_services", "payment_methods",
+  "sell_channel", "building", "done",
 ];
 
 // ----- parsers (preserved) -------------------------------------------------
@@ -80,12 +81,15 @@ function isNo(text: string): boolean {
 }
 function categoryFromText(text: string): SpeakCategory | null {
   const t = text.toLowerCase();
-  if (/\b(eshop|shop|store|product|boutique|duka|iduka|متجر|eduuka)\b/.test(t) && !/\b(agri|farm|kilimo)\b/.test(t)) return "eshop";
+  // Estore = supplier/wholesale/B2B/agri. Match BEFORE eshop so wholesale
+  // doesn't fall through to retail. (Spec: Supplier/Wholesale/Bulk → Estore.)
+  if (/\b(wholesale|supplier|bulk|distributor|distribution|trading|warehouse|stockist|importer|exporter|b2b|manufacturer|factory|agri|agriculture|farm|farming|estore|kilimo|ubuhinzi|obulimi|زراع)\b/.test(t)) return "estore";
+  // Influencer if "social media first" / "sell on instagram" intent.
+  if (/\b(creator|influencer|content|tiktok|instagram|social media|muumbaji|umuhanzi|مؤثر)\b/.test(t)) return "influencer";
+  if (/\b(eshop|shop|store|retail|product|boutique|duka|iduka|متجر|eduuka)\b/.test(t)) return "eshop";
   if (/\b(emenu|menu|food|restaurant|cafe|chakula|emmere|طعام|ibiryo)\b/.test(t)) return "emenu";
-  if (/\b(eservice|service|services|huduma|empeereza|serivisi|خدمات)\b/.test(t)) return "esite";
-  if (/\b(creator|influencer|content|muumbaji|umuhanzi|مؤثر)\b/.test(t)) return "influencer";
+  if (/\b(eservice|service|services|consultancy|consultant|huduma|empeereza|serivisi|خدمات)\b/.test(t)) return "esite";
   if (/\b(community|organisation|organization|ngo|jumuiya|umuryango|ekibinja|مجتمع)\b/.test(t)) return "community";
-  if (/\b(agri|agriculture|farm|farming|estore|kilimo|ubuhinzi|obulimi|زراع)\b/.test(t)) return "estore";
   return null;
 }
 function styleFromText(text: string): string | null {
@@ -171,7 +175,13 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         const desc = split.slice(1).join(", ").trim() || text;
         updateAnswer("business_name", name || text.slice(0, 60));
         updateAnswer("business_description", desc);
-        goNext("business_info");
+        setStep("country");
+        pendingNextPromptRef.current = "country";
+        break;
+      }
+      case "country": {
+        updateAnswer("country", text);
+        setStep("logo");
         pendingNextPromptRef.current = "logo";
         break;
       }
@@ -211,8 +221,59 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       case "style": {
         const s = styleFromText(text);
         updateAnswer("style", s || text);
+        setStep("products_services");
+        pendingNextPromptRef.current = "products_services";
+        break;
+      }
+      case "products_services": {
+        // Structured list — split by comma/and/newline. Keep as array.
+        const items = text
+          .split(/[,\n]| and /i)
+          .map((s) => s.trim())
+          .filter((s) => s.length > 0);
+        updateAnswer("products_services", items.length > 0 ? items : [text]);
+        setStep("payment_methods");
+        pendingNextPromptRef.current = "payment_methods";
+        break;
+      }
+      case "payment_methods": {
+        const t = text.toLowerCase();
+        const methods: string[] = [];
+        if (/\b(all|every|both)\b/.test(t)) {
+          methods.push("mobile_money", "cards", "cash", "bank_transfer");
+        } else {
+          if (/\b(mobile|m-?pesa|mpesa|momo|airtel money|mobile money)\b/.test(t)) methods.push("mobile_money");
+          if (/\b(card|visa|mastercard|credit|debit)\b/.test(t)) methods.push("cards");
+          if (/\bcash\b/.test(t)) methods.push("cash");
+          if (/\b(bank|transfer|wire|iban)\b/.test(t)) methods.push("bank_transfer");
+        }
+        updateAnswer("payment_methods", methods.length > 0 ? methods : [text]);
+        setStep("sell_channel");
+        pendingNextPromptRef.current = "sell_channel";
+        break;
+      }
+      case "sell_channel": {
+        const t = text.toLowerCase();
+        let channel: SpeakAnswers["sell_channel"] = "";
+        if (/\b(combination|combo|all|mix|everywhere|multi)\b/.test(t)) channel = "combination";
+        else if (/\b(whatsapp|whats app|wa)\b/.test(t)) channel = "whatsapp";
+        else if (/\b(social|instagram|tiktok|facebook|ig|fb)\b/.test(t)) channel = "social_media";
+        else if (/\b(website|web site|site|online)\b/.test(t)) channel = "website";
+        updateAnswer("sell_channel", channel);
+
+        // SPEC routing improvements: Social Media first → Influencer.
+        // WhatsApp + community / coaching → Community.
+        if (channel === "social_media") {
+          updateAnswer("category", "influencer");
+        } else if (channel === "whatsapp") {
+          const cat = answersRef.current.category;
+          const desc = (answersRef.current.business_description || "").toLowerCase();
+          if (cat === "community" || /\b(coach|coaching|class|teach|tutor|church|ngo|group)\b/.test(desc)) {
+            updateAnswer("category", "community");
+          }
+        }
+
         setStep("building");
-        // No next prompt — build trigger takes over.
         pendingNextPromptRef.current = null;
         break;
       }
@@ -325,6 +386,11 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       has_logo: answers.has_logo,
       wants_ai_logo: answers.wants_ai_logo,
       language: answers.language,
+      // New ADA qualification fields (spec).
+      country: answers.country,
+      products_services: answers.products_services,
+      payment_methods: answers.payment_methods,
+      sell_channel: answers.sell_channel,
     };
 
     (async () => {
@@ -388,6 +454,10 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
           _speak_language: answers.language,
           _speak_style: answers.style,
           _speak_category: answers.category,
+          country: answers.country,
+          products_services: answers.products_services,
+          payment_methods: answers.payment_methods,
+          sell_channel: answers.sell_channel,
         };
       } catch (err) {
         console.warn("[SpeakToBuild] AI draft generation failed, falling back:", err);
