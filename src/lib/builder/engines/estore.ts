@@ -91,8 +91,37 @@ export const estoreEngine: BuilderEngine = {
     { key: "supplier_info", label: "Supplier Info Block", sectionType: "supplier", schema: { heading: "About Us", certifications: [], partnerships: [] } },
   ],
   aiGenerationRules: {
-    allowedSectionTypes: ["hero", "products", "bulk_pricing", "text", "contact", "gallery", "cta", "quote", "supplier"],
-    forbiddenSectionTypes: ["menu", "booking", "listings", "bio", "links", "affiliate", "live_selling", "member_signup", "programs", "events", "cart", "checkout"],
+    // Phase 12 — Estore is a B2B/wholesale catalog. Allowed blocks cover
+    // catalog browsing, supplier trust signals, and quote-request flows.
+    // The legacy names (products/quote/supplier) are kept alongside the
+    // canonical spec names (catalog/contact_form/supplier_profile) so
+    // older surfaces keep rendering.
+    allowedSectionTypes: [
+      "hero",
+      "products", "catalog",
+      "categories",
+      "bulk_pricing",
+      "supplier", "supplier_profile",
+      "certifications",
+      "contact", "contact_form",
+      "quote",
+      "testimonials",
+      "faq",
+      "gallery",
+      "cta", "cta_banner",
+      "text",
+    ],
+    forbiddenSectionTypes: [
+      "cart", "checkout",
+      "menu", "menu_categories", "menu_items", "ordering_options",
+      "booking",
+      "listings",
+      "bio", "links", "link_bio", "link_card",
+      "affiliate", "affiliate_links", "affiliate_section",
+      "conversion_page",
+      "live_selling",
+      "member_signup", "programs", "events",
+    ],
     generationHints: [
       "Generate catalog layout with product categories",
       "Include bulk pricing tiers section",
