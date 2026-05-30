@@ -269,16 +269,11 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         else if (/\b(website|web site|site|online)\b/.test(t)) channel = "website";
         updateAnswer("sell_channel", channel);
 
-        // SPEC routing improvements: Social Media first → Influencer.
-        // WhatsApp + community / coaching → Community.
-        if (channel === "social_media") {
-          updateAnswer("category", "influencer");
-        } else if (channel === "whatsapp") {
-          const cat = answersRef.current.category;
-          const desc = (answersRef.current.business_description || "").toLowerCase();
-          if (cat === "community" || /\b(coach|coaching|class|teach|tutor|church|ngo|group)\b/.test(desc)) {
-            updateAnswer("category", "community");
-          }
+        // Single source of truth for builder routing.
+        const desc = answersRef.current.business_description || "";
+        const routed = sharedCategoryFromText(desc, channel as SellChannel);
+        if (routed && routed !== answersRef.current.category) {
+          updateAnswer("category", routed as SpeakCategory);
         }
 
         setStep("building");
