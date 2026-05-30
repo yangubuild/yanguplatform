@@ -88,7 +88,7 @@ export default function SellerSpeakToBuildPage() {
 
     // Templates are the ONLY source of layout. Render real template HTML now.
     const tone = String(answers.style || answers._speak_style || "");
-    const templateKey = selectTemplate(engineKey, tone);
+    const templateKey = selectTemplate(engineKey, tone).template_key;
     const secondaryColor = typeof answers.secondary_color === "string" ? answers.secondary_color : "";
     const primaryColor = String(answers.primary_color || "#2563eb");
     const brandColors = secondaryColor ? [primaryColor, secondaryColor] : [primaryColor];
