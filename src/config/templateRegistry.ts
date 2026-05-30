@@ -1546,6 +1546,14 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
       } },
     },
   },
+  // ─── Placeholder: Yangu Plate (default emenu) — Phases 9–14 will ship real design ───
+  {
+    key: "emenu_visual_a",
+    label: "Yangu Plate",
+    description: "Default emenu template — clean menu layout (placeholder).",
+    icon: "🍽️",
+    patches: {},
+  },
 ];
 
 // ─── Esite Templates ───
