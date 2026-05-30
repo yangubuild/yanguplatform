@@ -95,7 +95,6 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
   const isPathActive = (path?: string) => {
     if (!path) return false;
     if (path === "/dashboard/home") return location.pathname === "/dashboard/home" || location.pathname === "/dashboard";
-    if (path === "/dashboard/dashboard") return location.pathname === "/dashboard/dashboard" || location.pathname.startsWith("/dashboard/dashboard/");
     return location.pathname.startsWith(path);
   };
 
