@@ -18,7 +18,7 @@ export interface SellerQuickAction {
 
 export interface SellerModeConfig {
   /** Internal mode key */
-  mode: "menu" | "shop" | "catalog" | "service" | "bio";
+  mode: "menu" | "shop" | "catalog" | "service" | "bio" | "community";
   /** User-facing label shown in the sidebar header */
   sidebarTitle: string;
   /** Category badge label */
