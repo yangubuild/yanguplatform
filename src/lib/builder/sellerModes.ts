@@ -136,6 +136,37 @@ const BIO_MODE: SellerModeConfig = {
 };
 
 /**
+ * COMMUNITY_MODE — community_group surfaces. Multi-page allowed. The
+ * quick-action set shown here is the union across sub-types; the
+ * editor narrows it at runtime using metadata.community_subtype.
+ */
+const COMMUNITY_MODE: SellerModeConfig = {
+  mode: "community",
+  sidebarTitle: "Community Editor",
+  categoryBadge: "Community",
+  sectionListTitle: "Community Sections",
+  sectionListHint: "Add events, courses, portfolio items, and more",
+  previewEmptyTitle: "Your community page is empty",
+  previewEmptyDescription: "Add sections to bring your community to life",
+  quickActions: [
+    { label: "Add Event", icon: "Calendar", action: "add_event" },
+    { label: "Add Course", icon: "GraduationCap", action: "add_course" },
+    { label: "Add Portfolio Item", icon: "Image", action: "add_portfolio" },
+  ],
+  prioritySections: [
+    "hero", "about",
+    "event_listing", "schedule", "speakers", "sponsors",
+    "course_listing", "curriculum", "instructor", "enrollment_cta",
+    "portfolio", "services_offered", "work_process", "availability",
+    "testimonials", "faq", "cta_banner", "contact_form", "gallery",
+  ],
+  relevantModules: [
+    "hero", "about", "events", "courses", "portfolio", "services",
+    "testimonials", "faq", "contact",
+  ],
+};
+
+/**
  * Map real DB surface_type → SellerModeConfig
  */
 const SURFACE_TYPE_TO_MODE: Record<string, SellerModeConfig> = {
