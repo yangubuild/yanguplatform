@@ -163,17 +163,19 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
   const [pendingVariants, setPendingVariants] = useState<VariantPreviewItem[]>([]);
   const [pendingPayload, setPendingPayload] = useState<{
     variants: string[];
+    variantKeys: string[];
     businessName: string;
     slug: string;
     seedSections: Array<{ type: string; schema: Record<string, unknown>; core_slot?: string }>;
     metadataBase: Record<string, unknown>;
-    templateKey: string;
     surfaceType: string;
   } | null>(null);
 
   const handleChooseVariant = useCallback(async (index: number) => {
     if (!user?.id || !pendingPayload) return;
     const raw = pendingPayload.variants[index] || pendingPayload.variants[0] || "";
+    const chosenTemplateKey =
+      pendingPayload.variantKeys[index] || pendingPayload.variantKeys[0] || "default";
     let templateHtml = raw;
     try {
       if (templateHtml) templateHtml = await persistBlobUrls(templateHtml, user.id);
@@ -185,7 +187,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
       seedSections: pendingPayload.seedSections,
       metadata: {
         ...pendingPayload.metadataBase,
-        builder_new_template: pendingPayload.templateKey,
+        builder_new_template: chosenTemplateKey,
         builder_new_html: templateHtml,
       },
     });
