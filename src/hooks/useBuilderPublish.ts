@@ -225,6 +225,32 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
 
     if (publishUpdateError) throw publishUpdateError;
 
+    // Phase 5 — mark the surface row as published and record the live URL +
+    // html_snapshot_responsive flag at the publish-row level so renderers and
+    // the dashboard read the canonical lifecycle state.
+    const publishedUrl = buildPublishedUrl(surfaceType, publishedSlug);
+    const hasSnapshot =
+      typeof builderMainHtml === 'string' && builderMainHtml.trim().length > 0;
+    const { error: lifecycleUpdateError } = await supabase
+      .from("builder_surfaces")
+      .update({
+        status: 'published',
+        published_url: publishedUrl,
+      })
+      .eq("id", surfaceId);
+    if (lifecycleUpdateError) {
+      console.error("[useBuilderPublish] lifecycle update error:", lifecycleUpdateError);
+    }
+    if (hasSnapshot) {
+      const { error: publishFlagError } = await supabase
+        .from("builder_publishes")
+        .update({ html_snapshot_responsive: true })
+        .eq("id", publishId);
+      if (publishFlagError) {
+        console.error("[useBuilderPublish] snapshot flag update error:", publishFlagError);
+      }
+    }
+
     return publishedSlug;
   }, [customSlug, surfaceId, surfaceType]);
 
