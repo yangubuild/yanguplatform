@@ -2025,6 +2025,7 @@ export type Database = {
         Row: {
           created_at: string
           domain_id: string
+          html_snapshot_responsive: boolean
           id: string
           published_at: string | null
           published_schema: Json
@@ -2033,10 +2034,12 @@ export type Database = {
           surface_id: string
           unpublished_at: string | null
           updated_at: string
+          version: number
         }
         Insert: {
           created_at?: string
           domain_id: string
+          html_snapshot_responsive?: boolean
           id?: string
           published_at?: string | null
           published_schema?: Json
@@ -2045,10 +2048,12 @@ export type Database = {
           surface_id: string
           unpublished_at?: string | null
           updated_at?: string
+          version?: number
         }
         Update: {
           created_at?: string
           domain_id?: string
+          html_snapshot_responsive?: boolean
           id?: string
           published_at?: string | null
           published_schema?: Json
@@ -2057,6 +2062,7 @@ export type Database = {
           surface_id?: string
           unpublished_at?: string | null
           updated_at?: string
+          version?: number
         }
         Relationships: [
           {
@@ -2123,15 +2129,19 @@ export type Database = {
         Row: {
           cover_image_url: string | null
           created_at: string
+          deleted_at: string | null
           description: string | null
           favicon_url: string | null
           id: string
           metadata: Json
           org_id: string | null
+          published_url: string | null
           seo_description: string | null
           seo_title: string | null
           slug: string
+          status: string
           surface_type: Database["public"]["Enums"]["builder_surface_type"]
+          template_key: string | null
           theme: Json
           title: string
           updated_at: string
@@ -2140,15 +2150,19 @@ export type Database = {
         Insert: {
           cover_image_url?: string | null
           created_at?: string
+          deleted_at?: string | null
           description?: string | null
           favicon_url?: string | null
           id?: string
           metadata?: Json
           org_id?: string | null
+          published_url?: string | null
           seo_description?: string | null
           seo_title?: string | null
           slug: string
+          status?: string
           surface_type: Database["public"]["Enums"]["builder_surface_type"]
+          template_key?: string | null
           theme?: Json
           title: string
           updated_at?: string
@@ -2157,15 +2171,19 @@ export type Database = {
         Update: {
           cover_image_url?: string | null
           created_at?: string
+          deleted_at?: string | null
           description?: string | null
           favicon_url?: string | null
           id?: string
           metadata?: Json
           org_id?: string | null
+          published_url?: string | null
           seo_description?: string | null
           seo_title?: string | null
           slug?: string
+          status?: string
           surface_type?: Database["public"]["Enums"]["builder_surface_type"]
+          template_key?: string | null
           theme?: Json
           title?: string
           updated_at?: string
