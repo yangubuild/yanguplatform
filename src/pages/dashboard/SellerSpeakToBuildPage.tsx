@@ -1,6 +1,6 @@
 // ARCHITECTURE RULE: generateWebsiteVariants() MUST be called before initAndNavigate().
 // AI fills content only. Templates render layout. Never pass seedSections as layout source.
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,6 +12,7 @@ import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteG
 import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
 import { supabase } from "@/integrations/supabase/client";
 import { selectTemplate } from "@/lib/builder/selectTemplate";
+import { VariantPreviewCarousel, type VariantPreviewItem } from "@/components/builder-new/VariantPreviewCarousel";
 
 const SELLER_KEY_MAP: Record<string, string> = {
   emenu: "emenu",
@@ -32,6 +33,19 @@ export default function SellerSpeakToBuildPage() {
   const navigate = useNavigate();
   const engineKey = SELLER_KEY_MAP[sellerKey] || sellerKey;
   const engine = getEngine(engineKey);
+
+  // SPEC: ADA must generate 3 variations and the user must pick one BEFORE
+  // the editor opens. We stash the generated variants + the rest of the
+  // payload here so handleChooseVariant can finalise initAndNavigate.
+  const [pendingVariants, setPendingVariants] = useState<VariantPreviewItem[]>([]);
+  const [pendingPayload, setPendingPayload] = useState<{
+    variants: string[];
+    businessName: string;
+    slug: string;
+    seedSections: Array<{ type: string; schema: Record<string, unknown>; core_slot?: string }>;
+    metadataBase: Record<string, unknown>;
+    templateKey: string;
+  } | null>(null);
 
   const handleComplete = useCallback(async (answers: Record<string, unknown>) => {
     if (!engine || !user?.id) {
@@ -100,33 +114,74 @@ export default function SellerSpeakToBuildPage() {
       userBrandColors: brandColors,
       userImages: [],
     });
-    let templateHtml = variants[0] || "";
-    try {
-      if (templateHtml) templateHtml = await persistBlobUrls(templateHtml, user.id);
-    } catch { /* keep original */ }
-
-    return initAndNavigate({
-      surfaceType: engine.surfaceType,
+    // Show the user all 3 variants. initAndNavigate is deferred until pick.
+    setPendingPayload({
+      variants,
+      businessName,
       slug,
-      title: businessName,
       seedSections,
-      metadata: {
+      templateKey: templateKey || "default",
+      metadataBase: {
         brand: { primary_color: String(answers.primary_color || "#2563eb") },
         industry: String(answers.industry || ""),
         ai_setup: !!answers._ai_setup,
         ai_source: typeof answers._ai_source === "string" ? answers._ai_source : "speak_to_build",
         ai_answers: answers._ai_answers || {},
         ai_profile: answers._ai_profile || {},
-        builder_new_template: templateKey || "default",
+        // Persist new ADA qualification fields when collected.
+        country: typeof answers.country === "string" ? answers.country : "",
+        products_services: Array.isArray(answers.products_services) ? answers.products_services : [],
+        payment_methods: Array.isArray(answers.payment_methods) ? answers.payment_methods : [],
+        sell_channel: typeof answers.sell_channel === "string" ? answers.sell_channel : "",
+      },
+    });
+    setPendingVariants(variants.map((html, i) => ({ html, label: `Design ${i + 1}` })));
+    return null;
+  }, [engine, engineKey, user, initAndNavigate]);
+
+  const handleChooseVariant = useCallback(async (index: number) => {
+    if (!engine || !user?.id || !pendingPayload) return;
+    const raw = pendingPayload.variants[index] || pendingPayload.variants[0] || "";
+    let templateHtml = raw;
+    try {
+      if (templateHtml) templateHtml = await persistBlobUrls(templateHtml, user.id);
+    } catch { /* keep original */ }
+    await initAndNavigate({
+      surfaceType: engine.surfaceType,
+      slug: pendingPayload.slug,
+      title: pendingPayload.businessName,
+      seedSections: pendingPayload.seedSections,
+      metadata: {
+        ...pendingPayload.metadataBase,
+        builder_new_template: pendingPayload.templateKey,
         builder_new_html: templateHtml,
       },
     });
-  }, [engine, engineKey, user, initAndNavigate]);
+  }, [engine, user, pendingPayload, initAndNavigate]);
 
   if (!engine) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <p className="text-muted-foreground">Unknown builder category: {sellerKey}</p>
+      </div>
+    );
+  }
+
+  // Variant selection screen — shown after ADA finishes qualifying.
+  if (pendingVariants.length > 0) {
+    return (
+      <div className="fixed inset-0 z-50 bg-background flex flex-col">
+        <div className="px-4 py-3 border-b border-border">
+          <h2 className="text-base font-semibold">Choose your design</h2>
+          <p className="text-xs text-muted-foreground">Pick one of the 3 variations ADA created for you.</p>
+        </div>
+        <div className="flex-1 min-h-0">
+          <VariantPreviewCarousel
+            variants={pendingVariants}
+            onChoose={handleChooseVariant}
+            isGenerating={false}
+          />
+        </div>
       </div>
     );
   }
