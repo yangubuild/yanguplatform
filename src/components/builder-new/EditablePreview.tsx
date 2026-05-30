@@ -1476,6 +1476,16 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, onProdu
           }`}
           title="Editable Website Preview"
           sandbox="allow-scripts allow-same-origin"
+          onLoad={() => {
+            // Ensure Magic Editor is active for ALL sections from first paint.
+            // Previously this message was only sent by the toolbar button, so
+            // only the hero responded to clicks until the user toggled the
+            // editor off and on again. (Audit Failure 4 / Root Cause B1.)
+            iframeRef.current?.contentWindow?.postMessage(
+              { type: "toggle-edit-mode" },
+              "*",
+            );
+          }}
         />
       </div>
 
