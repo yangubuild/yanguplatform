@@ -18,15 +18,21 @@ import type { SurfaceType } from "@/types/builders";
 
 const SellerEditor = lazy(() => import("./SellerEditor"));
 const EmenuNewEditor = lazy(() => import("./EmenuNewEditor"));
-const CommunityEditorPlaceholder = lazy(() => import("./CommunityEditorPlaceholder"));
 
 // Seller-engine surfaces share the unified SellerEditor shell. Engine
 // behaviour (allowed sections, quick actions, publish domain, mobile-first
 // canvas) is derived per surface_type via engineRegistry + sellerModes.
-// Phase 12+13: live_bio (Influencer) joins the seller shell — it is NOT
-// a placeholder. profile_header / link_card / affiliate / conversion
-// modules are rendered through the engine config.
-const SELLER_TYPES = new Set(["eshop", "store_listing", "quick_site", "live_bio"]);
+// Phase 12+13: live_bio (Influencer) joins the seller shell.
+// Phase 14+16: community_group (Community: events / courses / freelance)
+// also routes through SellerEditor. Sub-type is read from
+// metadata.community_subtype to swap quick actions at runtime.
+const SELLER_TYPES = new Set([
+  "eshop",
+  "store_listing",
+  "quick_site",
+  "live_bio",
+  "community_group",
+]);
 
 export default function BuilderEditorRouter() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
@@ -98,12 +104,9 @@ export default function BuilderEditorRouter() {
   // Validated by YANGU_BUILDER_SPEC surface_type enum
   const typedSurface = surfaceType as SurfaceType;
   if (SELLER_TYPES.has(typedSurface)) {
-    // eshop, store_listing, quick_site → SellerEditor
     EditorComponent = SellerEditor;
   } else if (typedSurface === "emenu") {
     EditorComponent = EmenuNewEditor;
-  } else if (typedSurface === "community_group") {
-    EditorComponent = CommunityEditorPlaceholder;
   } else {
     // Unknown / legacy surface types fall back to the unified Emenu shell.
     EditorComponent = EmenuNewEditor;
