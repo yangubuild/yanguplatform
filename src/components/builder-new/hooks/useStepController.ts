@@ -734,14 +734,52 @@ export function useStepController() {
     if (!category) setCategory(effective);
     setBusinessName(name);
     setUserIdea(text);
-    if (effective === "emenu") {
-      setCurrentStep("business_type");
-    } else if (effective === "eshop") {
-      setCurrentStep("shop_type");
-    } else {
-      setCurrentStep("scope");
-    }
+    // Spec parity with Speak to Build: ask qualification questions BEFORE
+    // branching by category. sell_channel may re-route the category.
+    setCurrentStep("country");
   }, [category]);
+
+  // Free-text handler for the new qualification steps (country / products /
+  // payment_methods). Parses lists where appropriate and advances the step.
+  const handleQualificationInput = useCallback((text: string) => {
+    const trimmed = (text || "").trim();
+    switch (currentStep) {
+      case "country":
+        setCountry(trimmed);
+        setCurrentStep("products_services");
+        break;
+      case "products_services": {
+        const items = trimmed
+          .split(/[,\n]| and /i)
+          .map((s) => s.trim())
+          .filter(Boolean);
+        setProductsServices(items.length > 0 ? items : (trimmed ? [trimmed] : []));
+        setCurrentStep("payment_methods");
+        break;
+      }
+      case "payment_methods": {
+        if (/^skip$/i.test(trimmed) || !trimmed) {
+          setPaymentMethods([]);
+        } else {
+          const t = trimmed.toLowerCase();
+          const methods: string[] = [];
+          if (/\b(all|every|both)\b/.test(t)) {
+            methods.push("mobile_money", "cards", "cash", "bank_transfer");
+          } else {
+            if (/\b(mobile|m-?pesa|mpesa|momo|airtel money|mobile money)\b/.test(t)) methods.push("mobile_money");
+            if (/\b(card|visa|mastercard|credit|debit)\b/.test(t)) methods.push("cards");
+            if (/\bcash\b/.test(t)) methods.push("cash");
+            if (/\b(bank|transfer|wire|iban)\b/.test(t)) methods.push("bank_transfer");
+          }
+          setPaymentMethods(methods.length > 0 ? methods : [trimmed]);
+        }
+        setCurrentStep("sell_channel");
+        break;
+      }
+      default:
+        break;
+    }
+  }, [currentStep]);
 
   const handleOptionSelect = useCallback((option: StepOption) => {
     switch (currentStep) {
