@@ -468,7 +468,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         };
         // Phase 14 wiring: persist community sub-type so SellerEditor can
         // narrow its quick-action palette to the right group.
-        if (engineKey === "community" || engineKey === "community_group") {
+        if (engineKey === "community") {
           const sub = communitySubtypeFromText(
             String(answers.business_description || ""),
           );
