@@ -415,7 +415,7 @@ export default function SellerEditor() {
               {/* Quick Actions */}
               <div className="p-3 border-b border-border space-y-1.5">
                 <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-2">Quick Actions</p>
-                {sellerMode.quickActions.map((qa) => {
+                {sellerQuickActions.map((qa) => {
                   const Icon = ICON_MAP[qa.icon] || Package;
                   return (
                     <button
