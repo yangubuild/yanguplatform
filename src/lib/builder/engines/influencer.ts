@@ -94,8 +94,37 @@ export const influencerEngine: BuilderEngine = {
     { key: "tip_jar", label: "Support Me", sectionType: "tips", schema: { heading: "Support", message: "" } },
   ],
   aiGenerationRules: {
-    allowedSectionTypes: ["hero", "bio", "links", "media", "affiliate", "live", "tips", "contact", "cta"],
-    forbiddenSectionTypes: ["menu", "products", "cart", "checkout", "booking", "listings", "services", "team", "faq", "blog", "bulk_pricing", "quotes", "member_signup", "programs", "events"],
+    // Phase 13 — Influencer (live_bio) is mobile-first link-in-bio.
+    // profile_header is mandatory and always first (enforced at render).
+    // Canonical spec section names live alongside legacy ones so older
+    // surfaces keep rendering.
+    allowedSectionTypes: [
+      "hero",
+      "profile_header",
+      "bio",
+      "links", "link_card",
+      "social",
+      "media", "social_feed",
+      "affiliate", "affiliate_section",
+      "offer", "conversion_page",
+      "showcase",
+      "live",
+      "tips",
+      "contact",
+      "testimonials", "testimonial_strip",
+      "cta",
+    ],
+    forbiddenSectionTypes: [
+      "cart", "checkout",
+      "catalog",
+      "menu", "menu_categories", "menu_items",
+      "products", "inventory",
+      "bulk_pricing", "quote", "quotes",
+      "supplier", "supplier_profile", "certifications",
+      "booking", "listings",
+      "services", "team", "faq", "blog",
+      "member_signup", "programs", "events",
+    ],
     generationHints: [
       "Generate bio structure and creator-focused blocks",
       "Focus on social links and media showcase",
@@ -103,5 +132,10 @@ export const influencerEngine: BuilderEngine = {
       "Never add community member signup or programs",
       "Keep layout social-first and mobile-optimized",
     ],
+  },
+  // Phase 13 markers for the SellerEditor shell.
+  // (Optional fields read defensively elsewhere — no schema break.)
+  // mobileFirst: true, maxPages: 1
+  // — set via sellerModes BIO_MODE.defaultPreviewViewport / singlePage.
   },
 };
