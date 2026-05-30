@@ -14,6 +14,8 @@ import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteG
 import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
 import { selectTemplate } from "@/lib/builder/selectTemplate";
 import { VariantPreviewCarousel, type VariantPreviewItem } from "@/components/builder-new/VariantPreviewCarousel";
+import { getDefaultVariantsForBuilder, getTemplate } from "@/config/templateRegistry";
+import { resolveBuilder } from "@/types/builders";
 
 /** Map legacy seller keys → engine keys */
 const SELLER_KEY_MAP: Record<string, string> = {
