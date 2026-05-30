@@ -28,6 +28,7 @@ import { mergeIntoDefault } from "@/lib/builderDefaults";
 import { getTemplate } from "@/config/templateRegistry";
 import { supabase } from "@/integrations/supabase/client";
 import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
+import { communitySubtypeFromText } from "@/lib/builder/categoryFromText";
 import { toast } from "sonner";
 
 function naturalDelay(): Promise<void> {
@@ -283,6 +284,12 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
         payment_methods: ctrl.paymentMethods,
         sell_channel: ctrl.sellChannel || "",
       };
+      // Phase 14 wiring: detect community sub-type from the user's idea and
+      // persist it so SellerEditor narrows quick actions to the correct group.
+      if (cat === "community_group" || (cat as string) === "community") {
+        const sub = communitySubtypeFromText(ctrl.userIdea || "");
+        if (sub) metadata.community_subtype = sub;
+      }
 
       try {
         await initAndNavigate({
