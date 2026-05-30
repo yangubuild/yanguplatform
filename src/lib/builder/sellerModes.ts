@@ -7,6 +7,7 @@
  *   eshop → Shop Mode
  *   store_listing → Catalog Mode
  *   quick_site → Service Mode
+ *   live_bio → Bio Mode (mobile-first link-in-bio)
  */
 
 export interface SellerQuickAction {
@@ -17,7 +18,7 @@ export interface SellerQuickAction {
 
 export interface SellerModeConfig {
   /** Internal mode key */
-  mode: "menu" | "shop" | "catalog" | "service";
+  mode: "menu" | "shop" | "catalog" | "service" | "bio";
   /** User-facing label shown in the sidebar header */
   sidebarTitle: string;
   /** Category badge label */
@@ -36,6 +37,10 @@ export interface SellerModeConfig {
   prioritySections: string[];
   /** Editor modules relevant to this mode (from engine config) */
   relevantModules: string[];
+  /** Default preview viewport — link-in-bio is mobile-first. */
+  defaultPreviewViewport?: "desktop" | "mobile";
+  /** Whether this mode is single-page only (no multi-page support). */
+  singlePage?: boolean;
 }
 
 const MENU_MODE: SellerModeConfig = {
@@ -107,6 +112,30 @@ const SERVICE_MODE: SellerModeConfig = {
 };
 
 /**
+ * BIO_MODE — Influencer / link-in-bio surfaces (live_bio).
+ * Mobile-first canvas, single-page only, profile_header is mandatory
+ * and rendered as the first non-deletable block.
+ */
+const BIO_MODE: SellerModeConfig = {
+  mode: "bio",
+  sidebarTitle: "Bio Editor",
+  categoryBadge: "Influencer",
+  sectionListTitle: "Bio Blocks",
+  sectionListHint: "Add links, affiliate picks, and promo banners",
+  previewEmptyTitle: "Your bio is empty",
+  previewEmptyDescription: "Add your first link or affiliate section",
+  quickActions: [
+    { label: "Add Link", icon: "ListPlus", action: "add_link_card" },
+    { label: "Add Affiliate", icon: "Tag", action: "add_affiliate" },
+    { label: "Add Promo", icon: "Star", action: "add_conversion" },
+  ],
+  prioritySections: ["profile_header", "links", "link_card", "affiliate", "affiliate_section", "conversion_page", "social", "media", "testimonials"],
+  relevantModules: ["bio", "links", "affiliate", "media", "contact", "social"],
+  defaultPreviewViewport: "mobile",
+  singlePage: true,
+};
+
+/**
  * Map real DB surface_type → SellerModeConfig
  */
 const SURFACE_TYPE_TO_MODE: Record<string, SellerModeConfig> = {
@@ -114,6 +143,7 @@ const SURFACE_TYPE_TO_MODE: Record<string, SellerModeConfig> = {
   eshop: SHOP_MODE,
   store_listing: CATALOG_MODE,
   quick_site: SERVICE_MODE,
+  live_bio: BIO_MODE,
 };
 
 export function getSellerMode(surfaceType: string): SellerModeConfig {
