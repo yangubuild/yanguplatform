@@ -28,6 +28,9 @@ interface DomainContextState {
 const KNOWN_DOMAINS: Record<string, DomainType> = {
   "yangu.io": "io",
   "yangu.shop": "shop",
+  // Emenu publish container — same domain_type ("shop") but isolated host
+  // so Emenu and Eshop slugs never collide.
+  "restaurant.yangu.shop": "shop",
   "yangu.store": "store",
   "yangu.site": "site",
   "yangu.studio": "studio",

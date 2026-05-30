@@ -70,7 +70,9 @@ export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
   eshop_aema: eshopAemaImg,
   eshop_uncover: eshopUncoverImg,
   eshop_kanva: eshopKanvaImg,
-  eshop_minna: eshopMinnaImg,
   eshop_mockhub: eshopMockhubImg,
   eshop_lumel: eshopLumelImg,
+  // Minna moved to Estore registry (Builder Bible). Preview image is reused
+  // under the new estore_minna key.
+  estore_minna: eshopMinnaImg,
 };

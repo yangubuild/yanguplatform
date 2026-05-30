@@ -728,79 +728,9 @@ const ESHOP_TEMPLATES: TemplatePreset[] = [
     },
   },
 
-  // ─── Minna — Editorial Fashion (centered serif wordmark + yellow marquee) ───
-  {
-    key: "eshop_minna",
-    label: "Minna — Fashion",
-    description: "Editorial fashion store: centered serif wordmark, full-bleed hero, bright marquee strip, minimal 4-up product grid.",
-    icon: "👗",
-    is_active: true,
-    template_family: "minna",
-    preview_url: "https://minna.framer.website",
-    reference: {
-      source: "link",
-      url: "https://minna.framer.website",
-      label: "Minna Framer template",
-      sectionOrder: ["header", "hero_fullbleed", "marquee", "products", "collections", "footer"],
-      layoutPatterns: ["centered_serif_wordmark", "hamburger_left_nav", "fullbleed_hero_image", "bright_marquee_strip", "minimal_4col_product_grid", "two_up_collection_blocks"],
-    },
-    patches: {
-      header: { schema: {
-        layout_variant: "centered_wordmark_split_nav",
-        logo_position: "center",
-        logo_size: "medium",
-        show_name: true,
-        name_next_to_logo: false,
-        show_cart_icon: true,
-        show_search: true,
-        nav_left: ["Women", "Men"],
-        nav_items: ["Women", "Men"],
-        background_style: "light",
-      } },
-      hero: { schema: {
-        layout_variant: "fullbleed_image",
-        background_style: "image",
-        media: { type: "image", source: "url", url: "", fit: "cover" },
-        marquee_words: ["%20 DISCOUNT", "NEW SEASON", "%20 DISCOUNT", "NEW SEASON", "%20 DISCOUNT", "NEW SEASON"],
-        spacing: "none",
-      } },
-      main_content: { schema: {
-        display_mode: "grid",
-        heading: "Products",
-        cta_text: "See all",
-        layout_style: "grid",
-        columns_desktop: 4,
-        columns_mobile: 2,
-        cards: { style: "image_top", image_ratio: "portrait", show_price: true, show_title: true, show_cta: false, card_style: "minimal", hover_effect: "zoom" },
-        grid: { columns_desktop: 4, columns_mobile: 2, gap: "lg" },
-        spacing: "spacious",
-        items: [
-          { title: "Pink Bucket Hat & Jacket", price: "$78" },
-          { title: "Yellow Sunglasses Look", price: "$92" },
-          { title: "Pink Sunglasses Editorial", price: "$108" },
-          { title: "Soft Curls Beauty", price: "$64" },
-        ],
-      } },
-      offer: { schema: {
-        layout_variant: "two_up_collections",
-        collections: [
-          { title: "Women", subtitle: "New Season" },
-          { title: "Men", subtitle: "Essentials" },
-        ],
-      } },
-      footer: { schema: {
-        layout_variant: "centered_wordmark",
-        background_style: "light",
-        tagline: "New season, new you. Shop the latest editorial collection.",
-        columns: [
-          { title: "Shop", links: ["Women", "Men", "New Arrivals", "Sale"] },
-          { title: "Help", links: ["Shipping", "Returns", "Size Guide", "Contact"] },
-          { title: "About", links: ["Our Story", "Sustainability", "Press"] },
-        ],
-        copyright: "All rights reserved.",
-      } },
-    },
-  },
+  // NOTE: eshop_minna moved to Estore registry as estore_minna per Builder Bible.
+  // No Eshop entry remains here — selectTemplate falls back to eshop_visual_a for
+  // the "minimal" tone.
 
   // ─── Mockhub — Mixed merch / digital marketplace (dark + vibrant accent) ───
   {
@@ -2142,6 +2072,83 @@ const ESTORE_TEMPLATES: TemplatePreset[] = [
       main_content: { schema: { display_mode: "grid", heading: "Featured Products", description: "Handpicked styles for the season", filters_enabled: false, sort_enabled: false, cards: { style: "image_top", image_ratio: "portrait", show_price: true, show_title: true, show_cta: false, card_style: "minimal", hover_effect: "fade", badge_enabled: true }, grid: { columns_desktop: 4, columns_mobile: 2, gap: "lg" }, spacing: "spacious", items: [ { title: "Linen Shirt", price: "UGX 85,000", badge: "New", description: "Premium cotton-linen blend", media: [] }, { title: "Tailored Trousers", price: "UGX 120,000", badge: "", description: "Slim fit, multiple colors", media: [] }, { title: "Canvas Sneakers", price: "UGX 65,000", badge: "Popular", description: "Handmade, durable sole", media: [] }, { title: "Leather Tote", price: "UGX 180,000", badge: "", description: "Full grain leather", media: [] } ] } },
       offer: { schema: { layout_variant: "story_block", display_mode: "story_block", heading: "Our Philosophy", description: "We believe in slow fashion — timeless pieces made with care, designed to last.", cta_text: "Our Story", background_style: "image_left", spacing: "spacious", items: [ { title: "Sustainable Materials", description: "We use organic cotton, recycled fabrics, and responsibly sourced leather.", media: [] } ], newsletter: { enabled: true, heading: "Join the List", description: "Be the first to know about new drops and exclusive offers", cta_text: "Subscribe" } } },
       footer: { schema: { layout_variant: "multi_column", display_mode: "multi_column", columns: [ { title: "Shop", links: ["New Arrivals", "Best Sellers", "Sale", "Gift Cards"] }, { title: "Help", links: ["Shipping", "Returns", "Size Guide", "Contact"] }, { title: "Follow", links: ["Instagram", "TikTok", "Pinterest"] } ], copyright: "Your Fashion Store. All rights reserved.", newsletter_enabled: true, newsletter_heading: "Stay in the loop", newsletter_description: "New releases and exclusive offers, straight to your inbox" } },
+    },
+  },
+
+  // ─── Minna — Editorial Fashion (moved from Eshop registry per Builder Bible) ───
+  // Reference: https://minna.framer.website
+  // Component is unchanged; only the registry category was reassigned and the
+  // key was renamed eshop_minna → estore_minna.
+  {
+    key: "estore_minna",
+    label: "Minna — Fashion",
+    description: "Editorial fashion store: centered serif wordmark, full-bleed hero, bright marquee strip, minimal 4-up product grid.",
+    icon: "👗",
+    is_active: true,
+    template_family: "minna",
+    preview_url: "https://minna.framer.website",
+    reference: {
+      source: "link",
+      url: "https://minna.framer.website",
+      label: "Minna Framer template",
+      sectionOrder: ["header", "hero_fullbleed", "marquee", "products", "collections", "footer"],
+      layoutPatterns: ["centered_serif_wordmark", "hamburger_left_nav", "fullbleed_hero_image", "bright_marquee_strip", "minimal_4col_product_grid", "two_up_collection_blocks"],
+    },
+    patches: {
+      header: { schema: {
+        layout_variant: "centered_wordmark_split_nav",
+        logo_position: "center",
+        logo_size: "medium",
+        show_name: true,
+        name_next_to_logo: false,
+        show_cart_icon: true,
+        show_search: true,
+        nav_left: ["Women", "Men"],
+        nav_items: ["Women", "Men"],
+        background_style: "light",
+      } },
+      hero: { schema: {
+        layout_variant: "fullbleed_image",
+        background_style: "image",
+        media: { type: "image", source: "url", url: "", fit: "cover" },
+        marquee_words: ["%20 DISCOUNT", "NEW SEASON", "%20 DISCOUNT", "NEW SEASON", "%20 DISCOUNT", "NEW SEASON"],
+        spacing: "none",
+      } },
+      main_content: { schema: {
+        display_mode: "grid",
+        heading: "Products",
+        cta_text: "See all",
+        layout_style: "grid",
+        columns_desktop: 4,
+        columns_mobile: 2,
+        cards: { style: "image_top", image_ratio: "portrait", show_price: true, show_title: true, show_cta: false, card_style: "minimal", hover_effect: "zoom" },
+        grid: { columns_desktop: 4, columns_mobile: 2, gap: "lg" },
+        spacing: "spacious",
+        items: [
+          { title: "Pink Bucket Hat & Jacket", price: "$78" },
+          { title: "Yellow Sunglasses Look", price: "$92" },
+          { title: "Pink Sunglasses Editorial", price: "$108" },
+          { title: "Soft Curls Beauty", price: "$64" },
+        ],
+      } },
+      offer: { schema: {
+        layout_variant: "two_up_collections",
+        collections: [
+          { title: "Women", subtitle: "New Season" },
+          { title: "Men", subtitle: "Essentials" },
+        ],
+      } },
+      footer: { schema: {
+        layout_variant: "centered_wordmark",
+        background_style: "light",
+        tagline: "New season, new you. Shop the latest editorial collection.",
+        columns: [
+          { title: "Shop", links: ["Women", "Men", "New Arrivals", "Sale"] },
+          { title: "Help", links: ["Shipping", "Returns", "Size Guide", "Contact"] },
+          { title: "About", links: ["Our Story", "Sustainability", "Press"] },
+        ],
+        copyright: "All rights reserved.",
+      } },
     },
   },
 ];

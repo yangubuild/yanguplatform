@@ -399,7 +399,6 @@ const ESHOP_TEMPLATE_KEYS = [
   "eshop_aema",
   "eshop_uncover",
   "eshop_kanva",
-  "eshop_minna",
   "eshop_mockhub",
   "eshop_lumel",
 ];
