@@ -342,6 +342,25 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
     );
   }
 
+  // SPEC: variant selection screen — must appear BEFORE the editor opens.
+  if (pendingVariants.length > 0) {
+    return (
+      <div className="fixed inset-0 z-50 bg-background flex flex-col">
+        <div className="px-4 py-3 border-b border-border">
+          <h2 className="text-base font-semibold">Choose your design</h2>
+          <p className="text-xs text-muted-foreground">Pick one of the 3 variations ADA created for you.</p>
+        </div>
+        <div className="flex-1 min-h-0">
+          <VariantPreviewCarousel
+            variants={pendingVariants}
+            onChoose={handleChooseVariant}
+            isGenerating={false}
+          />
+        </div>
+      </div>
+    );
+  }
+
   // If mode=ai or mode=chat, show the embedded chat flow within the dashboard shell.
   // mode=chat is the canonical entry from Speak-to-Build "Open in Chat".
   if (mode === "ai" || mode === "chat") {
