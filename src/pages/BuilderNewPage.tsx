@@ -286,7 +286,7 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
       };
       // Phase 14 wiring: detect community sub-type from the user's idea and
       // persist it so SellerEditor narrows quick actions to the correct group.
-      if (cat === "community_group" || (cat as string) === "community") {
+      if (cat === "community") {
         const sub = communitySubtypeFromText(ctrl.userIdea || "");
         if (sub) metadata.community_subtype = sub;
       }
