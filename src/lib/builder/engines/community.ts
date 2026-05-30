@@ -109,8 +109,35 @@ export const communityEngine: BuilderEngine = {
     { key: "member_directory", label: "Member Directory", sectionType: "directory", schema: { heading: "Members" } },
   ],
   aiGenerationRules: {
-    allowedSectionTypes: ["hero", "text", "member_signup", "events", "programs", "resources", "directory", "cta", "gallery"],
-    forbiddenSectionTypes: ["menu", "products", "cart", "checkout", "booking", "listings", "bio", "links", "affiliate", "live_selling", "bulk_pricing", "quotes"],
+    // Phase 14+16: Community covers 3 sub-types (events / courses /
+    // freelance) sharing one editor shell. allowedSectionTypes is the
+    // union of all sub-type palettes; SellerEditor filters quick
+    // actions per metadata.community_subtype at runtime.
+    allowedSectionTypes: [
+      // Shared
+      "hero", "about", "text", "testimonials", "faq", "cta", "cta_banner",
+      "contact", "contact_form", "custom_page", "gallery", "member_signup",
+      "directory",
+      // Events sub-type
+      "event_listing", "event_detail", "schedule", "speakers", "sponsors",
+      "events",
+      // Courses sub-type
+      "course_listing", "curriculum", "instructor", "enrollment_cta",
+      "programs", "resources",
+      // Freelance sub-type
+      "portfolio", "services_offered", "work_process", "availability",
+    ],
+    forbiddenSectionTypes: [
+      // Commerce — Community never sells products
+      "cart", "checkout", "products", "inventory", "catalog",
+      // Emenu modules
+      "menu", "menu_categories", "menu_items", "ordering_options",
+      // Influencer (link-in-bio)
+      "bio", "links", "link_card", "affiliate", "affiliate_section",
+      "profile_header", "conversion_page", "live_selling",
+      // Estore (B2B wholesale)
+      "bulk_pricing", "quotes", "supplier_profile", "certifications",
+    ],
     generationHints: [
       "Generate community landing page with member signup",
       "Include member onboarding sections",
@@ -120,4 +147,40 @@ export const communityEngine: BuilderEngine = {
       "Community builders must include signup flows",
     ],
   },
+};
+
+/**
+ * Community sub-types — selected at ADA qualification time and stored
+ * in builder_surfaces.metadata.community_subtype. Drives quick-action
+ * palette in the editor.
+ */
+export type CommunitySubtype = "events" | "courses" | "freelance";
+
+export const COMMUNITY_SUBTYPES: CommunitySubtype[] = [
+  "events",
+  "courses",
+  "freelance",
+];
+
+/** Quick actions per Community sub-type. Keys match SellerEditor's
+ * QUICK_ACTION_TO_SECTION map. */
+export const COMMUNITY_QUICK_ACTIONS: Record<
+  CommunitySubtype,
+  { label: string; icon: string; action: string }[]
+> = {
+  events: [
+    { label: "Add Event", icon: "Calendar", action: "add_event" },
+    { label: "Add Speaker", icon: "Mic", action: "add_speaker" },
+    { label: "Add Schedule", icon: "Clock", action: "add_schedule" },
+  ],
+  courses: [
+    { label: "Add Course", icon: "GraduationCap", action: "add_course" },
+    { label: "Add Curriculum", icon: "BookOpen", action: "add_curriculum" },
+    { label: "Add Instructor", icon: "UserCircle", action: "add_instructor" },
+  ],
+  freelance: [
+    { label: "Add Portfolio Item", icon: "Image", action: "add_portfolio" },
+    { label: "Add Service", icon: "Briefcase", action: "add_service_tier" },
+    { label: "Add Availability", icon: "CalendarCheck", action: "add_availability" },
+  ],
 };

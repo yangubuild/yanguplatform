@@ -201,6 +201,41 @@ export default function SellerEditor() {
   const allowedSectionTypes = engine?.aiGenerationRules?.allowedSectionTypes;
   const sellerMode = getSellerMode(surfaceType);
 
+  // Phase 14+16 — Community sub-type aware quick actions. When the
+  // surface stores metadata.community_subtype, narrow the quick-action
+  // palette to that sub-type. When undefined, show one representative
+  // action per sub-type so the user can pick.
+  const communitySubtype = (surfaceMeta.community_subtype as
+    | "events"
+    | "courses"
+    | "freelance"
+    | undefined);
+  const sellerQuickActions =
+    sellerMode.mode === "community"
+      ? (() => {
+          const groups = {
+            events: [
+              { label: "Add Event", icon: "Calendar", action: "add_event" },
+              { label: "Add Speaker", icon: "Mic", action: "add_speaker" },
+              { label: "Add Schedule", icon: "Clock", action: "add_schedule" },
+            ],
+            courses: [
+              { label: "Add Course", icon: "GraduationCap", action: "add_course" },
+              { label: "Add Curriculum", icon: "BookOpen", action: "add_curriculum" },
+              { label: "Add Instructor", icon: "UserCircle", action: "add_instructor" },
+            ],
+            freelance: [
+              { label: "Add Portfolio Item", icon: "Image", action: "add_portfolio" },
+              { label: "Add Service", icon: "Briefcase", action: "add_service_tier" },
+              { label: "Add Availability", icon: "CalendarCheck", action: "add_availability" },
+            ],
+          } as const;
+          return communitySubtype
+            ? [...groups[communitySubtype]]
+            : [...groups.events, ...groups.courses, ...groups.freelance];
+        })()
+      : sellerMode.quickActions;
+
   // Phase 13 — Influencer canvas is mobile-first. Snap the preview to a
   // phone viewport on first load for live_bio surfaces; users can still
   // toggle to desktop preview manually afterwards.
@@ -241,6 +276,19 @@ export default function SellerEditor() {
     add_link_card: "links",
     add_affiliate: "affiliate",
     add_conversion: "offer",
+    // Community (community_group) actions — Phase 14+16.
+    // Events sub-type
+    add_event: "event_listing",
+    add_speaker: "speakers",
+    add_schedule: "schedule",
+    // Courses sub-type
+    add_course: "course_listing",
+    add_curriculum: "curriculum",
+    add_instructor: "instructor",
+    // Freelance sub-type
+    add_portfolio: "portfolio",
+    add_service_tier: "services_offered",
+    add_availability: "availability",
   };
 
   const handleQuickAction = async (action: string) => {
@@ -367,7 +415,7 @@ export default function SellerEditor() {
               {/* Quick Actions */}
               <div className="p-3 border-b border-border space-y-1.5">
                 <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-2">Quick Actions</p>
-                {sellerMode.quickActions.map((qa) => {
+                {sellerQuickActions.map((qa) => {
                   const Icon = ICON_MAP[qa.icon] || Package;
                   return (
                     <button
