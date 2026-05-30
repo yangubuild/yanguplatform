@@ -227,6 +227,7 @@ const GoogleMeetPage = lazy(() => lazyRetry(() => import("./pages/dashboard/apps
 const YouTubePage = lazy(() => lazyRetry(() => import("./pages/dashboard/apps/YouTubePage")));
 const MyBusinessPage = lazy(() => lazyRetry(() => import("./pages/dashboard/MyBusinessPage")));
 const BusinessAnalyticsPage = lazy(() => lazyRetry(() => import("./pages/dashboard/business/BusinessAnalyticsPage")));
+const SurfaceAnalyticsPage = lazy(() => lazyRetry(() => import("./pages/dashboard/SurfaceAnalyticsPage")));
 const BusinessUsersPage = lazy(() => lazyRetry(() => import("./pages/dashboard/business/BusinessUsersPage")));
 const BusinessDepositPage = lazy(() => lazyRetry(() => import("./pages/dashboard/business/BusinessDepositPage")));
 const InfluencerPage = lazy(() => lazyRetry(() => import("./pages/dashboard/InfluencerPage")));
@@ -507,6 +508,7 @@ const App = () => (
                   <Route path="apps/:appSlug" element={<ConnectedAppPage />} />
                   <Route path="my-business" element={<MyBusinessPage />} />
                   <Route path="my-business/:businessId/analytics" element={<BusinessAnalyticsPage />} />
+                  <Route path="analytics/:surfaceId" element={<SurfaceAnalyticsPage />} />
                   <Route path="my-business/:businessId/users" element={<BusinessUsersPage />} />
                   <Route path="my-business/:businessId/deposit" element={<BusinessDepositPage />} />
                   <Route path="payment-settings" element={<PaymentsSettingsPage />} />

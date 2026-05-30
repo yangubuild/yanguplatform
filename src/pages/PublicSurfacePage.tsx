@@ -16,6 +16,7 @@ import type {
   BuilderPublishedSection,
 } from "@/types/builder";
 import { Loader2 } from "lucide-react";
+import { recordSurfaceView } from "@/lib/analytics/recordSurfaceView";
 
 /**
  * Public published page renderer.
@@ -120,6 +121,12 @@ export default function PublicSurfacePage() {
     
     return () => { document.title = "YANGU"; };
   }, [data, pageTitle, seoDescription, faviconUrl]);
+
+  // Record a view once per (surface, path) per session
+  useEffect(() => {
+    if (!surfaceId) return;
+    recordSurfaceView(surfaceId, pathSlug);
+  }, [surfaceId, pathSlug]);
 
   if (isLoading) {
     return (
