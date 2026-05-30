@@ -79,6 +79,7 @@ export default function SellerEditor() {
   const [liveSchemaOverride, setLiveSchemaOverride] = useState<{ sectionId: string; schema: Record<string, unknown> } | null>(null);
   const [livePageSettings, setLivePageSettings] = useState<import("@/config/builderCoreSections").PageEditSettings | null>(null);
   const [previewViewport, setPreviewViewport] = useState<PreviewViewport>("desktop");
+  const [bioViewportInitialised, setBioViewportInitialised] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showLeaveWarning, setShowLeaveWarning] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>("none");
@@ -200,6 +201,14 @@ export default function SellerEditor() {
   const allowedSectionTypes = engine?.aiGenerationRules?.allowedSectionTypes;
   const sellerMode = getSellerMode(surfaceType);
 
+  // Phase 13 — Influencer canvas is mobile-first. Snap the preview to a
+  // phone viewport on first load for live_bio surfaces; users can still
+  // toggle to desktop preview manually afterwards.
+  if (!bioViewportInitialised && sellerMode.defaultPreviewViewport === "mobile") {
+    setBioViewportInitialised(true);
+    setPreviewViewport("mobile");
+  }
+
   const handleSelectSection = (id: string) => {
     setSelectedSectionId(id);
     setRightPanel("section");
@@ -228,6 +237,10 @@ export default function SellerEditor() {
     add_service: "services",
     add_team: "team",
     add_testimonial: "testimonials",
+    // Influencer (live_bio) actions — link-in-bio building blocks.
+    add_link_card: "links",
+    add_affiliate: "affiliate",
+    add_conversion: "offer",
   };
 
   const handleQuickAction = async (action: string) => {
