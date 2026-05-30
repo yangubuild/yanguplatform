@@ -85,12 +85,27 @@ export default function BuilderEditorRouter() {
     </div>
   );
 
-  // GLOBAL STANDARD: All categories use EmenuNewEditor as the unified editor shell
-  // (same top nav bar, page top edit bar, publish modal, full-screen layout).
-  // Emenu is the global standard — no other editor variants are permitted.
+  // Branch routing by surface_type — enforces builder isolation per
+  // Builder Bible Ch. 20 Rules 1–5. Each surface_type maps to exactly
+  // one editor; no cross-engine module leakage is permitted.
+  let EditorComponent: React.ComponentType;
+  if (SELLER_TYPES.has(surfaceType)) {
+    // eshop, store_listing, quick_site → SellerEditor
+    EditorComponent = SellerEditor;
+  } else if (surfaceType === "emenu") {
+    EditorComponent = EmenuNewEditor;
+  } else if (surfaceType === "live_bio") {
+    EditorComponent = InfluencerEditorPlaceholder;
+  } else if (surfaceType === "community_group") {
+    EditorComponent = CommunityEditorPlaceholder;
+  } else {
+    // Unknown / legacy surface types fall back to the unified Emenu shell.
+    EditorComponent = EmenuNewEditor;
+  }
+
   return (
     <Suspense fallback={fallbackLoader}>
-      <EmenuNewEditor />
+      <EditorComponent />
     </Suspense>
   );
 }
