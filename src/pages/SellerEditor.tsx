@@ -213,9 +213,35 @@ export default function SellerEditor() {
     toast.success("Answers updated — content will reflect changes on next save.");
   };
 
-  const handleQuickAction = (action: string) => {
-    // Quick actions trigger relevant add-section or panel behavior
-    toast.info(`Quick action: ${action} — coming soon`);
+  // Map quick-action keys → section types (must match builder section registry).
+  // Phase 8: removes "coming soon" dead controls and wires real add-section calls.
+  const QUICK_ACTION_TO_SECTION: Record<string, string> = {
+    add_menu_category: "menu",
+    add_featured_item: "featured",
+    set_hours: "hours",
+    add_product: "products",
+    add_collection: "collections",
+    add_promo: "promo",
+    add_listing: "products",
+    add_bulk_pricing: "bulk_pricing",
+    add_quote_form: "quote",
+    add_service: "services",
+    add_team: "team",
+    add_testimonial: "testimonials",
+  };
+
+  const handleQuickAction = async (action: string) => {
+    const sectionType = QUICK_ACTION_TO_SECTION[action];
+    if (!sectionType) {
+      toast.error("Unknown action");
+      return;
+    }
+    try {
+      await addSection(sectionType);
+      toast.success(`Added ${SECTION_TYPE_LABELS[sectionType] || sectionType} section`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not add section");
+    }
   };
 
   return (
