@@ -479,6 +479,11 @@ export function useStepController() {
   const getNextStep = useCallback((step: BuilderStep): BuilderStep => {
     switch (step) {
       case "greeting":
+        return "country";
+      case "country":         return "products_services";
+      case "products_services": return "payment_methods";
+      case "payment_methods": return "sell_channel";
+      case "sell_channel":
         if (isFoodCategory) return "business_type";
         if (isShopCategory) return "shop_type";
         return "scope";
