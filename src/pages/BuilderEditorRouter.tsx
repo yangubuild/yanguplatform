@@ -21,7 +21,13 @@ const EmenuNewEditor = lazy(() => import("./EmenuNewEditor"));
 const InfluencerEditorPlaceholder = lazy(() => import("./InfluencerEditorPlaceholder"));
 const CommunityEditorPlaceholder = lazy(() => import("./CommunityEditorPlaceholder"));
 
-const SELLER_TYPES = new Set(["eshop", "store_listing", "quick_site"]);
+// Seller-engine surfaces share the unified SellerEditor shell. Engine
+// behaviour (allowed sections, quick actions, publish domain, mobile-first
+// canvas) is derived per surface_type via engineRegistry + sellerModes.
+// Phase 12+13: live_bio (Influencer) joins the seller shell — it is NOT
+// a placeholder. profile_header / link_card / affiliate / conversion
+// modules are rendered through the engine config.
+const SELLER_TYPES = new Set(["eshop", "store_listing", "quick_site", "live_bio"]);
 
 export default function BuilderEditorRouter() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
@@ -97,8 +103,6 @@ export default function BuilderEditorRouter() {
     EditorComponent = SellerEditor;
   } else if (typedSurface === "emenu") {
     EditorComponent = EmenuNewEditor;
-  } else if (typedSurface === "live_bio") {
-    EditorComponent = InfluencerEditorPlaceholder;
   } else if (typedSurface === "community_group") {
     EditorComponent = CommunityEditorPlaceholder;
   } else {
