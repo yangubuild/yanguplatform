@@ -277,6 +277,11 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
         builder_new_html: persistedHtml,
         template_family: templatePreset?.template_family || null,
         variant_index: index,
+        // ADA qualification parity (Phase 4)
+        country: ctrl.country || "",
+        products_services: ctrl.productsServices,
+        payment_methods: ctrl.paymentMethods,
+        sell_channel: ctrl.sellChannel || "",
       };
 
       try {
