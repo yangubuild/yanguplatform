@@ -68,9 +68,8 @@ export interface NavSection {
 export const PRIMARY_NAV_ITEMS: NavItem[] = [
   { icon: Compass, label: "Explore", chevron: true, to: "/dashboard/explore" },
   { icon: Tag, label: "Offers", chevron: false, badge: "+120%", dot: true, to: "/dashboard/offers" },
-  { icon: FlaskConical, label: "Sandbox", chevron: false, badge: "NEW", to: "/sandbox" },
   { icon: MessageCircle, label: "Messages", chevron: false, to: "/dashboard/messages" },
-  { icon: LayoutDashboard, label: "Dashboard", chevron: true, to: "/dashboard/dashboard" },
+  { icon: LayoutDashboard, label: "Dashboard", chevron: true, to: "/dashboard/home" },
   { icon: null, label: "Ada AI", chevron: true, customIcon: "ada", to: "/dashboard/ada" },
   {
     icon: ShoppingBag,
@@ -89,6 +88,7 @@ export const PRIMARY_NAV_ITEMS: NavItem[] = [
   { icon: BookOpen, label: "Visionaire", chevron: true, to: "/dashboard/visionaire" },
   { icon: Package, label: "App Store", chevron: false, badge: "+120%", to: "/dashboard/app-store" },
   { icon: Users, label: "Community", chevron: false, to: "/dashboard/community" },
+  { icon: FlaskConical, label: "Sandbox", chevron: false, badge: "NEW", to: "/sandbox" },
 ];
 
 // ── Extended sidebar panels ──────────────────────────────────
