@@ -81,22 +81,31 @@ export default function MyBusinessPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
 
-      const [surfaceRes, publishRes] = await Promise.all([
-        supabase
-          .from("builder_surfaces")
-          .select("id, title, slug, surface_type, description, created_at, updated_at, metadata, cover_image_url, seo_title, seo_description, favicon_url")
-          .eq("user_id", user.id)
-          .order("updated_at", { ascending: false }),
-        supabase
+      // Step 1: Load this user's surfaces.
+      const { data: surfaceData } = await supabase
+        .from("builder_surfaces")
+        .select("id, title, slug, surface_type, description, created_at, updated_at, metadata, cover_image_url, seo_title, seo_description, favicon_url")
+        .eq("user_id", user.id)
+        .order("updated_at", { ascending: false });
+
+      const ownedSurfaces = (surfaceData as Surface[]) ?? [];
+      setSurfaces(ownedSurfaces);
+
+      // Step 2: ROOT CAUSE C FIX — scope publishes to surfaces the user owns.
+      // builder_publishes has no user_id column; ownership is enforced via the
+      // surface_id → builder_surfaces.user_id link. Without this filter the query
+      // either returned every published page (anon SELECT policy) or returned
+      // nothing under stricter RLS, causing surfaces to render as "Draft".
+      const ownedSurfaceIds = ownedSurfaces.map((s) => s.id);
+      let pubs: any[] = [];
+      if (ownedSurfaceIds.length > 0) {
+        const { data: publishData } = await supabase
           .from("builder_publishes")
           .select("surface_id, slug, domain_id")
-          .eq("state", "published"),
-      ]);
-
-      setSurfaces((surfaceRes.data as Surface[]) ?? []);
-
-      // Build publish map with domain info
-      const pubs = publishRes.data ?? [];
+          .eq("state", "published")
+          .in("surface_id", ownedSurfaceIds);
+        pubs = publishData ?? [];
+      }
       if (pubs.length> 0) {
         const domainIds = [...new Set(pubs.map((p: any) => p.domain_id))];
         const { data: domains } = await supabase
