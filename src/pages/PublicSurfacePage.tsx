@@ -16,6 +16,7 @@ import type {
   BuilderPublishedSection,
 } from "@/types/builder";
 import { Loader2 } from "lucide-react";
+import { recordSurfaceView } from "@/lib/analytics/recordSurfaceView";
 
 /**
  * Public published page renderer.
