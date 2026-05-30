@@ -5783,6 +5783,44 @@ export type Database = {
         }
         Relationships: []
       }
+      link_clicks: {
+        Row: {
+          created_at: string
+          id: string
+          label: string | null
+          path: string | null
+          session_id: string | null
+          surface_id: string
+          target_url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label?: string | null
+          path?: string | null
+          session_id?: string | null
+          surface_id: string
+          target_url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string | null
+          path?: string | null
+          session_id?: string | null
+          surface_id?: string
+          target_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "link_clicks_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: false
+            referencedRelation: "builder_surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       live_trends: {
         Row: {
           created_at: string
@@ -9584,6 +9622,47 @@ export type Database = {
           },
         ]
       }
+      surface_views: {
+        Row: {
+          country: string | null
+          created_at: string
+          id: string
+          path: string | null
+          referrer: string | null
+          session_id: string | null
+          surface_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          id?: string
+          path?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          surface_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          id?: string
+          path?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          surface_id?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "surface_views_surface_id_fkey"
+            columns: ["surface_id"]
+            isOneToOne: false
+            referencedRelation: "builder_surfaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       surfaces: {
         Row: {
           archived_at: string | null
@@ -11858,6 +11937,10 @@ export type Database = {
           p_message: string
         }
         Returns: string
+      }
+      surface_analytics_overview: {
+        Args: { p_days?: number; p_surface_id: string }
+        Returns: Json
       }
       sync_searchable_entity: {
         Args: { p_surface_id: string }
