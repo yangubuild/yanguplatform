@@ -945,6 +945,7 @@ export function useStepController() {
     handleOptionSelect,
     handleGreetingInput,
     handleLocationInput,
+    handleQualificationInput,
     confirmMultiSelect,
     confirmAssetUpload,
     confirmAiLogo,
@@ -972,6 +973,15 @@ export function useStepController() {
     eshopConfig,
     setEshopConfig,
     isShopCategory,
+    // ADA qualification parity fields
+    country,
+    productsServices,
+    paymentMethods,
+    sellChannel,
+    setCountry,
+    setProductsServices,
+    setPaymentMethods,
+    setSellChannel,
     // Kept for backward compat
     selectedStyleCategory: selectedTemplateKey,
     selectedStyleSpecific: null as string | null,
