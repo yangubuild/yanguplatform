@@ -201,6 +201,41 @@ export default function SellerEditor() {
   const allowedSectionTypes = engine?.aiGenerationRules?.allowedSectionTypes;
   const sellerMode = getSellerMode(surfaceType);
 
+  // Phase 14+16 — Community sub-type aware quick actions. When the
+  // surface stores metadata.community_subtype, narrow the quick-action
+  // palette to that sub-type. When undefined, show one representative
+  // action per sub-type so the user can pick.
+  const communitySubtype = (surfaceMeta.community_subtype as
+    | "events"
+    | "courses"
+    | "freelance"
+    | undefined);
+  const sellerQuickActions =
+    sellerMode.mode === "community"
+      ? (() => {
+          const groups = {
+            events: [
+              { label: "Add Event", icon: "Calendar", action: "add_event" },
+              { label: "Add Speaker", icon: "Mic", action: "add_speaker" },
+              { label: "Add Schedule", icon: "Clock", action: "add_schedule" },
+            ],
+            courses: [
+              { label: "Add Course", icon: "GraduationCap", action: "add_course" },
+              { label: "Add Curriculum", icon: "BookOpen", action: "add_curriculum" },
+              { label: "Add Instructor", icon: "UserCircle", action: "add_instructor" },
+            ],
+            freelance: [
+              { label: "Add Portfolio Item", icon: "Image", action: "add_portfolio" },
+              { label: "Add Service", icon: "Briefcase", action: "add_service_tier" },
+              { label: "Add Availability", icon: "CalendarCheck", action: "add_availability" },
+            ],
+          } as const;
+          return communitySubtype
+            ? [...groups[communitySubtype]]
+            : [...groups.events, ...groups.courses, ...groups.freelance];
+        })()
+      : sellerMode.quickActions;
+
   // Phase 13 — Influencer canvas is mobile-first. Snap the preview to a
   // phone viewport on first load for live_bio surfaces; users can still
   // toggle to desktop preview manually afterwards.
