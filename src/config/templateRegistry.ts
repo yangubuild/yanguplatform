@@ -1751,6 +1751,42 @@ const ESITE_TEMPLATES: TemplatePreset[] = [
       } },
     },
   },
+  // ─── Esite sub-type placeholders (Phase 3 contracts; real designs ship in Phases 9–14) ───
+  {
+    key: "esite_consultancy_a",
+    label: "Shield — Consultancy",
+    description: "Consultancy / service business default (placeholder).",
+    icon: "🛡️",
+    patches: {},
+  },
+  {
+    key: "esite_realestate_a",
+    label: "Listing — Real Estate",
+    description: "Real estate / property listings (placeholder).",
+    icon: "🏘️",
+    patches: {},
+  },
+  {
+    key: "esite_hotel_a",
+    label: "Luxra — Hotels",
+    description: "Hotel / accommodation site (placeholder).",
+    icon: "🏨",
+    patches: {},
+  },
+  {
+    key: "esite_travel_a",
+    label: "Tripset — Travel",
+    description: "Travel / tour operator site (placeholder).",
+    icon: "✈️",
+    patches: {},
+  },
+  {
+    key: "esite_construction_a",
+    label: "Build — Construction",
+    description: "Construction / contractor site (placeholder).",
+    icon: "🏗️",
+    patches: {},
+  },
 ];
 
 // ─── Influencer Templates (Link-Bio System) ───
