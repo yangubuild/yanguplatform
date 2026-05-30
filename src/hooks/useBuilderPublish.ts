@@ -111,7 +111,7 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
     // 1. Fetch surface data including favicon
     const { data: surfaceData, error: surfaceError } = await supabase
       .from("builder_surfaces")
-      .select("slug, metadata, favicon_url")
+      .select("slug, metadata, favicon_url, status")
       .eq("id", surfaceId)
       .single();
 
@@ -121,7 +121,11 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
       slug?: string | null;
       favicon_url?: string | null;
       metadata?: Record<string, unknown> | null;
+      status?: string | null;
     } | null;
+
+    // Phase 5 lifecycle gate — refuse to write a snapshot for suspended/archived.
+    assertPublishable(surfaceRecord?.status ?? 'draft');
 
     const surfaceMetadata = (surfaceRecord?.metadata as Record<string, unknown> | null) || {};
     const builderMainHtml = (surfaceMetadata.builder_new_html as string | null) || null;
