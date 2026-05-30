@@ -1,36 +1,21 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, lazy, Suspense } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSurfaceAnalytics, useSurfacePublishHistory } from "@/hooks/useSurfaceAnalytics";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from "@/components/ui/chart";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  ResponsiveContainer,
-} from "recharts";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Eye, Users, MousePointerClick, Loader2, ExternalLink } from "lucide-react";
+
+// PERF: lazy-load recharts — only pulled in when the chart actually renders.
+const AnalyticsTrafficChart = lazy(() => import("./components/AnalyticsTrafficChart"));
 
 const RANGES: Array<{ label: string; days: number }> = [
   { label: "7d", days: 7 },
   { label: "30d", days: 30 },
   { label: "90d", days: 90 },
 ];
-
-const chartConfig = {
-  views: { label: "Views", color: "hsl(var(--primary))" },
-  visitors: { label: "Visitors", color: "hsl(var(--muted-foreground))" },
-} satisfies ChartConfig;
 
 function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: number | string }) {
   return (
@@ -130,34 +115,9 @@ export default function SurfaceAnalyticsPage() {
                   No views recorded in this period.
                 </div>
               ) : (
-                <ChartContainer config={chartConfig} className="h-64 w-full">
-                  <AreaChart data={dailySeries} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="viewsFill" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
-                        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="day" tickLine={false} axisLine={false} />
-                    <YAxis tickLine={false} axisLine={false} width={32} />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Area
-                      type="monotone"
-                      dataKey="views"
-                      stroke="hsl(var(--primary))"
-                      fill="url(#viewsFill)"
-                      strokeWidth={2}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="visitors"
-                      stroke="hsl(var(--muted-foreground))"
-                      fillOpacity={0}
-                      strokeWidth={1.5}
-                    />
-                  </AreaChart>
-                </ChartContainer>
+                <Suspense fallback={<Skeleton className="h-64 w-full rounded-md" />}>
+                  <AnalyticsTrafficChart data={dailySeries} />
+                </Suspense>
               )}
             </CardContent>
           </Card>
