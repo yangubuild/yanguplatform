@@ -7,9 +7,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Card } from "@/components/primitives";
-import { forceDeleteSurface } from "@/lib/forceDeleteSurface";
 import { ICON_MAP, yanguBadge } from "@/lib/app-store/icon-map";
 import { SurfaceSettingsDialog, type SurfaceMetadata } from "@/components/builder/SurfaceSettingsDialog";
+import type { SurfaceStatus } from "@/lib/builder/surfaceLifecycle";
 
 const SURFACE_TYPE_META: Record<string, { label: string; icon: typeof ShoppingBag }> = {
   eshop: { label: "Eshop", icon: ShoppingBag },
