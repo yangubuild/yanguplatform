@@ -868,7 +868,7 @@ export function useStepController() {
         }
         break;
     }
-  }, [currentStep]);
+  }, [currentStep, userIdea, category]);
 
   const handleLocationInput = useCallback((text: string) => {
     setBusinessLocation(text);
