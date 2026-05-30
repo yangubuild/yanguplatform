@@ -38,36 +38,19 @@ export function useSurfaces(options: UseSurfacesOptions = {}) {
     queryFn: async (): Promise<SurfaceWithPublishes[]> => {
       if (!user) return [];
 
-      // Get user's org memberships first
-      const { data: memberships, error: membershipError } = await supabase
-        .from("org_memberships")
-        .select("org_id")
-        .eq("user_id", user.id);
+      // ROOT CAUSE D FIX — query the active `builder_surfaces` table instead of
+      // the legacy org-scoped `surfaces` table. The legacy table required an
+      // org_memberships join, so solo users with no org silently got 0 rows.
+      // `builder_surfaces` is user-scoped (user_id) and is the source of truth
+      // for every modern builder engine. The `showArchived` flag is preserved
+      // for API compatibility but builder_surfaces has no archived_at column.
+      void showArchived;
 
-      if (membershipError) {
-        console.error("Error fetching memberships:", membershipError);
-        throw membershipError;
-      }
-
-      if (!memberships || memberships.length === 0) {
-        return [];
-      }
-
-      const orgIds = memberships.map((m) => m.org_id);
-
-      // Fetch surfaces for user's orgs
-      let query = supabase
-        .from("surfaces")
-        .select("id, title, surface_type, status, org_id, archived_at, created_at, draft_slug, draft_domain_id")
-        .in("org_id", orgIds)
+      const { data: surfaces, error: surfacesError } = await supabase
+        .from("builder_surfaces")
+        .select("id, title, surface_type, org_id, created_at, slug, metadata, cover_image_url")
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false });
-
-      // Filter archived unless showing them
-      if (!showArchived) {
-        query = query.is("archived_at", null);
-      }
-
-      const { data: surfaces, error: surfacesError } = await query;
 
       if (surfacesError) {
         console.error("Error fetching surfaces:", surfacesError);
@@ -78,53 +61,42 @@ export function useSurfaces(options: UseSurfacesOptions = {}) {
         return [];
       }
 
-      // Fetch active publishes for all surfaces
+      // Fetch active publishes for all surfaces from builder_publishes
       const surfaceIds = surfaces.map((s) => s.id);
       const { data: publishes, error: publishesError } = await supabase
-        .from("surface_publishes")
+        .from("builder_publishes")
         .select(`
           id,
           surface_id,
           domain_id,
           slug,
           published_at,
-          domains!surface_publishes_domain_id_fkey (
+          domains!builder_publishes_domain_id_fkey (
             host,
             domain_type
           )
         `)
         .in("surface_id", surfaceIds)
-        .eq("state", "published")
-        .is("unpublished_at", null);
+        .eq("state", "published");
 
       if (publishesError) {
         console.error("Error fetching publishes:", publishesError);
       }
 
-      // Fetch cover images from builder_surfaces
-      const { data: builderSurfaces } = await supabase
-        .from("builder_surfaces")
-        .select("slug, metadata, cover_image_url")
-        .in("slug", surfaces.map(s => (s as any).draft_slug).filter(Boolean));
-
-      const coverBySurfaceSlug: Record<string, string | null> = {};
-      if (builderSurfaces) {
-        for (const bs of builderSurfaces) {
-          // Prioritize the dedicated cover_image_url column
-          if (bs.cover_image_url) {
-            if (bs.slug) coverBySurfaceSlug[bs.slug] = bs.cover_image_url;
-            continue;
-          }
-          const meta = bs.metadata as any;
-          let cover: string | null = null;
-          if (meta?.photos && Array.isArray(meta.photos) && meta.photos.length> 0) {
+      // Derive cover image directly from the row we already fetched.
+      const coverBySurfaceId: Record<string, string | null> = {};
+      for (const s of surfaces) {
+        let cover: string | null = (s as any).cover_image_url || null;
+        if (!cover) {
+          const meta = (s as any).metadata as any;
+          if (meta?.photos && Array.isArray(meta.photos) && meta.photos.length > 0) {
             cover = meta.photos[0];
           }
           if (!cover && meta?.ai_profile?.avatar_url) {
             cover = meta.ai_profile.avatar_url;
           }
-          if (bs.slug) coverBySurfaceSlug[bs.slug] = cover;
         }
+        coverBySurfaceId[s.id] = cover;
       }
 
       // Map publishes to surfaces
@@ -146,19 +118,22 @@ export function useSurfaces(options: UseSurfacesOptions = {}) {
         }
       }
 
-      return surfaces.map((surface) => ({
-        id: surface.id,
-        title: surface.title,
-        surface_type: surface.surface_type,
-        status: surface.status,
-        org_id: surface.org_id,
-        archived_at: surface.archived_at,
-        created_at: surface.created_at,
-        draft_slug: (surface as any).draft_slug || null,
-        draft_domain_id: (surface as any).draft_domain_id || null,
-        activePublishes: publishesBySurface[surface.id] || [],
-        cover_image: coverBySurfaceSlug[(surface as any).draft_slug] || null,
-      }));
+      return surfaces.map((surface) => {
+        const active = publishesBySurface[surface.id] || [];
+        return {
+          id: surface.id,
+          title: surface.title,
+          surface_type: surface.surface_type,
+          status: active.length > 0 ? "published" : "draft",
+          org_id: (surface as any).org_id || "",
+          archived_at: null,
+          created_at: surface.created_at,
+          draft_slug: (surface as any).slug || null,
+          draft_domain_id: null,
+          activePublishes: active,
+          cover_image: coverBySurfaceId[surface.id] || null,
+        };
+      });
     },
     enabled: isAuthenticated && !!user,
   });
