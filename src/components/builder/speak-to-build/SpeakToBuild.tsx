@@ -27,6 +27,7 @@ import { VoiceOrb } from "./VoiceOrb";
 import { supabase } from "@/integrations/supabase/client";
 import { getEngine } from "@/lib/builder/engineRegistry";
 import { validateDraft } from "@/lib/builder/aiPipeline";
+import { categoryFromText as sharedCategoryFromText, type SellChannel } from "@/lib/builder/categoryFromText";
 import {
   ACTION_LABELS,
   STYLE_OPTIONS,
@@ -79,18 +80,25 @@ function isYes(text: string): boolean {
 function isNo(text: string): boolean {
   return /\b(no|nope|nah|non|لا|hapana|nedda|oya)\b/i.test(text);
 }
-function categoryFromText(text: string): SpeakCategory | null {
-  const t = text.toLowerCase();
-  // Estore = supplier/wholesale/B2B/agri. Match BEFORE eshop so wholesale
-  // doesn't fall through to retail. (Spec: Supplier/Wholesale/Bulk → Estore.)
-  if (/\b(wholesale|supplier|bulk|distributor|distribution|trading|warehouse|stockist|importer|exporter|b2b|manufacturer|factory|agri|agriculture|farm|farming|estore|kilimo|ubuhinzi|obulimi|زراع)\b/.test(t)) return "estore";
-  // Influencer if "social media first" / "sell on instagram" intent.
-  if (/\b(creator|influencer|content|tiktok|instagram|social media|muumbaji|umuhanzi|مؤثر)\b/.test(t)) return "influencer";
-  if (/\b(eshop|shop|store|retail|product|boutique|duka|iduka|متجر|eduuka)\b/.test(t)) return "eshop";
-  if (/\b(emenu|menu|food|restaurant|cafe|chakula|emmere|طعام|ibiryo)\b/.test(t)) return "emenu";
-  if (/\b(eservice|service|services|consultancy|consultant|huduma|empeereza|serivisi|خدمات)\b/.test(t)) return "esite";
-  if (/\b(community|organisation|organization|ngo|jumuiya|umuryango|ekibinja|مجتمع)\b/.test(t)) return "community";
-  return null;
+/**
+ * Local wrapper around the shared categoryFromText so that intro/category
+ * turns (before sell_channel is known) keep returning null when nothing
+ * matches — preserving the existing "ask category again" loop in Speak.
+ */
+function categoryFromText(text: string, sellChannel?: SellChannel): SpeakCategory | null {
+  // No sell-channel context yet → only return a category if text matches.
+  if (!sellChannel) {
+    const t = text.toLowerCase();
+    if (/\b(wholesale|supplier|bulk|distributor|distribution|trading|warehouse|stockist|importer|exporter|b2b|manufacturer|factory|agri|agriculture|farm|farming|estore|kilimo|ubuhinzi|obulimi|زراع)\b/.test(t)) return "estore";
+    if (/\b(creator|influencer|content|tiktok|instagram|social media|muumbaji|umuhanzi|مؤثر)\b/.test(t)) return "influencer";
+    if (/\b(eshop|shop|store|retail|product|boutique|duka|iduka|متجر|eduuka)\b/.test(t)) return "eshop";
+    if (/\b(emenu|menu|food|restaurant|cafe|chakula|emmere|طعام|ibiryo)\b/.test(t)) return "emenu";
+    if (/\b(eservice|service|services|consultancy|consultant|huduma|empeereza|serivisi|خدمات)\b/.test(t)) return "esite";
+    if (/\b(community|organisation|organization|ngo|jumuiya|umuryango|ekibinja|مجتمع)\b/.test(t)) return "community";
+    return null;
+  }
+  // With sell_channel, always resolve via shared rules (may return esite fallback).
+  return sharedCategoryFromText(text, sellChannel) as SpeakCategory;
 }
 function styleFromText(text: string): string | null {
   const t = text.toLowerCase();
