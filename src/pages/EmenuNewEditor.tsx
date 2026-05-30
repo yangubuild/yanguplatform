@@ -496,7 +496,9 @@ export default function EmenuNewEditor() {
     }
     // Clicks on generic divs inside a section → treat as section selection
     if (sel.kind === "page" && sel.sectionIndex !== undefined && sel.sectionIndex >= 0) {
-      setCanvasSelection({ ...sel, kind: "section", tag: "SECTION", nodeId: undefined });
+      // Preserve elRect so the Magic Editor floating toolbar can position itself.
+      // (Audit Failure 4 / Root Cause B2.)
+      setCanvasSelection({ ...sel, kind: "section", tag: "SECTION", nodeId: undefined, elRect: sel.elRect });
       return;
     }
     setCanvasSelection(sel);
