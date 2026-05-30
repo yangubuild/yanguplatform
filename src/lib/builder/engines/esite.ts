@@ -145,8 +145,8 @@ export const esiteEngine: BuilderEngine = {
     { key: "faq_accordion", label: "FAQ Accordion", sectionType: "faq", schema: { heading: "FAQ", items: [] } },
   ],
   aiGenerationRules: {
-    allowedSectionTypes: ["hero", "text", "services", "team", "testimonials", "contact", "faq", "blog", "cta", "gallery"],
-    forbiddenSectionTypes: ["menu", "products", "cart", "checkout", "bio", "links", "affiliate", "live_selling", "member_signup"],
+    allowedSectionTypes: ["hero", "text", "services", "about", "team", "testimonials", "contact", "contact_form", "faq", "blog", "cta", "cta_banner", "gallery", "custom_page"],
+    forbiddenSectionTypes: ["menu", "menu_categories", "menu_items", "ordering_options", "products", "inventory", "cart", "checkout", "bio", "links", "affiliate", "live_selling", "member_signup"],
     generationHints: [
       "Generate professional service-oriented content",
       "If real_estate industry, include listings section with property cards",
