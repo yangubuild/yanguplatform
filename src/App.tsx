@@ -227,6 +227,7 @@ const GoogleMeetPage = lazy(() => lazyRetry(() => import("./pages/dashboard/apps
 const YouTubePage = lazy(() => lazyRetry(() => import("./pages/dashboard/apps/YouTubePage")));
 const MyBusinessPage = lazy(() => lazyRetry(() => import("./pages/dashboard/MyBusinessPage")));
 const BusinessAnalyticsPage = lazy(() => lazyRetry(() => import("./pages/dashboard/business/BusinessAnalyticsPage")));
+const SurfaceAnalyticsPage = lazy(() => lazyRetry(() => import("./pages/dashboard/SurfaceAnalyticsPage")));
 const BusinessUsersPage = lazy(() => lazyRetry(() => import("./pages/dashboard/business/BusinessUsersPage")));
 const BusinessDepositPage = lazy(() => lazyRetry(() => import("./pages/dashboard/business/BusinessDepositPage")));
 const InfluencerPage = lazy(() => lazyRetry(() => import("./pages/dashboard/InfluencerPage")));
