@@ -5,9 +5,15 @@ import { EMENU_TEMPLATE_GROUPS } from "@/lib/builder/emenu/templateClassifier";
 import { classifyEmenu } from "@/lib/builder/emenu/templateFirstGeneration";
 import { getTemplate } from "@/config/templateRegistry";
 import type { MenuComplexity } from "@/lib/builder/emenu/types";
+import { categoryFromText as sharedCategoryFromText, type SellChannel } from "@/lib/builder/categoryFromText";
+import { getCopy } from "@/components/builder/speak-to-build/copy";
 
 export type BuilderStep =
   | "greeting"
+  | "country"
+  | "products_services"
+  | "payment_methods"
+  | "sell_channel"
   | "business_type"
   | "shop_type"
   | "business_mode"
@@ -450,6 +456,12 @@ export function useStepController() {
     attributes: { ...DEFAULT_ATTRIBUTES },
   });
 
+  // ─── New ADA qualification fields (parity with Speak to Build) ─────
+  const [country, setCountry] = useState("");
+  const [productsServices, setProductsServices] = useState<string[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<string[]>([]);
+  const [sellChannel, setSellChannel] = useState<SellChannel>("");
+
   const isFoodCategory = useMemo(() => category === "emenu", [category]);
   const isShopCategory = useMemo(() => category === "eshop", [category]);
 
@@ -467,6 +479,11 @@ export function useStepController() {
   const getNextStep = useCallback((step: BuilderStep): BuilderStep => {
     switch (step) {
       case "greeting":
+        return "country";
+      case "country":         return "products_services";
+      case "products_services": return "payment_methods";
+      case "payment_methods": return "sell_channel";
+      case "sell_channel":
         if (isFoodCategory) return "business_type";
         if (isShopCategory) return "shop_type";
         return "scope";
@@ -498,6 +515,43 @@ export function useStepController() {
           adaMessage: "Hey! 👋 Tell me about your business — what's the name, what do you do, and what are you looking to build?",
           options: [],
           allowFreeText: true,
+        };
+      case "country":
+        return {
+          key: "country",
+          adaMessage: getCopy("en", "country"),
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
+      case "products_services":
+        return {
+          key: "products_services",
+          adaMessage: getCopy("en", "products_services"),
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
+      case "payment_methods":
+        return {
+          key: "payment_methods",
+          adaMessage: `${getCopy("en", "payment_methods")} (you can type "skip" if you're not sure yet)`,
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
+      case "sell_channel":
+        return {
+          key: "sell_channel",
+          adaMessage: "Where do you plan to sell most?",
+          options: [
+            { id: "online_store",  label: "Online store",  value: "online_store",  icon: "🛒", description: "Customers buy from your website" },
+            { id: "physical_shop", label: "Physical shop", value: "physical_shop", icon: "🏪", description: "In-person sales / dine-in" },
+            { id: "both",          label: "Both",          value: "both",          icon: "🔀", description: "Online and physical" },
+            { id: "wholesale",     label: "Wholesale",     value: "wholesale",     icon: "📦", description: "B2B / bulk / distribution" },
+            { id: "not_sure",      label: "Not sure yet",  value: "not_sure",      icon: "🤔", description: "I'll decide later" },
+          ],
+          renderAs: "cards",
         };
       case "business_type":
         return {
@@ -680,14 +734,52 @@ export function useStepController() {
     if (!category) setCategory(effective);
     setBusinessName(name);
     setUserIdea(text);
-    if (effective === "emenu") {
-      setCurrentStep("business_type");
-    } else if (effective === "eshop") {
-      setCurrentStep("shop_type");
-    } else {
-      setCurrentStep("scope");
-    }
+    // Spec parity with Speak to Build: ask qualification questions BEFORE
+    // branching by category. sell_channel may re-route the category.
+    setCurrentStep("country");
   }, [category]);
+
+  // Free-text handler for the new qualification steps (country / products /
+  // payment_methods). Parses lists where appropriate and advances the step.
+  const handleQualificationInput = useCallback((text: string) => {
+    const trimmed = (text || "").trim();
+    switch (currentStep) {
+      case "country":
+        setCountry(trimmed);
+        setCurrentStep("products_services");
+        break;
+      case "products_services": {
+        const items = trimmed
+          .split(/[,\n]| and /i)
+          .map((s) => s.trim())
+          .filter(Boolean);
+        setProductsServices(items.length > 0 ? items : (trimmed ? [trimmed] : []));
+        setCurrentStep("payment_methods");
+        break;
+      }
+      case "payment_methods": {
+        if (/^skip$/i.test(trimmed) || !trimmed) {
+          setPaymentMethods([]);
+        } else {
+          const t = trimmed.toLowerCase();
+          const methods: string[] = [];
+          if (/\b(all|every|both)\b/.test(t)) {
+            methods.push("mobile_money", "cards", "cash", "bank_transfer");
+          } else {
+            if (/\b(mobile|m-?pesa|mpesa|momo|airtel money|mobile money)\b/.test(t)) methods.push("mobile_money");
+            if (/\b(card|visa|mastercard|credit|debit)\b/.test(t)) methods.push("cards");
+            if (/\bcash\b/.test(t)) methods.push("cash");
+            if (/\b(bank|transfer|wire|iban)\b/.test(t)) methods.push("bank_transfer");
+          }
+          setPaymentMethods(methods.length > 0 ? methods : [trimmed]);
+        }
+        setCurrentStep("sell_channel");
+        break;
+      }
+      default:
+        break;
+    }
+  }, [currentStep]);
 
   const handleOptionSelect = useCallback((option: StepOption) => {
     switch (currentStep) {
@@ -695,6 +787,18 @@ export function useStepController() {
         setMenuClassification(option.value as MenuComplexity);
         setCurrentStep("scope");
         break;
+      case "sell_channel": {
+        const channel = option.value as SellChannel;
+        setSellChannel(channel);
+        // Re-route category using the shared rules (wholesale → estore, etc.)
+        const routed = sharedCategoryFromText(userIdea || "", channel);
+        const effective = routed || category || "esite";
+        if (effective !== category) setCategory(effective as Category);
+        if (effective === "emenu") setCurrentStep("business_type");
+        else if (effective === "eshop") setCurrentStep("shop_type");
+        else setCurrentStep("scope");
+        break;
+      }
       case "shop_type": {
         const st = option.value as ShopType;
         const preset = SHOP_TYPE_ATTRIBUTE_MAP[st] || {};
@@ -764,7 +868,7 @@ export function useStepController() {
         }
         break;
     }
-  }, [currentStep]);
+  }, [currentStep, userIdea, category]);
 
   const handleLocationInput = useCallback((text: string) => {
     setBusinessLocation(text);
@@ -814,10 +918,21 @@ export function useStepController() {
     setMenuClassification(null);
     setUserUploadedAssets({ brandColors: [], images: [] });
     setEshopConfig({ shopType: null, businessMode: null, attributes: { ...DEFAULT_ATTRIBUTES } });
+    setCountry("");
+    setProductsServices([]);
+    setPaymentMethods([]);
+    setSellChannel("");
   }, []);
 
   const inputAllowed = useMemo(() => {
-    return currentStep === "greeting" || currentStep === "refinement" || currentStep === "business_location";
+    return (
+      currentStep === "greeting" ||
+      currentStep === "refinement" ||
+      currentStep === "business_location" ||
+      currentStep === "country" ||
+      currentStep === "products_services" ||
+      currentStep === "payment_methods"
+    );
   }, [currentStep]);
 
   return {
@@ -830,6 +945,7 @@ export function useStepController() {
     handleOptionSelect,
     handleGreetingInput,
     handleLocationInput,
+    handleQualificationInput,
     confirmMultiSelect,
     confirmAssetUpload,
     confirmAiLogo,
@@ -857,6 +973,15 @@ export function useStepController() {
     eshopConfig,
     setEshopConfig,
     isShopCategory,
+    // ADA qualification parity fields
+    country,
+    productsServices,
+    paymentMethods,
+    sellChannel,
+    setCountry,
+    setProductsServices,
+    setPaymentMethods,
+    setSellChannel,
     // Kept for backward compat
     selectedStyleCategory: selectedTemplateKey,
     selectedStyleSpecific: null as string | null,

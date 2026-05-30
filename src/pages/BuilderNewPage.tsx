@@ -277,6 +277,11 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
         builder_new_html: persistedHtml,
         template_family: templatePreset?.template_family || null,
         variant_index: index,
+        // ADA qualification parity (Phase 4)
+        country: ctrl.country || "",
+        products_services: ctrl.productsServices,
+        payment_methods: ctrl.paymentMethods,
+        sell_channel: ctrl.sellChannel || "",
       };
 
       try {
@@ -329,6 +334,13 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
     } else if (ctrl.currentStep === "business_location") {
       addMsg("user", text);
       ctrl.handleLocationInput(text);
+    } else if (
+      ctrl.currentStep === "country" ||
+      ctrl.currentStep === "products_services" ||
+      ctrl.currentStep === "payment_methods"
+    ) {
+      addMsg("user", text);
+      ctrl.handleQualificationInput(text);
     } else {
       addMsg("user", text);
       handleRefinement(text);
