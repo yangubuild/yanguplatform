@@ -5,9 +5,15 @@ import { EMENU_TEMPLATE_GROUPS } from "@/lib/builder/emenu/templateClassifier";
 import { classifyEmenu } from "@/lib/builder/emenu/templateFirstGeneration";
 import { getTemplate } from "@/config/templateRegistry";
 import type { MenuComplexity } from "@/lib/builder/emenu/types";
+import { categoryFromText as sharedCategoryFromText, type SellChannel } from "@/lib/builder/categoryFromText";
+import { getCopy } from "@/components/builder/speak-to-build/copy";
 
 export type BuilderStep =
   | "greeting"
+  | "country"
+  | "products_services"
+  | "payment_methods"
+  | "sell_channel"
   | "business_type"
   | "shop_type"
   | "business_mode"
