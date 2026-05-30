@@ -241,6 +241,19 @@ export default function SellerEditor() {
     add_link_card: "links",
     add_affiliate: "affiliate",
     add_conversion: "offer",
+    // Community (community_group) actions — Phase 14+16.
+    // Events sub-type
+    add_event: "event_listing",
+    add_speaker: "speakers",
+    add_schedule: "schedule",
+    // Courses sub-type
+    add_course: "course_listing",
+    add_curriculum: "curriculum",
+    add_instructor: "instructor",
+    // Freelance sub-type
+    add_portfolio: "portfolio",
+    add_service_tier: "services_offered",
+    add_availability: "availability",
   };
 
   const handleQuickAction = async (action: string) => {
