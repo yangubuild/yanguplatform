@@ -329,6 +329,13 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
     } else if (ctrl.currentStep === "business_location") {
       addMsg("user", text);
       ctrl.handleLocationInput(text);
+    } else if (
+      ctrl.currentStep === "country" ||
+      ctrl.currentStep === "products_services" ||
+      ctrl.currentStep === "payment_methods"
+    ) {
+      addMsg("user", text);
+      ctrl.handleQualificationInput(text);
     } else {
       addMsg("user", text);
       handleRefinement(text);
