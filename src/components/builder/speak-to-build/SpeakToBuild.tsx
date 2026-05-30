@@ -454,6 +454,10 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
           _speak_language: answers.language,
           _speak_style: answers.style,
           _speak_category: answers.category,
+          country: answers.country,
+          products_services: answers.products_services,
+          payment_methods: answers.payment_methods,
+          sell_channel: answers.sell_channel,
         };
       } catch (err) {
         console.warn("[SpeakToBuild] AI draft generation failed, falling back:", err);
