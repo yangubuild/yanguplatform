@@ -107,3 +107,11 @@ Publish → Live Surface → Discovery Eligible
 
 No change to any builder, editor, template, routing, or publishing
 file may be made without first reading this file.
+
+## Surface Suspension Model
+
+Surface suspension is modeled through `builder_publishes.state` via the
+`manage_surface_action` RPC (has_role admin check).
+`builder_surfaces.status` tracks owner-controlled lifecycle
+(draft / published / archived) only and is never set to `suspended`
+by admin actions.
