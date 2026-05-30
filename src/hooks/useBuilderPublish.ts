@@ -200,6 +200,14 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
       pages_html: pagesHtmlBySlug,
     };
 
+    // 6. Activate HTML-snapshot renderer when a builder snapshot exists.
+    // Both SurfaceViewer and PublicSurfacePage gate on this flag; without it
+    // they fall back to the JSON section renderer and the live page diverges
+    // from the editor canvas. (Audit Failure 3 / Spec Ch. 13.)
+    if (typeof builderMainHtml === "string" && builderMainHtml.trim().length > 0) {
+      updatedSurface.html_snapshot_responsive = true;
+    }
+
     // 7. Write updated schema back
     const syncedSchema = { ...currentSchema, surface: updatedSurface };
     const { error: publishUpdateError } = await supabase
