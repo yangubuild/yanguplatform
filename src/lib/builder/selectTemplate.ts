@@ -1,9 +1,20 @@
+import {
+  type SurfaceType,
+  type BuilderType,
+  type TemplateSelection,
+  type AnyTemplateKey,
+  SURFACE_TO_BUILDER,
+  assertTemplateOwnership,
+  resolveBuilder,
+} from "@/types/builders";
+
 /**
  * Maps a user "tone" / style answer to a real template key per engine.
  * Returns a template key understood by generateWebsiteVariants and the
  * template registry. Falls back to a sensible per-engine default.
  *
- * Builder Bible isolation rules enforced here:
+ * Builder Bible isolation rules enforced here (compile-time via SurfaceType
+ * + runtime via assertTemplateOwnership):
  *   - Eshop templates may NEVER appear in Estore routing
  *   - Emenu templates may NEVER appear in any other engine
  *   - Influencer templates may NEVER appear in Community
@@ -58,17 +69,43 @@ const SURFACE_TYPE_TO_ENGINE: Record<string, string> = {
   quick_site: "esite",
 };
 
-export function selectTemplate(engineKey: string, tone?: string | null): string {
-  const key = SURFACE_TYPE_TO_ENGINE[engineKey] || engineKey;
+/**
+ * Accepts either a SurfaceType ('store_listing', 'live_bio', ...) OR a
+ * legacy engine key ('estore', 'influencer', ...). Returns the typed
+ * TemplateSelection contract from YANGU_BUILDER_SPEC.
+ *
+ * Callers that only need the string key can read `.template_key`.
+ */
+export function selectTemplate(
+  surfaceOrEngine: SurfaceType | string,
+  tone?: string | null,
+): TemplateSelection {
+  const engine = SURFACE_TYPE_TO_ENGINE[surfaceOrEngine] || surfaceOrEngine;
   const t = (tone || "").toString().trim().toLowerCase();
-  if (key === "eshop") {
-    return ESHOP_TONE_MAP[t] || DEFAULTS.eshop;
+
+  let templateKey = "";
+  if (engine === "eshop") templateKey = ESHOP_TONE_MAP[t] || DEFAULTS.eshop;
+  else if (engine === "estore") templateKey = ESTORE_TONE_MAP[t] || DEFAULTS.estore;
+  else if (engine === "emenu") templateKey = EMENU_TONE_MAP[t] || DEFAULTS.emenu;
+  else templateKey = DEFAULTS[engine] ?? "";
+
+  const builder: BuilderType =
+    resolveBuilder(surfaceOrEngine) ?? (engine as BuilderType);
+
+  // Resolve the corresponding canonical SurfaceType for the contract.
+  // Reverse SURFACE_TO_BUILDER: pick the surface_type whose builder matches.
+  const surface_type = (Object.keys(SURFACE_TO_BUILDER) as SurfaceType[])
+    .find((s) => SURFACE_TO_BUILDER[s] === builder) ?? ("eshop" as SurfaceType);
+
+  // Runtime guard — throws if template_key ever escapes its owning builder.
+  if (templateKey) {
+    assertTemplateOwnership(templateKey, builder);
   }
-  if (key === "estore") {
-    return ESTORE_TONE_MAP[t] || DEFAULTS.estore;
-  }
-  if (key === "emenu") {
-    return EMENU_TONE_MAP[t] || DEFAULTS.emenu;
-  }
-  return DEFAULTS[key] ?? "";
+
+  return {
+    surface_type,
+    builder,
+    template_key: templateKey as AnyTemplateKey,
+    engine,
+  };
 }
