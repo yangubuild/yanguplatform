@@ -1,6 +1,6 @@
 // ARCHITECTURE RULE: generateWebsiteVariants() MUST be called before initAndNavigate().
 // AI fills content only. Templates render layout. Never pass seedSections as layout source.
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useBuilderSurfaceInit } from "@/hooks/useBuilderSurfaceInit";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -13,6 +13,7 @@ import BuilderNewPage from "@/pages/BuilderNewPage";
 import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteGenerator";
 import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
 import { selectTemplate } from "@/lib/builder/selectTemplate";
+import { VariantPreviewCarousel, type VariantPreviewItem } from "@/components/builder-new/VariantPreviewCarousel";
 
 /** Map legacy seller keys → engine keys */
 const SELLER_KEY_MAP: Record<string, string> = {
@@ -156,6 +157,39 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
   const engineKey = SELLER_KEY_MAP[sellerKey] || sellerKey;
   const engine = getEngine(engineKey);
   const mode = searchParams.get("mode");
+
+  // SPEC: ADA must generate 3 variations and the user must select one
+  // BEFORE the editor opens. Deferred payload stored here.
+  const [pendingVariants, setPendingVariants] = useState<VariantPreviewItem[]>([]);
+  const [pendingPayload, setPendingPayload] = useState<{
+    variants: string[];
+    businessName: string;
+    slug: string;
+    seedSections: Array<{ type: string; schema: Record<string, unknown>; core_slot?: string }>;
+    metadataBase: Record<string, unknown>;
+    templateKey: string;
+    surfaceType: string;
+  } | null>(null);
+
+  const handleChooseVariant = useCallback(async (index: number) => {
+    if (!user?.id || !pendingPayload) return;
+    const raw = pendingPayload.variants[index] || pendingPayload.variants[0] || "";
+    let templateHtml = raw;
+    try {
+      if (templateHtml) templateHtml = await persistBlobUrls(templateHtml, user.id);
+    } catch { /* keep original */ }
+    await initAndNavigate({
+      surfaceType: pendingPayload.surfaceType,
+      slug: pendingPayload.slug,
+      title: pendingPayload.businessName,
+      seedSections: pendingPayload.seedSections,
+      metadata: {
+        ...pendingPayload.metadataBase,
+        builder_new_template: pendingPayload.templateKey,
+        builder_new_html: templateHtml,
+      },
+    });
+  }, [user, pendingPayload, initAndNavigate]);
 
   // Shared chat path handler
   const handleChatPath = useCallback(() => {
