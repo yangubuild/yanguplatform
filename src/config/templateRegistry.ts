@@ -2692,7 +2692,7 @@ const DEFAULT_VARIANTS: Record<BuilderType, AnyTemplateKey[]> = {
   eshop:      ['eshop_visual_a',       'eshop_visual_b',     'eshop_aema'],
   emenu:      ['emenu_visual_a',       'emenu_plateria',     'emenu_yumix'],
   esite:      ['esite_consultancy_a',  'esite_realestate_a', 'esite_hotel_a'],
-  estore:     ['estore_visual_a',      'estore_minna',       'estore_visual_a'],
+  estore:     ['estore_minna',         'estore_monchies',    'estore_bazaro_fashion'],
   influencer: ['influencer_layout_a',  'influencer_layout_b','influencer_layout_a'],
   community:  ['community_visual_a',   'community_visual_b', 'community_visual_a'],
 };
