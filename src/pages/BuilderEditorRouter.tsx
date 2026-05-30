@@ -18,7 +18,6 @@ import type { SurfaceType } from "@/types/builders";
 
 const SellerEditor = lazy(() => import("./SellerEditor"));
 const EmenuNewEditor = lazy(() => import("./EmenuNewEditor"));
-const InfluencerEditorPlaceholder = lazy(() => import("./InfluencerEditorPlaceholder"));
 const CommunityEditorPlaceholder = lazy(() => import("./CommunityEditorPlaceholder"));
 
 // Seller-engine surfaces share the unified SellerEditor shell. Engine
