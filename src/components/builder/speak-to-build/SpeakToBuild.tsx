@@ -80,12 +80,15 @@ function isNo(text: string): boolean {
 }
 function categoryFromText(text: string): SpeakCategory | null {
   const t = text.toLowerCase();
-  if (/\b(eshop|shop|store|product|boutique|duka|iduka|متجر|eduuka)\b/.test(t) && !/\b(agri|farm|kilimo)\b/.test(t)) return "eshop";
+  // Estore = supplier/wholesale/B2B/agri. Match BEFORE eshop so wholesale
+  // doesn't fall through to retail. (Spec: Supplier/Wholesale/Bulk → Estore.)
+  if (/\b(wholesale|supplier|bulk|distributor|distribution|trading|warehouse|stockist|importer|exporter|b2b|manufacturer|factory|agri|agriculture|farm|farming|estore|kilimo|ubuhinzi|obulimi|زراع)\b/.test(t)) return "estore";
+  // Influencer if "social media first" / "sell on instagram" intent.
+  if (/\b(creator|influencer|content|tiktok|instagram|social media|muumbaji|umuhanzi|مؤثر)\b/.test(t)) return "influencer";
+  if (/\b(eshop|shop|store|retail|product|boutique|duka|iduka|متجر|eduuka)\b/.test(t)) return "eshop";
   if (/\b(emenu|menu|food|restaurant|cafe|chakula|emmere|طعام|ibiryo)\b/.test(t)) return "emenu";
-  if (/\b(eservice|service|services|huduma|empeereza|serivisi|خدمات)\b/.test(t)) return "esite";
-  if (/\b(creator|influencer|content|muumbaji|umuhanzi|مؤثر)\b/.test(t)) return "influencer";
+  if (/\b(eservice|service|services|consultancy|consultant|huduma|empeereza|serivisi|خدمات)\b/.test(t)) return "esite";
   if (/\b(community|organisation|organization|ngo|jumuiya|umuryango|ekibinja|مجتمع)\b/.test(t)) return "community";
-  if (/\b(agri|agriculture|farm|farming|estore|kilimo|ubuhinzi|obulimi|زراع)\b/.test(t)) return "estore";
   return null;
 }
 function styleFromText(text: string): string | null {
