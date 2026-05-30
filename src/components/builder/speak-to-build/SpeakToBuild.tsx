@@ -386,6 +386,11 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       has_logo: answers.has_logo,
       wants_ai_logo: answers.wants_ai_logo,
       language: answers.language,
+      // New ADA qualification fields (spec).
+      country: answers.country,
+      products_services: answers.products_services,
+      payment_methods: answers.payment_methods,
+      sell_channel: answers.sell_channel,
     };
 
     (async () => {
