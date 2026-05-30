@@ -36,7 +36,7 @@ import {
   MessageSquareQuote,
   X,
 } from "lucide-react";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
 import type { BuilderSurfaceType } from "@/types/builder";
 import { BuilderSettingsDrawer, getThemeFromMetadata } from "@/components/builder/BuilderSettingsDrawer";
 import { BuilderSectionEditor } from "@/components/builder/BuilderSectionEditor";
@@ -47,7 +47,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAdaBuilderChat } from "@/components/builder-new/ada/useAdaBuilderChat";
-import { AdaBuilderPanel } from "@/components/builder-new/ada/AdaBuilderPanel";
+// PERF: Ada panel is heavy — load it only when the user opens it.
+const AdaBuilderPanel = lazy(() =>
+  import("@/components/builder-new/ada/AdaBuilderPanel").then((m) => ({ default: m.AdaBuilderPanel })),
+);
 import {
   MobileBuilderToolbar,
   MobileBuilderSheet,
@@ -394,13 +397,15 @@ export default function SellerEditor() {
         {/* ═══ LEFT PANEL — category-aware, switches between tools and Ada ═══ */}
         <aside className="w-72 border-r border-border flex-col bg-sidebar overflow-y-auto hidden lg:flex">
           {leftMode === "ada" ? (
-            <AdaBuilderPanel
-              messages={adaChat.messages}
-              isLoading={adaChat.isLoading}
-              onSend={adaChat.sendMessage}
-              onClose={() => setLeftMode("tools")}
-              category={sellerMode.categoryBadge.toLowerCase()}
-            />
+            <Suspense fallback={<div className="p-4"><Skeleton className="h-8 w-32 mb-3" />{Array.from({length:5}).map((_,i)=>(<Skeleton key={i} className="h-12 w-full mb-2 rounded-lg" />))}</div>}>
+              <AdaBuilderPanel
+                messages={adaChat.messages}
+                isLoading={adaChat.isLoading}
+                onSend={adaChat.sendMessage}
+                onClose={() => setLeftMode("tools")}
+                category={sellerMode.categoryBadge.toLowerCase()}
+              />
+            </Suspense>
           ) : (
             /* ── Category-specific Editor Tools ── */
             <>

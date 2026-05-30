@@ -17,8 +17,11 @@ import {
   Settings, ClipboardList, Rocket, X, Undo2, Redo2, Wand2, ExternalLink,
 } from "lucide-react";
 import { useAdaBuilderChat } from "@/components/builder-new/ada/useAdaBuilderChat";
-import { AdaBuilderPanel } from "@/components/builder-new/ada/AdaBuilderPanel";
-import { useState, useCallback, useEffect, useRef } from "react";
+// PERF: Ada panel is heavy — load it only when the user opens it.
+import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
+const AdaBuilderPanel = lazy(() =>
+  import("@/components/builder-new/ada/AdaBuilderPanel").then((m) => ({ default: m.AdaBuilderPanel })),
+);
 import { EditablePreview } from "@/components/builder-new/EditablePreview";
 import { EditorToolsPanel } from "@/components/builder-new/EditorToolsPanel";
 import { EmenuEditorPanel } from "@/components/builder-new/EmenuEditorPanel";
@@ -1616,13 +1619,15 @@ export default function EmenuNewEditor() {
               />
             </div>
           ) : leftMode === "ada" ? (
-            <AdaBuilderPanel
-              messages={adaChat.messages}
-              isLoading={adaChat.isLoading}
-              onSend={adaChat.sendMessage}
-              onClose={() => setLeftMode("tools")}
-              category="emenu"
-            />
+            <Suspense fallback={<div className="p-4"><Skeleton className="h-8 w-32 mb-3" />{Array.from({length:5}).map((_,i)=>(<Skeleton key={i} className="h-12 w-full mb-2 rounded-lg" />))}</div>}>
+              <AdaBuilderPanel
+                messages={adaChat.messages}
+                isLoading={adaChat.isLoading}
+                onSend={adaChat.sendMessage}
+                onClose={() => setLeftMode("tools")}
+                category="emenu"
+              />
+            </Suspense>
           ) : (
             <EditorToolsPanel
               onToggleAdaChat={() => setLeftMode((prev) => prev === "ada" ? "tools" : "ada")}
