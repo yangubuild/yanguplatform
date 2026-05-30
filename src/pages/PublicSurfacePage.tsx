@@ -122,6 +122,12 @@ export default function PublicSurfacePage() {
     return () => { document.title = "YANGU"; };
   }, [data, pageTitle, seoDescription, faviconUrl]);
 
+  // Record a view once per (surface, path) per session
+  useEffect(() => {
+    if (!surfaceId) return;
+    recordSurfaceView(surfaceId, pathSlug);
+  }, [surfaceId, pathSlug]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
