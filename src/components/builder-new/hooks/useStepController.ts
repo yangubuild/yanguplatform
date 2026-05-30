@@ -918,10 +918,21 @@ export function useStepController() {
     setMenuClassification(null);
     setUserUploadedAssets({ brandColors: [], images: [] });
     setEshopConfig({ shopType: null, businessMode: null, attributes: { ...DEFAULT_ATTRIBUTES } });
+    setCountry("");
+    setProductsServices([]);
+    setPaymentMethods([]);
+    setSellChannel("");
   }, []);
 
   const inputAllowed = useMemo(() => {
-    return currentStep === "greeting" || currentStep === "refinement" || currentStep === "business_location";
+    return (
+      currentStep === "greeting" ||
+      currentStep === "refinement" ||
+      currentStep === "business_location" ||
+      currentStep === "country" ||
+      currentStep === "products_services" ||
+      currentStep === "payment_methods"
+    );
   }, [currentStep]);
 
   return {
