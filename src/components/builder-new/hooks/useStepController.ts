@@ -516,6 +516,43 @@ export function useStepController() {
           options: [],
           allowFreeText: true,
         };
+      case "country":
+        return {
+          key: "country",
+          adaMessage: getCopy("en", "country"),
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
+      case "products_services":
+        return {
+          key: "products_services",
+          adaMessage: getCopy("en", "products_services"),
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
+      case "payment_methods":
+        return {
+          key: "payment_methods",
+          adaMessage: `${getCopy("en", "payment_methods")} (you can type "skip" if you're not sure yet)`,
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
+      case "sell_channel":
+        return {
+          key: "sell_channel",
+          adaMessage: "Where do you plan to sell most?",
+          options: [
+            { id: "online_store",  label: "Online store",  value: "online_store",  icon: "🛒", description: "Customers buy from your website" },
+            { id: "physical_shop", label: "Physical shop", value: "physical_shop", icon: "🏪", description: "In-person sales / dine-in" },
+            { id: "both",          label: "Both",          value: "both",          icon: "🔀", description: "Online and physical" },
+            { id: "wholesale",     label: "Wholesale",     value: "wholesale",     icon: "📦", description: "B2B / bulk / distribution" },
+            { id: "not_sure",      label: "Not sure yet",  value: "not_sure",      icon: "🤔", description: "I'll decide later" },
+          ],
+          renderAs: "cards",
+        };
       case "business_type":
         return {
           key: "business_type",
