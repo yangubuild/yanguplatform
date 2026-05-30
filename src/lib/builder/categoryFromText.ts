@@ -36,11 +36,16 @@ function rawCategoryFromText(text: string): BuilderType | null {
   // Estore = supplier / wholesale / B2B / agri. Match BEFORE eshop so
   // wholesale doesn't fall through to retail.
   if (/\b(wholesale|supplier|bulk|distributor|distribution|trading|warehouse|stockist|importer|exporter|b2b|manufacturer|factory|agri|agriculture|farm|farming|estore|kilimo|ubuhinzi|obulimi|زراع)\b/.test(t)) return "estore";
+  // Community — Events / Courses / Freelance. Match BEFORE influencer so
+  // "creative" / "designer" / "photographer" route to Freelance, not bio.
+  if (/\b(event|events|ticketing|conference|workshop|meetup|festival|expo|hackathon)\b/.test(t)) return "community";
+  if (/\b(course|courses|training|coaching|academy|e-learning|elearning|bootcamp|tutor|tutoring|class|classes|masterclass|curriculum)\b/.test(t)) return "community";
+  if (/\b(freelance|freelancer|portfolio|consultant|independent contractor|sole trader|self-employed|self employed|gig worker|creative|designer|developer|photographer|videographer|writer|copywriter|virtual assistant|agency)\b/.test(t)) return "community";
   if (/\b(creator|influencer|content|tiktok|instagram|social media|muumbaji|umuhanzi|مؤثر)\b/.test(t)) return "influencer";
   if (/\b(eshop|shop|store|retail|product|boutique|duka|iduka|متجر|eduuka)\b/.test(t)) return "eshop";
   if (/\b(emenu|menu|food|restaurant|cafe|chakula|emmere|طعام|ibiryo)\b/.test(t)) return "emenu";
   if (/\b(eservice|service|services|consultancy|consultant|huduma|empeereza|serivisi|خدمات)\b/.test(t)) return "esite";
-  if (/\b(community|organisation|organization|ngo|jumuiya|umuryango|ekibinja|مجتمع)\b/.test(t)) return "community";
+  if (/\b(community|organisation|organization|ngo|jumuiya|umuryango|ekibinja|مجتمع|church|club|coach|educator)\b/.test(t)) return "community";
   return null;
 }
 
@@ -71,6 +76,14 @@ export function categoryFromText(
     return "emenu";
   }
 
+  // Coach with premises → Esite. Coach selling online → Community (courses).
+  if (sellChannel === "physical_shop" && /\b(coach|coaching)\b/i.test(businessDescription)) {
+    return "esite";
+  }
+  if (sellChannel === "online_store" && /\b(coach|coaching|course|tutor)\b/i.test(businessDescription)) {
+    return "community";
+  }
+
   // Online store — bias toward Eshop for ambiguous text.
   if (sellChannel === "online_store" && (detected == null || detected === "esite")) {
     return "eshop";
@@ -81,3 +94,19 @@ export function categoryFromText(
 }
 
 export { rawCategoryFromText };
+
+/**
+ * Community sub-type detection. Stored in builder_surfaces.metadata
+ * .community_subtype at surface creation to drive editor quick actions.
+ */
+export type CommunitySubtype = "events" | "courses" | "freelance";
+
+export function communitySubtypeFromText(
+  text: string,
+): CommunitySubtype | undefined {
+  const t = (text || "").toLowerCase();
+  if (/\b(event|events|ticketing|conference|meetup|festival|expo|hackathon)\b/.test(t)) return "events";
+  if (/\b(course|courses|training|coaching|academy|e-learning|elearning|bootcamp|tutor|tutoring|class|classes|masterclass|curriculum)\b/.test(t)) return "courses";
+  if (/\b(freelance|freelancer|portfolio|consultant|independent contractor|sole trader|self-employed|gig worker|designer|developer|photographer|videographer|writer|copywriter|virtual assistant|agency)\b/.test(t)) return "freelance";
+  return undefined;
+}
