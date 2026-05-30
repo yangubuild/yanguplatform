@@ -262,6 +262,12 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
       photos: photos,
     };
 
+    // SPEC: persist new ADA qualification fields when ADA captured them.
+    metadata.country = typeof answers.country === "string" ? answers.country : "";
+    metadata.products_services = Array.isArray(answers.products_services) ? answers.products_services : [];
+    metadata.payment_methods = Array.isArray(answers.payment_methods) ? answers.payment_methods : [];
+    metadata.sell_channel = typeof answers.sell_channel === "string" ? answers.sell_channel : "";
+
     if (answers._ai_setup) {
       metadata.ai_setup = true;
       metadata.ai_source = aiSource;
