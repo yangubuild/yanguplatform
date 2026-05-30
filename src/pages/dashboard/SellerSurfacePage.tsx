@@ -270,12 +270,19 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
         userBrandColors: brandColors,
         userImages: [],
       });
-      let templateHtml = variants[0] || "";
-      try {
-        if (templateHtml) templateHtml = await persistBlobUrls(templateHtml, user.id);
-      } catch { /* keep original */ }
-      metadata.builder_new_template = templateKey;
-      metadata.builder_new_html = templateHtml;
+      // SPEC: surface the 3 variants for user selection BEFORE initialising
+      // the editor. handleChooseVariant finalises the chosen variant.
+      setPendingPayload({
+        variants,
+        businessName,
+        slug,
+        seedSections,
+        templateKey,
+        metadataBase: { ...metadata },
+        surfaceType: engine.surfaceType,
+      });
+      setPendingVariants(variants.map((html, i) => ({ html, label: `Design ${i + 1}` })));
+      return null;
     }
 
     return initAndNavigate({
