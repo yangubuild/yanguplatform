@@ -27,7 +27,11 @@ import { VoiceOrb } from "./VoiceOrb";
 import { supabase } from "@/integrations/supabase/client";
 import { getEngine } from "@/lib/builder/engineRegistry";
 import { validateDraft } from "@/lib/builder/aiPipeline";
-import { categoryFromText as sharedCategoryFromText, type SellChannel } from "@/lib/builder/categoryFromText";
+import {
+  categoryFromText as sharedCategoryFromText,
+  communitySubtypeFromText,
+  type SellChannel,
+} from "@/lib/builder/categoryFromText";
 import {
   ACTION_LABELS,
   STYLE_OPTIONS,
@@ -462,6 +466,14 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
           payment_methods: answers.payment_methods,
           sell_channel: answers.sell_channel,
         };
+        // Phase 14 wiring: persist community sub-type so SellerEditor can
+        // narrow its quick-action palette to the right group.
+        if (engineKey === "community") {
+          const sub = communitySubtypeFromText(
+            String(answers.business_description || ""),
+          );
+          if (sub) draftResult.community_subtype = sub;
+        }
       } catch (err) {
         console.warn("[SpeakToBuild] AI draft generation failed, falling back:", err);
         draftResult = {

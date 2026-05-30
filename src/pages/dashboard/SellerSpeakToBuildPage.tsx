@@ -152,6 +152,10 @@ export default function SellerSpeakToBuildPage() {
         products_services: Array.isArray(answers.products_services) ? answers.products_services : [],
         payment_methods: Array.isArray(answers.payment_methods) ? answers.payment_methods : [],
         sell_channel: typeof answers.sell_channel === "string" ? answers.sell_channel : "",
+        // Phase 14 wiring: forward community sub-type into surface metadata.
+        ...(typeof answers.community_subtype === "string"
+          ? { community_subtype: answers.community_subtype }
+          : {}),
       },
     });
     setPendingVariants(
