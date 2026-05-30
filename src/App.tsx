@@ -682,8 +682,8 @@ const App = () => (
                 </Route>
                 
                 {/* Dev routes - only in development */}
-                <Route path="/dev/seed" element={<DevSeed />} />
-                <Route path="/dev/test-domain-verification" element={<TestDomainVerification />} />
+                <Route path="/dev/seed" element={<AdminRoute><DevSeed /></AdminRoute>} />
+                <Route path="/dev/test-domain-verification" element={<AdminRoute><TestDomainVerification /></AdminRoute>} />
                 <Route path="/dev/agency-landing" element={<Suspense fallback={<div />}><AgencyLandingDev /></Suspense>} />
                 <Route path="/dev/agency-login" element={<Suspense fallback={<div />}><AgencyLoginDev /></Suspense>} />
                 
