@@ -52,8 +52,9 @@ export const SPEAK_TO_CHAT_SEED_KEY = "speak_to_chat_seed_v1";
 type TranscriptEntry = { role: "assistant" | "user"; text: string; ts: number };
 
 const STEPS: SpeakStepId[] = [
-  "intro", "category", "business_info", "logo", "logo_create",
-  "colors", "location", "style", "building", "done",
+  "intro", "category", "business_info", "country", "logo", "logo_create",
+  "colors", "location", "style", "products_services", "payment_methods",
+  "sell_channel", "building", "done",
 ];
 
 // ----- parsers (preserved) -------------------------------------------------
@@ -174,7 +175,13 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         const desc = split.slice(1).join(", ").trim() || text;
         updateAnswer("business_name", name || text.slice(0, 60));
         updateAnswer("business_description", desc);
-        goNext("business_info");
+        setStep("country");
+        pendingNextPromptRef.current = "country";
+        break;
+      }
+      case "country": {
+        updateAnswer("country", text);
+        setStep("logo");
         pendingNextPromptRef.current = "logo";
         break;
       }
@@ -214,8 +221,59 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       case "style": {
         const s = styleFromText(text);
         updateAnswer("style", s || text);
+        setStep("products_services");
+        pendingNextPromptRef.current = "products_services";
+        break;
+      }
+      case "products_services": {
+        // Structured list — split by comma/and/newline. Keep as array.
+        const items = text
+          .split(/[,\n]| and /i)
+          .map((s) => s.trim())
+          .filter((s) => s.length > 0);
+        updateAnswer("products_services", items.length > 0 ? items : [text]);
+        setStep("payment_methods");
+        pendingNextPromptRef.current = "payment_methods";
+        break;
+      }
+      case "payment_methods": {
+        const t = text.toLowerCase();
+        const methods: string[] = [];
+        if (/\b(all|every|both)\b/.test(t)) {
+          methods.push("mobile_money", "cards", "cash", "bank_transfer");
+        } else {
+          if (/\b(mobile|m-?pesa|mpesa|momo|airtel money|mobile money)\b/.test(t)) methods.push("mobile_money");
+          if (/\b(card|visa|mastercard|credit|debit)\b/.test(t)) methods.push("cards");
+          if (/\bcash\b/.test(t)) methods.push("cash");
+          if (/\b(bank|transfer|wire|iban)\b/.test(t)) methods.push("bank_transfer");
+        }
+        updateAnswer("payment_methods", methods.length > 0 ? methods : [text]);
+        setStep("sell_channel");
+        pendingNextPromptRef.current = "sell_channel";
+        break;
+      }
+      case "sell_channel": {
+        const t = text.toLowerCase();
+        let channel: SpeakAnswers["sell_channel"] = "";
+        if (/\b(combination|combo|all|mix|everywhere|multi)\b/.test(t)) channel = "combination";
+        else if (/\b(whatsapp|whats app|wa)\b/.test(t)) channel = "whatsapp";
+        else if (/\b(social|instagram|tiktok|facebook|ig|fb)\b/.test(t)) channel = "social_media";
+        else if (/\b(website|web site|site|online)\b/.test(t)) channel = "website";
+        updateAnswer("sell_channel", channel);
+
+        // SPEC routing improvements: Social Media first → Influencer.
+        // WhatsApp + community / coaching → Community.
+        if (channel === "social_media") {
+          updateAnswer("category", "influencer");
+        } else if (channel === "whatsapp") {
+          const cat = answersRef.current.category;
+          const desc = (answersRef.current.business_description || "").toLowerCase();
+          if (cat === "community" || /\b(coach|coaching|class|teach|tutor|church|ngo|group)\b/.test(desc)) {
+            updateAnswer("category", "community");
+          }
+        }
+
         setStep("building");
-        // No next prompt — build trigger takes over.
         pendingNextPromptRef.current = null;
         break;
       }
