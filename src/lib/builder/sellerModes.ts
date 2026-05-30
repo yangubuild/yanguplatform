@@ -144,6 +144,7 @@ const SURFACE_TYPE_TO_MODE: Record<string, SellerModeConfig> = {
   store_listing: CATALOG_MODE,
   quick_site: SERVICE_MODE,
   live_bio: BIO_MODE,
+  community_group: COMMUNITY_MODE,
 };
 
 export function getSellerMode(surfaceType: string): SellerModeConfig {
