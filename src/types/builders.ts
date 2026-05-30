@@ -57,7 +57,11 @@ export type EsiteTemplateKey =
 // Estore template keys — ONLY valid in estore editor
 export type EstoreTemplateKey =
   | 'estore_visual_a'
-  | 'estore_minna';
+  | 'estore_visual_b'
+  | 'estore_minna'
+  | 'estore_monchies'
+  | 'estore_bazaro_fashion'
+  | 'estore_bazaro_classic';
 
 // Influencer template keys — ONLY valid in influencer editor
 export type InfluencerTemplateKey =
@@ -102,6 +106,10 @@ export function assertTemplateOwnership(
     esite_consultancy_a: 'esite', esite_realestate_a: 'esite',
     esite_hotel_a: 'esite', esite_travel_a: 'esite', esite_construction_a: 'esite',
     estore_visual_a: 'estore', estore_minna: 'estore',
+    estore_visual_b: 'estore',
+    estore_monchies: 'estore',
+    estore_bazaro_fashion: 'estore',
+    estore_bazaro_classic: 'estore',
     influencer_layout_a: 'influencer', influencer_layout_b: 'influencer',
     community_visual_a: 'community', community_visual_b: 'community',
   };
