@@ -36,6 +36,12 @@ import eshopMinnaImg from "@/assets/styles/eshop_minna.jpg";
 import eshopMockhubImg from "@/assets/styles/eshop_mockhub.jpg";
 import eshopLumelImg from "@/assets/styles/eshop_lumel.jpg";
 
+// Estore template preview images — B2B / wholesale
+import estoreMinnaImg from "@/assets/styles/estore_minna.jpg";
+import estoreMonchiesImg from "@/assets/styles/estore_monchies.jpg";
+import estoreBazaroFashionImg from "@/assets/styles/estore_bazaro_fashion.jpg";
+import estoreBazaroClassicImg from "@/assets/styles/estore_bazaro_classic.jpg";
+
 export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
   // Category-level
   bold: boldImg,
@@ -72,7 +78,9 @@ export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
   eshop_kanva: eshopKanvaImg,
   eshop_mockhub: eshopMockhubImg,
   eshop_lumel: eshopLumelImg,
-  // Minna moved to Estore registry (Builder Bible). Preview image is reused
-  // under the new estore_minna key.
-  estore_minna: eshopMinnaImg,
+  // Estore templates (B2B / wholesale)
+  estore_minna: estoreMinnaImg,
+  estore_monchies: estoreMonchiesImg,
+  estore_bazaro_fashion: estoreBazaroFashionImg,
+  estore_bazaro_classic: estoreBazaroClassicImg,
 };
