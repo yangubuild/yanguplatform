@@ -190,7 +190,8 @@ export default function MyBusinessPage() {
               <h2 className="text-lg font-semibold text-foreground">{meta.label}</h2>
               <span className="text-xs text-muted-foreground">({items.length})</span>
             </div>
-            <div className="flex flex-row flex-nowrap gap-4 overflow-x-auto pb-2">
+            {/* MOBILE: stack single column under 640px; ≥sm keep horizontal scroll row */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:flex-nowrap sm:overflow-x-auto pb-2">
               {items.map((s) => {
                 const isPublished = !!publishMap[s.id];
                 const status: SurfaceStatus =
@@ -205,7 +206,7 @@ export default function MyBusinessPage() {
                 const badge = STATUS_BADGE[status];
                 const liveUrl = getLiveUrl(s);
                 return (
-                  <Card key={s.id} className="p-4 flex flex-col gap-3 bg-card border-border min-w-[280px] max-w-[320px] shrink-0">
+                  <Card key={s.id} className="p-4 flex flex-col gap-3 bg-card border-border w-full sm:min-w-[280px] sm:max-w-[320px] sm:shrink-0">
                     {/* Cover image if present */}
                     {s.cover_image_url && (
                       <div className="rounded-lg overflow-hidden -mx-4 -mt-4 mb-1">
