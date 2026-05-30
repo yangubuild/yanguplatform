@@ -14,6 +14,7 @@ import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { lazy, Suspense } from "react";
+import type { SurfaceType } from "@/types/builders";
 
 const SellerEditor = lazy(() => import("./SellerEditor"));
 const EmenuNewEditor = lazy(() => import("./EmenuNewEditor"));
