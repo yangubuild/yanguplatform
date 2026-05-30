@@ -284,7 +284,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
 
     // Templates are the ONLY source of layout. Render real template HTML.
     const tone = String(answers.style || answers._speak_style || "");
-    const templateKey = selectTemplate(engineKey, tone);
+    const templateKey = selectTemplate(engineKey, tone).template_key;
     if (templateKey) {
       const secondaryColor = typeof answers.secondary_color === "string" ? answers.secondary_color : "";
       const brandColors = secondaryColor ? [primaryColor, secondaryColor] : [primaryColor];

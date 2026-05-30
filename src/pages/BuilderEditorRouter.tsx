@@ -14,6 +14,7 @@ import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { lazy, Suspense } from "react";
+import type { SurfaceType } from "@/types/builders";
 
 const SellerEditor = lazy(() => import("./SellerEditor"));
 const EmenuNewEditor = lazy(() => import("./EmenuNewEditor"));
@@ -89,14 +90,16 @@ export default function BuilderEditorRouter() {
   // Builder Bible Ch. 20 Rules 1–5. Each surface_type maps to exactly
   // one editor; no cross-engine module leakage is permitted.
   let EditorComponent: React.ComponentType;
-  if (SELLER_TYPES.has(surfaceType)) {
+  // Validated by YANGU_BUILDER_SPEC surface_type enum
+  const typedSurface = surfaceType as SurfaceType;
+  if (SELLER_TYPES.has(typedSurface)) {
     // eshop, store_listing, quick_site → SellerEditor
     EditorComponent = SellerEditor;
-  } else if (surfaceType === "emenu") {
+  } else if (typedSurface === "emenu") {
     EditorComponent = EmenuNewEditor;
-  } else if (surfaceType === "live_bio") {
+  } else if (typedSurface === "live_bio") {
     EditorComponent = InfluencerEditorPlaceholder;
-  } else if (surfaceType === "community_group") {
+  } else if (typedSurface === "community_group") {
     EditorComponent = CommunityEditorPlaceholder;
   } else {
     // Unknown / legacy surface types fall back to the unified Emenu shell.

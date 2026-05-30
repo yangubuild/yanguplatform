@@ -8,6 +8,7 @@ import {
   YUMIX_MENU_ITEMS, YUMIX_CATEGORY_ITEMS, YUMIX_PROMO_BANNERS, YUMIX_STATS, YUMIX_TESTIMONIALS,
   ZOOOM_MENU_ITEMS, ZOOOM_CATEGORY_ITEMS, ZOOOM_TESTIMONIALS,
 } from "@/config/emenuDemoContent";
+import { assertTemplateOwnership, resolveBuilder } from "@/types/builders";
 //
 // TEMPLATE REFERENCE RULE:
 // Every template must record its provenance via the `reference` field.
@@ -2249,6 +2250,11 @@ export function getAllTemplatesForEngine(engineKey: string): TemplatePreset[] {
 
 /** Get a specific template by engine key + template key (searches all, including inactive) */
 export function getTemplate(engineKey: string, templateKey: string): TemplatePreset | undefined {
+  // Runtime guard — enforces YANGU_BUILDER_SPEC isolation: a template key
+  // explicitly contracted to one builder may never be resolved from another.
+  // Unknown / legacy keys are passed through (assertTemplateOwnership is a no-op).
+  const builder = resolveBuilder(engineKey);
+  if (builder) assertTemplateOwnership(templateKey, builder);
   return getAllTemplatesForEngine(engineKey).find((t) => t.key === templateKey);
 }
 
