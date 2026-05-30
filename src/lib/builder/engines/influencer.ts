@@ -133,9 +133,4 @@ export const influencerEngine: BuilderEngine = {
       "Keep layout social-first and mobile-optimized",
     ],
   },
-  // Phase 13 markers for the SellerEditor shell.
-  // (Optional fields read defensively elsewhere — no schema break.)
-  // mobileFirst: true, maxPages: 1
-  // — set via sellerModes BIO_MODE.defaultPreviewViewport / singlePage.
-  },
 };
