@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { BuilderSurfaceType } from "@/types/builder";
 import { validatePagesForPublish, type PublishPage, type PublishValidationError } from "@/lib/builder/publishValidation";
 import { supabase as supabaseClient } from "@/integrations/supabase/client";
+import { assertPublishable, buildPublishedUrl } from "@/lib/builder/surfaceLifecycle";
 
 // ─── Domain mapping (mirrors builder_is_domain_allowed in SQL) ───
 const SURFACE_DOMAIN_MAP: Record<BuilderSurfaceType, string[]> = {
