@@ -7,9 +7,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Card } from "@/components/primitives";
-import { forceDeleteSurface } from "@/lib/forceDeleteSurface";
 import { ICON_MAP, yanguBadge } from "@/lib/app-store/icon-map";
 import { SurfaceSettingsDialog, type SurfaceMetadata } from "@/components/builder/SurfaceSettingsDialog";
+import type { SurfaceStatus } from "@/lib/builder/surfaceLifecycle";
 
 const SURFACE_TYPE_META: Record<string, { label: string; icon: typeof ShoppingBag }> = {
   eshop: { label: "Eshop", icon: ShoppingBag },
@@ -45,6 +45,7 @@ interface Surface {
   created_at: string;
   updated_at: string;
   metadata: Record<string, unknown>;
+  status?: SurfaceStatus | null;
   seo_title?: string | null;
   seo_description?: string | null;
   favicon_url?: string | null;
@@ -84,7 +85,7 @@ export default function MyBusinessPage() {
       // Step 1: Load this user's surfaces.
       const { data: surfaceData } = await supabase
         .from("builder_surfaces")
-        .select("id, title, slug, surface_type, description, created_at, updated_at, metadata, cover_image_url, seo_title, seo_description, favicon_url")
+        .select("id, title, slug, surface_type, description, created_at, updated_at, metadata, cover_image_url, seo_title, seo_description, favicon_url, status")
         .eq("user_id", user.id)
         .order("updated_at", { ascending: false });
 
@@ -192,6 +193,16 @@ export default function MyBusinessPage() {
             <div className="flex flex-row flex-nowrap gap-4 overflow-x-auto pb-2">
               {items.map((s) => {
                 const isPublished = !!publishMap[s.id];
+                const status: SurfaceStatus =
+                  (s.status as SurfaceStatus | undefined) ??
+                  (isPublished ? 'published' : 'draft');
+                const STATUS_BADGE: Record<SurfaceStatus, { label: string; className: string }> = {
+                  draft:     { label: 'Draft',     className: 'border-muted-foreground/40 text-muted-foreground bg-muted/30' },
+                  published: { label: 'Live',      className: 'border-emerald-500/40 text-emerald-400 bg-emerald-500/10' },
+                  archived:  { label: 'Archived',  className: 'border-amber-500/40 text-amber-400 bg-amber-500/10' },
+                  suspended: { label: 'Suspended', className: 'border-red-500/40 text-red-400 bg-red-500/10' },
+                };
+                const badge = STATUS_BADGE[status];
                 const liveUrl = getLiveUrl(s);
                 return (
                   <Card key={s.id} className="p-4 flex flex-col gap-3 bg-card border-border min-w-[280px] max-w-[320px] shrink-0">
@@ -205,11 +216,13 @@ export default function MyBusinessPage() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <h3 className="font-medium text-foreground truncate">{s.title}</h3>
-                        {isPublished && (
-                          <Badge variant="outline" className="gap-1 border-emerald-500/40 text-emerald-400 bg-emerald-500/10 text-[10px] px-1.5 py-0 shrink-0">
-                            <CheckCircle2 className="h-3 w-3" /> Published
-                          </Badge>
-                        )}
+                        <Badge
+                          variant="outline"
+                          className={`gap-1 text-[10px] px-1.5 py-0 shrink-0 ${badge.className}`}
+                        >
+                          {status === 'published' && <CheckCircle2 className="h-3 w-3" />}
+                          {badge.label}
+                        </Badge>
                       </div>
                       {s.description && (
                         <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{s.description}</p>
@@ -261,9 +274,12 @@ export default function MyBusinessPage() {
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={async () => {
-                              const { error } = await supabase.from("builder_surfaces").delete().eq("id", s.id);
+                              // Soft delete (Phase 5): trigger converts DELETE to deleted_at=now().
+                              const { error } = await supabase
+                                .from("builder_surfaces")
+                                .delete()
+                                .eq("id", s.id);
                               if (error) { toast.error("Failed to delete"); return; }
-                              await forceDeleteSurface(s.id);
                               setSurfaces(prev => prev.filter(x => x.id !== s.id));
                               toast.success("Deleted successfully");
                             }}>

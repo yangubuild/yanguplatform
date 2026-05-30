@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { BuilderSurfaceType } from "@/types/builder";
 import { validatePagesForPublish, type PublishPage, type PublishValidationError } from "@/lib/builder/publishValidation";
 import { supabase as supabaseClient } from "@/integrations/supabase/client";
+import { assertPublishable, buildPublishedUrl } from "@/lib/builder/surfaceLifecycle";
 
 // ─── Domain mapping (mirrors builder_is_domain_allowed in SQL) ───
 const SURFACE_DOMAIN_MAP: Record<BuilderSurfaceType, string[]> = {
@@ -110,7 +111,7 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
     // 1. Fetch surface data including favicon
     const { data: surfaceData, error: surfaceError } = await supabase
       .from("builder_surfaces")
-      .select("slug, metadata, favicon_url")
+      .select("slug, metadata, favicon_url, status")
       .eq("id", surfaceId)
       .single();
 
@@ -120,7 +121,11 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
       slug?: string | null;
       favicon_url?: string | null;
       metadata?: Record<string, unknown> | null;
+      status?: string | null;
     } | null;
+
+    // Phase 5 lifecycle gate — refuse to write a snapshot for suspended/archived.
+    assertPublishable(surfaceRecord?.status ?? 'draft');
 
     const surfaceMetadata = (surfaceRecord?.metadata as Record<string, unknown> | null) || {};
     const builderMainHtml = (surfaceMetadata.builder_new_html as string | null) || null;
@@ -219,6 +224,32 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
       .eq("id", publishId);
 
     if (publishUpdateError) throw publishUpdateError;
+
+    // Phase 5 — mark the surface row as published and record the live URL +
+    // html_snapshot_responsive flag at the publish-row level so renderers and
+    // the dashboard read the canonical lifecycle state.
+    const publishedUrl = buildPublishedUrl(surfaceType, publishedSlug);
+    const hasSnapshot =
+      typeof builderMainHtml === 'string' && builderMainHtml.trim().length > 0;
+    const { error: lifecycleUpdateError } = await supabase
+      .from("builder_surfaces")
+      .update({
+        status: 'published',
+        published_url: publishedUrl,
+      })
+      .eq("id", surfaceId);
+    if (lifecycleUpdateError) {
+      console.error("[useBuilderPublish] lifecycle update error:", lifecycleUpdateError);
+    }
+    if (hasSnapshot) {
+      const { error: publishFlagError } = await supabase
+        .from("builder_publishes")
+        .update({ html_snapshot_responsive: true })
+        .eq("id", publishId);
+      if (publishFlagError) {
+        console.error("[useBuilderPublish] snapshot flag update error:", publishFlagError);
+      }
+    }
 
     return publishedSlug;
   }, [customSlug, surfaceId, surfaceType]);
