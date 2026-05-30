@@ -518,13 +518,15 @@ const App = () => (
                   <Route path="affiliates" element={<AffiliatesPage />} />
                   <Route path="billing" element={<DashboardBilling />} />
 
-                  {/* Legacy /dashboard/dashboard/* redirects */}
-                  <Route path="dashboard" element={<Navigate to="/dashboard" replace />} />
+                  {/* Legacy /dashboard/dashboard/* redirects → target real DashboardHome route.
+                      Previously redirected to /dashboard which index-navigated to /dashboard/offers,
+                      creating a redirect loop for nav links pointing at /dashboard/dashboard. */}
+                  <Route path="dashboard" element={<Navigate to="/dashboard/home" replace />} />
                   <Route path="dashboard/profile" element={<Navigate to="/dashboard/profile" replace />} />
                   <Route path="dashboard/profile/*" element={<Navigate to="/dashboard/profile" replace />} />
                   <Route path="dashboard/agency" element={<Navigate to="/dashboard/agency" replace />} />
                   <Route path="dashboard/agency/*" element={<Navigate to="/dashboard/agency" replace />} />
-                  <Route path="dashboard/*" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="dashboard/*" element={<Navigate to="/dashboard/home" replace />} />
 
                   {/* Social Media module */}
                   <Route path="social-media" element={<SocialMediaLayout />}>
