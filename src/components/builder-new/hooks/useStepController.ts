@@ -787,6 +787,18 @@ export function useStepController() {
         setMenuClassification(option.value as MenuComplexity);
         setCurrentStep("scope");
         break;
+      case "sell_channel": {
+        const channel = option.value as SellChannel;
+        setSellChannel(channel);
+        // Re-route category using the shared rules (wholesale → estore, etc.)
+        const routed = sharedCategoryFromText(userIdea || "", channel);
+        const effective = routed || category || "esite";
+        if (effective !== category) setCategory(effective as Category);
+        if (effective === "emenu") setCurrentStep("business_type");
+        else if (effective === "eshop") setCurrentStep("shop_type");
+        else setCurrentStep("scope");
+        break;
+      }
       case "shop_type": {
         const st = option.value as ShopType;
         const preset = SHOP_TYPE_ATTRIBUTE_MAP[st] || {};
