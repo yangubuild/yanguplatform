@@ -317,8 +317,8 @@ const App = () => (
                 <Route path="/privacypolicy" element={<PrivacyPolicy />} />
                 <Route path="/aisafety" element={<AiSafety />} />
                 
-                <Route path="/builder" element={<BuilderPage />} />
-                <Route path="/builder/new" element={<BuilderNewPage />} />
+                <Route path="/builder" element={<ProtectedRoute requireOnboarding={false}><BuilderPage /></ProtectedRoute>} />
+                <Route path="/builder/new" element={<ProtectedRoute requireOnboarding={false}><BuilderNewPage /></ProtectedRoute>} />
                 <Route path="/support" element={<SupportPage />} />
                 <Route path="/help-center" element={<HelpCenter />} />
                 <Route path="/updates" element={<PlatformUpdates />} />
@@ -326,7 +326,7 @@ const App = () => (
                 {/* Yangu Offline — foot soldier, admin, shop owner */}
                 <Route path="/offline" element={<OfflineHome />} />
                 <Route path="/offline/agent/*" element={<OfflineAgentApp />} />
-                <Route path="/offline/admin/*" element={<OfflineAdminApp />} />
+                <Route path="/offline/admin/*" element={<AdminRoute><OfflineAdminApp /></AdminRoute>} />
                 <Route path="/offline/shop/*" element={<OfflineShopApp />} />
 
                 {/* Developer platform */}
@@ -682,8 +682,8 @@ const App = () => (
                 </Route>
                 
                 {/* Dev routes - only in development */}
-                <Route path="/dev/seed" element={<DevSeed />} />
-                <Route path="/dev/test-domain-verification" element={<TestDomainVerification />} />
+                <Route path="/dev/seed" element={<AdminRoute><DevSeed /></AdminRoute>} />
+                <Route path="/dev/test-domain-verification" element={<AdminRoute><TestDomainVerification /></AdminRoute>} />
                 <Route path="/dev/agency-landing" element={<Suspense fallback={<div />}><AgencyLandingDev /></Suspense>} />
                 <Route path="/dev/agency-login" element={<Suspense fallback={<div />}><AgencyLoginDev /></Suspense>} />
                 
