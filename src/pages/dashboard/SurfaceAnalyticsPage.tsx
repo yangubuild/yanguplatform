@@ -58,7 +58,7 @@ export default function SurfaceAnalyticsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("builder_surfaces")
-        .select("id, title, surface_type, draft_slug, status")
+        .select("id, title, surface_type, status")
         .eq("id", surfaceId!)
         .maybeSingle();
       if (error) throw error;
