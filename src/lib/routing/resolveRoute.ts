@@ -129,6 +129,7 @@ export function isPlatformDomain(host: string): boolean {
   const platformDomains = [
     "yangu.io",
     "yangu.shop",
+    "restaurant.yangu.shop",
     "yangu.store",
     "yangu.site",
     "yangu.studio",

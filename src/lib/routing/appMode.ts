@@ -13,6 +13,7 @@ const HOST_MODE_MAP: Record<string, AppMode> = {
   "manage.yangu.studio": "management",
   "yangu.live": "live",
   "yangu.shop": "publish_container",
+  "restaurant.yangu.shop": "publish_container",
   "yangu.store": "publish_container",
   "yangu.site": "publish_container",
   "agency.yangu.studio": "agency",

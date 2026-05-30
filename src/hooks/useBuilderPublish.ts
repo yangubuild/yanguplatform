@@ -18,7 +18,10 @@ const SURFACE_DOMAIN_MAP: Record<BuilderSurfaceType, string[]> = {
   eshop: ["yangu.shop"],
   store_listing: ["yangu.store"],
   quick_site: ["yangu.site"],
-  emenu: ["yangu.shop"],
+  // Emenu publishes to restaurant.yangu.shop (new). Existing emenu publishes
+  // on yangu.shop remain valid (not backfilled) but are no longer offered to
+  // new publish flows — see Builder Bible Ch. 13.
+  emenu: ["restaurant.yangu.shop"],
   studio_showcase: ["yangu.studio"],
 };
 

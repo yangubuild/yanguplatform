@@ -29,7 +29,10 @@ export const emenuEngine: BuilderEngine = {
   surfaceType: "emenu",
   label: "Emenu",
   description: "Create a digital menu for your restaurant or food business.",
-  publishDomain: "yangu.shop",
+  // Emenu publishes to a dedicated subdomain to prevent slug collision
+  // with Eshop (which also publishes on yangu.shop). Per Builder Bible
+  // Ch. 13: emenu surfaces must isolate their slug namespace.
+  publishDomain: "restaurant.yangu.shop",
   icon: "Utensils",
   industries: [
     { value: "restaurant", label: "Restaurant" },
@@ -57,7 +60,7 @@ export const emenuEngine: BuilderEngine = {
       continueLabel: "Continue to Branding →",
       fields: [
         { key: "business_name", label: "Business Name", type: "text", placeholder: "e.g. Mama's Kitchen", required: true },
-        { key: "slug", label: "Menu URL Slug", type: "slug", slugDomain: "yangu.shop", slugSource: "business_name", required: true, placeholder: "mamas-kitchen" },
+        { key: "slug", label: "Menu URL Slug", type: "slug", slugDomain: "restaurant.yangu.shop", slugSource: "business_name", required: true, placeholder: "mamas-kitchen" },
         { key: "cuisine_type", label: "Cuisine Type", type: "text", placeholder: "e.g. African, Italian, Fusion" },
         { key: "menu_type", label: "Menu Type", type: "select", options: [
           { value: "qr_only", label: "QR Menu (view only)" },

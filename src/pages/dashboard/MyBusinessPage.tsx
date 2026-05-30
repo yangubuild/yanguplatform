@@ -24,7 +24,7 @@ const SURFACE_TYPE_META: Record<string, { label: string; icon: typeof ShoppingBa
 // Domain mapping for building correct public live URLs
 const SURFACE_DOMAIN_MAP: Record<string, string> = {
   eshop: "yangu.shop",
-  emenu: "yangu.shop",
+  emenu: "restaurant.yangu.shop",
   estore: "yangu.store",
   esite: "yangu.site",
   quick_site: "yangu.site",
