@@ -9,6 +9,7 @@ import {
   ZOOOM_MENU_ITEMS, ZOOOM_CATEGORY_ITEMS, ZOOOM_TESTIMONIALS,
 } from "@/config/emenuDemoContent";
 import { assertTemplateOwnership, resolveBuilder } from "@/types/builders";
+import type { AnyTemplateKey, BuilderType } from "@/types/builders";
 //
 // TEMPLATE REFERENCE RULE:
 // Every template must record its provenance via the `reference` field.
@@ -1546,6 +1547,14 @@ const EMENU_TEMPLATES: TemplatePreset[] = [
       } },
     },
   },
+  // ─── Placeholder: Yangu Plate (default emenu) — Phases 9–14 will ship real design ───
+  {
+    key: "emenu_visual_a",
+    label: "Yangu Plate",
+    description: "Default emenu template — clean menu layout (placeholder).",
+    icon: "🍽️",
+    patches: {},
+  },
 ];
 
 // ─── Esite Templates ───
@@ -1742,6 +1751,42 @@ const ESITE_TEMPLATES: TemplatePreset[] = [
         newsletter_description: "Tell us about your next project",
       } },
     },
+  },
+  // ─── Esite sub-type placeholders (Phase 3 contracts; real designs ship in Phases 9–14) ───
+  {
+    key: "esite_consultancy_a",
+    label: "Shield — Consultancy",
+    description: "Consultancy / service business default (placeholder).",
+    icon: "🛡️",
+    patches: {},
+  },
+  {
+    key: "esite_realestate_a",
+    label: "Listing — Real Estate",
+    description: "Real estate / property listings (placeholder).",
+    icon: "🏘️",
+    patches: {},
+  },
+  {
+    key: "esite_hotel_a",
+    label: "Luxra — Hotels",
+    description: "Hotel / accommodation site (placeholder).",
+    icon: "🏨",
+    patches: {},
+  },
+  {
+    key: "esite_travel_a",
+    label: "Tripset — Travel",
+    description: "Travel / tour operator site (placeholder).",
+    icon: "✈️",
+    patches: {},
+  },
+  {
+    key: "esite_construction_a",
+    label: "Build — Construction",
+    description: "Construction / contractor site (placeholder).",
+    icon: "🏗️",
+    patches: {},
   },
 ];
 
@@ -2294,4 +2339,39 @@ export function getTemplateLayoutPatterns(engineKey: string, templateKey: string
 /** Find templates by reference source type */
 export function getTemplatesBySource(engineKey: string, source: "link" | "image" | "mixed" | "original"): TemplatePreset[] {
   return getTemplatesForEngine(engineKey).filter((t) => t.reference?.source === source);
+}
+
+// ─── Phase 3: Default 3-variant set per builder ───
+// Always exactly 3 keys; repeat the default where only 2 real variants exist.
+// Never includes a key that belongs to a different builder
+// (assertTemplateOwnership enforces this at runtime).
+const DEFAULT_VARIANTS: Record<BuilderType, AnyTemplateKey[]> = {
+  eshop:      ['eshop_visual_a',       'eshop_visual_b',     'eshop_aema'],
+  emenu:      ['emenu_visual_a',       'emenu_plateria',     'emenu_yumix'],
+  esite:      ['esite_consultancy_a',  'esite_realestate_a', 'esite_hotel_a'],
+  estore:     ['estore_visual_a',      'estore_minna',       'estore_visual_a'],
+  influencer: ['influencer_layout_a',  'influencer_layout_b','influencer_layout_a'],
+  community:  ['community_visual_a',   'community_visual_b', 'community_visual_a'],
+};
+
+export function getDefaultVariantsForBuilder(builder: BuilderType): AnyTemplateKey[] {
+  const keys = DEFAULT_VARIANTS[builder];
+  if (!keys) {
+    throw new Error(`[YANGU] getDefaultVariantsForBuilder: unknown builder "${builder}"`);
+  }
+  // Validate ownership on every key — catches any accidental cross-builder leak.
+  for (const k of keys) assertTemplateOwnership(k, builder);
+  return keys;
+}
+
+// ─── Phase 3 Step 4: Esite sub-type routing ───
+// Maps a free-text business_type / industry string to the correct esite
+// template_key. Returns 'esite_consultancy_a' as the safe default.
+export function selectEsiteTemplateKey(businessType: string | null | undefined): AnyTemplateKey {
+  const t = (businessType || "").toLowerCase();
+  if (/\b(hotel|accommodation|lodging|hostel|resort|inn|bnb|b&b)\b/.test(t)) return 'esite_hotel_a';
+  if (/\b(real\s*estate|property|properties|land|realtor|listing)\b/.test(t)) return 'esite_realestate_a';
+  if (/\b(travel|tourism|tour|tours|trip|safari)\b/.test(t)) return 'esite_travel_a';
+  if (/\b(construction|contractor|builder|building|civil\s*works)\b/.test(t)) return 'esite_construction_a';
+  return 'esite_consultancy_a';
 }

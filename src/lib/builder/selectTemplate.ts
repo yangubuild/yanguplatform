@@ -7,6 +7,7 @@ import {
   assertTemplateOwnership,
   resolveBuilder,
 } from "@/types/builders";
+import { selectEsiteTemplateKey } from "@/config/templateRegistry";
 
 /**
  * Maps a user "tone" / style answer to a real template key per engine.
@@ -50,7 +51,9 @@ const DEFAULTS: Record<string, string> = {
   emenu: "emenu_plateria",
   // Estore must NEVER fall back to an Eshop template (was eshop_aema).
   estore: "estore_visual_a",
-  esite: "",
+  // Esite default. selectTemplate() routes to a sub-type when businessType
+  // is provided; otherwise falls back to the consultancy template.
+  esite: "esite_consultancy_a",
   // Influencer / Community previously returned "" → blank canvas.
   // Provide real defaults so the editor always loads a template.
   influencer: "influencer_layout_a",
@@ -79,6 +82,7 @@ const SURFACE_TYPE_TO_ENGINE: Record<string, string> = {
 export function selectTemplate(
   surfaceOrEngine: SurfaceType | string,
   tone?: string | null,
+  businessType?: string | null,
 ): TemplateSelection {
   const engine = SURFACE_TYPE_TO_ENGINE[surfaceOrEngine] || surfaceOrEngine;
   const t = (tone || "").toString().trim().toLowerCase();
@@ -87,6 +91,7 @@ export function selectTemplate(
   if (engine === "eshop") templateKey = ESHOP_TONE_MAP[t] || DEFAULTS.eshop;
   else if (engine === "estore") templateKey = ESTORE_TONE_MAP[t] || DEFAULTS.estore;
   else if (engine === "emenu") templateKey = EMENU_TONE_MAP[t] || DEFAULTS.emenu;
+  else if (engine === "esite") templateKey = selectEsiteTemplateKey(businessType);
   else templateKey = DEFAULTS[engine] ?? "";
 
   const builder: BuilderType =

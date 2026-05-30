@@ -35,13 +35,16 @@ export const SURFACE_TO_BUILDER: Record<SurfaceType, BuilderType> = {
 export type EshopTemplateKey =
   | 'eshop_visual_a'
   | 'eshop_visual_b'
-  | 'eshop_visual_c';
+  | 'eshop_visual_c'
+  | 'eshop_aema';
 
 // Emenu template keys — ONLY valid in emenu editor
 export type EmenuTemplateKey =
   | 'emenu_visual_a'
   | 'emenu_visual_b'
-  | 'emenu_visual_c';
+  | 'emenu_visual_c'
+  | 'emenu_plateria'
+  | 'emenu_yumix';
 
 // Esite template keys — ONLY valid in esite editor
 export type EsiteTemplateKey =
@@ -93,7 +96,9 @@ export function assertTemplateOwnership(
 ): void {
   const OWNERSHIP: Record<string, BuilderType> = {
     eshop_visual_a: 'eshop', eshop_visual_b: 'eshop', eshop_visual_c: 'eshop',
+    eshop_aema: 'eshop',
     emenu_visual_a: 'emenu', emenu_visual_b: 'emenu', emenu_visual_c: 'emenu',
+    emenu_plateria: 'emenu', emenu_yumix: 'emenu',
     esite_consultancy_a: 'esite', esite_realestate_a: 'esite',
     esite_hotel_a: 'esite', esite_travel_a: 'esite', esite_construction_a: 'esite',
     estore_visual_a: 'estore', estore_minna: 'estore',

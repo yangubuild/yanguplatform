@@ -14,6 +14,8 @@ import { generateWebsiteVariants } from "@/components/builder-new/utils/websiteG
 import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
 import { selectTemplate } from "@/lib/builder/selectTemplate";
 import { VariantPreviewCarousel, type VariantPreviewItem } from "@/components/builder-new/VariantPreviewCarousel";
+import { getDefaultVariantsForBuilder, getTemplate } from "@/config/templateRegistry";
+import { resolveBuilder } from "@/types/builders";
 
 /** Map legacy seller keys → engine keys */
 const SELLER_KEY_MAP: Record<string, string> = {
@@ -163,17 +165,19 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
   const [pendingVariants, setPendingVariants] = useState<VariantPreviewItem[]>([]);
   const [pendingPayload, setPendingPayload] = useState<{
     variants: string[];
+    variantKeys: string[];
     businessName: string;
     slug: string;
     seedSections: Array<{ type: string; schema: Record<string, unknown>; core_slot?: string }>;
     metadataBase: Record<string, unknown>;
-    templateKey: string;
     surfaceType: string;
   } | null>(null);
 
   const handleChooseVariant = useCallback(async (index: number) => {
     if (!user?.id || !pendingPayload) return;
     const raw = pendingPayload.variants[index] || pendingPayload.variants[0] || "";
+    const chosenTemplateKey =
+      pendingPayload.variantKeys[index] || pendingPayload.variantKeys[0] || "default";
     let templateHtml = raw;
     try {
       if (templateHtml) templateHtml = await persistBlobUrls(templateHtml, user.id);
@@ -185,7 +189,7 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
       seedSections: pendingPayload.seedSections,
       metadata: {
         ...pendingPayload.metadataBase,
-        builder_new_template: pendingPayload.templateKey,
+        builder_new_template: chosenTemplateKey,
         builder_new_html: templateHtml,
       },
     });
@@ -282,10 +286,16 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
       };
     }
 
-    // Templates are the ONLY source of layout. Render real template HTML.
+    // Templates are the ONLY source of layout. Build 3 variants — one per
+    // real template key for this builder (Phase 3: pulled from registry,
+    // never hardcoded in the variant screen).
     const tone = String(answers.style || answers._speak_style || "");
-    const templateKey = selectTemplate(engineKey, tone).template_key;
-    if (templateKey) {
+    const businessType = String(answers.industry || answers.business_description || "");
+    // Sanity-check via selectTemplate (runs assertTemplateOwnership too).
+    selectTemplate(engineKey, tone, businessType);
+    const builder = resolveBuilder(engineKey);
+    if (builder) {
+      const variantKeys = getDefaultVariantsForBuilder(builder);
       const secondaryColor = typeof answers.secondary_color === "string" ? answers.secondary_color : "";
       const brandColors = secondaryColor ? [primaryColor, secondaryColor] : [primaryColor];
       const menuItems = Array.isArray(answers.menu_items) ? (answers.menu_items as string[]) : [];
@@ -296,32 +306,40 @@ export default function SellerSurfacePage({ sellerKey }: Props) {
       const deliveryAppsArr = engineKey === "emenu" && Array.isArray(answers.delivery_apps)
         ? (answers.delivery_apps as string[])
         : [];
-      const variants = generateWebsiteVariants({
-        category: engineKey as never,
-        businessName,
-        location: String(answers.location || ""),
-        scope: String(answers.scope || "showcase"),
-        style: templateKey,
-        styleSpecific: tone,
-        sections: sectionsArr,
-        deliveryApps: deliveryAppsArr,
-        userIdea: String(answers.business_description || ""),
-        userLogoUrl: typeof answers.logo_url === "string" ? answers.logo_url : undefined,
-        userBrandColors: brandColors,
-        userImages: [],
+      const variants = variantKeys.map((tplKey) => {
+        const rendered = generateWebsiteVariants({
+          category: engineKey as never,
+          businessName,
+          location: String(answers.location || ""),
+          scope: String(answers.scope || "showcase"),
+          style: tplKey,
+          styleSpecific: tone,
+          sections: sectionsArr,
+          deliveryApps: deliveryAppsArr,
+          userIdea: String(answers.business_description || ""),
+          userLogoUrl: typeof answers.logo_url === "string" ? answers.logo_url : undefined,
+          userBrandColors: brandColors,
+          userImages: [],
+        });
+        return rendered[0] || "";
       });
       // SPEC: surface the 3 variants for user selection BEFORE initialising
       // the editor. handleChooseVariant finalises the chosen variant.
       setPendingPayload({
         variants,
+        variantKeys,
         businessName,
         slug,
         seedSections,
-        templateKey,
         metadataBase: { ...metadata },
         surfaceType: engine.surfaceType,
       });
-      setPendingVariants(variants.map((html, i) => ({ html, label: `Design ${i + 1}` })));
+      setPendingVariants(
+        variants.map((html, i) => ({
+          html,
+          label: getTemplate(engineKey, variantKeys[i])?.label || variantKeys[i],
+        })),
+      );
       return null;
     }
 

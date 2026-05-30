@@ -13,6 +13,8 @@ import { persistBlobUrls } from "@/lib/builder/persistBlobUrls";
 import { supabase } from "@/integrations/supabase/client";
 import { selectTemplate } from "@/lib/builder/selectTemplate";
 import { VariantPreviewCarousel, type VariantPreviewItem } from "@/components/builder-new/VariantPreviewCarousel";
+import { getDefaultVariantsForBuilder, getTemplate } from "@/config/templateRegistry";
+import { resolveBuilder } from "@/types/builders";
 
 const SELLER_KEY_MAP: Record<string, string> = {
   emenu: "emenu",
@@ -40,11 +42,11 @@ export default function SellerSpeakToBuildPage() {
   const [pendingVariants, setPendingVariants] = useState<VariantPreviewItem[]>([]);
   const [pendingPayload, setPendingPayload] = useState<{
     variants: string[];
+    variantKeys: string[];
     businessName: string;
     slug: string;
     seedSections: Array<{ type: string; schema: Record<string, unknown>; core_slot?: string }>;
     metadataBase: Record<string, unknown>;
-    templateKey: string;
   } | null>(null);
 
   const handleComplete = useCallback(async (answers: Record<string, unknown>) => {
@@ -86,9 +88,22 @@ export default function SellerSpeakToBuildPage() {
           return { type: s.type, schema, core_slot: s.core_slot };
         });
 
-    // Templates are the ONLY source of layout. Render real template HTML now.
+    // Templates are the ONLY source of layout. Build 3 variants — one per
+    // real template key for this builder (Phase 3: no hardcoded keys, no
+    // single-template visual remixes).
     const tone = String(answers.style || answers._speak_style || "");
-    const templateKey = selectTemplate(engineKey, tone).template_key;
+    const businessType = String(answers.industry || answers.business_description || "");
+    // Sanity: resolve to a real template using selectTemplate (also runs
+    // assertTemplateOwnership). We don't use its key directly here — the
+    // variant set comes from getDefaultVariantsForBuilder — but this catches
+    // an unknown engine early.
+    selectTemplate(engineKey, tone, businessType);
+    const builder = resolveBuilder(engineKey);
+    if (!builder) {
+      toast.error(`Unknown builder for engine "${engineKey}"`);
+      return null;
+    }
+    const variantKeys = getDefaultVariantsForBuilder(builder);
     const secondaryColor = typeof answers.secondary_color === "string" ? answers.secondary_color : "";
     const primaryColor = String(answers.primary_color || "#2563eb");
     const brandColors = secondaryColor ? [primaryColor, secondaryColor] : [primaryColor];
@@ -100,27 +115,31 @@ export default function SellerSpeakToBuildPage() {
     const deliveryAppsArr = engineKey === "emenu" && Array.isArray(answers.delivery_apps)
       ? (answers.delivery_apps as string[])
       : [];
-    const variants = generateWebsiteVariants({
-      category: engineKey as never,
-      businessName,
-      location: String(answers.location || ""),
-      scope: String(answers.scope || "showcase"),
-      style: templateKey,
-      styleSpecific: tone,
-      sections: sectionsArr,
-      deliveryApps: deliveryAppsArr,
-      userIdea: String(answers.business_description || ""),
-      userLogoUrl: typeof answers.logo_url === "string" ? answers.logo_url : undefined,
-      userBrandColors: brandColors,
-      userImages: [],
+    // Generate one HTML per template key (take first variant of each set).
+    const variants = variantKeys.map((tplKey) => {
+      const rendered = generateWebsiteVariants({
+        category: engineKey as never,
+        businessName,
+        location: String(answers.location || ""),
+        scope: String(answers.scope || "showcase"),
+        style: tplKey,
+        styleSpecific: tone,
+        sections: sectionsArr,
+        deliveryApps: deliveryAppsArr,
+        userIdea: String(answers.business_description || ""),
+        userLogoUrl: typeof answers.logo_url === "string" ? answers.logo_url : undefined,
+        userBrandColors: brandColors,
+        userImages: [],
+      });
+      return rendered[0] || "";
     });
     // Show the user all 3 variants. initAndNavigate is deferred until pick.
     setPendingPayload({
       variants,
+      variantKeys,
       businessName,
       slug,
       seedSections,
-      templateKey: templateKey || "default",
       metadataBase: {
         brand: { primary_color: String(answers.primary_color || "#2563eb") },
         industry: String(answers.industry || ""),
@@ -135,13 +154,20 @@ export default function SellerSpeakToBuildPage() {
         sell_channel: typeof answers.sell_channel === "string" ? answers.sell_channel : "",
       },
     });
-    setPendingVariants(variants.map((html, i) => ({ html, label: `Design ${i + 1}` })));
+    setPendingVariants(
+      variants.map((html, i) => ({
+        html,
+        label: getTemplate(engineKey, variantKeys[i])?.label || variantKeys[i],
+      })),
+    );
     return null;
   }, [engine, engineKey, user, initAndNavigate]);
 
   const handleChooseVariant = useCallback(async (index: number) => {
     if (!engine || !user?.id || !pendingPayload) return;
     const raw = pendingPayload.variants[index] || pendingPayload.variants[0] || "";
+    const chosenTemplateKey =
+      pendingPayload.variantKeys[index] || pendingPayload.variantKeys[0] || "default";
     let templateHtml = raw;
     try {
       if (templateHtml) templateHtml = await persistBlobUrls(templateHtml, user.id);
@@ -153,7 +179,7 @@ export default function SellerSpeakToBuildPage() {
       seedSections: pendingPayload.seedSections,
       metadata: {
         ...pendingPayload.metadataBase,
-        builder_new_template: pendingPayload.templateKey,
+        builder_new_template: chosenTemplateKey,
         builder_new_html: templateHtml,
       },
     });
