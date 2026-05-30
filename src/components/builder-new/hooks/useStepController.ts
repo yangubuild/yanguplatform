@@ -456,6 +456,12 @@ export function useStepController() {
     attributes: { ...DEFAULT_ATTRIBUTES },
   });
 
+  // ─── New ADA qualification fields (parity with Speak to Build) ─────
+  const [country, setCountry] = useState("");
+  const [productsServices, setProductsServices] = useState<string[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<string[]>([]);
+  const [sellChannel, setSellChannel] = useState<SellChannel>("");
+
   const isFoodCategory = useMemo(() => category === "emenu", [category]);
   const isShopCategory = useMemo(() => category === "eshop", [category]);
 
