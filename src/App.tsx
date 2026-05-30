@@ -508,6 +508,7 @@ const App = () => (
                   <Route path="apps/:appSlug" element={<ConnectedAppPage />} />
                   <Route path="my-business" element={<MyBusinessPage />} />
                   <Route path="my-business/:businessId/analytics" element={<BusinessAnalyticsPage />} />
+                  <Route path="analytics/:surfaceId" element={<SurfaceAnalyticsPage />} />
                   <Route path="my-business/:businessId/users" element={<BusinessUsersPage />} />
                   <Route path="my-business/:businessId/deposit" element={<BusinessDepositPage />} />
                   <Route path="payment-settings" element={<PaymentsSettingsPage />} />
