@@ -42,6 +42,19 @@ import estoreMonchiesImg from "@/assets/styles/estore_monchies.jpg";
 import estoreBazaroFashionImg from "@/assets/styles/estore_bazaro_fashion.jpg";
 import estoreBazaroClassicImg from "@/assets/styles/estore_bazaro_classic.jpg";
 
+// Esite template preview images — professional business websites (5 sub-types)
+import esiteShieldproImg from "@/assets/styles/esite_shieldpro.jpg";
+import esiteInterimImg from "@/assets/styles/esite_interim.jpg";
+import esiteLoomImg from "@/assets/styles/esite_loom.jpg";
+import esiteMaisonImg from "@/assets/styles/esite_maison.jpg";
+import esiteRealistingImg from "@/assets/styles/esite_realisting.jpg";
+import esiteToplistingsImg from "@/assets/styles/esite_toplistings.jpg";
+import esiteLuxraImg from "@/assets/styles/esite_luxra.jpg";
+import esiteTelvinImg from "@/assets/styles/esite_telvin.jpg";
+import esiteTripsetImg from "@/assets/styles/esite_tripset.jpg";
+import esiteKeyImg from "@/assets/styles/esite_key.jpg";
+import esiteEstatooImg from "@/assets/styles/esite_estatoo.jpg";
+
 export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
   // Category-level
   bold: boldImg,
@@ -83,4 +96,16 @@ export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
   estore_monchies: estoreMonchiesImg,
   estore_bazaro_fashion: estoreBazaroFashionImg,
   estore_bazaro_classic: estoreBazaroClassicImg,
+  // Esite templates (professional business websites — consultancy / real estate / hotel / travel / construction)
+  esite_shieldpro: esiteShieldproImg,
+  esite_interim: esiteInterimImg,
+  esite_loom: esiteLoomImg,
+  esite_maison: esiteMaisonImg,
+  esite_realisting: esiteRealistingImg,
+  esite_toplistings: esiteToplistingsImg,
+  esite_luxra: esiteLuxraImg,
+  esite_telvin: esiteTelvinImg,
+  esite_tripset: esiteTripsetImg,
+  esite_key: esiteKeyImg,
+  esite_estatoo: esiteEstatooImg,
 };

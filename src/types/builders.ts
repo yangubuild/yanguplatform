@@ -52,7 +52,19 @@ export type EsiteTemplateKey =
   | 'esite_realestate_a'
   | 'esite_hotel_a'
   | 'esite_travel_a'
-  | 'esite_construction_a';
+  | 'esite_construction_a'
+  // ─── 11 production templates scraped from reference designs ───
+  | 'esite_shieldpro'      // Consultancy (default)
+  | 'esite_interim'        // Consultancy
+  | 'esite_loom'           // Consultancy
+  | 'esite_maison'         // Consultancy
+  | 'esite_realisting'     // Real Estate (default)
+  | 'esite_toplistings'    // Real Estate
+  | 'esite_luxra'          // Hotel (default)
+  | 'esite_telvin'         // Hotel
+  | 'esite_tripset'        // Travel (default)
+  | 'esite_key'            // Travel
+  | 'esite_estatoo';       // Construction (default)
 
 // Estore template keys — ONLY valid in estore editor
 export type EstoreTemplateKey =
@@ -105,6 +117,11 @@ export function assertTemplateOwnership(
     emenu_plateria: 'emenu', emenu_yumix: 'emenu',
     esite_consultancy_a: 'esite', esite_realestate_a: 'esite',
     esite_hotel_a: 'esite', esite_travel_a: 'esite', esite_construction_a: 'esite',
+    esite_shieldpro: 'esite', esite_interim: 'esite', esite_loom: 'esite', esite_maison: 'esite',
+    esite_realisting: 'esite', esite_toplistings: 'esite',
+    esite_luxra: 'esite', esite_telvin: 'esite',
+    esite_tripset: 'esite', esite_key: 'esite',
+    esite_estatoo: 'esite',
     estore_visual_a: 'estore', estore_minna: 'estore',
     estore_visual_b: 'estore',
     estore_monchies: 'estore',

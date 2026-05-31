@@ -1788,6 +1788,423 @@ const ESITE_TEMPLATES: TemplatePreset[] = [
     icon: "🏗️",
     patches: {},
   },
+  // ───────────────────────────────────────────────────────────────────
+  // PRODUCTION ESITE TEMPLATES (11 sub-typed designs scraped from refs)
+  // No commerce: inquiry/contact CTAs only. Each tagged by sub-type for
+  // selectEsiteTemplateKey() routing. Layouts mirror the reference URLs.
+  // ───────────────────────────────────────────────────────────────────
+  {
+    key: "esite_shieldpro",
+    label: "ShieldPro — Consultancy",
+    description: "Bold corporate consultancy site: trust-signal hero, services grid, team, inquiry form. Sub-type: consultancy.",
+    icon: "🛡️",
+    template_family: "esite_consultancy",
+    preview_url: "https://shieldpro-theme.framer.website/",
+    reference: {
+      source: "link",
+      url: "https://shieldpro-theme.framer.website/",
+      label: "ShieldPro Framer template",
+      sectionOrder: ["header", "hero", "services", "about", "team", "testimonials", "contact", "footer"],
+      layoutPatterns: ["trust-badge-strip", "service-card-grid", "stat-row", "inquiry-form"],
+    },
+    patches: {
+      header: { schema: { layout_variant: "nav_right", show_cart_icon: false, show_search: false, name_next_to_logo: true } },
+      hero: { schema: {
+        layout_variant: "split",
+        headline: "Trusted Business Partner",
+        subheadline: "Strategy, operations, and growth consulting for ambitious teams.",
+        cta_label: "Book a Consultation",
+        cta_link: "#contact",
+        alignment: "left",
+        background_style: "solid",
+        primary_color_hint: "#0000EE",
+      } },
+      main_content: { schema: {
+        heading: "Services",
+        layout: "grid",
+        accent_color: "#0000EE",
+        items: [
+          { title: "Strategy", description: "Plans that close the gap between vision and execution.", icon: "🛡️" },
+          { title: "Operations", description: "Process design and efficiency programs that scale.", icon: "⚙️" },
+          { title: "Growth", description: "Go-to-market and revenue acceleration playbooks.", icon: "📈" },
+        ],
+      } },
+      footer: { schema: { heading: "Get in touch", email: "", phone: "", social: {} } },
+    },
+  },
+  {
+    key: "esite_interim",
+    label: "Interim — Consultancy",
+    description: "Editorial interior-design/consultancy aesthetic: dark green hero, peach accents, refined serif headlines. Sub-type: consultancy.",
+    icon: "🪴",
+    template_family: "esite_consultancy",
+    preview_url: "https://interim.framer.website",
+    reference: {
+      source: "link",
+      url: "https://interim.framer.website",
+      label: "Interim Framer template",
+      sectionOrder: ["header", "hero", "services", "about", "gallery", "testimonials", "contact", "footer"],
+      layoutPatterns: ["serif-display-hero", "image-text-split", "soft-card-grid"],
+    },
+    patches: {
+      header: { schema: { layout_variant: "nav_right", show_cart_icon: false, name_next_to_logo: true } },
+      hero: { schema: {
+        layout_variant: "full",
+        headline: "Your Ideas, Our Creative Twist",
+        subheadline: "Studio-led consultancy turning briefs into experiences people remember.",
+        cta_label: "Start a Project",
+        cta_link: "#contact",
+        alignment: "left",
+        background_style: "solid",
+        primary_color_hint: "#1D322D",
+        accent_color_hint: "#F3AC85",
+      } },
+      main_content: { schema: {
+        heading: "What we do",
+        layout: "grid",
+        items: [
+          { title: "Discovery", description: "Workshops that surface the real problem worth solving." },
+          { title: "Design", description: "Concepts grounded in research and craft." },
+          { title: "Delivery", description: "Hands-on execution from brief to launch." },
+        ],
+      } },
+      footer: { schema: { heading: "Let's talk", email: "", phone: "", social: {} } },
+    },
+  },
+  {
+    key: "esite_loom",
+    label: "Loom — Consultancy",
+    description: "Warm artisan / lifestyle consultancy: editorial typography, cream palette, image-led storytelling. Sub-type: consultancy.",
+    icon: "🧵",
+    template_family: "esite_consultancy",
+    preview_url: "https://lovable.dev/templates/websites/ecommerce/loom-artisan-fashion-e-commerce-storefront-template",
+    reference: {
+      source: "link",
+      url: "https://lovable.dev/templates/websites/ecommerce/loom-artisan-fashion-e-commerce-storefront-template",
+      label: "Loom artisan template (commerce stripped)",
+      sectionOrder: ["header", "hero", "about", "services", "gallery", "testimonials", "contact", "footer"],
+      layoutPatterns: ["editorial-hero", "story-image-split", "warm-neutral-palette"],
+    },
+    patches: {
+      header: { schema: { layout_variant: "centered", show_cart_icon: false, name_next_to_logo: true } },
+      hero: { schema: {
+        layout_variant: "full",
+        headline: "Craft, considered.",
+        subheadline: "A consultancy for makers, brands, and lifestyle ventures.",
+        cta_label: "Work With Us",
+        cta_link: "#contact",
+        alignment: "center",
+        background_style: "solid",
+        primary_color_hint: "#1E1E1E",
+      } },
+      main_content: { schema: {
+        heading: "Our practice",
+        layout: "list",
+        items: [
+          { title: "Brand", description: "Identity and story that feel inevitable." },
+          { title: "Product", description: "Range strategy from idea to shelf." },
+          { title: "Studio", description: "Ongoing creative direction." },
+        ],
+      } },
+      footer: { schema: { heading: "Studio", email: "", phone: "", social: {} } },
+    },
+  },
+  {
+    key: "esite_maison",
+    label: "Maison — Consultancy",
+    description: "Home & lifestyle consultancy: soft editorial layout, generous whitespace, large lifestyle photography. Sub-type: consultancy.",
+    icon: "🏡",
+    template_family: "esite_consultancy",
+    preview_url: "https://lovable.dev/templates/websites/ecommerce/maison-artisan-home-lifestyle-store-template",
+    reference: {
+      source: "link",
+      url: "https://lovable.dev/templates/websites/ecommerce/maison-artisan-home-lifestyle-store-template",
+      label: "Maison artisan template (commerce stripped)",
+      sectionOrder: ["header", "hero", "services", "about", "gallery", "testimonials", "contact", "footer"],
+      layoutPatterns: ["serif-hero", "asymmetric-image-text", "soft-card-grid"],
+    },
+    patches: {
+      header: { schema: { layout_variant: "nav_right", show_cart_icon: false, name_next_to_logo: true } },
+      hero: { schema: {
+        layout_variant: "split",
+        headline: "Home & lifestyle consultancy",
+        subheadline: "Spaces, products, and brands that feel like home.",
+        cta_label: "Get in Touch",
+        cta_link: "#contact",
+        alignment: "left",
+        background_style: "solid",
+        primary_color_hint: "#1E1E1E",
+      } },
+      main_content: { schema: {
+        heading: "Services",
+        layout: "grid",
+        items: [
+          { title: "Interior Direction", description: "Layouts, palettes, and material curation." },
+          { title: "Product Curation", description: "Sourcing pieces with purpose." },
+          { title: "Brand Stories", description: "Editorial content that builds trust." },
+        ],
+      } },
+      footer: { schema: { heading: "Maison", email: "", phone: "", social: {} } },
+    },
+  },
+  {
+    key: "esite_realisting",
+    label: "Realisting — Real Estate",
+    description: "Modern realtor site: hero search bar, featured listings grid, agent profiles, inquiry form. Sub-type: real_estate.",
+    icon: "🏠",
+    template_family: "esite_real_estate",
+    preview_url: "https://realisting.framer.website",
+    reference: {
+      source: "link",
+      url: "https://realisting.framer.website",
+      label: "Realisting Framer template",
+      sectionOrder: ["header", "hero_search", "listings", "agents", "testimonials", "contact", "footer"],
+      layoutPatterns: ["hero-search-bar", "property-card-grid", "agent-profile-cards", "filter-chips"],
+    },
+    patches: {
+      header: { schema: { layout_variant: "nav_right", show_cart_icon: false, show_search: true, name_next_to_logo: true } },
+      hero: { schema: {
+        layout_variant: "split",
+        headline: "Find your next address.",
+        subheadline: "Curated homes, transparent prices, agents who answer.",
+        cta_label: "Search Listings",
+        cta_link: "#listings",
+        alignment: "left",
+        background_style: "solid",
+        show_search_bar: true,
+        primary_color_hint: "#0000EE",
+        accent_color_hint: "#DFF1C4",
+      } },
+      main_content: { schema: {
+        heading: "Featured listings",
+        layout: "grid",
+        cards: { style: "image_top", image_ratio: "landscape", show_price: true, show_beds_baths: true, show_area: true },
+        items: [],
+      } },
+      footer: { schema: { heading: "Contact our agents", email: "", phone: "", social: {} } },
+    },
+  },
+  {
+    key: "esite_toplistings",
+    label: "Top Listings — Real Estate",
+    description: "Premium real estate listings: refined neutral palette, serif headlines, large architectural photography. Sub-type: real_estate.",
+    icon: "🏘️",
+    template_family: "esite_real_estate",
+    preview_url: "https://toplistings.framer.website/",
+    reference: {
+      source: "link",
+      url: "https://toplistings.framer.website/",
+      label: "Top Listings Framer template",
+      sectionOrder: ["header", "hero", "listings", "agents", "testimonials", "contact", "footer"],
+      layoutPatterns: ["serif-display-hero", "search-with-feature-image", "muted-neutral-grid"],
+    },
+    patches: {
+      header: { schema: { layout_variant: "nav_center", show_cart_icon: false, name_next_to_logo: true } },
+      hero: { schema: {
+        layout_variant: "full",
+        headline: "Luxury homes, unmatched listings.",
+        subheadline: "A boutique portfolio of premium properties.",
+        cta_label: "Browse Listings",
+        cta_link: "#listings",
+        alignment: "left",
+        background_style: "solid",
+        primary_color_hint: "#736959",
+        accent_color_hint: "#9B6E12",
+      } },
+      main_content: { schema: {
+        heading: "Latest listings",
+        layout: "grid",
+        cards: { style: "image_top", image_ratio: "landscape", show_price: true, show_beds_baths: true, show_area: true },
+        items: [],
+      } },
+      footer: { schema: { heading: "Inquire", email: "", phone: "", social: {} } },
+    },
+  },
+  {
+    key: "esite_luxra",
+    label: "Luxra — Luxury Hotel",
+    description: "Luxury hotel site: full-bleed hero, suite cards with per-night rates, amenities, gallery, booking inquiry. Sub-type: hotel.",
+    icon: "🏨",
+    template_family: "esite_hotel",
+    preview_url: "https://luxra.framer.website",
+    reference: {
+      source: "link",
+      url: "https://luxra.framer.website",
+      label: "Luxra Framer template",
+      sectionOrder: ["header", "hero", "rooms", "amenities", "gallery", "reviews", "contact", "footer"],
+      layoutPatterns: ["fullbleed-hero", "room-card-grid", "amenity-icons", "photo-gallery"],
+    },
+    patches: {
+      header: { schema: { layout_variant: "nav_right", show_cart_icon: false, name_next_to_logo: true } },
+      hero: { schema: {
+        layout_variant: "full",
+        headline: "Where every stay feels like a homecoming.",
+        subheadline: "Boutique suites, private gardens, attentive service.",
+        cta_label: "Book Your Stay",
+        cta_link: "#contact",
+        alignment: "left",
+        background_style: "image",
+        primary_color_hint: "#9C122A",
+        accent_color_hint: "#FFEAD6",
+      } },
+      main_content: { schema: {
+        heading: "Rooms & Suites",
+        layout: "grid",
+        cards: { style: "image_top", image_ratio: "landscape", show_price: true, price_suffix: "/night" },
+        items: [
+          { title: "Garden Suite", description: "King bed, terrace, garden views.", price: 220 },
+          { title: "Pool Villa", description: "Private plunge pool, lounge area.", price: 380 },
+          { title: "Heritage Room", description: "Restored interiors, courtyard view.", price: 160 },
+        ],
+      } },
+      footer: { schema: { heading: "Reservations", email: "", phone: "", address: "", social: {} } },
+    },
+  },
+  {
+    key: "esite_telvin",
+    label: "Telvin — Boutique Hotel",
+    description: "Boutique hotel: warm beige palette, deep teal, serif/sans mix, garden and spa imagery, room cards. Sub-type: hotel.",
+    icon: "🛎️",
+    template_family: "esite_hotel",
+    preview_url: "https://telvin.framer.website",
+    reference: {
+      source: "link",
+      url: "https://telvin.framer.website",
+      label: "Telvin Framer template",
+      sectionOrder: ["header", "hero", "rooms", "amenities", "gallery", "contact", "footer"],
+      layoutPatterns: ["asymmetric-hero", "warm-card-grid", "amenity-icons", "garden-imagery"],
+    },
+    patches: {
+      header: { schema: { layout_variant: "nav_right", show_cart_icon: false, name_next_to_logo: true } },
+      hero: { schema: {
+        layout_variant: "split",
+        headline: "Book your room. Slow your day.",
+        subheadline: "A boutique retreat with garden suites and a quiet spa.",
+        cta_label: "Book Now",
+        cta_link: "#contact",
+        alignment: "left",
+        background_style: "solid",
+        primary_color_hint: "#2D6255",
+        accent_color_hint: "#FC6213",
+      } },
+      main_content: { schema: {
+        heading: "Stay with us",
+        layout: "grid",
+        cards: { style: "image_top", image_ratio: "landscape", show_price: true, price_suffix: "/night" },
+        items: [],
+      } },
+      footer: { schema: { heading: "Visit", email: "", phone: "", address: "", social: {} } },
+    },
+  },
+  {
+    key: "esite_tripset",
+    label: "Tripset — Travel",
+    description: "Travel & tour operator: hero with tour search, featured packages with duration and price, destination cards. Sub-type: travel.",
+    icon: "✈️",
+    template_family: "esite_travel",
+    preview_url: "https://tripset.framer.website/",
+    reference: {
+      source: "link",
+      url: "https://tripset.framer.website/",
+      label: "Tripset Framer template",
+      sectionOrder: ["header", "hero", "tours", "destinations", "testimonials", "contact", "footer"],
+      layoutPatterns: ["search-hero", "tour-card-grid", "destination-tiles", "review-strip"],
+    },
+    patches: {
+      header: { schema: { layout_variant: "nav_right", show_cart_icon: false, name_next_to_logo: true } },
+      hero: { schema: {
+        layout_variant: "full",
+        headline: "Explore tours, your way.",
+        subheadline: "Curated journeys across the continent — book in minutes.",
+        cta_label: "Explore Tours",
+        cta_link: "#tours",
+        alignment: "center",
+        background_style: "image",
+        primary_color_hint: "#0A0322",
+        accent_color_hint: "#FF6321",
+      } },
+      main_content: { schema: {
+        heading: "Featured tours",
+        layout: "grid",
+        cards: { style: "image_top", image_ratio: "landscape", show_price: true, show_duration: true },
+        items: [],
+      } },
+      footer: { schema: { heading: "Plan a trip", email: "", phone: "", social: {} } },
+    },
+  },
+  {
+    key: "esite_key",
+    label: "Key — Travel",
+    description: "Light, airy travel agency: beach-paradise hero, package cards with prices, destination tiles. Sub-type: travel.",
+    icon: "🏝️",
+    template_family: "esite_travel",
+    preview_url: "https://key-assumptions-833053.framer.app",
+    reference: {
+      source: "link",
+      url: "https://key-assumptions-833053.framer.app",
+      label: "Key Assumptions / Travely Framer template",
+      sectionOrder: ["header", "hero", "packages", "destinations", "testimonials", "contact", "footer"],
+      layoutPatterns: ["paradise-hero", "package-card-grid", "destination-tiles"],
+    },
+    patches: {
+      header: { schema: { layout_variant: "nav_center", show_cart_icon: false, name_next_to_logo: true } },
+      hero: { schema: {
+        layout_variant: "full",
+        headline: "Escape to Paradise",
+        subheadline: "Hand-picked beach, mountain, and city escapes.",
+        cta_label: "Browse Packages",
+        cta_link: "#tours",
+        alignment: "center",
+        background_style: "image",
+        primary_color_hint: "#558FFC",
+      } },
+      main_content: { schema: {
+        heading: "Packages",
+        layout: "grid",
+        cards: { style: "image_top", image_ratio: "landscape", show_price: true, show_duration: true },
+        items: [],
+      } },
+      footer: { schema: { heading: "Plan your escape", email: "", phone: "", social: {} } },
+    },
+  },
+  {
+    key: "esite_estatoo",
+    label: "Estatoo — Construction",
+    description: "Construction company: bold lime accent, hero with site photography, services, project portfolio, stats, Get a Quote. Sub-type: construction.",
+    icon: "🏗️",
+    template_family: "esite_construction",
+    preview_url: "https://estatoo.framer.website",
+    reference: {
+      source: "link",
+      url: "https://estatoo.framer.website",
+      label: "Estatoo Framer template",
+      sectionOrder: ["header", "hero", "services", "projects", "stats", "team", "certifications", "contact", "footer"],
+      layoutPatterns: ["bold-headline-hero", "service-card-grid", "project-portfolio-grid", "stats-row"],
+    },
+    patches: {
+      header: { schema: { layout_variant: "nav_right", show_cart_icon: false, name_next_to_logo: true } },
+      hero: { schema: {
+        layout_variant: "split",
+        headline: "Trusted construction, on time, on budget.",
+        subheadline: "Commercial and residential builds delivered by an experienced crew.",
+        cta_label: "Get a Quote",
+        cta_link: "#contact",
+        alignment: "left",
+        background_style: "solid",
+        primary_color_hint: "#AFEB63",
+      } },
+      main_content: { schema: {
+        heading: "Services",
+        layout: "grid",
+        items: [
+          { title: "New Builds", description: "Ground-up commercial and residential construction.", icon: "🏗️" },
+          { title: "Renovations", description: "Extensions, refits, and structural upgrades.", icon: "🔨" },
+          { title: "Project Management", description: "End-to-end coordination from permits to handover.", icon: "📋" },
+        ],
+      } },
+      footer: { schema: { heading: "Get a Quote", email: "", phone: "", address: "", social: {} } },
+    },
+  },
 ];
 
 // ─── Influencer Templates (Link-Bio System) ───
@@ -2691,7 +3108,7 @@ export function getTemplatesBySource(engineKey: string, source: "link" | "image"
 const DEFAULT_VARIANTS: Record<BuilderType, AnyTemplateKey[]> = {
   eshop:      ['eshop_visual_a',       'eshop_visual_b',     'eshop_aema'],
   emenu:      ['emenu_visual_a',       'emenu_plateria',     'emenu_yumix'],
-  esite:      ['esite_consultancy_a',  'esite_realestate_a', 'esite_hotel_a'],
+  esite:      ['esite_shieldpro',      'esite_realisting',   'esite_luxra'],
   estore:     ['estore_minna',         'estore_monchies',    'estore_bazaro_fashion'],
   influencer: ['influencer_layout_a',  'influencer_layout_b','influencer_layout_a'],
   community:  ['community_visual_a',   'community_visual_b', 'community_visual_a'],
@@ -2709,12 +3126,18 @@ export function getDefaultVariantsForBuilder(builder: BuilderType): AnyTemplateK
 
 // ─── Phase 3 Step 4: Esite sub-type routing ───
 // Maps a free-text business_type / industry string to the correct esite
-// template_key. Returns 'esite_consultancy_a' as the safe default.
+// template_key. Returns 'esite_shieldpro' as the safe default.
+// Routes (per spec):
+//   consultancy   → esite_shieldpro
+//   real_estate   → esite_realisting
+//   hotel         → esite_luxra
+//   travel        → esite_tripset
+//   construction  → esite_estatoo
 export function selectEsiteTemplateKey(businessType: string | null | undefined): AnyTemplateKey {
   const t = (businessType || "").toLowerCase();
-  if (/\b(hotel|accommodation|lodging|hostel|resort|inn|bnb|b&b)\b/.test(t)) return 'esite_hotel_a';
-  if (/\b(real\s*estate|property|properties|land|realtor|listing)\b/.test(t)) return 'esite_realestate_a';
-  if (/\b(travel|tourism|tour|tours|trip|safari)\b/.test(t)) return 'esite_travel_a';
-  if (/\b(construction|contractor|builder|building|civil\s*works)\b/.test(t)) return 'esite_construction_a';
-  return 'esite_consultancy_a';
+  if (/\b(hotel|accommodation|lodging|hostel|resort|inn|bnb|b&b)\b/.test(t)) return 'esite_luxra';
+  if (/\b(real\s*estate|property|properties|land|realtor|listing)\b/.test(t)) return 'esite_realisting';
+  if (/\b(travel|tourism|tour|tours|trip|safari)\b/.test(t)) return 'esite_tripset';
+  if (/\b(construction|contractor|builder|building|civil\s*works)\b/.test(t)) return 'esite_estatoo';
+  return 'esite_shieldpro';
 }
