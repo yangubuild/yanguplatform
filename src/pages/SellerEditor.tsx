@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useBuilderEditor } from "@/hooks/useBuilderEditor";
 import { BuilderSectionList } from "@/components/builder/BuilderSectionList";
 import { BuilderAddSection } from "@/components/builder/BuilderAddSection";
-import { BuilderPreview } from "@/components/builder/BuilderPreview";
+
 import { BuilderPublishModal } from "@/components/builder/BuilderPublishModal";
 import { getEngineForSurfaceType } from "@/lib/builder/engineRegistry";
 import { getSellerMode } from "@/lib/builder/sellerModes";
@@ -194,6 +194,7 @@ export default function SellerEditor() {
   const surfaceTitle = editorState.surface.title || "Untitled";
   const builderTheme = getThemeFromMetadata(editorState.surface.metadata);
   const surfaceMeta = (editorState.surface.metadata || {}) as Record<string, unknown>;
+  const builderHtml = (surfaceMeta.builder_new_html as string | undefined) ?? null;
   const hasAiSetup = !!surfaceMeta.ai_setup;
   const aiAnswers = (surfaceMeta.ai_answers || {}) as Record<string, unknown>;
   const aiSource = surfaceMeta.ai_source as string | undefined;
@@ -491,150 +492,29 @@ export default function SellerEditor() {
         {/* Center: Preview */}
         <main className="flex-1 overflow-y-auto p-2 sm:p-6 lg:p-10">
           <div className={`mx-auto transition-all ${isMobile ? "max-w-full" : previewViewport === "mobile" ? "max-w-sm" : "max-w-2xl"}`}>
-          <BuilderPreview
-            sections={sections}
-            surfaceTitle={surfaceTitle}
-            selectedSectionId={selectedSectionId}
-            onSelectSection={handleSelectSection}
-            theme={builderTheme}
-            pageSettings={livePageSettings || pageSettings}
-            liveSchemaOverride={liveSchemaOverride}
-            previewViewport={previewViewport}
-            surfaceType={surfaceType}
-            pages={editorState.pages}
-            onSwitchPage={setActivePageId}
-            onUpdateSectionField={async (sectionId, fieldPath, value) => {
-              const section = sections.find((s) => s.id === sectionId);
-              if (!section) return;
-              const parts = fieldPath.split(".");
-              let newSchema: Record<string, unknown>;
-              if (parts.length === 1) {
-                newSchema = { ...section.schema, [fieldPath]: value };
-              } else {
-                newSchema = JSON.parse(JSON.stringify(section.schema));
-                let cursor: any = newSchema;
-                for (let i = 0; i < parts.length - 1; i++) {
-                  const key = parts[i];
-                  if (cursor[key] === undefined || cursor[key] === null) {
-                    cursor[key] = {};
-                  } else {
-                    cursor[key] = Array.isArray(cursor[key]) ? [...cursor[key]] : { ...cursor[key] };
-                  }
-                  cursor = cursor[key];
-                }
-                cursor[parts[parts.length - 1]] = value;
-              }
-              await updateSectionSchema(sectionId, newSchema);
-              markDirty();
-            }}
-            onHideSection={async (sectionId) => {
-              await toggleSectionVisibility(sectionId, true);
-            }}
-            onDeleteSection={async (sectionId) => {
-              const ok = await deleteSection(sectionId);
-              if (ok && selectedSectionId === sectionId) {
-                setSelectedSectionId(null);
-                setRightPanel("page_edit");
-              }
-            }}
-            onImageReplace={async (sectionId, fieldPath, url, source) => {
-              const section = sections.find((s) => s.id === sectionId);
-              if (!section) return;
-
-              const setNestedValue = (target: Record<string, any>, path: string[], value: string) => {
-                let cursor: any = target;
-                for (let i = 0; i < path.length; i += 1) {
-                  const key = path[i];
-                  const isIndex = /^\d+$/.test(key);
-                  const nextKey = path[i + 1];
-                  const nextIsIndex = /^\d+$/.test(nextKey || "");
-                  const isLast = i === path.length - 1;
-                  if (isLast) {
-                    if (isIndex) {
-                      const index = Number(key);
-                      if (!Array.isArray(cursor)) return;
-                      while (cursor.length <= index) cursor.push(null);
-                      cursor[index] = value;
-                    } else {
-                      cursor[key] = value;
-                    }
-                    return;
-                  }
-                  if (isIndex) {
-                    const index = Number(key);
-                    if (!Array.isArray(cursor)) return;
-                    while (cursor.length <= index) cursor.push(nextIsIndex ? [] : {});
-                    if (cursor[index] == null || typeof cursor[index] !== "object") {
-                      cursor[index] = nextIsIndex ? [] : {};
-                    }
-                    cursor = cursor[index];
-                    continue;
-                  }
-                  if (cursor[key] == null || typeof cursor[key] !== "object") {
-                    cursor[key] = nextIsIndex ? [] : {};
-                  } else if (nextIsIndex && !Array.isArray(cursor[key])) {
-                    cursor[key] = [];
-                  }
-                  cursor = cursor[key];
-                }
-              };
-
-              const applyUrlToSchema = (baseSchema: Record<string, any>, resolvedUrl: string) => {
-                const newSchema = { ...baseSchema };
-                if (fieldPath === "media.url") {
-                  const media = (newSchema.media as Record<string, unknown>) || {};
-                  newSchema.media = { ...media, url: resolvedUrl, type: "image" };
-                } else if (fieldPath.includes(".")) {
-                  const normalizedPath = fieldPath
-                    .split(".")
-                    .map((part, index, parts) => (
-                      parts[0] === "products" && index === 2 && part === "image" ? "image_url" : part
-                    ));
-                  setNestedValue(newSchema, normalizedPath, resolvedUrl);
-                } else {
-                  newSchema[fieldPath] = resolvedUrl;
-                }
-                return newSchema;
-              };
-
-              const optimisticSchema = applyUrlToSchema({ ...section.schema } as Record<string, any>, url);
-              setLiveSchemaOverride({ sectionId, schema: optimisticSchema });
-
-              let resolvedUrl = url;
-
-              if (source === "upload" && url.startsWith("data:")) {
-                try {
-                  const { data: { session } } = await supabase.auth.getSession();
-                  if (!session?.user?.id || !surfaceId) {
-                    toast.error("Please sign in to upload images");
-                    setLiveSchemaOverride(null);
-                    return;
-                  }
-                  const uploadBlob = await fetch(url).then((response) => response.blob());
-                  const extension = uploadBlob.type.split("/")[1] || "png";
-                  const safeFieldPath = fieldPath.replace(/[^a-zA-Z0-9.-]/g, "_");
-                  const uploadPath = `${session.user.id}/${surfaceId}/${sectionId}-${safeFieldPath}-${Date.now()}.${extension}`;
-                  const { error: uploadError } = await supabase.storage
-                    .from("builder-media")
-                    .upload(uploadPath, uploadBlob, { contentType: uploadBlob.type || "image/png", upsert: false });
-                  if (uploadError) throw uploadError;
-                  const { data: publicData } = supabase.storage.from("builder-media").getPublicUrl(uploadPath);
-                  resolvedUrl = publicData.publicUrl;
-                } catch (error) {
-                  toast.error(error instanceof Error ? error.message : "Image upload failed");
-                  setLiveSchemaOverride(null);
-                  return;
-                }
-              }
-
-              const finalSchema = applyUrlToSchema({ ...section.schema } as Record<string, any>, resolvedUrl);
-              await updateSectionSchema(sectionId, finalSchema);
-              setLiveSchemaOverride(null);
-              markDirty();
-
-              setCropState({ open: true, imageSrc: resolvedUrl, sectionId, fieldPath });
-            }}
-          />
+          {builderHtml ? (
+            <iframe
+              key={builderHtml}
+              srcDoc={builderHtml}
+              title="surface-editor"
+              width="100%"
+              height="100%"
+              style={{ border: "none", display: "block" }}
+            />
+          ) : (
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              height: "100%",
+              color: "#ffffff",
+              fontSize: "16px",
+              textAlign: "center",
+              padding: "24px"
+            }}>
+              Template not loaded. Go back and select a design to continue.
+            </div>
+          )}
           </div>
         </main>
 
