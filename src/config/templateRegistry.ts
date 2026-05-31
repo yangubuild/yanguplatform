@@ -3570,7 +3570,10 @@ export function getTemplatesBySource(engineKey: string, source: "link" | "image"
 // (assertTemplateOwnership enforces this at runtime).
 const DEFAULT_VARIANTS: Record<BuilderType, AnyTemplateKey[]> = {
   eshop:      ['eshop_visual_a',       'eshop_visual_b',     'eshop_aema'],
-  emenu:      ['emenu_visual_a',       'emenu_plateria',     'emenu_yumix'],
+  // emenu_visual_a is an empty-patches legacy placeholder (Phase 3) — kept
+  // registered for back-compat but excluded from the user-facing defaults
+  // so the emenu default is always a real scraped design.
+  emenu:      ['emenu_plateria',       'emenu_yumix',        'emenu_plateria'],
   esite:      ['esite_shieldpro',      'esite_realisting',   'esite_luxra'],
   estore:     ['estore_minna',         'estore_monchies',    'estore_bazaro_fashion'],
   influencer: ['influencer_bioburst',  'influencer_linknest', 'influencer_linkhunt'],
