@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useBuilderEditor } from "@/hooks/useBuilderEditor";
 import { BuilderSectionList } from "@/components/builder/BuilderSectionList";
 import { BuilderAddSection } from "@/components/builder/BuilderAddSection";
-import { BuilderPreview } from "@/components/builder/BuilderPreview";
+
 import { BuilderPublishModal } from "@/components/builder/BuilderPublishModal";
 import { getEngineForSurfaceType } from "@/lib/builder/engineRegistry";
 import { getSellerMode } from "@/lib/builder/sellerModes";
@@ -194,6 +194,7 @@ export default function SellerEditor() {
   const surfaceTitle = editorState.surface.title || "Untitled";
   const builderTheme = getThemeFromMetadata(editorState.surface.metadata);
   const surfaceMeta = (editorState.surface.metadata || {}) as Record<string, unknown>;
+  const builderHtml = (surfaceMeta.builder_new_html as string | undefined) ?? null;
   const hasAiSetup = !!surfaceMeta.ai_setup;
   const aiAnswers = (surfaceMeta.ai_answers || {}) as Record<string, unknown>;
   const aiSource = surfaceMeta.ai_source as string | undefined;
