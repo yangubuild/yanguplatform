@@ -2481,7 +2481,6 @@ const INFLUENCER_TEMPLATES: TemplatePreset[] = [
     label: "BioBurst",
     description: "Vibrant gradient link-in-bio — bold typography, animated highlight cards, magenta→orange palette (ref: bioburst.framer.website)",
     icon: "💥",
-    reference: { source: "link", url: "https://bioburst.framer.website" },
     patches: {
       header: { schema: {
         layout_variant: "link_bio_header", logo_position: "center", logo_size: "large",
@@ -2525,7 +2524,6 @@ const INFLUENCER_TEMPLATES: TemplatePreset[] = [
     label: "LinkNest",
     description: "Ultra-minimal link page — white palette, pill outline buttons, maximum whitespace (ref: framer.com/marketplace/templates/linknest)",
     icon: "🪺",
-    reference: { source: "link", url: "https://www.framer.com/marketplace/templates/linknest/" },
     patches: {
       header: { schema: {
         layout_variant: "link_bio_header", logo_position: "center", logo_size: "medium",
@@ -2569,7 +2567,6 @@ const INFLUENCER_TEMPLATES: TemplatePreset[] = [
     label: "LinkHunt",
     description: "Bold high-contrast link page — dark background, photo-backed link cards, heavy display type (ref: linkhunt.framer.website)",
     icon: "🎯",
-    reference: { source: "link", url: "https://linkhunt.framer.website" },
     patches: {
       header: { schema: {
         layout_variant: "link_bio_header", logo_position: "center", logo_size: "large",
@@ -2614,7 +2611,6 @@ const INFLUENCER_TEMPLATES: TemplatePreset[] = [
     label: "Teespring Merch",
     description: "Creator merch storefront — profile header on top, 2-column product grid below with external buy links (ref: teespring.com creator pages)",
     icon: "👕",
-    reference: { source: "link", url: "https://teespring.com" },
     patches: {
       header: { schema: {
         layout_variant: "link_bio_header", logo_position: "center", logo_size: "medium",
@@ -2665,7 +2661,6 @@ const INFLUENCER_TEMPLATES: TemplatePreset[] = [
     label: "Creator Bio",
     description: "Editorial personal brand page — photo-heavy header, serif display type, refined hierarchy (ref: creator-bio.framer.website)",
     icon: "📷",
-    reference: { source: "link", url: "https://creator-bio.framer.website" },
     patches: {
       header: { schema: {
         layout_variant: "link_bio_header", logo_position: "center", logo_size: "medium",
