@@ -3574,7 +3574,7 @@ const DEFAULT_VARIANTS: Record<BuilderType, AnyTemplateKey[]> = {
   esite:      ['esite_shieldpro',      'esite_realisting',   'esite_luxra'],
   estore:     ['estore_minna',         'estore_monchies',    'estore_bazaro_fashion'],
   influencer: ['influencer_bioburst',  'influencer_linknest', 'influencer_linkhunt'],
-  community:  ['community_visual_a',   'community_visual_b', 'community_visual_a'],
+  community:  ['community_eventverse', 'community_brightmind', 'community_frederick'],
 };
 
 export function getDefaultVariantsForBuilder(builder: BuilderType): AnyTemplateKey[] {
