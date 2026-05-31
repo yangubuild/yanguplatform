@@ -55,6 +55,13 @@ import esiteTripsetImg from "@/assets/styles/esite_tripset.jpg";
 import esiteKeyImg from "@/assets/styles/esite_key.jpg";
 import esiteEstatooImg from "@/assets/styles/esite_estatoo.jpg";
 
+// Influencer template preview images — mobile-first link-in-bio (375px)
+import influencerBioburstImg from "@/assets/styles/influencer_bioburst.jpg";
+import influencerLinknestImg from "@/assets/styles/influencer_linknest.jpg";
+import influencerLinkhuntImg from "@/assets/styles/influencer_linkhunt.jpg";
+import influencerTeespringImg from "@/assets/styles/influencer_teespring.jpg";
+import influencerCreatorbioImg from "@/assets/styles/influencer_creatorbio.jpg";
+
 export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
   // Category-level
   bold: boldImg,
@@ -108,4 +115,10 @@ export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
   esite_tripset: esiteTripsetImg,
   esite_key: esiteKeyImg,
   esite_estatoo: esiteEstatooImg,
+  // Influencer templates (link-in-bio, mobile-first)
+  influencer_bioburst: influencerBioburstImg,
+  influencer_linknest: influencerLinknestImg,
+  influencer_linkhunt: influencerLinkhuntImg,
+  influencer_teespring: influencerTeespringImg,
+  influencer_creatorbio: influencerCreatorbioImg,
 };
