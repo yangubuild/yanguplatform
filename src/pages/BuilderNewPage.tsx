@@ -224,10 +224,23 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
     const selectedHtml = selected.html || "<html><body><p>Generation failed</p></body></html>";
     const cat = ctrl.category;
 
+    // Guard: require auth before any work. Redirect preserves return path.
+    if (!user?.id) {
+      navigate("/auth?redirect=" + encodeURIComponent(window.location.pathname));
+      return;
+    }
+
+    // Guard: require category. Surface visibly instead of silently storing HTML.
+    if (!cat) {
+      console.error("handleChooseVariant: category is missing");
+      toast.error("Category is missing — please restart the builder");
+      return;
+    }
+
     // GLOBAL STANDARD: All categories create a real surface and navigate to
     // EmenuNewEditor (the unified editor shell). No category stays in
     // BuilderNewPage's onboarding shell after variant selection.
-    if (cat && user?.id) {
+    {
       const engine = getEngine(cat);
       if (!engine) {
         toast.error(`${cat} engine not found`);
@@ -240,7 +253,7 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
       const businessName = ctrl.businessName || "My Website";
       const slug = businessName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
       const templateKey = ctrl.selectedTemplateKey || "";
-      const templatePreset = templateKey ? getTemplate("emenu", templateKey) : null;
+      const templatePreset = templateKey ? getTemplate(cat, templateKey) : null;
 
       // Build minimal seed sections for DB (the real page is the generated HTML)
       const seedSections = engine.defaultSections.map((s) => {
@@ -269,7 +282,7 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
 
       const metadata: Record<string, unknown> = {
         brand: { primary_color: "#b5622a" },
-        industry: "restaurant",
+        industry: cat,
         business: {
           name: businessName,
           location: ctrl.businessLocation || "",
@@ -305,16 +318,7 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
       }
       return;
     }
-
-    // Fallback (no auth): keep onboarding shell so unauthed preview still works.
-    setChosenVariant(selectedHtml);
-    ctrl.setGeneratedHtml(selectedHtml);
-    setIsChoosingVariant(false);
-    ctrl.setCurrentStep("refinement");
-    addMsg("user", `Selected ${selected.label || `Design ${index + 1}`}`);
-    addMsg("assistant", "Your website draft is ready! Sign in to save and publish.");
-    setLeftPanelMode("tools");
-  }, [variants, ctrl, addMsg, user, initAndNavigate]);
+  }, [variants, ctrl, addMsg, user, initAndNavigate, navigate]);
 
   const handleHtmlChange = useCallback((html: string) => {
     setChosenVariant(html);
