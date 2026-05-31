@@ -90,7 +90,19 @@ export type InfluencerTemplateKey =
 // Community template keys — ONLY valid in community editor
 export type CommunityTemplateKey =
   | 'community_visual_a'
-  | 'community_visual_b';
+  | 'community_visual_b'
+  // ─── 11 production templates scraped from reference designs ───
+  | 'community_eventverse'          // Events (default)
+  | 'community_wandersolo'          // Events
+  | 'community_padelix'             // Events
+  | 'community_brightmind'          // Courses (default)
+  | 'community_gearup'              // Courses
+  | 'community_linkhunt_freelance'  // Freelance — bold services
+  | 'community_frederick'           // Freelance (default)
+  | 'community_linknest_freelance'  // Freelance — minimal services
+  | 'community_porty'               // Freelance — minimal portfolio
+  | 'community_portfon'             // Freelance — professional portfolio
+  | 'community_porta';              // Freelance — creative/warm portfolio
 
 // Union of all template keys (for functions that accept any)
 export type AnyTemplateKey =
@@ -140,6 +152,12 @@ export function assertTemplateOwnership(
     influencer_linkhunt: 'influencer', influencer_teespring: 'influencer',
     influencer_creatorbio: 'influencer',
     community_visual_a: 'community', community_visual_b: 'community',
+    community_eventverse: 'community', community_wandersolo: 'community',
+    community_padelix: 'community',
+    community_brightmind: 'community', community_gearup: 'community',
+    community_linkhunt_freelance: 'community', community_frederick: 'community',
+    community_linknest_freelance: 'community', community_porty: 'community',
+    community_portfon: 'community', community_porta: 'community',
   };
   const owner = OWNERSHIP[templateKey];
   if (owner && owner !== expectedBuilder) {

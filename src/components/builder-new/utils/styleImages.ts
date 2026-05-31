@@ -62,6 +62,19 @@ import influencerLinkhuntImg from "@/assets/styles/influencer_linkhunt.jpg";
 import influencerTeespringImg from "@/assets/styles/influencer_teespring.jpg";
 import influencerCreatorbioImg from "@/assets/styles/influencer_creatorbio.jpg";
 
+// Community template preview images — 3 sub-types (events / courses / freelance)
+import communityEventverseImg from "@/assets/styles/community_eventverse.jpg";
+import communityWandersoloImg from "@/assets/styles/community_wandersolo.jpg";
+import communityPadelixImg from "@/assets/styles/community_padelix.jpg";
+import communityBrightmindImg from "@/assets/styles/community_brightmind.jpg";
+import communityGearupImg from "@/assets/styles/community_gearup.jpg";
+import communityLinkhuntFreelanceImg from "@/assets/styles/community_linkhunt_freelance.jpg";
+import communityFrederickImg from "@/assets/styles/community_frederick.jpg";
+import communityLinknestFreelanceImg from "@/assets/styles/community_linknest_freelance.jpg";
+import communityPortyImg from "@/assets/styles/community_porty.jpg";
+import communityPortfonImg from "@/assets/styles/community_portfon.jpg";
+import communityPortaImg from "@/assets/styles/community_porta.jpg";
+
 export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
   // Category-level
   bold: boldImg,
@@ -121,4 +134,16 @@ export const STYLE_PREVIEW_IMAGES: Record<string, string> = {
   influencer_linkhunt: influencerLinkhuntImg,
   influencer_teespring: influencerTeespringImg,
   influencer_creatorbio: influencerCreatorbioImg,
+  // Community templates (events / courses / freelance — yangu.community)
+  community_eventverse: communityEventverseImg,
+  community_wandersolo: communityWandersoloImg,
+  community_padelix: communityPadelixImg,
+  community_brightmind: communityBrightmindImg,
+  community_gearup: communityGearupImg,
+  community_linkhunt_freelance: communityLinkhuntFreelanceImg,
+  community_frederick: communityFrederickImg,
+  community_linknest_freelance: communityLinknestFreelanceImg,
+  community_porty: communityPortyImg,
+  community_portfon: communityPortfonImg,
+  community_porta: communityPortaImg,
 };
