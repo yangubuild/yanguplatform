@@ -2475,6 +2475,230 @@ const INFLUENCER_TEMPLATES: TemplatePreset[] = [
       } },
     },
   },
+  // ─── BioBurst — vibrant gradient default link-in-bio ───
+  {
+    key: "influencer_bioburst",
+    label: "BioBurst",
+    description: "Vibrant gradient link-in-bio — bold typography, animated highlight cards, magenta→orange palette (ref: bioburst.framer.website)",
+    icon: "💥",
+    patches: {
+      header: { schema: {
+        layout_variant: "link_bio_header", logo_position: "center", logo_size: "large",
+        show_name: true, name_next_to_logo: false, show_cart_icon: false, show_search: false,
+        menu_layout_style: "none", bio_mode: true, avatar_style: "circle_large",
+        social_icons_position: "below_name", background_style: "gradient_vibrant",
+      } },
+      hero: { schema: {
+        layout_variant: "link_bio_profile", alignment: "center",
+        background_style: "gradient", background_gradient: "linear-gradient(135deg, hsl(330 90% 55%), hsl(25 95% 55%), hsl(45 95% 60%))",
+        headline: "", subheadline: "", cta_text: "",
+        media: { type: "image", source: "url", url: "", fit: "cover" },
+        overlay_opacity: 0.15, spacing: "comfortable",
+        typography_style: "creator_bold", text_color: "light",
+        avatar_enabled: true, social_row_enabled: true, search_enabled: false,
+      } },
+      main_content: { schema: {
+        display_mode: "link_buttons", heading: "",
+        filters_enabled: false, sort_enabled: false,
+        cards: { style: "link_button", card_style: "rounded_full", hover_effect: "glow" },
+        spacing: "comfortable", items: [],
+      } },
+      showcase: { schema: {
+        showcase_display: "carousel", heading: "My Picks", showcase_items: [],
+      } },
+      offer: { schema: {
+        layout_variant: "link_bio_gallery", display_mode: "link_bio_gallery",
+        heading: "", spacing: "comfortable",
+        social_gallery: { enabled: true, platform: "instagram", columns: 3 },
+        newsletter: { enabled: false, heading: "", cta_text: "Submit" },
+      } },
+      footer: { schema: {
+        layout_variant: "link_bio_footer", display_mode: "link_bio_footer",
+        email: "", social: {},
+      } },
+    },
+  },
+  // ─── LinkNest — ultra-minimal clean link page ───
+  {
+    key: "influencer_linknest",
+    label: "LinkNest",
+    description: "Ultra-minimal link page — white palette, pill outline buttons, maximum whitespace (ref: framer.com/marketplace/templates/linknest)",
+    icon: "🪺",
+    patches: {
+      header: { schema: {
+        layout_variant: "link_bio_header", logo_position: "center", logo_size: "medium",
+        show_name: true, name_next_to_logo: false, show_cart_icon: false, show_search: false,
+        menu_layout_style: "none", bio_mode: true, avatar_style: "circle_medium",
+        social_icons_position: "below_name", background_style: "solid_light",
+      } },
+      hero: { schema: {
+        layout_variant: "link_bio_profile", alignment: "center",
+        background_style: "solid_light", background_color: "hsl(0 0% 100%)",
+        headline: "", subheadline: "", cta_text: "",
+        media: { type: "image", source: "url", url: "", fit: "cover" },
+        overlay_opacity: 0, spacing: "spacious",
+        typography_style: "creator_minimal", text_color: "dark",
+        avatar_enabled: true, social_row_enabled: true, search_enabled: false,
+      } },
+      main_content: { schema: {
+        display_mode: "link_buttons", heading: "",
+        filters_enabled: false, sort_enabled: false,
+        cards: { style: "link_button", card_style: "rounded_full", hover_effect: "subtle", variant: "outline" },
+        spacing: "spacious", items: [],
+      } },
+      showcase: { schema: {
+        showcase_display: "list", heading: "", showcase_items: [],
+      } },
+      offer: { schema: {
+        layout_variant: "link_bio_gallery", display_mode: "link_bio_gallery",
+        heading: "", spacing: "spacious",
+        social_gallery: { enabled: false },
+        newsletter: { enabled: false, heading: "", cta_text: "Submit" },
+      } },
+      footer: { schema: {
+        layout_variant: "link_bio_footer", display_mode: "link_bio_footer",
+        email: "", social: {},
+      } },
+    },
+  },
+  // ─── LinkHunt — bold high-contrast link page ───
+  {
+    key: "influencer_linkhunt",
+    label: "LinkHunt",
+    description: "Bold high-contrast link page — dark background, photo-backed link cards, heavy display type (ref: linkhunt.framer.website)",
+    icon: "🎯",
+    patches: {
+      header: { schema: {
+        layout_variant: "link_bio_header", logo_position: "center", logo_size: "large",
+        show_name: true, name_next_to_logo: false, show_cart_icon: false, show_search: false,
+        menu_layout_style: "none", bio_mode: true, avatar_style: "square_large",
+        social_icons_position: "below_name", background_style: "solid_dark",
+      } },
+      hero: { schema: {
+        layout_variant: "link_bio_media_hero", alignment: "center",
+        background_style: "solid_dark", background_color: "hsl(0 0% 6%)",
+        headline: "", subheadline: "", cta_text: "",
+        media: { type: "image", source: "url", url: "", fit: "cover" },
+        overlay_opacity: 0.4, spacing: "spacious",
+        typography_style: "creator_bold", text_color: "light",
+        avatar_enabled: true, social_row_enabled: true, search_enabled: false,
+        full_bleed: true,
+      } },
+      main_content: { schema: {
+        display_mode: "link_cards_media", heading: "",
+        filters_enabled: false, sort_enabled: false,
+        cards: { style: "link_card_image", card_style: "rounded_lg", hover_effect: "lift", variant: "image_bg" },
+        spacing: "comfortable", items: [],
+      } },
+      showcase: { schema: {
+        showcase_display: "grid", heading: "Featured", showcase_items: [],
+      } },
+      offer: { schema: {
+        layout_variant: "link_bio_featured", display_mode: "link_bio_featured",
+        heading: "", spacing: "comfortable", items: [],
+        social_gallery: { enabled: false },
+        newsletter: { enabled: false, heading: "", cta_text: "Subscribe" },
+      } },
+      footer: { schema: {
+        layout_variant: "link_bio_footer", display_mode: "link_bio_footer",
+        email: "", social: {},
+      } },
+    },
+  },
+  // ─── Teespring — creator merch / product-forward link page ───
+  {
+    key: "influencer_teespring",
+    label: "Teespring Merch",
+    description: "Creator merch storefront — profile header on top, 2-column product grid below with external buy links (ref: teespring.com creator pages)",
+    icon: "👕",
+    patches: {
+      header: { schema: {
+        layout_variant: "link_bio_header", logo_position: "center", logo_size: "medium",
+        show_name: true, name_next_to_logo: false, show_cart_icon: false, show_search: false,
+        menu_layout_style: "none", bio_mode: true, avatar_style: "circle_medium",
+        social_icons_position: "below_name", background_style: "solid_light",
+      } },
+      hero: { schema: {
+        layout_variant: "link_bio_profile", alignment: "center",
+        background_style: "solid_light", background_color: "hsl(0 0% 100%)",
+        headline: "", subheadline: "", cta_text: "Shop My Merch",
+        media: { type: "image", source: "url", url: "", fit: "cover" },
+        overlay_opacity: 0, spacing: "comfortable",
+        typography_style: "creator_centered", text_color: "dark",
+        avatar_enabled: true, social_row_enabled: true, search_enabled: false,
+      } },
+      main_content: { schema: {
+        display_mode: "link_buttons", heading: "",
+        filters_enabled: false, sort_enabled: false,
+        cards: { style: "link_button", card_style: "rounded_lg", hover_effect: "lift" },
+        spacing: "compact", items: [],
+      } },
+      showcase: { schema: {
+        showcase_display: "grid", heading: "My Merch",
+        columns: 2,
+        showcase_items: [
+          { title: "Signature Tee", description: "Soft cotton, creator drop", image_url: "", link_url: "", price: "$29" },
+          { title: "Logo Hoodie", description: "Heavyweight pullover", image_url: "", link_url: "", price: "$55" },
+          { title: "Tour Tee", description: "Limited edition", image_url: "", link_url: "", price: "$32" },
+          { title: "Snapback Cap", description: "Embroidered logo", image_url: "", link_url: "", price: "$25" },
+        ],
+      } },
+      offer: { schema: {
+        layout_variant: "link_bio_gallery", display_mode: "link_bio_gallery",
+        heading: "", spacing: "comfortable",
+        social_gallery: { enabled: true, platform: "instagram", columns: 3 },
+        newsletter: { enabled: true, heading: "Restock alerts", cta_text: "Notify me" },
+      } },
+      footer: { schema: {
+        layout_variant: "link_bio_footer", display_mode: "link_bio_footer",
+        email: "", social: {},
+      } },
+    },
+  },
+  // ─── Creator Bio — editorial personal brand ───
+  {
+    key: "influencer_creatorbio",
+    label: "Creator Bio",
+    description: "Editorial personal brand page — photo-heavy header, serif display type, refined hierarchy (ref: creator-bio.framer.website)",
+    icon: "📷",
+    patches: {
+      header: { schema: {
+        layout_variant: "link_bio_header", logo_position: "center", logo_size: "medium",
+        show_name: false, name_next_to_logo: false, show_cart_icon: false, show_search: false,
+        menu_layout_style: "none", bio_mode: true, avatar_style: "none",
+        social_icons_position: "in_hero", background_style: "solid_cream",
+      } },
+      hero: { schema: {
+        layout_variant: "link_bio_media_hero", alignment: "center",
+        background_style: "solid_light", background_color: "hsl(40 30% 96%)",
+        headline: "", subheadline: "", cta_text: "",
+        media: { type: "image", source: "url", url: "", fit: "cover" },
+        overlay_opacity: 0.1, spacing: "spacious",
+        typography_style: "creator_editorial", text_color: "dark",
+        avatar_enabled: false, social_row_enabled: true, search_enabled: false,
+        full_bleed: true,
+      } },
+      main_content: { schema: {
+        display_mode: "link_buttons", heading: "",
+        filters_enabled: false, sort_enabled: false,
+        cards: { style: "link_text", card_style: "underline", hover_effect: "underline", variant: "ghost" },
+        spacing: "spacious", items: [],
+      } },
+      showcase: { schema: {
+        showcase_display: "list", heading: "Selected Work", showcase_items: [],
+      } },
+      offer: { schema: {
+        layout_variant: "link_bio_gallery", display_mode: "link_bio_gallery",
+        heading: "", spacing: "spacious",
+        social_gallery: { enabled: true, platform: "instagram", columns: 2 },
+        newsletter: { enabled: true, heading: "Subscribe to the Journal", cta_text: "Subscribe" },
+      } },
+      footer: { schema: {
+        layout_variant: "link_bio_footer", display_mode: "link_bio_footer",
+        email: "", social: {},
+      } },
+    },
+  },
 ];
 
 // ─── Community Templates ───
@@ -3110,7 +3334,7 @@ const DEFAULT_VARIANTS: Record<BuilderType, AnyTemplateKey[]> = {
   emenu:      ['emenu_visual_a',       'emenu_plateria',     'emenu_yumix'],
   esite:      ['esite_shieldpro',      'esite_realisting',   'esite_luxra'],
   estore:     ['estore_minna',         'estore_monchies',    'estore_bazaro_fashion'],
-  influencer: ['influencer_layout_a',  'influencer_layout_b','influencer_layout_a'],
+  influencer: ['influencer_bioburst',  'influencer_linknest', 'influencer_linkhunt'],
   community:  ['community_visual_a',   'community_visual_b', 'community_visual_a'],
 };
 

@@ -78,7 +78,14 @@ export type EstoreTemplateKey =
 // Influencer template keys — ONLY valid in influencer editor
 export type InfluencerTemplateKey =
   | 'influencer_layout_a'
-  | 'influencer_layout_b';
+  | 'influencer_layout_b'
+  | 'influencer_layout_c'
+  // ─── 5 production link-in-bio templates scraped from reference designs ───
+  | 'influencer_bioburst'      // Link-in-Bio default (vibrant)
+  | 'influencer_linknest'      // Minimal link page
+  | 'influencer_linkhunt'      // Bold high-contrast link page
+  | 'influencer_teespring'     // Creator merch / product links
+  | 'influencer_creatorbio';   // Personal brand / editorial
 
 // Community template keys — ONLY valid in community editor
 export type CommunityTemplateKey =
@@ -128,6 +135,10 @@ export function assertTemplateOwnership(
     estore_bazaro_fashion: 'estore',
     estore_bazaro_classic: 'estore',
     influencer_layout_a: 'influencer', influencer_layout_b: 'influencer',
+    influencer_layout_c: 'influencer',
+    influencer_bioburst: 'influencer', influencer_linknest: 'influencer',
+    influencer_linkhunt: 'influencer', influencer_teespring: 'influencer',
+    influencer_creatorbio: 'influencer',
     community_visual_a: 'community', community_visual_b: 'community',
   };
   const owner = OWNERSHIP[templateKey];
