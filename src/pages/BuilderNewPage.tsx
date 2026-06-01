@@ -251,7 +251,17 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
       addMsg("assistant", "Creating your website... Hang tight!");
 
       const businessName = ctrl.businessName || "My Website";
-      const slug = businessName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+      const baseSlug = businessName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "")
+        .slice(0, 40);
+      const isDefaultName =
+        !ctrl.businessName ||
+        ctrl.businessName.trim().toLowerCase() === "my website";
+      const slug = isDefaultName
+        ? `${baseSlug}-${Date.now().toString(36)}`
+        : baseSlug;
       const templateKey = ctrl.selectedTemplateKey || "";
       const templatePreset = templateKey ? getTemplate(cat, templateKey) : null;
 
