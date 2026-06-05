@@ -491,7 +491,7 @@ export default function SellerEditor() {
 
         {/* Center: Preview */}
         <main className="flex-1 overflow-y-auto p-2 sm:p-6 lg:p-10">
-          <div className={`mx-auto transition-all ${isMobile ? "max-w-full" : previewViewport === "mobile" ? "max-w-sm" : "max-w-2xl"}`}>
+          <div className={`mx-auto transition-all h-[calc(100vh-3.5rem)] ${isMobile ? "max-w-full" : previewViewport === "mobile" ? "max-w-sm" : "max-w-2xl"}`}>
           {builderHtml ? (
             <iframe
               key={builderHtml}
@@ -499,7 +499,7 @@ export default function SellerEditor() {
               title="surface-editor"
               width="100%"
               height="100%"
-              style={{ border: "none", display: "block" }}
+              style={{ border: "none", display: "block", height: "100%", minHeight: "calc(100vh - 3.5rem)" }}
             />
           ) : (
             <div style={{
