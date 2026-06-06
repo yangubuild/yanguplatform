@@ -227,7 +227,7 @@ export function BuilderPublishModal({
   const isSuccess = publishResult?.ok === true;
   const slugDisplay = customSlug || persistedSlug || defaultSlug || "";
   const publishedUrl = selectedDomain
-    ? `https://${slugDisplay ? `${slugDisplay}.` : ""}${selectedDomain.host}`
+    ? `https://${selectedDomain.host}${slugDisplay ? `/${slugDisplay}` : ""}`
     : null;
 
   const handleCopyUrl = () => {
@@ -260,7 +260,7 @@ export function BuilderPublishModal({
               <div className="flex items-center gap-2">
                 <Globe className="h-4 w-4 text-muted-foreground shrink-0" />
                 <code className="text-sm font-medium break-all flex-1">
-                  {slugDisplay ? `${slugDisplay}.` : ""}{selectedDomain?.host}
+                  {selectedDomain?.host}{slugDisplay ? `/${slugDisplay}` : ""}
                 </code>
                 <Button variant="ghost" size="sm" onClick={handleCopyUrl}>
                   <Copy className="h-3.5 w-3.5" />
@@ -530,6 +530,9 @@ export function BuilderPublishModal({
                 URL Slug
               </Label>
               <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground shrink-0">
+                  {selectedDomain.host}/
+                </span>
                 <Input
                   id="builder-slug"
                   placeholder={persistedSlug || defaultSlug || "my-page"}
@@ -537,9 +540,6 @@ export function BuilderPublishModal({
                   onChange={(e) => setCustomSlug(e.target.value)}
                   className="flex-1"
                 />
-                <span className="text-sm text-muted-foreground shrink-0">
-                  .{selectedDomain.host}
-                </span>
               </div>
               <p className="text-xs text-muted-foreground">
                 This will be the URL where your page is accessible
