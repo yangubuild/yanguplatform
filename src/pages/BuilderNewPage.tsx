@@ -160,8 +160,7 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
 
   const handleConfirmMulti = useCallback(() => {
     const step = ctrl.currentStep;
-    if (step === "sections") addMsg("user", `Selected: ${ctrl.selectedSections.join(", ")}`);
-    else if (step === "delivery_apps") addMsg("user", `Selected: ${ctrl.selectedDeliveryApps.join(", ")}`);
+    if (step === "delivery_apps") addMsg("user", `Selected: ${ctrl.selectedDeliveryApps.join(", ")}`);
     ctrl.confirmMultiSelect();
   }, [addMsg, ctrl]);
 
@@ -694,7 +693,6 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
               onOptionSelect={handleOptionSelect}
               onConfirmMulti={handleConfirmMulti}
               multiSelected={
-                ctrl.currentStep === "sections" ? ctrl.selectedSections :
                 ctrl.currentStep === "delivery_apps" ? ctrl.selectedDeliveryApps :
                 ctrl.currentStep === "attributes"
                   ? Object.entries(ctrl.eshopConfig.attributes).filter(([, v]) => v).map(([k]) => k)

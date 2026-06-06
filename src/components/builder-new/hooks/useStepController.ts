@@ -22,7 +22,6 @@ export type BuilderStep =
   | "assets"
   | "asset_upload"
   | "ai_logo"
-  | "sections"
   | "business_location"
   | "delivery_apps"
   | "template_choice"
@@ -135,15 +134,33 @@ export interface StepConfig {
   menuType?: string;
 }
 
-function getAiLogoContext(menuClassification: MenuComplexity | null) {
-  switch (menuClassification) {
-    case "simple_cafe":
-      return { category: "cafe", businessType: "simple_cafe" };
-    case "reservation":
-      return { category: "fine_dining", businessType: "reservation" };
-    case "bigger_menu":
+function getAiLogoContext(
+  menuClassification: MenuComplexity | null,
+  category: Category | null,
+) {
+  if (category === "emenu") {
+    switch (menuClassification) {
+      case "simple_cafe":
+        return { category: "cafe", businessType: "simple_cafe", style: "food and beverage", theme: "culinary" };
+      case "reservation":
+        return { category: "fine_dining", businessType: "reservation", style: "food and beverage", theme: "culinary" };
+      case "bigger_menu":
+      default:
+        return { category: "restaurant", businessType: menuClassification || "restaurant", style: "food and beverage", theme: "culinary" };
+    }
+  }
+  switch (category) {
+    case "eshop":
+    case "estore":
+      return { category: category, businessType: "retail", style: "retail product brand", theme: "commerce and shopping" };
+    case "esite":
+      return { category: "esite", businessType: "services", style: "professional business", theme: "services and brand" };
+    case "influencer":
+      return { category: "influencer", businessType: "creator", style: "personal creator brand", theme: "lifestyle and content" };
+    case "community":
+      return { category: "community", businessType: "community", style: "community group emblem", theme: "collective and belonging" };
     default:
-      return { category: "restaurant", businessType: menuClassification || "restaurant" };
+      return { category: "business", businessType: "business", style: "modern business logo", theme: "professional" };
   }
 }
 
@@ -494,10 +511,11 @@ export function useStepController() {
       case "scope": return "assets";
       case "assets":
         if (selectedAssets === "ai_generated") return "ai_logo";
-        return selectedAssets === "user_provided" || selectedAssets === "mix" ? "asset_upload" : "sections";
-      case "ai_logo": return "sections";
-      case "asset_upload": return "sections";
-      case "sections": return isFoodCategory ? "business_location" : "template_choice";
+        return selectedAssets === "user_provided" || selectedAssets === "mix"
+          ? "asset_upload"
+          : (isFoodCategory ? "business_location" : "template_choice");
+      case "ai_logo": return isFoodCategory ? "business_location" : "template_choice";
+      case "asset_upload": return isFoodCategory ? "business_location" : "template_choice";
       case "business_location": return "delivery_apps";
       case "delivery_apps": return "template_choice";
       case "template_choice": return "confirmation";
@@ -607,7 +625,7 @@ export function useStepController() {
         };
       case "ai_logo":
         {
-          const logoContext = getAiLogoContext(menuClassification);
+          const logoContext = getAiLogoContext(menuClassification, category);
         return {
           key: "ai_logo",
           adaMessage: `I'll generate 3 logo options for **${businessName}**. Pick one you like, or regenerate with a description.`,
@@ -624,14 +642,6 @@ export function useStepController() {
           adaMessage: "Great! Upload your assets below. Add your **logo**, pick your **brand colors**, and upload **images** (menu photos, restaurant interior, team, etc.).\n\nPlease upload at least 3 images.",
           options: [],
           renderAs: "upload",
-        };
-      case "sections":
-        return {
-          key: "sections",
-          adaMessage: "Which sections do you want? Select all that apply, then tap **Done**.",
-          options: SECTION_OPTIONS_MAP[category!] || SECTION_OPTIONS_DEFAULT,
-          multiSelect: true,
-          renderAs: "chips",
         };
       case "business_location":
         return {
@@ -834,13 +844,8 @@ export function useStepController() {
         } else if (option.value === "user_provided" || option.value === "mix") {
           setCurrentStep("asset_upload");
         } else {
-          setCurrentStep("sections");
+          setCurrentStep(isFoodCategory ? "business_location" : "template_choice");
         }
-        break;
-      case "sections":
-        setSelectedSections(prev =>
-          prev.includes(option.value) ? prev.filter(v => v !== option.value) : [...prev, option.value]
-        );
         break;
       case "delivery_apps":
         setSelectedDeliveryApps(prev =>
@@ -861,8 +866,6 @@ export function useStepController() {
       case "refinement":
         if (option.value === "change_style") {
           setCurrentStep("template_choice");
-        } else if (option.value === "change_sections") {
-          setCurrentStep("sections");
         } else if (option.value === "regenerate") {
           setCurrentStep("generation");
         }
@@ -876,8 +879,8 @@ export function useStepController() {
   }, []);
 
   const confirmAssetUpload = useCallback(() => {
-    setCurrentStep("sections");
-  }, []);
+    setCurrentStep(isFoodCategory ? "business_location" : "template_choice");
+  }, [isFoodCategory]);
 
   const confirmAiLogo = useCallback((logoUrl: string, color?: string) => {
     setUserUploadedAssets(prev => ({
@@ -885,17 +888,11 @@ export function useStepController() {
       logoUrl,
       brandColors: color ? [color, ...prev.brandColors.filter(c => c !== color)] : prev.brandColors,
     }));
-    setCurrentStep("sections");
-  }, []);
+    setCurrentStep(isFoodCategory ? "business_location" : "template_choice");
+  }, [isFoodCategory]);
 
   const confirmMultiSelect = useCallback(() => {
-    if (currentStep === "sections") {
-      if (isFoodCategory) {
-        setCurrentStep("business_location");
-      } else {
-        setCurrentStep("template_choice");
-      }
-    } else if (currentStep === "delivery_apps") {
+    if (currentStep === "delivery_apps") {
       setCurrentStep("template_choice");
     } else if (currentStep === "attributes") {
       setCurrentStep("scope");

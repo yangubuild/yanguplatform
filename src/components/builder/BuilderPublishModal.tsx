@@ -194,12 +194,20 @@ export function BuilderPublishModal({
       try {
         const { data } = await supabase
           .from("builder_surfaces")
-          .select("slug, seo_title, seo_description, favicon_url, cover_image_url")
+          .select("slug, title, seo_title, seo_description, favicon_url, cover_image_url")
           .eq("id", surfaceId)
           .single();
         if (data) {
-          setPersistedSlug((data as any).slug || defaultSlug || "");
-          setSeoTitle((data as any).seo_title || surfaceTitle);
+          const loadedSlug = (data as any).slug || defaultSlug || "";
+          setPersistedSlug(loadedSlug);
+          const loadedSeo = (data as any).seo_title as string | null;
+          const loadedTitle = (data as any).title as string | null;
+          const candidate = (loadedSeo && loadedSeo.trim()) || (loadedTitle && loadedTitle.trim()) || surfaceTitle || "";
+          const isDefault = !candidate || candidate.trim().toLowerCase() === "my website";
+          const defaultTitle = isDefault
+            ? (loadedSlug || "").replace(/-/g, " ").trim() || candidate
+            : candidate.trim();
+          setSeoTitle(defaultTitle);
           setSeoDescription((data as any).seo_description || "");
           setFaviconUrl((data as any).favicon_url || "");
           setCoverImageUrl((data as any).cover_image_url || "");
@@ -227,7 +235,7 @@ export function BuilderPublishModal({
   const isSuccess = publishResult?.ok === true;
   const slugDisplay = customSlug || persistedSlug || defaultSlug || "";
   const publishedUrl = selectedDomain
-    ? `https://${slugDisplay ? `${slugDisplay}.` : ""}${selectedDomain.host}`
+    ? `https://${selectedDomain.host}${slugDisplay ? `/${slugDisplay}` : ""}`
     : null;
 
   const handleCopyUrl = () => {
@@ -260,7 +268,7 @@ export function BuilderPublishModal({
               <div className="flex items-center gap-2">
                 <Globe className="h-4 w-4 text-muted-foreground shrink-0" />
                 <code className="text-sm font-medium break-all flex-1">
-                  {slugDisplay ? `${slugDisplay}.` : ""}{selectedDomain?.host}
+                  {selectedDomain?.host}{slugDisplay ? `/${slugDisplay}` : ""}
                 </code>
                 <Button variant="ghost" size="sm" onClick={handleCopyUrl}>
                   <Copy className="h-3.5 w-3.5" />
@@ -390,6 +398,7 @@ export function BuilderPublishModal({
       await supabase
         .from("builder_surfaces")
         .update({
+          title: seoTitle || null,
           seo_title: seoTitle || null,
           seo_description: seoDescription || null,
           favicon_url: faviconUrl || null,
@@ -530,6 +539,9 @@ export function BuilderPublishModal({
                 URL Slug
               </Label>
               <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground shrink-0">
+                  {selectedDomain.host}/
+                </span>
                 <Input
                   id="builder-slug"
                   placeholder={persistedSlug || defaultSlug || "my-page"}
@@ -537,9 +549,6 @@ export function BuilderPublishModal({
                   onChange={(e) => setCustomSlug(e.target.value)}
                   className="flex-1"
                 />
-                <span className="text-sm text-muted-foreground shrink-0">
-                  .{selectedDomain.host}
-                </span>
               </div>
               <p className="text-xs text-muted-foreground">
                 This will be the URL where your page is accessible

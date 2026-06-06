@@ -54,5 +54,5 @@ const SURFACE_PUBLISH_DOMAIN: Record<string, string> = {
 export function buildPublishedUrl(surfaceType: string, slug: string): string | null {
   const host = SURFACE_PUBLISH_DOMAIN[surfaceType];
   if (!host || !slug) return null;
-  return `https://${slug}.${host}`;
+  return `https://${host}/${slug}`;
 }

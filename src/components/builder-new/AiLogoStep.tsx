@@ -25,11 +25,20 @@ const PRESET_COLORS = [
   "#1abc9c", "#f39c12", "#e67e22", "#34495e", "#d35400",
 ];
 
-const STYLE_VARIANTS = [
-  "clean professional wordmark with a balanced food emblem",
-  "refined badge-style restaurant logo with strong readable typography",
-  "modern typographic food brand mark with a subtle culinary symbol",
-];
+const STYLE_VARIANTS_BY_CATEGORY: Record<string, string[]> = {
+  emenu: ["restaurant badge", "culinary symbol", "food emblem"],
+  eshop: ["retail mark", "shop badge", "product wordmark"],
+  estore: ["retail mark", "shop badge", "product wordmark"],
+  esite: ["business logo", "professional mark", "brand identity"],
+  influencer: ["creator logo", "personal brand", "lifestyle mark"],
+  community: ["group emblem", "community badge", "collective mark"],
+};
+const DEFAULT_STYLE_VARIANTS = ["modern logo", "brand mark", "business emblem"];
+
+function getStyleVariants(category?: string): string[] {
+  if (category && STYLE_VARIANTS_BY_CATEGORY[category]) return STYLE_VARIANTS_BY_CATEGORY[category];
+  return DEFAULT_STYLE_VARIANTS;
+}
 
 async function parseFunctionError(error: unknown): Promise<{ message: string; code?: string }> {
   if (error instanceof FunctionsHttpError) {
@@ -81,7 +90,8 @@ async function generateSingleLogo(
   menuType?: string,
   description?: string,
 ): Promise<LogoGenerationResult> {
-  const style = STYLE_VARIANTS[variantIndex % STYLE_VARIANTS.length];
+  const variants = getStyleVariants(category);
+  const style = variants[variantIndex % variants.length];
   const styleHint = description ? `${style}. Additional requested style: ${description}.` : style;
 
   try {
