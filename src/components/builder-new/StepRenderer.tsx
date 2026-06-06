@@ -40,7 +40,7 @@ export function StepRenderer({
     return (
       <AiLogoStep
         businessName={businessName}
-        category={config.categoryContext || (config.key === "ai_logo" ? "emenu" : undefined)}
+        category={config.categoryContext || category || undefined}
         businessType={config.businessType}
         menuType={config.menuType}
         onConfirm={onConfirmAiLogo}

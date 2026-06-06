@@ -134,15 +134,33 @@ export interface StepConfig {
   menuType?: string;
 }
 
-function getAiLogoContext(menuClassification: MenuComplexity | null) {
-  switch (menuClassification) {
-    case "simple_cafe":
-      return { category: "cafe", businessType: "simple_cafe" };
-    case "reservation":
-      return { category: "fine_dining", businessType: "reservation" };
-    case "bigger_menu":
+function getAiLogoContext(
+  menuClassification: MenuComplexity | null,
+  category: Category | null,
+) {
+  if (category === "emenu") {
+    switch (menuClassification) {
+      case "simple_cafe":
+        return { category: "cafe", businessType: "simple_cafe", style: "food and beverage", theme: "culinary" };
+      case "reservation":
+        return { category: "fine_dining", businessType: "reservation", style: "food and beverage", theme: "culinary" };
+      case "bigger_menu":
+      default:
+        return { category: "restaurant", businessType: menuClassification || "restaurant", style: "food and beverage", theme: "culinary" };
+    }
+  }
+  switch (category) {
+    case "eshop":
+    case "estore":
+      return { category: category, businessType: "retail", style: "retail product brand", theme: "commerce and shopping" };
+    case "esite":
+      return { category: "esite", businessType: "services", style: "professional business", theme: "services and brand" };
+    case "influencer":
+      return { category: "influencer", businessType: "creator", style: "personal creator brand", theme: "lifestyle and content" };
+    case "community":
+      return { category: "community", businessType: "community", style: "community group emblem", theme: "collective and belonging" };
     default:
-      return { category: "restaurant", businessType: menuClassification || "restaurant" };
+      return { category: "business", businessType: "business", style: "modern business logo", theme: "professional" };
   }
 }
 
@@ -607,7 +625,7 @@ export function useStepController() {
         };
       case "ai_logo":
         {
-          const logoContext = getAiLogoContext(menuClassification);
+          const logoContext = getAiLogoContext(menuClassification, category);
         return {
           key: "ai_logo",
           adaMessage: `I'll generate 3 logo options for **${businessName}**. Pick one you like, or regenerate with a description.`,
