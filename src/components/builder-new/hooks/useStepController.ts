@@ -861,8 +861,8 @@ export function useStepController() {
   }, []);
 
   const confirmAssetUpload = useCallback(() => {
-    setCurrentStep("sections");
-  }, []);
+    setCurrentStep(isFoodCategory ? "business_location" : "template_choice");
+  }, [isFoodCategory]);
 
   const confirmAiLogo = useCallback((logoUrl: string, color?: string) => {
     setUserUploadedAssets(prev => ({
@@ -870,17 +870,11 @@ export function useStepController() {
       logoUrl,
       brandColors: color ? [color, ...prev.brandColors.filter(c => c !== color)] : prev.brandColors,
     }));
-    setCurrentStep("sections");
-  }, []);
+    setCurrentStep(isFoodCategory ? "business_location" : "template_choice");
+  }, [isFoodCategory]);
 
   const confirmMultiSelect = useCallback(() => {
-    if (currentStep === "sections") {
-      if (isFoodCategory) {
-        setCurrentStep("business_location");
-      } else {
-        setCurrentStep("template_choice");
-      }
-    } else if (currentStep === "delivery_apps") {
+    if (currentStep === "delivery_apps") {
       setCurrentStep("template_choice");
     } else if (currentStep === "attributes") {
       setCurrentStep("scope");
