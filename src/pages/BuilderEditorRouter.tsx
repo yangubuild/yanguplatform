@@ -1,10 +1,7 @@
 /**
- * BuilderEditorRouter — Thin routing layer that reads surface_type
- * and branches to the correct category editor.
- *
- * Seller types (emenu, eshop, store_listing, quick_site) → SellerEditor
- * live_bio → InfluencerEditorPlaceholder
- * community_group → CommunityEditorPlaceholder
+ * BuilderEditorRouter — Thin routing layer that loads the unified editor
+ * (EmenuNewEditor) for every surface_type. Engine-specific behaviour comes
+ * from engineRegistry + sellerModes inside the unified shell.
  */
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -83,9 +80,8 @@ export default function BuilderEditorRouter() {
 
   // All surfaces use the unified EmenuNewEditor shell. Engine-specific
   // behaviour (allowed sections, quick actions, publish domain, modules)
-  // is derived per surface_type via engineRegistry + sellerModes inside
-  // the shell. SellerEditor is the legacy block editor and is no longer
-  // reachable from routing.
+  // resolves per surface_type via engineRegistry + sellerModes inside the
+  // shell. The legacy block editor has been removed from the codebase.
   void (surfaceType as SurfaceType);
   const EditorComponent: React.ComponentType = EmenuNewEditor;
 
