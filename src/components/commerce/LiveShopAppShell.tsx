@@ -127,8 +127,8 @@ export function LiveShopAppShell({
         </div>
       </header>
 
-      {/* Iframe / page content area */}
-      <main className="flex-1 overflow-auto">{children}</main>
+      {/* Iframe / page content area — vertical scroll only, horizontal locked */}
+      <main className="flex-1 overflow-y-auto overflow-x-hidden">{children}</main>
 
       {/* Bottom tab bar */}
       <nav

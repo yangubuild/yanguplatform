@@ -4,15 +4,34 @@ const BADGE_ICON = "https://yanguplatform.lovable.app/yangu-badge-mark.png";
 const BADGE_URL = "https://yangu.io";
 const BADGE_FONT_ID = "yangu-badge-font";
 const BADGE_FONT_HREF = "https://api.fontshare.com/v2/css?f[]=lufga@700&display=swap";
+const BADGE_STYLE_ID = "yangu-badge-style";
 
 function ensureBadgeFont() {
   if (typeof document === "undefined") return;
-  if (document.getElementById(BADGE_FONT_ID)) return;
-  const link = document.createElement("link");
-  link.id = BADGE_FONT_ID;
-  link.rel = "stylesheet";
-  link.href = BADGE_FONT_HREF;
-  document.head.appendChild(link);
+  if (!document.getElementById(BADGE_FONT_ID)) {
+    const link = document.createElement("link");
+    link.id = BADGE_FONT_ID;
+    link.rel = "stylesheet";
+    link.href = BADGE_FONT_HREF;
+    document.head.appendChild(link);
+  }
+  // Mobile-safe placement: lift the badge above the bottom tab bar
+  // (LiveShopAppShell is 64px tall) and the iOS safe-area inset.
+  if (!document.getElementById(BADGE_STYLE_ID)) {
+    const style = document.createElement("style");
+    style.id = BADGE_STYLE_ID;
+    style.textContent = `
+      @media (max-width: 768px) {
+        [data-yangu-badge] {
+          bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+          right: 10px !important;
+          padding: 6px 10px 6px 8px !important;
+          font-size: 11px !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
 }
 
 // Raw HTML version for document.write injection

@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
 import { PublicCommerceShell } from "@/components/commerce/PublicCommerceShell";
 import { YanguBadge } from "@/components/routing/YanguBadge";
+import { PublicSurfaceStyles } from "@/components/routing/PublicSurfaceStyles";
 import { DEFAULT_THEME, type BuilderTheme } from "@/components/builder/BuilderSettingsDrawer";
 import { deduplicatePublishedSections } from "@/config/builderCoreSections";
 import type {
@@ -170,8 +171,9 @@ export default function PublicSurfacePage() {
     };
     return (
       <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName}>
+        <PublicSurfaceStyles />
         <div
-          className="min-h-screen bg-background yangu-live"
+          className="min-h-screen bg-background yangu-live yangu-public-snapshot"
           onClick={handleCartDelegate}
           dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
         />
@@ -282,6 +284,7 @@ export default function PublicSurfacePage() {
   if (isInfluencer) {
     return (
       <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName}>
+        <PublicSurfaceStyles />
         <div className="min-h-screen bg-muted/30 flex justify-center">
           <div className="w-full max-w-[420px] min-h-screen bg-background yangu-live shadow-xl" style={themeStyle}>
             {sectionContent}
@@ -294,7 +297,8 @@ export default function PublicSurfacePage() {
 
   return (
     <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName}>
-      <div className="min-h-screen bg-background yangu-live" style={themeStyle}>
+      <PublicSurfaceStyles />
+      <div className="min-h-screen bg-background yangu-live yangu-public-snapshot" style={themeStyle}>
         <header className="border-b border-border bg-background/80 backdrop-blur-sm">
           <div className="max-w-[1200px] mx-auto px-4 sm:px-5 lg:px-6 xl:px-8 py-3">
             <h1 className="text-sm font-semibold text-foreground truncate">{title}</h1>
