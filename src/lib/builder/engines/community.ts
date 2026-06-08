@@ -111,7 +111,7 @@ export const communityEngine: BuilderEngine = {
   aiGenerationRules: {
     // Phase 14+16: Community covers 3 sub-types (events / courses /
     // freelance) sharing one editor shell. allowedSectionTypes is the
-    // union of all sub-type palettes; SellerEditor filters quick
+    // union of all sub-type palettes; the unified editor filters quick
     // actions per metadata.community_subtype at runtime.
     allowedSectionTypes: [
       // Shared
@@ -162,7 +162,7 @@ export const COMMUNITY_SUBTYPES: CommunitySubtype[] = [
   "freelance",
 ];
 
-/** Quick actions per Community sub-type. Keys match SellerEditor's
+/** Quick actions per Community sub-type. Keys match the unified editor's
  * QUICK_ACTION_TO_SECTION map. */
 export const COMMUNITY_QUICK_ACTIONS: Record<
   CommunitySubtype,
