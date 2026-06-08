@@ -16,23 +16,7 @@ import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { lazy, Suspense } from "react";
 import type { SurfaceType } from "@/types/builders";
 
-const SellerEditor = lazy(() => import("./SellerEditor"));
 const EmenuNewEditor = lazy(() => import("./EmenuNewEditor"));
-
-// Seller-engine surfaces share the unified SellerEditor shell. Engine
-// behaviour (allowed sections, quick actions, publish domain, mobile-first
-// canvas) is derived per surface_type via engineRegistry + sellerModes.
-// Phase 12+13: live_bio (Influencer) joins the seller shell.
-// Phase 14+16: community_group (Community: events / courses / freelance)
-// also routes through SellerEditor. Sub-type is read from
-// metadata.community_subtype to swap quick actions at runtime.
-const SELLER_TYPES = new Set([
-  "eshop",
-  "store_listing",
-  "quick_site",
-  "live_bio",
-  "community_group",
-]);
 
 export default function BuilderEditorRouter() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
@@ -97,20 +81,13 @@ export default function BuilderEditorRouter() {
     </div>
   );
 
-  // Branch routing by surface_type — enforces builder isolation per
-  // Builder Bible Ch. 20 Rules 1–5. Each surface_type maps to exactly
-  // one editor; no cross-engine module leakage is permitted.
-  let EditorComponent: React.ComponentType;
-  // Validated by YANGU_BUILDER_SPEC surface_type enum
-  const typedSurface = surfaceType as SurfaceType;
-  if (SELLER_TYPES.has(typedSurface)) {
-    EditorComponent = SellerEditor;
-  } else if (typedSurface === "emenu") {
-    EditorComponent = EmenuNewEditor;
-  } else {
-    // Unknown / legacy surface types fall back to the unified Emenu shell.
-    EditorComponent = EmenuNewEditor;
-  }
+  // All surfaces use the unified EmenuNewEditor shell. Engine-specific
+  // behaviour (allowed sections, quick actions, publish domain, modules)
+  // is derived per surface_type via engineRegistry + sellerModes inside
+  // the shell. SellerEditor is the legacy block editor and is no longer
+  // reachable from routing.
+  void (surfaceType as SurfaceType);
+  const EditorComponent: React.ComponentType = EmenuNewEditor;
 
   return (
     <Suspense fallback={fallbackLoader}>
