@@ -307,7 +307,7 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
         sell_channel: ctrl.sellChannel || "",
       };
       // Phase 14 wiring: detect community sub-type from the user's idea and
-      // persist it so SellerEditor narrows quick actions to the correct group.
+      // persist it so the unified editor narrows quick actions to the right group.
       if (cat === "community") {
         const sub = communitySubtypeFromText(ctrl.userIdea || "");
         if (sub) metadata.community_subtype = sub;
