@@ -466,8 +466,8 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
           payment_methods: answers.payment_methods,
           sell_channel: answers.sell_channel,
         };
-        // Phase 14 wiring: persist community sub-type so SellerEditor can
-        // narrow its quick-action palette to the right group.
+        // Phase 14 wiring: persist community sub-type so the unified editor
+        // narrows its quick-action palette to the right group.
         if (engineKey === "community") {
           const sub = communitySubtypeFromText(
             String(answers.business_description || ""),
