@@ -106,6 +106,14 @@ html, body { overflow-x: hidden !important; max-width: 100vw; }
   flex-shrink: 0 !important;
 }
 
+.yangu-public-snapshot [data-yangu-injected-cta="true"] {
+  border: 1px solid hsl(var(--primary)) !important;
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+}
+
 @media (min-width: 1025px) {
   .yangu-public-snapshot .yangu-commerce-grid,
   .yangu-public-snapshot .yangu-product-grid,
