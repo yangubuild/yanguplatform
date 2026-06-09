@@ -21,34 +21,114 @@ export function PublicSurfaceStyles() {
       // against template inline styles without breaking the editor canvas.
       dangerouslySetInnerHTML={{
         __html: `
-/* Lock the public surface to vertical scrolling only */
+/* Global commerce renderer contract: vertical page scroll only */
 html, body { overflow-x: hidden !important; max-width: 100vw; }
-.yangu-public-snapshot, .yangu-public-snapshot * { box-sizing: border-box; }
+.yangu-public-snapshot,
+.yangu-public-snapshot * { box-sizing: border-box; min-width: 0; }
 .yangu-public-snapshot { width: 100%; max-width: 100vw; overflow-x: hidden; }
 .yangu-public-snapshot img,
 .yangu-public-snapshot video,
 .yangu-public-snapshot svg,
 .yangu-public-snapshot canvas { max-width: 100%; height: auto; }
 
-/* Desktop / tablet: keep product grids as a grid (matches editor) */
-@media (min-width: 769px) {
-  .yangu-public-snapshot .yangu-product-grid,
-  .yangu-public-snapshot [style*="grid-template-columns:repeat("] {
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
-    gap: 16px !important;
-  }
-  .yangu-public-snapshot .yangu-product-grid > *,
-  .yangu-public-snapshot [style*="grid-template-columns"] > div[style*="border-radius"] {
-    max-width: 360px !important;
-    width: 100% !important;
-    justify-self: center !important;
-  }
-  /* Cap any single section image on desktop so the live page never balloons */
-  .yangu-public-snapshot section img,
-  .yangu-public-snapshot article img { max-height: 560px; object-fit: cover; }
+/* Shared commerce grids for every template and future template */
+.yangu-public-snapshot .yangu-commerce-grid,
+.yangu-public-snapshot .yangu-product-grid,
+.yangu-public-snapshot [data-products-grid="true"],
+.yangu-public-snapshot [data-section-type="products"],
+.yangu-public-snapshot [data-section-type="product_grid"],
+.yangu-public-snapshot [data-section-type="menu"],
+.yangu-public-snapshot [data-section-type="listings"],
+.yangu-public-snapshot [data-section-type="listing_grid"],
+.yangu-public-snapshot [data-section-type="featured"],
+.yangu-public-snapshot [style*="grid-template-columns:repeat("] {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+  gap: 16px !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
-/* Mobile: hide duplicate template navigation so LiveShopAppShell owns nav */
+.yangu-public-snapshot .yangu-commerce-card,
+.yangu-public-snapshot [data-product-card="true"],
+.yangu-public-snapshot [data-yangu-product="true"],
+.yangu-public-snapshot .yangu-product-card {
+  width: 100% !important;
+  max-width: 360px !important;
+  min-width: 0 !important;
+  justify-self: center !important;
+  align-self: stretch !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.yangu-public-snapshot .yangu-commerce-card img,
+.yangu-public-snapshot [data-product-card="true"] img,
+.yangu-public-snapshot [data-yangu-product="true"] img,
+.yangu-public-snapshot .yangu-product-card img,
+.yangu-public-snapshot .yangu-commerce-card-image {
+  width: 100% !important;
+  aspect-ratio: 4 / 3 !important;
+  max-height: 260px !important;
+  object-fit: cover !important;
+  flex: none !important;
+}
+
+.yangu-public-snapshot .yangu-product-footer {
+  margin-top: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+.yangu-public-snapshot .yangu-price-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+.yangu-public-snapshot .yangu-live-cta,
+.yangu-public-snapshot [data-yangu-commerce-cta="true"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 40px !important;
+  min-width: 96px !important;
+  max-width: 100% !important;
+  padding: 10px 16px !important;
+  border-radius: 8px !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+@media (min-width: 1025px) {
+  .yangu-public-snapshot .yangu-commerce-grid,
+  .yangu-public-snapshot .yangu-product-grid,
+  .yangu-public-snapshot [data-products-grid="true"],
+  .yangu-public-snapshot [style*="grid-template-columns:repeat("] {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .yangu-public-snapshot .yangu-commerce-grid,
+  .yangu-public-snapshot .yangu-product-grid,
+  .yangu-public-snapshot [data-products-grid="true"],
+  .yangu-public-snapshot [style*="grid-template-columns:repeat("] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .yangu-public-snapshot .yangu-commerce-card,
+  .yangu-public-snapshot [data-product-card="true"],
+  .yangu-public-snapshot [data-yangu-product="true"],
+  .yangu-public-snapshot .yangu-product-card { max-width: 100% !important; }
+}
+
+/* Mobile: app shell owns navigation and cards stay catalog-browsable */
 @media (max-width: 768px) {
   .yangu-public-snapshot nav,
   .yangu-public-snapshot header nav,
@@ -57,7 +137,6 @@ html, body { overflow-x: hidden !important; max-width: 100vw; }
   .yangu-public-snapshot [class*="Navbar"] {
     display: none !important;
   }
-  /* Template hero/product images must not dominate the viewport */
   .yangu-public-snapshot section:first-of-type,
   .yangu-public-snapshot [class*="hero"],
   .yangu-public-snapshot [class*="Hero"] { min-height: auto !important; max-height: none !important; }
@@ -69,22 +148,37 @@ html, body { overflow-x: hidden !important; max-width: 100vw; }
     width: 100% !important;
     object-fit: cover !important;
   }
-  /* Card images shouldn't exceed ~220px on mobile so density improves */
-  .yangu-public-snapshot .yangu-product-grid img,
-  .yangu-public-snapshot [class*="product"] img,
-  .yangu-public-snapshot [class*="Product"] img,
-  .yangu-public-snapshot [class*="card"] img,
-  .yangu-public-snapshot [class*="Card"] img {
-    max-height: 220px !important;
-    object-fit: cover !important;
-  }
-  /* Collapse product grids to one column, but never wider than viewport */
+  .yangu-public-snapshot .yangu-commerce-grid,
   .yangu-public-snapshot .yangu-product-grid,
+  .yangu-public-snapshot [data-products-grid="true"],
+  .yangu-public-snapshot [data-section-type="products"],
+  .yangu-public-snapshot [data-section-type="product_grid"],
+  .yangu-public-snapshot [data-section-type="menu"],
+  .yangu-public-snapshot [data-section-type="listings"],
+  .yangu-public-snapshot [data-section-type="listing_grid"],
+  .yangu-public-snapshot [data-section-type="featured"],
   .yangu-public-snapshot [style*="grid-template-columns:repeat("] {
     grid-template-columns: 1fr !important;
     gap: 12px !important;
   }
-  /* Horizontal product rails: rail scrolls, page never does */
+  .yangu-public-snapshot .yangu-commerce-card,
+  .yangu-public-snapshot [data-product-card="true"],
+  .yangu-public-snapshot [data-yangu-product="true"],
+  .yangu-public-snapshot .yangu-product-card {
+    max-width: 100% !important;
+  }
+  .yangu-public-snapshot .yangu-commerce-card img,
+  .yangu-public-snapshot [data-product-card="true"] img,
+  .yangu-public-snapshot [data-yangu-product="true"] img,
+  .yangu-public-snapshot .yangu-product-card img,
+  .yangu-public-snapshot .yangu-commerce-card-image {
+    aspect-ratio: 4 / 3 !important;
+    max-height: 220px !important;
+    object-fit: cover !important;
+  }
+  .yangu-public-snapshot .yangu-price-row { flex-direction: column !important; align-items: stretch !important; }
+  .yangu-public-snapshot .yangu-live-cta,
+  .yangu-public-snapshot [data-yangu-commerce-cta="true"] { width: 100% !important; }
   .yangu-public-snapshot [class*="rail"],
   .yangu-public-snapshot [class*="Rail"],
   .yangu-public-snapshot [style*="overflow-x"] {
@@ -93,8 +187,7 @@ html, body { overflow-x: hidden !important; max-width: 100vw; }
     overflow-y: hidden !important;
     -webkit-overflow-scrolling: touch;
   }
-  /* Generous bottom padding so content clears the 64px tab bar + badge */
-  .yangu-public-snapshot { padding-bottom: 96px !important; }
+  .yangu-public-snapshot { padding-bottom: 152px !important; }
 }
         `,
       }}
