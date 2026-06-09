@@ -20,6 +20,7 @@ import { LiveShopAppShell, type LiveShopTab } from "@/components/commerce/LiveSh
 import { MyOrdersView } from "@/components/commerce/MyOrdersView";
 import { PublicWishlistDrawer } from "@/components/commerce/PublicWishlistDrawer";
 import { PublicProductDetailDialog } from "@/components/commerce/PublicProductDetailDialog";
+import { PublicCommerceNormalizer } from "@/components/commerce/PublicCommerceNormalizer";
 import { recordBuyerOrder } from "@/lib/cart/buyerOrders";
 import { ShoppingCart } from "lucide-react";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -108,6 +109,14 @@ export function PublicCommerceShell({
     setView("checkout");
   }, []);
 
+  const handleOpenWishlist = useCallback(() => {
+    setWishlistOpen(true);
+  }, []);
+
+  const handleOpenProductDetail = useCallback((product: any) => {
+    setDetailProduct(product);
+  }, []);
+
   const handleOrderPlaced = useCallback(
     (code: string, info?: { paymentMethod: string; orderId: string; buyerUserId: string | null }) => {
       // Persist a buyer-side reference so My Orders can show this order.
@@ -141,8 +150,8 @@ export function PublicCommerceShell({
   if (typeof window !== "undefined") {
     (window as any).__yangu_add_to_cart = handleAddToCart;
     (window as any).__yangu_open_cart = () => setView("cart");
-    (window as any).__yangu_open_wishlist = () => setWishlistOpen(true);
-    (window as any).__yangu_open_product_detail = (p: any) => setDetailProduct(p);
+    (window as any).__yangu_open_wishlist = handleOpenWishlist;
+    (window as any).__yangu_open_product_detail = handleOpenProductDetail;
   }
 
   // Broadcast cart count to iframe
@@ -196,8 +205,16 @@ export function PublicCommerceShell({
       wishlistCount={wishlistCount}
       activeTab={activeTab}
       onTabChange={handleTabChange}
-      onOpenWishlist={() => setWishlistOpen(true)}
+      onOpenWishlist={handleOpenWishlist}
     >
+      <PublicCommerceNormalizer
+        surfaceId={surfaceId}
+        surfaceType={surfaceType}
+        currency={currency}
+        onAddToCart={handleAddToCart}
+        onOpenProductDetail={handleOpenProductDetail}
+        onOpenWishlist={handleOpenWishlist}
+      />
       {children}
 
       {/* Floating cart FAB — desktop only (mobile uses bottom tab bar) */}
