@@ -8,6 +8,7 @@ import { Loader2, Layout } from "lucide-react";
 import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
 import { PublicCommerceShell } from "@/components/commerce/PublicCommerceShell";
 import { YanguBadge } from "@/components/routing/YanguBadge";
+import { PublicSurfaceStyles } from "@/components/routing/PublicSurfaceStyles";
 import { DEFAULT_THEME, type BuilderTheme } from "@/components/builder/BuilderSettingsDrawer";
 import { deduplicatePublishedSections } from "@/config/builderCoreSections";
 import type {
@@ -158,9 +159,11 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
         surfaceId={surfaceIdForShell}
         ownerId={ownerIdForShell}
         businessName={businessNameForShell}
+        surfaceType={surfaceMeta.surface_type as string | undefined}
       >
+        <PublicSurfaceStyles />
         <div
-          className="min-h-screen bg-background yangu-live"
+          className="min-h-screen bg-background yangu-live yangu-public-snapshot"
           onClick={handleCartDelegate}
           dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
         />
@@ -247,22 +250,38 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   // Influencer: wrap in mobile frame on desktop
   if (isInfluencer) {
     return (
-      <div className="bg-background min-h-screen bg-muted/30 flex justify-center">
-        <div
-          className="w-full max-w-[420px] min-h-screen bg-background yangu-live shadow-xl"
-          style={themeStyle}>
-          {pageContent}
+      <PublicCommerceShell
+        surfaceId={surfaceIdForShell}
+        ownerId={ownerIdForShell}
+        businessName={businessNameForShell}
+        surfaceType={surfaceType as string | undefined}
+      >
+        <PublicSurfaceStyles />
+        <div className="bg-background min-h-screen bg-muted/30 flex justify-center yangu-public-snapshot">
+          <div
+            className="w-full max-w-[420px] min-h-screen bg-background yangu-live shadow-xl"
+            style={themeStyle}>
+            {pageContent}
+          </div>
+          {showBadge && <YanguBadge />}
         </div>
-        {showBadge && <YanguBadge />}
-      </div>
+      </PublicCommerceShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background yangu-live" style={themeStyle}>
-      {pageContent}
-      {showBadge && <YanguBadge />}
-    </div>
+    <PublicCommerceShell
+      surfaceId={surfaceIdForShell}
+      ownerId={ownerIdForShell}
+      businessName={businessNameForShell}
+      surfaceType={surfaceType as string | undefined}
+    >
+      <PublicSurfaceStyles />
+      <div className="min-h-screen bg-background yangu-live yangu-public-snapshot" style={themeStyle}>
+        {pageContent}
+        {showBadge && <YanguBadge />}
+      </div>
+    </PublicCommerceShell>
   );
 }
 

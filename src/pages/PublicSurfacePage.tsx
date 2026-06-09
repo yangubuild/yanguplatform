@@ -170,7 +170,7 @@ export default function PublicSurfacePage() {
       setTimeout(() => { btn.textContent = "Add to Cart"; }, 1200);
     };
     return (
-      <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName}>
+      <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName} surfaceType={pubSurfaceType}>
         <PublicSurfaceStyles />
         <div
           className="min-h-screen bg-background yangu-live yangu-public-snapshot"
@@ -283,7 +283,7 @@ export default function PublicSurfacePage() {
 
   if (isInfluencer) {
     return (
-      <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName}>
+      <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName} surfaceType={pubSurfaceType}>
         <PublicSurfaceStyles />
         <div className="min-h-screen bg-muted/30 flex justify-center">
           <div className="w-full max-w-[420px] min-h-screen bg-background yangu-live shadow-xl" style={themeStyle}>
@@ -296,7 +296,7 @@ export default function PublicSurfacePage() {
   }
 
   return (
-    <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName}>
+    <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName} surfaceType={pubSurfaceType}>
       <PublicSurfaceStyles />
       <div className="min-h-screen bg-background yangu-live yangu-public-snapshot" style={themeStyle}>
         <header className="border-b border-border bg-background/80 backdrop-blur-sm">
