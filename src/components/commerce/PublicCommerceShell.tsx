@@ -217,6 +217,7 @@ export function PublicCommerceShell({
         surfaceId={surfaceId}
         surfaceType={surfaceType}
         currency={currency}
+        buttonStyle={savedButtonStyle}
         onAddToCart={handleAddToCart}
         onOpenProductDetail={handleOpenProductDetail}
         onOpenWishlist={handleOpenWishlist}
