@@ -3,10 +3,20 @@ import type { CartItem } from "@/lib/cart/cartStore";
 
 type AddToCartInput = Omit<CartItem, "quantity" | "surface_id">;
 
+export interface SavedButtonStyle {
+  color?: string;
+  borderRadius?: string;
+  padding?: string;
+  fontSize?: string;
+  text?: string;
+  visible?: boolean;
+}
+
 interface PublicCommerceNormalizerProps {
   surfaceId: string;
   surfaceType?: string;
   currency: string;
+  buttonStyle?: SavedButtonStyle | null;
   onAddToCart: (item: AddToCartInput) => void;
   onOpenProductDetail: (product: any) => void;
   onOpenWishlist: () => void;
@@ -121,6 +131,44 @@ function looksLikeProductCard(el: HTMLElement) {
   return hasTitle && hasPrice;
 }
 
+/**
+ * Document-wide fallback: find every deepest price-bearing element, then walk
+ * up to the smallest sensible card boundary. Catches templates whose cards
+ * live outside any recognizable product container/grid (the reason some
+ * templates showed zero CTAs on desktop).
+ */
+function findCardsByPriceScan(root: ParentNode, cards: Set<HTMLElement>) {
+  const candidates = root.querySelectorAll<HTMLElement>("span, p, div, strong, b, em, h2, h3, h4, h5, h6");
+  candidates.forEach((el) => {
+    const text = normalizeText(el.textContent);
+    if (!text || text.length > 40 || !isPriceText(text)) return;
+    // Only the deepest matching element — skip wrappers whose child also matches
+    if (Array.from(el.children).some((c) => isPriceText(normalizeText((c as HTMLElement).textContent)))) return;
+    // Walk up to find the outermost compact ancestor that looks like a card
+    let node: HTMLElement | null = el.parentElement;
+    let best: HTMLElement | null = null;
+    let depth = 0;
+    while (node && depth < 7 && node !== document.body && !node.classList.contains("yangu-public-snapshot")) {
+      const totalText = normalizeText(node.textContent);
+      if (totalText.length > 600) break; // too big — left the card boundary
+      if (looksLikeProductCard(node)) {
+        best = node;
+      } else {
+        // Looser boundary: anchor/article/li wrappers whose text is the
+        // price plus a product name (templates using plain spans for titles)
+        const tag = node.tagName;
+        const remainder = totalText.replace(text, "").trim();
+        if ((tag === "A" || tag === "ARTICLE" || tag === "LI") && remainder.length >= 3 && totalText.length <= 300) {
+          best = node;
+        }
+      }
+      node = node.parentElement;
+      depth++;
+    }
+    if (best) cards.add(best);
+  });
+}
+
 function findProductCards(root: ParentNode) {
   const cards = new Set<HTMLElement>();
   root.querySelectorAll<HTMLElement>('[data-product-card="true"], [data-yangu-product="true"], .yangu-product-card').forEach((card) => {
@@ -141,6 +189,9 @@ function findProductCards(root: ParentNode) {
   root.querySelectorAll<HTMLElement>(".yangu-card").forEach((card) => {
     if (looksLikeProductCard(card)) cards.add(card);
   });
+  // Global price scan — guarantees every priced card is found on every
+  // template, desktop and mobile alike.
+  findCardsByPriceScan(root, cards);
   return Array.from(cards).filter((card) => !Array.from(cards).some((other) => other !== card && card.contains(other) && looksLikeProductCard(other)));
 }
 
@@ -148,6 +199,7 @@ export function PublicCommerceNormalizer({
   surfaceId,
   surfaceType,
   currency,
+  buttonStyle,
   onAddToCart,
   onOpenProductDetail,
   onOpenWishlist,
@@ -173,11 +225,28 @@ export function PublicCommerceNormalizer({
           img.loading = img.loading || "lazy";
         }
 
-        const ctaDisabled = card.getAttribute("data-product-cta") === "none" || card.getAttribute("data-yangu-cta-disabled") === "true";
+        const ctaDisabled =
+          card.getAttribute("data-product-cta") === "none" ||
+          card.getAttribute("data-yangu-cta-disabled") === "true" ||
+          buttonStyle?.visible === false;
+
+        // Resolve effective button style: per-card attrs (saved into the HTML
+        // by the editor) win, then surface-level metadata.button_style, then defaults.
+        const btnColor = card.getAttribute("data-product-button-color") || buttonStyle?.color || "#111827";
+        const btnRadius = card.getAttribute("data-product-button-radius") || buttonStyle?.borderRadius || "6px";
+        const btnPadding = card.getAttribute("data-product-button-padding") || buttonStyle?.padding || "10px 16px";
+        const btnFontSize = card.getAttribute("data-product-button-font-size") || buttonStyle?.fontSize || "14px";
+        const btnText = card.getAttribute("data-product-button-text") || buttonStyle?.text || "+ Add";
+
         const existingCta = card.querySelector<HTMLElement>(".yangu-live-cta, .yangu-cta, [data-yangu-order-btn]");
         if (existingCta) {
           existingCta.classList.add("yangu-live-cta");
           existingCta.setAttribute("data-yangu-commerce-cta", "true");
+          // Apply saved style to template-supplied CTAs too, so editor
+          // settings propagate to every button on the live page.
+          if (buttonStyle?.color || card.getAttribute("data-product-button-color")) existingCta.style.background = btnColor;
+          if (buttonStyle?.borderRadius || card.getAttribute("data-product-button-radius")) existingCta.style.borderRadius = btnRadius;
+          if (buttonStyle?.visible === false) existingCta.style.display = "none";
         } else if (!ctaDisabled) {
           const product = readProduct(card, currency);
           const footer = card.querySelector<HTMLElement>(".yangu-product-footer") || document.createElement("div");
@@ -187,20 +256,20 @@ export function PublicCommerceNormalizer({
             // Inline styles guarantee the footer is visible even when the
             // template's card uses overflow:hidden or fixed-height children.
             footer.style.cssText =
-              "display:flex;flex-direction:column;gap:8px;width:100%;padding:10px 12px 12px;margin-top:auto;";
+              "display:block;width:100%;padding:0 0 12px;margin-top:auto;";
             card.appendChild(footer);
           }
           const button = document.createElement("button");
           button.type = "button";
-          button.textContent = card.getAttribute("data-product-button-text") || "+ Add";
+          button.textContent = btnText;
           button.className = "yangu-live-cta";
           button.setAttribute("data-yangu-commerce-cta", "true");
           button.setAttribute("data-yangu-injected-cta", "true");
           button.setAttribute("aria-label", `Add ${product.name} to cart`);
-          // Hard-coded inline styles so the CTA renders consistently across
-          // every scraped template, regardless of the template's own CSS.
+          // Exact inline styles so the CTA is visible on every template
+          // regardless of its CSS, with saved button_style overrides applied.
           button.style.cssText =
-            "display:flex;align-items:center;justify-content:center;width:100%;min-height:40px;padding:10px 16px;border-radius:8px;background:#111;color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;white-space:nowrap;";
+            `display:block;width:calc(100% - 16px);margin:8px auto 0;padding:${btnPadding};background:${btnColor};color:#ffffff;font-size:${btnFontSize};font-weight:600;text-align:center;border:none;border-radius:${btnRadius};cursor:pointer;min-height:40px;`;
           footer.appendChild(button);
         }
       });
@@ -263,7 +332,7 @@ export function PublicCommerceNormalizer({
       document.removeEventListener("click", handleClick, true);
       window.removeEventListener("message", handleMessage);
     };
-  }, [currency, onAddToCart, onOpenProductDetail, onOpenWishlist, surfaceId, surfaceType]);
+  }, [currency, buttonStyle, onAddToCart, onOpenProductDetail, onOpenWishlist, surfaceId, surfaceType]);
 
   return null;
 }

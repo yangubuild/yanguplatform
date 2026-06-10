@@ -100,18 +100,15 @@ html, body { overflow-x: hidden !important; max-width: 100vw; }
   min-height: 40px !important;
   min-width: 96px !important;
   max-width: 100% !important;
-  padding: 10px 16px !important;
-  border-radius: 8px !important;
   white-space: nowrap !important;
   flex-shrink: 0 !important;
 }
 
 .yangu-public-snapshot [data-yangu-injected-cta="true"] {
-  border: 1px solid hsl(var(--primary)) !important;
-  background: hsl(var(--primary)) !important;
-  color: hsl(var(--primary-foreground)) !important;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
   cursor: pointer !important;
+  /* color/background/radius come from inline styles set by the normalizer
+     (saved metadata.button_style wins) — do NOT force them here. */
 }
 
 @media (min-width: 1025px) {

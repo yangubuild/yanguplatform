@@ -538,6 +538,14 @@ export default function EmenuNewEditor() {
 
   // ─── Read saved button style from iframe after HTML loads ───
   useEffect(() => {
+    // Saved metadata wins — pre-select the persisted button style on load.
+    const bs = (surfaceMeta as any)?.button_style;
+    if (bs?.color) setSavedButtonColor(bs.color);
+    if (bs?.borderRadius) setSavedButtonRadius(bs.borderRadius);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editorState?.surface]);
+
+  useEffect(() => {
     if (!liveHtml) return;
     const timer = setTimeout(() => {
       const iframe = getIframe();
@@ -1251,6 +1259,37 @@ export default function EmenuNewEditor() {
         // Sync editor state so ButtonStylePanel stays in sync
         if (payload?.color) setSavedButtonColor(payload.color);
         if (payload?.borderRadius) setSavedButtonRadius(payload.borderRadius);
+        // Persist style to builder_surfaces.metadata.button_style so it
+        // survives editor reloads and propagates to the published page.
+        if (surfaceId) {
+          (async () => {
+            try {
+              const { data: surfData } = await supabase
+                .from("builder_surfaces")
+                .select("metadata")
+                .eq("id", surfaceId)
+                .single();
+              const meta = (surfData?.metadata as any) || {};
+              const prev = meta.button_style || {};
+              await supabase.from("builder_surfaces").update({
+                metadata: {
+                  ...meta,
+                  button_style: {
+                    ...prev,
+                    ...(payload?.color ? { color: payload.color } : {}),
+                    ...(payload?.borderRadius ? { borderRadius: payload.borderRadius } : {}),
+                    ...(payload?.padding ? { padding: payload.padding } : {}),
+                    ...(payload?.fontSize ? { fontSize: payload.fontSize } : {}),
+                    ...(typeof payload?.text === "string" ? { text: payload.text } : {}),
+                    ...(typeof payload?.visible === "boolean" ? { visible: payload.visible } : {}),
+                  },
+                },
+              }).eq("id", surfaceId);
+            } catch (e) {
+              console.error("[EmenuNewEditor] button_style persist failed:", e);
+            }
+          })();
+        }
         iframe?.contentWindow?.postMessage({ type: "re-inject-product-controls" }, "*");
         // Small delay to let injection complete, then query
         setTimeout(() => {

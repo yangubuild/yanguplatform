@@ -55,6 +55,25 @@ export function CommerceSetupChat({ open, onClose, surfaceId, ownerId }: Commerc
   // Reset on open
   useEffect(() => {
     if (!open) return;
+    // Already completed? Don't restart the wizard from the beginning.
+    const alreadyComplete =
+      !!config?.ordering_enabled &&
+      Array.isArray(config?.payment_methods) &&
+      config!.payment_methods.length > 0 &&
+      !!config?.support_whatsapp;
+    if (alreadyComplete) {
+      setMessages([
+        {
+          id: "done-1",
+          role: "ada",
+          content:
+            "Your payment setup is already complete. You can change any of these details anytime from your dashboard settings.",
+        },
+      ]);
+      setStep("done");
+      setTextValue("");
+      return;
+    }
     setMessages([
       {
         id: "intro-1",
@@ -71,7 +90,7 @@ export function CommerceSetupChat({ open, onClose, surfaceId, ownerId }: Commerc
     setMethods(config?.payment_methods || []);
     setStep("methods");
     setTextValue("");
-  }, [open, config?.payment_methods]);
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -151,6 +170,12 @@ export function CommerceSetupChat({ open, onClose, surfaceId, ownerId }: Commerc
   };
 
   const finish = () => {
+    // Mark setup complete: ordering on = the banner's completion contract is
+    // satisfied server-side, plus a local flag so the popup never reappears.
+    void persist({ ordering_enabled: true });
+    try {
+      localStorage.setItem(`yangu_setup_complete_${surfaceId}`, "1");
+    } catch { /* ignore */ }
     pushAda("All set! Your payment options are live. Want to edit your page design now?");
     setStep("done");
   };
