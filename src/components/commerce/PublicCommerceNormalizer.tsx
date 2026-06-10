@@ -151,7 +151,17 @@ function findCardsByPriceScan(root: ParentNode, cards: Set<HTMLElement>) {
     while (node && depth < 7 && node !== document.body && !node.classList.contains("yangu-public-snapshot")) {
       const totalText = normalizeText(node.textContent);
       if (totalText.length > 600) break; // too big — left the card boundary
-      if (looksLikeProductCard(node)) best = node;
+      if (looksLikeProductCard(node)) {
+        best = node;
+      } else {
+        // Looser boundary: anchor/article/li wrappers whose text is the
+        // price plus a product name (templates using plain spans for titles)
+        const tag = node.tagName;
+        const remainder = totalText.replace(text, "").trim();
+        if ((tag === "A" || tag === "ARTICLE" || tag === "LI") && remainder.length >= 3 && totalText.length <= 300) {
+          best = node;
+        }
+      }
       node = node.parentElement;
       depth++;
     }
