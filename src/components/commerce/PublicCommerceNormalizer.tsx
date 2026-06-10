@@ -131,6 +131,34 @@ function looksLikeProductCard(el: HTMLElement) {
   return hasTitle && hasPrice;
 }
 
+/**
+ * Document-wide fallback: find every deepest price-bearing element, then walk
+ * up to the smallest sensible card boundary. Catches templates whose cards
+ * live outside any recognizable product container/grid (the reason some
+ * templates showed zero CTAs on desktop).
+ */
+function findCardsByPriceScan(root: ParentNode, cards: Set<HTMLElement>) {
+  const candidates = root.querySelectorAll<HTMLElement>("span, p, div, strong, b, em, h2, h3, h4, h5, h6");
+  candidates.forEach((el) => {
+    const text = normalizeText(el.textContent);
+    if (!text || text.length > 40 || !isPriceText(text)) return;
+    // Only the deepest matching element — skip wrappers whose child also matches
+    if (Array.from(el.children).some((c) => isPriceText(normalizeText((c as HTMLElement).textContent)))) return;
+    // Walk up to find the outermost compact ancestor that looks like a card
+    let node: HTMLElement | null = el.parentElement;
+    let best: HTMLElement | null = null;
+    let depth = 0;
+    while (node && depth < 7 && node !== document.body && !node.classList.contains("yangu-public-snapshot")) {
+      const totalText = normalizeText(node.textContent);
+      if (totalText.length > 600) break; // too big — left the card boundary
+      if (looksLikeProductCard(node)) best = node;
+      node = node.parentElement;
+      depth++;
+    }
+    if (best) cards.add(best);
+  });
+}
+
 function findProductCards(root: ParentNode) {
   const cards = new Set<HTMLElement>();
   root.querySelectorAll<HTMLElement>('[data-product-card="true"], [data-yangu-product="true"], .yangu-product-card').forEach((card) => {
@@ -151,6 +179,9 @@ function findProductCards(root: ParentNode) {
   root.querySelectorAll<HTMLElement>(".yangu-card").forEach((card) => {
     if (looksLikeProductCard(card)) cards.add(card);
   });
+  // Global price scan — guarantees every priced card is found on every
+  // template, desktop and mobile alike.
+  findCardsByPriceScan(root, cards);
   return Array.from(cards).filter((card) => !Array.from(cards).some((other) => other !== card && card.contains(other) && looksLikeProductCard(other)));
 }
 
