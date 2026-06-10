@@ -322,7 +322,7 @@ export function PublicCommerceNormalizer({
       document.removeEventListener("click", handleClick, true);
       window.removeEventListener("message", handleMessage);
     };
-  }, [currency, onAddToCart, onOpenProductDetail, onOpenWishlist, surfaceId, surfaceType]);
+  }, [currency, buttonStyle, onAddToCart, onOpenProductDetail, onOpenWishlist, surfaceId, surfaceType]);
 
   return null;
 }

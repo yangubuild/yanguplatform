@@ -92,6 +92,12 @@ export function PublicCommerceShell({
     (surface?.metadata as any)?.brand?.logo_url ||
     undefined;
 
+  // Saved CTA style (set in the editor's Button Style panel, persisted to
+  // builder_surfaces.metadata.button_style and mirrored to public_surfaces).
+  const savedButtonStyle = ((surface?.metadata as any)?.button_style as
+    | import("./PublicCommerceNormalizer").SavedButtonStyle
+    | undefined) || null;
+
   const orderingEnabled = config?.ordering_enabled ?? false;
   const whatsappEnabled = config?.whatsapp_enabled ?? false;
   const currency = config?.currency ?? "USD";
