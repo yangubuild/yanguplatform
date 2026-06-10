@@ -15,22 +15,22 @@ function ensureBadgeFont() {
     link.href = BADGE_FONT_HREF;
     document.head.appendChild(link);
   }
-  // Commerce-safe placement: keep the badge clear of bottom tabs, cart,
-  // wishlist/account tabs, WhatsApp, and any floating commerce action.
+  // Commerce-safe placement: fixed left, above the bottom tab bar, clears
+  // iPhone home indicator / Android nav via safe-area-inset-bottom.
   if (!document.getElementById(BADGE_STYLE_ID)) {
     const style = document.createElement("style");
     style.id = BADGE_STYLE_ID;
     style.textContent = `
       [data-yangu-badge] {
-        bottom: calc(var(--yangu-badge-bottom, 84px) + env(safe-area-inset-bottom, 0px)) !important;
-        left: var(--yangu-badge-left, 16px) !important;
+        position: fixed !important;
+        bottom: calc(env(safe-area-inset-bottom, 16px) + 72px) !important;
+        left: 16px !important;
         right: auto !important;
+        z-index: 9999 !important;
+        max-width: 160px !important;
       }
       @media (max-width: 768px) {
         [data-yangu-badge] {
-          bottom: calc(var(--yangu-mobile-nav-clearance, 148px) + env(safe-area-inset-bottom, 0px)) !important;
-          left: 10px !important;
-          right: auto !important;
           padding: 6px 10px 6px 8px !important;
           font-size: 11px !important;
         }
@@ -41,7 +41,7 @@ function ensureBadgeFont() {
 }
 
 // Raw HTML version for document.write injection
-export const YANGU_BADGE_HTML = `<a data-yangu-badge="true" href="${BADGE_URL}" target="_blank" rel="noopener noreferrer" style="position:fixed;bottom:calc(var(--yangu-badge-bottom, 84px) + env(safe-area-inset-bottom, 0px));left:var(--yangu-badge-left, 16px);right:auto;z-index:9999;display:inline-flex;align-items:center;gap:8px;background:#000;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:8px 14px 8px 10px;color:#fff;text-decoration:none;line-height:1;box-shadow:0 10px 24px rgba(0,0,0,0.18);font-family:'Lufga',system-ui,sans-serif;" onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'"><img src="${BADGE_ICON}" alt="" aria-hidden="true" style="width:18px;height:18px;display:block;flex-shrink:0;border-radius:4px;" /><span style="display:inline-flex;align-items:center;gap:4px;font-family:'Lufga',system-ui,sans-serif;font-size:12px;font-weight:700;letter-spacing:0;"><span style="opacity:0.92;">Made in</span><span style="font-family:'Lufga',system-ui,sans-serif;font-size:12px;font-weight:700;text-transform:lowercase;">yangu</span></span></a>`;
+export const YANGU_BADGE_HTML = `<a data-yangu-badge="true" href="${BADGE_URL}" target="_blank" rel="noopener noreferrer" style="position:fixed;bottom:calc(env(safe-area-inset-bottom, 16px) + 72px);left:16px;right:auto;z-index:9999;max-width:160px;display:inline-flex;align-items:center;gap:8px;background:#000;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:8px 14px 8px 10px;color:#fff;text-decoration:none;line-height:1;box-shadow:0 10px 24px rgba(0,0,0,0.18);font-family:'Lufga',system-ui,sans-serif;" onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'"><img src="${BADGE_ICON}" alt="" aria-hidden="true" style="width:18px;height:18px;display:block;flex-shrink:0;border-radius:4px;" /><span style="display:inline-flex;align-items:center;gap:4px;font-family:'Lufga',system-ui,sans-serif;font-size:12px;font-weight:700;letter-spacing:0;"><span style="opacity:0.92;">Made in</span><span style="font-family:'Lufga',system-ui,sans-serif;font-size:12px;font-weight:700;text-transform:lowercase;">yangu</span></span></a>`;
 
 export function YanguBadge() {
   useEffect(() => {
@@ -56,10 +56,11 @@ export function YanguBadge() {
       data-yangu-badge="true"
       style={{
         position: "fixed",
-        bottom: "calc(var(--yangu-badge-bottom, 84px) + env(safe-area-inset-bottom, 0px))",
-        left: "var(--yangu-badge-left, 16px)",
+        bottom: "calc(env(safe-area-inset-bottom, 16px) + 72px)",
+        left: 16,
         right: "auto",
         zIndex: 9999,
+        maxWidth: 160,
         display: "inline-flex",
         alignItems: "center",
         gap: 8,
