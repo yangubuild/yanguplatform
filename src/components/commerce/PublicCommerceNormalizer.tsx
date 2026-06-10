@@ -32,7 +32,9 @@ function normalizeText(value: string | null | undefined) {
 function isPriceText(text: string) {
   const compact = normalizeText(text);
   if (!compact || compact.length > 40) return false;
-  return /(?:[$€£₦]\s*\d|\b(?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR|KSh)\s*\d|R\s*\d)/i.test(compact);
+  // Match both currency-prefix ("$ 7.90", "EUR 7.90") and
+  // currency-suffix ("7,90 €", "7.90 EUR") formats used across regions.
+  return /(?:[$€£₦]\s*\d|\b(?:UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR|KSh)\s*\d|R\s*\d|\d[\d.,]*\s*(?:[$€£₦]|UGX|USD|EUR|GBP|KES|TZS|AED|NGN|ZAR|KSh))/i.test(compact);
 }
 
 function parsePriceCents(text: string) {
@@ -114,10 +116,9 @@ function findProductContainers(root: ParentNode) {
 function looksLikeProductCard(el: HTMLElement) {
   if (el.dataset.yanguNormalizedCard === "true") return true;
   if (el.matches('[data-product-card="true"], [data-yangu-product="true"], .yangu-product-card')) return true;
-  const hasImage = !!el.querySelector("img");
   const hasTitle = !!el.querySelector('[data-product-role="title"], h1, h2, h3, h4, h5, h6, p.truncate, strong');
   const hasPrice = isPriceText(el.textContent || "");
-  return hasImage && hasTitle && hasPrice;
+  return hasTitle && hasPrice;
 }
 
 function findProductCards(root: ParentNode) {
