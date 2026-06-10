@@ -538,6 +538,14 @@ export default function EmenuNewEditor() {
 
   // ─── Read saved button style from iframe after HTML loads ───
   useEffect(() => {
+    // Saved metadata wins — pre-select the persisted button style on load.
+    const bs = (surfaceMeta as any)?.button_style;
+    if (bs?.color) setSavedButtonColor(bs.color);
+    if (bs?.borderRadius) setSavedButtonRadius(bs.borderRadius);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editorState?.surface]);
+
+  useEffect(() => {
     if (!liveHtml) return;
     const timer = setTimeout(() => {
       const iframe = getIframe();
