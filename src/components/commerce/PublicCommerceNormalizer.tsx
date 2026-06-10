@@ -189,6 +189,7 @@ export function PublicCommerceNormalizer({
   surfaceId,
   surfaceType,
   currency,
+  buttonStyle,
   onAddToCart,
   onOpenProductDetail,
   onOpenWishlist,
@@ -214,11 +215,28 @@ export function PublicCommerceNormalizer({
           img.loading = img.loading || "lazy";
         }
 
-        const ctaDisabled = card.getAttribute("data-product-cta") === "none" || card.getAttribute("data-yangu-cta-disabled") === "true";
+        const ctaDisabled =
+          card.getAttribute("data-product-cta") === "none" ||
+          card.getAttribute("data-yangu-cta-disabled") === "true" ||
+          buttonStyle?.visible === false;
+
+        // Resolve effective button style: per-card attrs (saved into the HTML
+        // by the editor) win, then surface-level metadata.button_style, then defaults.
+        const btnColor = card.getAttribute("data-product-button-color") || buttonStyle?.color || "#111827";
+        const btnRadius = card.getAttribute("data-product-button-radius") || buttonStyle?.borderRadius || "6px";
+        const btnPadding = card.getAttribute("data-product-button-padding") || buttonStyle?.padding || "10px 16px";
+        const btnFontSize = card.getAttribute("data-product-button-font-size") || buttonStyle?.fontSize || "14px";
+        const btnText = card.getAttribute("data-product-button-text") || buttonStyle?.text || "+ Add";
+
         const existingCta = card.querySelector<HTMLElement>(".yangu-live-cta, .yangu-cta, [data-yangu-order-btn]");
         if (existingCta) {
           existingCta.classList.add("yangu-live-cta");
           existingCta.setAttribute("data-yangu-commerce-cta", "true");
+          // Apply saved style to template-supplied CTAs too, so editor
+          // settings propagate to every button on the live page.
+          if (buttonStyle?.color || card.getAttribute("data-product-button-color")) existingCta.style.background = btnColor;
+          if (buttonStyle?.borderRadius || card.getAttribute("data-product-button-radius")) existingCta.style.borderRadius = btnRadius;
+          if (buttonStyle?.visible === false) existingCta.style.display = "none";
         } else if (!ctaDisabled) {
           const product = readProduct(card, currency);
           const footer = card.querySelector<HTMLElement>(".yangu-product-footer") || document.createElement("div");
@@ -228,20 +246,20 @@ export function PublicCommerceNormalizer({
             // Inline styles guarantee the footer is visible even when the
             // template's card uses overflow:hidden or fixed-height children.
             footer.style.cssText =
-              "display:flex;flex-direction:column;gap:8px;width:100%;padding:10px 12px 12px;margin-top:auto;";
+              "display:block;width:100%;padding:0 0 12px;margin-top:auto;";
             card.appendChild(footer);
           }
           const button = document.createElement("button");
           button.type = "button";
-          button.textContent = card.getAttribute("data-product-button-text") || "+ Add";
+          button.textContent = btnText;
           button.className = "yangu-live-cta";
           button.setAttribute("data-yangu-commerce-cta", "true");
           button.setAttribute("data-yangu-injected-cta", "true");
           button.setAttribute("aria-label", `Add ${product.name} to cart`);
-          // Hard-coded inline styles so the CTA renders consistently across
-          // every scraped template, regardless of the template's own CSS.
+          // Exact inline styles so the CTA is visible on every template
+          // regardless of its CSS, with saved button_style overrides applied.
           button.style.cssText =
-            "display:flex;align-items:center;justify-content:center;width:100%;min-height:40px;padding:10px 16px;border-radius:8px;background:#111;color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;white-space:nowrap;";
+            `display:block;width:calc(100% - 16px);margin:8px auto 0;padding:${btnPadding};background:${btnColor};color:#ffffff;font-size:${btnFontSize};font-weight:600;text-align:center;border:none;border-radius:${btnRadius};cursor:pointer;min-height:40px;`;
           footer.appendChild(button);
         }
       });
