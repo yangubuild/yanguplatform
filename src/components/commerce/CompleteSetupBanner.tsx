@@ -25,11 +25,20 @@ export function CompleteSetupBanner({ surfaceId, ownerId }: CompleteSetupBannerP
     return localStorage.getItem(`yangu_setup_dismissed_${surfaceId}`) === "1";
   });
 
+  // Completion flag written by CommerceSetupChat.finish() — once setup is
+  // done the banner must never reappear (unless the merchant resets setup).
+  const completedLocally =
+    typeof window !== "undefined" &&
+    localStorage.getItem(`yangu_setup_complete_${surfaceId}`) === "1";
+
   const isComplete =
+    completedLocally ||
+    (
     !!config?.ordering_enabled &&
     Array.isArray(config?.payment_methods) &&
     config!.payment_methods.length > 0 &&
-    !!config?.support_whatsapp;
+    !!config?.support_whatsapp
+    );
 
   if (isComplete || dismissed) return null;
 
