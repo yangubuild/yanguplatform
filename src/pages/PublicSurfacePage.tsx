@@ -20,6 +20,43 @@ import { Loader2 } from "lucide-react";
 import { recordSurfaceView } from "@/lib/analytics/recordSurfaceView";
 
 /**
+ * Responsive CSS prepended to every published HTML snapshot at render time.
+ * The stored template HTML is desktop-only and has no media queries — this
+ * block injects mobile breakpoints, grid collapse, hero clamps, and overflow
+ * guards without mutating the stored HTML.
+ */
+const RESPONSIVE_CSS = `
+<style data-yangu-responsive="true">
+@media (max-width: 767px) {
+  nav ul, nav ol, header ul, header ol,
+  [class*="nav"] ul, [class*="menu"] ul, [class*="navbar"] ul { display: none !important; }
+  [class*="hamburger"], [class*="mobile-menu"], [class*="menu-toggle"] { display: flex !important; }
+  nav, header, [class*="header"] { overflow: hidden !important; flex-wrap: wrap !important; }
+  [class*="grid-cols-3"], [class*="grid-cols-4"],
+  [style*="grid-template-columns"]:not([style*="1fr"]) { grid-template-columns: 1fr !important; }
+  [class*="flex"]:not([class*="flex-col"]) > * { flex: 0 0 100% !important; max-width: 100% !important; }
+  [class*="columns-"], [class*="col-span-"] { column-count: 1 !important; grid-column: span 1 !important; }
+  [class*="hero"], [class*="banner"], section:first-of-type {
+    min-height: unset !important; max-height: 60vh !important; height: auto !important;
+  }
+  [class*="hero"] h1, [class*="banner"] h1 { font-size: clamp(1.5rem, 5vw, 2.5rem) !important; }
+}
+@media (max-width: 639px) {
+  [class*="grid-cols-2"] { grid-template-columns: 1fr !important; }
+  [class*="flex"]:not([class*="flex-col"]) { flex-direction: column !important; }
+}
+.yangu-badge, [class*="yangu-badge"], [class*="made-in-yangu"] {
+  position: fixed !important;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 80px) !important;
+  right: 16px !important; z-index: 999 !important; max-width: 160px !important;
+}
+body, html { overflow-x: hidden !important; max-width: 100vw !important; }
+* { box-sizing: border-box !important; }
+img, video, iframe { max-width: 100% !important; height: auto !important; }
+</style>
+`;
+
+/**
  * Public published page renderer.
  * All surfaces render from compiled JSON sections in published_schema via the React
  * commerce shell. HTML snapshot rendering is retired.
@@ -76,7 +113,7 @@ export default function PublicSurfacePage() {
   const sanitizedHtml = useMemo(() => {
     if (!rawHtml) return null;
     try {
-      return DOMPurify.sanitize(rawHtml, {
+      const clean = DOMPurify.sanitize(rawHtml, {
         ADD_TAGS: ["style", "link", "iframe"],
         ADD_ATTR: [
           "target",
@@ -91,6 +128,9 @@ export default function PublicSurfacePage() {
         FORBID_TAGS: ["script"],
         FORBID_ATTR: ["onerror", "onload", "onclick"],
       });
+      // Prepend responsive CSS so mobile breakpoints exist even when the
+      // stored desktop template HTML omits them.
+      return RESPONSIVE_CSS + clean;
     } catch (e) {
       console.error("[PublicSurfacePage] sanitize error:", e);
       return null;

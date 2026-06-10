@@ -184,6 +184,10 @@ export function PublicCommerceNormalizer({
           if (!footer.isConnected) {
             footer.className = "yangu-product-footer";
             footer.setAttribute("data-yangu-injected", "true");
+            // Inline styles guarantee the footer is visible even when the
+            // template's card uses overflow:hidden or fixed-height children.
+            footer.style.cssText =
+              "display:flex;flex-direction:column;gap:8px;width:100%;padding:10px 12px 12px;margin-top:auto;";
             card.appendChild(footer);
           }
           const button = document.createElement("button");
@@ -193,6 +197,10 @@ export function PublicCommerceNormalizer({
           button.setAttribute("data-yangu-commerce-cta", "true");
           button.setAttribute("data-yangu-injected-cta", "true");
           button.setAttribute("aria-label", `Add ${product.name} to cart`);
+          // Hard-coded inline styles so the CTA renders consistently across
+          // every scraped template, regardless of the template's own CSS.
+          button.style.cssText =
+            "display:flex;align-items:center;justify-content:center;width:100%;min-height:40px;padding:10px 16px;border-radius:8px;background:#111;color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;white-space:nowrap;";
           footer.appendChild(button);
         }
       });
