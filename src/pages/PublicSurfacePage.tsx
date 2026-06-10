@@ -8,6 +8,7 @@ import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
 import { PublicCommerceShell } from "@/components/commerce/PublicCommerceShell";
+import { PUBLIC_RESPONSIVE_CSS } from "@/components/commerce/publicResponsiveCss";
 import { YanguBadge } from "@/components/routing/YanguBadge";
 import { PublicSurfaceStyles } from "@/components/routing/PublicSurfaceStyles";
 import { DEFAULT_THEME, type BuilderTheme } from "@/components/builder/BuilderSettingsDrawer";
@@ -18,43 +19,6 @@ import type {
 } from "@/types/builder";
 import { Loader2 } from "lucide-react";
 import { recordSurfaceView } from "@/lib/analytics/recordSurfaceView";
-
-/**
- * Responsive CSS prepended to every published HTML snapshot at render time.
- * The stored template HTML is desktop-only and has no media queries — this
- * block injects mobile breakpoints, grid collapse, hero clamps, and overflow
- * guards without mutating the stored HTML.
- */
-const RESPONSIVE_CSS = `
-<style data-yangu-responsive="true">
-@media (max-width: 767px) {
-  nav ul, nav ol, header ul, header ol,
-  [class*="nav"] ul, [class*="menu"] ul, [class*="navbar"] ul { display: none !important; }
-  [class*="hamburger"], [class*="mobile-menu"], [class*="menu-toggle"] { display: flex !important; }
-  nav, header, [class*="header"] { overflow: hidden !important; flex-wrap: wrap !important; }
-  [class*="grid-cols-3"], [class*="grid-cols-4"],
-  [style*="grid-template-columns"]:not([style*="1fr"]) { grid-template-columns: 1fr !important; }
-  [class*="flex"]:not([class*="flex-col"]) > * { flex: 0 0 100% !important; max-width: 100% !important; }
-  [class*="columns-"], [class*="col-span-"] { column-count: 1 !important; grid-column: span 1 !important; }
-  [class*="hero"], [class*="banner"], section:first-of-type {
-    min-height: unset !important; max-height: 60vh !important; height: auto !important;
-  }
-  [class*="hero"] h1, [class*="banner"] h1 { font-size: clamp(1.5rem, 5vw, 2.5rem) !important; }
-}
-@media (max-width: 639px) {
-  [class*="grid-cols-2"] { grid-template-columns: 1fr !important; }
-  [class*="flex"]:not([class*="flex-col"]) { flex-direction: column !important; }
-}
-.yangu-badge, [class*="yangu-badge"], [class*="made-in-yangu"] {
-  position: fixed !important;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 80px) !important;
-  right: 16px !important; z-index: 999 !important; max-width: 160px !important;
-}
-body, html { overflow-x: hidden !important; max-width: 100vw !important; }
-* { box-sizing: border-box !important; }
-img, video, iframe { max-width: 100% !important; height: auto !important; }
-</style>
-`;
 
 /**
  * Public published page renderer.
@@ -130,7 +94,7 @@ export default function PublicSurfacePage() {
       });
       // Prepend responsive CSS so mobile breakpoints exist even when the
       // stored desktop template HTML omits them.
-      return RESPONSIVE_CSS + clean;
+      return PUBLIC_RESPONSIVE_CSS + clean;
     } catch (e) {
       console.error("[PublicSurfacePage] sanitize error:", e);
       return null;

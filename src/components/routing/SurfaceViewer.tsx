@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Layout } from "lucide-react";
 import { PREVIEW_MAP } from "@/components/builder/BuilderPreview";
 import { PublicCommerceShell } from "@/components/commerce/PublicCommerceShell";
+import { PUBLIC_RESPONSIVE_CSS } from "@/components/commerce/publicResponsiveCss";
 import { YanguBadge } from "@/components/routing/YanguBadge";
 import { PublicSurfaceStyles } from "@/components/routing/PublicSurfaceStyles";
 import { DEFAULT_THEME, type BuilderTheme } from "@/components/builder/BuilderSettingsDrawer";
@@ -51,7 +52,7 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   const sanitizedHtml = useMemo(() => {
     if (!rawHtml) return null;
     try {
-      return DOMPurify.sanitize(rawHtml, {
+      const clean = DOMPurify.sanitize(rawHtml, {
         ADD_TAGS: ["style", "link", "iframe"],
         ADD_ATTR: [
           "target", "rel", "allow", "allowfullscreen",
@@ -60,6 +61,9 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
         FORBID_TAGS: ["script"],
         FORBID_ATTR: ["onerror", "onload", "onclick"],
       });
+      // Same responsive layer as PublicSurfacePage — keeps the custom-domain
+      // path (yangu.shop etc.) in lockstep with the lovable.app renderer.
+      return PUBLIC_RESPONSIVE_CSS + clean;
     } catch (e) {
       console.error("[SurfaceViewer] sanitize error:", e);
       return null;
