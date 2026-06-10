@@ -3,10 +3,20 @@ import type { CartItem } from "@/lib/cart/cartStore";
 
 type AddToCartInput = Omit<CartItem, "quantity" | "surface_id">;
 
+export interface SavedButtonStyle {
+  color?: string;
+  borderRadius?: string;
+  padding?: string;
+  fontSize?: string;
+  text?: string;
+  visible?: boolean;
+}
+
 interface PublicCommerceNormalizerProps {
   surfaceId: string;
   surfaceType?: string;
   currency: string;
+  buttonStyle?: SavedButtonStyle | null;
   onAddToCart: (item: AddToCartInput) => void;
   onOpenProductDetail: (product: any) => void;
   onOpenWishlist: () => void;
