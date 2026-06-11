@@ -31,6 +31,12 @@ interface PublicCommerceShellProps {
   ownerId: string;
   businessName?: string;
   surfaceType?: string;
+  /**
+   * Saved CTA button style from published_schema.surface.button_style.
+   * When provided, overrides the public_surfaces.metadata lookup so the
+   * live CTA reflects the seller's selection on the very first render.
+   */
+  buttonStyle?: import("./PublicCommerceNormalizer").SavedButtonStyle | null;
   children: React.ReactNode;
 }
 
@@ -41,6 +47,7 @@ export function PublicCommerceShell({
   ownerId,
   businessName,
   surfaceType,
+  buttonStyle,
   children,
 }: PublicCommerceShellProps) {
   const [view, setView] = useState<CommerceView>("none");
@@ -94,9 +101,12 @@ export function PublicCommerceShell({
 
   // Saved CTA style (set in the editor's Button Style panel, persisted to
   // builder_surfaces.metadata.button_style and mirrored to public_surfaces).
-  const savedButtonStyle = ((surface?.metadata as any)?.button_style as
-    | import("./PublicCommerceNormalizer").SavedButtonStyle
-    | undefined) || null;
+  const savedButtonStyle =
+    buttonStyle ??
+    (((surface?.metadata as any)?.button_style as
+      | import("./PublicCommerceNormalizer").SavedButtonStyle
+      | undefined) ||
+      null);
 
   const orderingEnabled = config?.ordering_enabled ?? false;
   const whatsappEnabled = config?.whatsapp_enabled ?? false;
