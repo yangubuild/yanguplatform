@@ -61,6 +61,15 @@ export default function PublicSurfacePage() {
   const ownerId = surfaceData.user_id || "";
   const businessName = surfaceData.title || "";
 
+  // Saved CTA button style — copied into published_schema.surface.button_style
+  // (and top-level published_schema.button_style) by useBuilderPublish. Passed
+  // straight to PublicCommerceShell so PublicCommerceNormalizer can render the
+  // user's chosen color/shape/size on the live page.
+  const publishedButtonStyle =
+    (surfaceData.button_style as any) ??
+    ((data?.published_schema as any)?.button_style as any) ??
+    null;
+
   // HTML snapshot (preferred): per-page slug map, then surface-wide fallback
   const pagesHtmlMap = (surfaceData.pages_html || {}) as Record<string, string>;
   const rawHtml: string | null =
@@ -174,7 +183,7 @@ export default function PublicSurfacePage() {
       setTimeout(() => { btn.textContent = "Add to Cart"; }, 1200);
     };
     return (
-      <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName} surfaceType={pubSurfaceType}>
+      <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName} surfaceType={pubSurfaceType} buttonStyle={publishedButtonStyle}>
         <PublicSurfaceStyles />
         <div
           className="min-h-screen bg-background yangu-live yangu-public-snapshot"
@@ -287,7 +296,7 @@ export default function PublicSurfacePage() {
 
   if (isInfluencer) {
     return (
-      <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName} surfaceType={pubSurfaceType}>
+      <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName} surfaceType={pubSurfaceType} buttonStyle={publishedButtonStyle}>
         <PublicSurfaceStyles />
         <div className="min-h-screen bg-muted/30 flex justify-center">
           <div className="w-full max-w-[420px] min-h-screen bg-background yangu-live shadow-xl" style={themeStyle}>
@@ -300,7 +309,7 @@ export default function PublicSurfacePage() {
   }
 
   return (
-    <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName} surfaceType={pubSurfaceType}>
+    <PublicCommerceShell surfaceId={surfaceId} ownerId={ownerId} businessName={businessName} surfaceType={pubSurfaceType} buttonStyle={publishedButtonStyle}>
       <PublicSurfaceStyles />
       <div className="min-h-screen bg-background yangu-live yangu-public-snapshot" style={themeStyle}>
         <header className="border-b border-border bg-background/80 backdrop-blur-sm">

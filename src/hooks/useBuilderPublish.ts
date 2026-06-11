@@ -203,6 +203,11 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
       show_yangu_badge: showYanguBadge,
       html: builderMainHtml,
       pages_html: pagesHtmlBySlug,
+      // Step 1 — propagate the saved CTA button style from
+      // builder_surfaces.metadata.button_style into the published schema so
+      // PublicCommerceNormalizer can apply the user's color/shape/size on
+      // the live page. Without this the live renderer falls back to #111827.
+      button_style: (surfaceMetadata as any)?.button_style ?? null,
     };
 
     // 6. Activate HTML-snapshot renderer when a builder snapshot exists.
@@ -213,8 +218,14 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
       updatedSurface.html_snapshot_responsive = true;
     }
 
-    // 7. Write updated schema back
-    const syncedSchema = { ...currentSchema, surface: updatedSurface };
+    // 7. Write updated schema back. We mirror button_style at the top level
+    //    as well as inside `surface` so both the legacy shell lookup and
+    //    PublicCommerceNormalizer can read it.
+    const syncedSchema = {
+      ...currentSchema,
+      surface: updatedSurface,
+      button_style: (surfaceMetadata as any)?.button_style ?? null,
+    };
     const { error: publishUpdateError } = await supabase
       .from("builder_publishes")
       .update({
