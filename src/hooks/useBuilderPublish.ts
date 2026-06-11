@@ -203,6 +203,11 @@ export function useBuilderPublish(surfaceId: string, surfaceType: BuilderSurface
       show_yangu_badge: showYanguBadge,
       html: builderMainHtml,
       pages_html: pagesHtmlBySlug,
+      // Step 1 — propagate the saved CTA button style from
+      // builder_surfaces.metadata.button_style into the published schema so
+      // PublicCommerceNormalizer can apply the user's color/shape/size on
+      // the live page. Without this the live renderer falls back to #111827.
+      button_style: (surfaceMetadata as any)?.button_style ?? null,
     };
 
     // 6. Activate HTML-snapshot renderer when a builder snapshot exists.
