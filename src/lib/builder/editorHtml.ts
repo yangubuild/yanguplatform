@@ -1,3 +1,6 @@
+import { injectItemAttributesInHtml } from "./core/universalItemDetection";
+import type { BuilderSurfaceType } from "@/types/builder";
+
 const EDITOR_STYLE_SNIPPETS = [
   "[contenteditable]:hover",
   "[contenteditable]:focus",
@@ -21,7 +24,16 @@ const EDITOR_SCRIPT_SNIPPETS = [
 
 export const EDITOR_NODE_ID_ATTRIBUTE = "data-yangu-node-id";
 
-export function sanitizeEditorHtml(html?: string | null): string {
+/**
+ * Sanitize editor-only artifacts AND run BuilderCore Universal Item Detection
+ * (Phase 1.1). Detection runs at publish/sanitize time so the published HTML
+ * carries the same `data-yangu-item-*` contract that the editor canvas
+ * injects on iframe load.
+ */
+export function sanitizeEditorHtml(
+  html?: string | null,
+  opts?: { surfaceType?: BuilderSurfaceType | string },
+): string {
   if (!html) return "";
   if (typeof DOMParser === "undefined") return html;
 
@@ -57,6 +69,8 @@ export function sanitizeEditorHtml(html?: string | null): string {
 
     Array.from(el.attributes).forEach((attr) => {
       if (attr.name.startsWith("data-yangu-")) {
+        // Preserve BuilderCore item-detection contract through sanitize.
+        if (attr.name.startsWith("data-yangu-item")) return;
         el.removeAttribute(attr.name);
       }
     });
@@ -67,5 +81,7 @@ export function sanitizeEditorHtml(html?: string | null): string {
     }
   });
 
-  return doc.documentElement.outerHTML;
+  const cleaned = doc.documentElement.outerHTML;
+  // Run universal item detection on the sanitized output.
+  return injectItemAttributesInHtml(cleaned, opts?.surfaceType);
 }

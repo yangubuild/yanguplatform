@@ -388,7 +388,8 @@ export default function EmenuNewEditor() {
     if (!surfaceId || !html) return;
     setIsSaving(true);
     try {
-      let persistedHtml = sanitizeEditorHtml(html);
+      const stForSanitize = editorState?.surface?.surface_type;
+      let persistedHtml = sanitizeEditorHtml(html, { surfaceType: stForSanitize });
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session?.user?.id) {
@@ -1689,6 +1690,7 @@ export default function EmenuNewEditor() {
             onProductDeleteRequest={openProductDeleteConfirm}
             showAddSectionControl={false}
             viewportMode={previewViewport}
+            surfaceType={surfaceType}
           />
 
           {/* Magic Editor floating toolbar — only for text and section */}
