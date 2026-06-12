@@ -53,6 +53,16 @@ const BUILDER_CATEGORY_BY_SURFACE_TYPE: Record<string, string> = {
   store_listing: "estore",
   live_bio: "influencer",
   community_group: "community",
+  community_listing: "community",
+};
+
+const BUILDER_CATEGORY_BY_SELLER_MODE: Record<string, string> = {
+  menu: "emenu",
+  shop: "eshop",
+  catalog: "estore",
+  service: "esite",
+  bio: "influencer",
+  community: "community",
 };
 
 function isLightHex(hex: string): boolean {
@@ -1478,10 +1488,10 @@ export default function EmenuNewEditor() {
     );
   }
 
-  const surfaceType = (editorState.surface.surface_type || "emenu") as BuilderSurfaceType;
+  const surfaceType = (editorState.surface.surface_type || "quick_site") as BuilderSurfaceType;
   const surfaceTitle = editorState.surface.title || "Untitled";
   const sellerMode = getSellerMode(surfaceType);
-  const builderCategory = BUILDER_CATEGORY_BY_SURFACE_TYPE[surfaceType] || "esite";
+  const builderCategory = BUILDER_CATEGORY_BY_SELLER_MODE[sellerMode.mode] || BUILDER_CATEGORY_BY_SURFACE_TYPE[surfaceType] || "esite";
 
   if (!liveHtml) {
     // If we have saved HTML that's still being initialized, show loading — not an error
