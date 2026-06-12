@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   ChevronRight, LayoutGrid, List, Image, Plus, Trash2,
   GripVertical, Type, Phone, MapPin, Store, Clock,
-  Share2, Truck, Mail
+  Share2, Truck, Package, Grid3X3, Percent, ClipboardList, Building
 } from "lucide-react";
 
 interface EmenuEditorPanelProps {
@@ -13,35 +13,126 @@ interface EmenuEditorPanelProps {
 
 type Section = "menu" | "categories" | "images" | "layout" | "business" | "hours" | "social" | "commerce";
 
-const SECTIONS: { id: Section; label: string; icon: React.ElementType }[] = [
-  { id: "menu", label: "Menu Items", icon: Type },
-  { id: "categories", label: "Categories", icon: GripVertical },
-  { id: "images", label: "Images", icon: Image },
-  { id: "layout", label: "Layout", icon: LayoutGrid },
-  { id: "business", label: "Business Info", icon: Store },
-  { id: "hours", label: "Hours", icon: Clock },
-  { id: "social", label: "Social Links", icon: Share2 },
-  { id: "commerce", label: "Commerce & Orders", icon: Truck },
-];
+const PANEL_CONFIG: Record<string, {
+  title: string;
+  fallbackName: string;
+  badge: string;
+  primaryLabel: string;
+  primaryHint: string;
+  primaryAddLabel: string;
+  primaryAddAction: string;
+  categoryLabel: string;
+  categoryHint: string;
+  categoryAddLabel: string;
+  categoryDeleteLabel: string;
+  businessNameLabel: string;
+  hoursHint: string;
+  commerceHint: string;
+  commerceLabel: string;
+  sections: { id: Section; label: string; icon: React.ElementType }[];
+}> = {
+  emenu: {
+    title: "Menu Editor",
+    fallbackName: "Your Menu",
+    badge: "eMenu",
+    primaryLabel: "Menu Items",
+    primaryHint: "Click any item in preview to edit name, price, or description directly.",
+    primaryAddLabel: "Add Menu Item",
+    primaryAddAction: "add_menu_item",
+    categoryLabel: "Categories",
+    categoryHint: "Manage menu categories. Click categories in preview to rename.",
+    categoryAddLabel: "Add Category",
+    categoryDeleteLabel: "Delete Selected Category",
+    businessNameLabel: "Restaurant Name",
+    hoursHint: "Set your restaurant's opening hours.",
+    commerceHint: "Configure ordering, delivery, and payments.",
+    commerceLabel: "Commerce & Orders",
+    sections: [
+      { id: "menu", label: "Menu Items", icon: Type },
+      { id: "categories", label: "Categories", icon: GripVertical },
+      { id: "images", label: "Images", icon: Image },
+      { id: "layout", label: "Layout", icon: LayoutGrid },
+      { id: "business", label: "Business Info", icon: Store },
+      { id: "hours", label: "Hours", icon: Clock },
+      { id: "social", label: "Social Links", icon: Share2 },
+      { id: "commerce", label: "Commerce & Orders", icon: Truck },
+    ],
+  },
+  eshop: {
+    title: "Shop Editor",
+    fallbackName: "Your Shop",
+    badge: "Eshop",
+    primaryLabel: "Products",
+    primaryHint: "Click any product in preview to edit name, price, description, or button.",
+    primaryAddLabel: "Add Product",
+    primaryAddAction: "add_product",
+    categoryLabel: "Collections",
+    categoryHint: "Manage product collections and storefront groups.",
+    categoryAddLabel: "Add Collection",
+    categoryDeleteLabel: "Delete Selected Collection",
+    businessNameLabel: "Shop Name",
+    hoursHint: "Set pickup, support, or store operating hours.",
+    commerceHint: "Configure cart, checkout, delivery, and payments.",
+    commerceLabel: "Cart & Checkout",
+    sections: [
+      { id: "menu", label: "Products", icon: Package },
+      { id: "categories", label: "Collections", icon: Grid3X3 },
+      { id: "images", label: "Images", icon: Image },
+      { id: "layout", label: "Layout", icon: LayoutGrid },
+      { id: "business", label: "Business Info", icon: Store },
+      { id: "hours", label: "Hours", icon: Clock },
+      { id: "social", label: "Social Links", icon: Share2 },
+      { id: "commerce", label: "Cart & Checkout", icon: Percent },
+    ],
+  },
+  estore: {
+    title: "Store Editor",
+    fallbackName: "Your Store",
+    badge: "Estore",
+    primaryLabel: "Catalog Items",
+    primaryHint: "Click any catalog item in preview to edit product details or quote CTA.",
+    primaryAddLabel: "Add Catalog Item",
+    primaryAddAction: "add_product",
+    categoryLabel: "Catalog Groups",
+    categoryHint: "Manage wholesale categories, supplier groups, and listing filters.",
+    categoryAddLabel: "Add Catalog Group",
+    categoryDeleteLabel: "Delete Selected Group",
+    businessNameLabel: "Store / Company Name",
+    hoursHint: "Set warehouse, pickup, or business operating hours.",
+    commerceHint: "Configure quote requests, bulk pricing, and payment preferences.",
+    commerceLabel: "Quotes & Bulk Pricing",
+    sections: [
+      { id: "menu", label: "Catalog Items", icon: ClipboardList },
+      { id: "categories", label: "Catalog Groups", icon: Grid3X3 },
+      { id: "images", label: "Images", icon: Image },
+      { id: "layout", label: "Layout", icon: LayoutGrid },
+      { id: "business", label: "Supplier Info", icon: Building },
+      { id: "hours", label: "Hours", icon: Clock },
+      { id: "social", label: "Social Links", icon: Share2 },
+      { id: "commerce", label: "Quotes & Bulk Pricing", icon: Truck },
+    ],
+  },
+};
 
 export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEditorPanelProps) {
   const [expanded, setExpanded] = useState<Section | null>("menu");
   const [layoutMode, setLayoutMode] = useState<"grid" | "list">("grid");
   const [columns, setColumns] = useState<2 | 3>(2);
+  const config = PANEL_CONFIG[category || ""] || PANEL_CONFIG.eshop;
 
   const toggle = (s: Section) => setExpanded(expanded === s ? null : s);
 
   return (
     <div className="flex flex-col h-full bg-background text-foreground">
       <div className="px-4 py-3 border-b border-border shrink-0">
-        <h3 className="text-sm font-semibold">Menu Editor</h3>
+        <h3 className="text-sm font-semibold">{config.title}</h3>
         <p className="text-[11px] text-muted-foreground mt-0.5">
-          {businessName || "Your Menu"} • eMenu
+          {businessName || config.fallbackName} • {config.badge}
         </p>
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {SECTIONS.map((sec) => (
+        {config.sections.map((sec) => (
           <div key={sec.id} className="border-b border-border">
             <button
               onClick={() => toggle(sec.id)}
@@ -58,12 +149,12 @@ export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEdit
               <div className="px-4 pb-3 space-y-2">
                 {sec.id === "menu" && (
                   <>
-                    <p className="text-[11px] text-muted-foreground">Click any item in preview to edit name, price, or description directly.</p>
+                    <p className="text-[11px] text-muted-foreground">{config.primaryHint}</p>
                     <button
-                      onClick={() => onAction("add_menu_item")}
+                      onClick={() => onAction(config.primaryAddAction)}
                       className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-muted/60 hover:bg-muted text-sm transition-colors"
                     >
-                      <Plus className="h-3.5 w-3.5" /> Add Menu Item
+                      <Plus className="h-3.5 w-3.5" /> {config.primaryAddLabel}
                     </button>
                   </>
                 )}
