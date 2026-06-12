@@ -730,6 +730,7 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
               onHtmlChange={handleHtmlChange}
               onSelectionChange={handleCanvasSelection}
               viewportMode={viewportMode}
+              surfaceType={surfaceType as any}
             />
           </div>
         )}

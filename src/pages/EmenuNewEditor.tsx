@@ -1690,6 +1690,7 @@ export default function EmenuNewEditor() {
             onProductDeleteRequest={openProductDeleteConfirm}
             showAddSectionControl={false}
             viewportMode={previewViewport}
+            surfaceType={surfaceType}
           />
 
           {/* Magic Editor floating toolbar — only for text and section */}
