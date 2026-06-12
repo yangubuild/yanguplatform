@@ -79,7 +79,7 @@ export default function BuilderEditorRouter() {
     </div>
   );
 
-  const editorBySurfaceType: Record<SurfaceType, React.ComponentType> = {
+  const editorBySurfaceType = {
     eshop: SellerEditor,
     emenu: EmenuNewEditor,
     quick_site: SellerEditor,

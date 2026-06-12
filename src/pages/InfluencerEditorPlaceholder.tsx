@@ -14,7 +14,7 @@ export default function InfluencerEditorPlaceholder() {
           <Smartphone className="h-8 w-8 text-primary" />
         </div>
         <div>
-          <h1 className="text-xl font-bold mb-2">Influencer Bio Editor</h1>
+          <h1 className="text-xl font-bold mb-2">Creator Editor</h1>
           <p className="text-sm text-muted-foreground">
             The mobile-first bio link editor is coming soon. You'll be able to manage your links, media, and live content here.
           </p>
