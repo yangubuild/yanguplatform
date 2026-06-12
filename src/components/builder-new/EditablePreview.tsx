@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { EditorImagePickerDialog } from "./EditorImagePickerDialog";
 import { EditorColorPickerDialog } from "./EditorColorPickerDialog";
 import type { CanvasSelection, ProductCardData } from "@/lib/builder/selectionTypes";
+import { injectItemAttributesInDocument } from "@/lib/builder/core/universalItemDetection";
 
 interface EditablePreviewProps {
   html: string;
@@ -13,6 +14,8 @@ interface EditablePreviewProps {
   onProductDeleteRequest?: (product: ProductCardData) => void;
   showAddSectionControl?: boolean;
   viewportMode?: "desktop" | "mobile";
+  /** Surface category — used by Universal Item Detection on iframe load. */
+  surfaceType?: string;
 }
 
 const EDIT_STYLES = `
@@ -1477,6 +1480,12 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, onProdu
           title="Editable Website Preview"
           sandbox="allow-scripts allow-same-origin"
           onLoad={() => {
+            // BuilderCore Phase 1.1: tag items on canvas so editor and
+            // published output share the same data-yangu-item-* contract.
+            injectItemAttributesInDocument(
+              iframeRef.current?.contentDocument,
+              (arguments[0] as any) || undefined,
+            );
             // Ensure Magic Editor is active for ALL sections from first paint.
             // Previously this message was only sent by the toolbar button, so
             // only the hero responded to clicks until the user toggled the
