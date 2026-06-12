@@ -13,8 +13,6 @@ import type { SurfaceType } from "@/types/builders";
 
 const SellerEditor = lazy(() => import("./BuilderEditor"));
 const EmenuNewEditor = lazy(() => import("./EmenuNewEditor"));
-const InfluencerEditorPlaceholder = lazy(() => import("./InfluencerEditorPlaceholder"));
-const CommunityEditorPlaceholder = lazy(() => import("./CommunityEditorPlaceholder"));
 
 export default function BuilderEditorRouter() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
@@ -84,8 +82,8 @@ export default function BuilderEditorRouter() {
     emenu: EmenuNewEditor,
     quick_site: SellerEditor,
     store_listing: SellerEditor,
-    live_bio: InfluencerEditorPlaceholder,
-    community_group: CommunityEditorPlaceholder,
+    live_bio: SellerEditor,
+    community_group: SellerEditor,
   };
 
   const EditorComponent = editorBySurfaceType[surfaceType as SurfaceType] || SellerEditor;
