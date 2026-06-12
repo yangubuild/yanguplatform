@@ -1,7 +1,5 @@
 /**
- * BuilderEditorRouter — Thin routing layer that loads the unified editor
- * (EmenuNewEditor) for every surface_type. Engine-specific behaviour comes
- * from engineRegistry + sellerModes inside the unified shell.
+ * BuilderEditorRouter — surface_type → editor shell routing contract.
  */
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -13,7 +11,10 @@ import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { lazy, Suspense } from "react";
 import type { SurfaceType } from "@/types/builders";
 
+const SellerEditor = lazy(() => import("./BuilderEditor"));
 const EmenuNewEditor = lazy(() => import("./EmenuNewEditor"));
+const InfluencerEditorPlaceholder = lazy(() => import("./InfluencerEditorPlaceholder"));
+const CommunityEditorPlaceholder = lazy(() => import("./CommunityEditorPlaceholder"));
 
 export default function BuilderEditorRouter() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
@@ -78,12 +79,16 @@ export default function BuilderEditorRouter() {
     </div>
   );
 
-  // All surfaces use the unified EmenuNewEditor shell. Engine-specific
-  // behaviour (allowed sections, quick actions, publish domain, modules)
-  // resolves per surface_type via engineRegistry + sellerModes inside the
-  // shell. The legacy block editor has been removed from the codebase.
-  void (surfaceType as SurfaceType);
-  const EditorComponent: React.ComponentType = EmenuNewEditor;
+  const editorBySurfaceType = {
+    eshop: SellerEditor,
+    emenu: EmenuNewEditor,
+    quick_site: SellerEditor,
+    store_listing: SellerEditor,
+    live_bio: InfluencerEditorPlaceholder,
+    community_group: CommunityEditorPlaceholder,
+  };
+
+  const EditorComponent = editorBySurfaceType[surfaceType as SurfaceType] || SellerEditor;
 
   return (
     <Suspense fallback={fallbackLoader}>

@@ -30,6 +30,15 @@ const SELECTION_LABELS: Record<SelectionKind, { label: string; icon: typeof Type
   background: { label: "Background", icon: LayoutGrid, color: "text-muted-foreground" },
 };
 
+const EDITOR_LABEL_BY_CATEGORY: Record<string, string> = {
+  eshop: "Shop Editor",
+  emenu: "Menu Editor",
+  esite: "Site Editor",
+  estore: "Store Editor",
+  influencer: "Creator Editor",
+  community: "Community Editor",
+};
+
 export function EditorToolsPanel({
   onToggleAdaChat,
   onAction,
@@ -59,9 +68,9 @@ export function EditorToolsPanel({
     return result;
   }, [category]);
 
-  const engineLabel = category
-    ? (getEngine(category)?.label || category)
-    : "Website";
+  const editorLabel = category
+    ? (EDITOR_LABEL_BY_CATEGORY[category] || `${getEngine(category)?.label || category} Editor`)
+    : "Site Editor";
 
   const selInfo = canvasSelection ? SELECTION_LABELS[canvasSelection.kind] : null;
 
@@ -72,7 +81,7 @@ export function EditorToolsPanel({
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold text-foreground">
-              {engineLabel} Editor
+              {editorLabel}
             </h3>
             <p className="text-[11px] text-muted-foreground mt-0.5">
               {businessName || "Your Website"}

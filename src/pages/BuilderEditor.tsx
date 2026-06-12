@@ -42,6 +42,12 @@ import {
 type RightPanel = "none" | "page_edit" | "section" | "setup";
 type PreviewViewport = "desktop" | "mobile";
 
+const EDITOR_LABEL_BY_SURFACE_TYPE: Record<string, string> = {
+  eshop: "Shop Editor",
+  quick_site: "Site Editor",
+  store_listing: "Store Editor",
+};
+
 export default function BuilderEditor() {
   const { surfaceId } = useParams<{ surfaceId: string }>();
   const navigate = useNavigate();
@@ -176,6 +182,7 @@ export default function BuilderEditor() {
 
   const surfaceType = (editorState.surface.surface_type || "live_bio") as BuilderSurfaceType;
   const surfaceTitle = editorState.surface.title || "Untitled";
+  const editorLabel = EDITOR_LABEL_BY_SURFACE_TYPE[surfaceType] || "Site Editor";
   const builderTheme = getThemeFromMetadata(editorState.surface.metadata);
   const surfaceMeta = (editorState.surface.metadata || {}) as Record<string, unknown>;
   const hasAiSetup = !!surfaceMeta.ai_setup;
@@ -292,7 +299,7 @@ export default function BuilderEditor() {
           <div className="p-4 pb-1 border-b border-border mt-3">
             <div className="flex items-center gap-2 mb-1">
               <LayoutGrid className="h-4 w-4 text-muted-foreground" />
-              <h2 className="text-sm font-semibold">Sections</h2>
+              <h2 className="text-sm font-semibold">{editorLabel}</h2>
             </div>
             <p className="text-xs text-muted-foreground">Core sections are fixed • Custom sections below</p>
           </div>
