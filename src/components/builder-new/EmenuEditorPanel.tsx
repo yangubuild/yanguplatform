@@ -13,6 +13,14 @@ interface EmenuEditorPanelProps {
 
 type Section = "menu" | "categories" | "images" | "layout" | "business" | "hours" | "social" | "commerce";
 
+const CATEGORY_ALIASES: Record<string, string> = {
+  quick_site: "esite",
+  store_listing: "estore",
+  live_bio: "influencer",
+  community_group: "community",
+  community_listing: "community",
+};
+
 const PANEL_CONFIG: Record<string, {
   title: string;
   fallbackName: string;
@@ -118,7 +126,8 @@ export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEdit
   const [expanded, setExpanded] = useState<Section | null>("menu");
   const [layoutMode, setLayoutMode] = useState<"grid" | "list">("grid");
   const [columns, setColumns] = useState<2 | 3>(2);
-  const config = PANEL_CONFIG[category || ""] || PANEL_CONFIG.eshop;
+  const normalizedCategory = CATEGORY_ALIASES[category || ""] || category || "eshop";
+  const config = PANEL_CONFIG[normalizedCategory] || PANEL_CONFIG.eshop;
 
   const toggle = (s: Section) => setExpanded(expanded === s ? null : s);
 
