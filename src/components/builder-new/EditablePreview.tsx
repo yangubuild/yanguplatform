@@ -1254,7 +1254,7 @@ const EDIT_SCRIPT = String.raw`
   </script>
 `;
 
-export function EditablePreview({ html, onHtmlChange, onSelectionChange, onProductEditRequest, onProductDeleteRequest, showAddSectionControl = true, viewportMode = "desktop" }: EditablePreviewProps) {
+export function EditablePreview({ html, onHtmlChange, onSelectionChange, onProductEditRequest, onProductDeleteRequest, showAddSectionControl = true, viewportMode = "desktop", surfaceType }: EditablePreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [imagePickerOpen, setImagePickerOpen] = useState(false);
@@ -1484,7 +1484,7 @@ export function EditablePreview({ html, onHtmlChange, onSelectionChange, onProdu
             // published output share the same data-yangu-item-* contract.
             injectItemAttributesInDocument(
               iframeRef.current?.contentDocument,
-              (arguments[0] as any) || undefined,
+              surfaceType,
             );
             // Ensure Magic Editor is active for ALL sections from first paint.
             // Previously this message was only sent by the toolbar button, so
