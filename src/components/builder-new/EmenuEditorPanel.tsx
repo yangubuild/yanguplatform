@@ -161,18 +161,18 @@ export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEdit
 
                 {sec.id === "categories" && (
                   <>
-                    <p className="text-[11px] text-muted-foreground">Manage menu categories. Click categories in preview to rename.</p>
+                    <p className="text-[11px] text-muted-foreground">{config.categoryHint}</p>
                     <button
                       onClick={() => onAction("add_category")}
                       className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-muted/60 hover:bg-muted text-sm transition-colors"
                     >
-                      <Plus className="h-3.5 w-3.5" /> Add Category
+                      <Plus className="h-3.5 w-3.5" /> {config.categoryAddLabel}
                     </button>
                     <button
                       onClick={() => onAction("delete_category")}
                       className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-muted/60 hover:bg-muted text-sm text-destructive transition-colors"
                     >
-                      <Trash2 className="h-3.5 w-3.5" /> Delete Selected Category
+                      <Trash2 className="h-3.5 w-3.5" /> {config.categoryDeleteLabel}
                     </button>
                   </>
                 )}
@@ -242,7 +242,7 @@ export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEdit
                 {sec.id === "business" && (
                   <div className="space-y-2">
                     {[
-                      { icon: Store, label: "Restaurant Name", action: "edit_business_name" },
+                      { icon: Store, label: config.businessNameLabel, action: "edit_business_name" },
                       { icon: Image, label: "Logo", action: "edit_logo" },
                       { icon: Phone, label: "Phone", action: "edit_phone" },
                       { icon: MapPin, label: "Address", action: "edit_address" },
@@ -261,7 +261,7 @@ export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEdit
 
                 {sec.id === "hours" && (
                   <div className="space-y-2">
-                    <p className="text-[11px] text-muted-foreground">Set your restaurant's opening hours.</p>
+                    <p className="text-[11px] text-muted-foreground">{config.hoursHint}</p>
                     <button
                       onClick={() => onAction("hours")}
                       className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-muted/60 hover:bg-muted text-sm transition-colors"
@@ -287,13 +287,13 @@ export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEdit
 
                 {sec.id === "commerce" && (
                   <div className="space-y-2">
-                    <p className="text-[11px] text-muted-foreground">Configure ordering, delivery, and payments.</p>
+                    <p className="text-[11px] text-muted-foreground">{config.commerceHint}</p>
                     <button
                       onClick={() => onAction("commerce_config")}
                       className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-muted/60 hover:bg-muted text-sm transition-colors"
                     >
                       <Truck className="h-3.5 w-3.5 text-muted-foreground" />
-                      Commerce & Orders
+                      {config.commerceLabel}
                     </button>
                   </div>
                 )}
