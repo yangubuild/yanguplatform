@@ -9,9 +9,7 @@ import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { lazy, Suspense } from "react";
-import type { SurfaceType } from "@/types/builders";
 
-const SellerEditor = lazy(() => import("./BuilderEditor"));
 const EmenuNewEditor = lazy(() => import("./EmenuNewEditor"));
 
 export default function BuilderEditorRouter() {
@@ -77,16 +75,7 @@ export default function BuilderEditorRouter() {
     </div>
   );
 
-  const editorBySurfaceType = {
-    eshop: SellerEditor,
-    emenu: EmenuNewEditor,
-    quick_site: SellerEditor,
-    store_listing: SellerEditor,
-    live_bio: SellerEditor,
-    community_group: SellerEditor,
-  };
-
-  const EditorComponent = editorBySurfaceType[surfaceType as SurfaceType] || SellerEditor;
+  const EditorComponent = EmenuNewEditor;
 
   return (
     <Suspense fallback={fallbackLoader}>
