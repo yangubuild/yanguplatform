@@ -14,13 +14,14 @@ interface AdaBuilderPanelProps {
   category?: string;
 }
 
-const STARTER_PROMPTS = [
-  "Add a new menu item with price",
-  "Update my WhatsApp number",
-  "Change the background color",
-  "Edit the hero section text",
-  "Help me configure ordering",
-];
+const STARTER_PROMPTS_BY_CATEGORY: Record<string, string[]> = {
+  emenu: ["Add a new menu item with price", "Update my WhatsApp number", "Change the background color", "Edit the hero section text", "Help me configure ordering"],
+  eshop: ["Add a new product with price", "Update my WhatsApp number", "Change the background color", "Edit the hero section text", "Help me configure checkout"],
+  estore: ["Add a new catalog item", "Update my WhatsApp number", "Change the background color", "Edit the hero section text", "Help me configure quote requests"],
+  esite: ["Add a new service", "Update my WhatsApp number", "Change the background color", "Edit the hero section text", "Help me update contact details"],
+  influencer: ["Add a new link", "Update my WhatsApp number", "Change the background color", "Edit the bio section text", "Help me add social links"],
+  community: ["Add a new event", "Update my WhatsApp number", "Change the background color", "Edit the hero section text", "Help me add membership details"],
+};
 
 export function AdaBuilderPanel({ messages, isLoading, onSend, onClose, category }: AdaBuilderPanelProps) {
   const [input, setInput] = useState("");
@@ -40,6 +41,7 @@ export function AdaBuilderPanel({ messages, isLoading, onSend, onClose, category
   };
 
   const showStarters = messages.length === 0;
+  const starterPrompts = STARTER_PROMPTS_BY_CATEGORY[category || ""] || STARTER_PROMPTS_BY_CATEGORY.esite;
 
   return (
     <div className="flex flex-col h-full">
@@ -71,7 +73,7 @@ export function AdaBuilderPanel({ messages, isLoading, onSend, onClose, category
               </p>
             </div>
             <div className="space-y-1.5">
-              {STARTER_PROMPTS.map((p) => (
+              {starterPrompts.map((p) => (
                 <button
                   key={p}
                   onClick={() => handleSend(p)}

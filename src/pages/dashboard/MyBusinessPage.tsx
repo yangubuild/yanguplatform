@@ -13,10 +13,13 @@ import type { SurfaceStatus } from "@/lib/builder/surfaceLifecycle";
 
 const SURFACE_TYPE_META: Record<string, { label: string; icon: typeof ShoppingBag }> = {
   eshop: { label: "Eshop", icon: ShoppingBag },
+  store_listing: { label: "Estore", icon: Store },
   estore: { label: "Estore", icon: Store },
   emenu: { label: "Emenu", icon: UtensilsCrossed },
+  quick_site: { label: "Esite", icon: Globe },
   esite: { label: "Esite", icon: Globe },
   influencer: { label: "Influencer", icon: Sparkles },
+  community_group: { label: "Community", icon: Users },
   community: { label: "Community", icon: Users },
   live_bio: { label: "Live Bio", icon: Globe },
 };
