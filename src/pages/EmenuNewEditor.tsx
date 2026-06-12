@@ -46,6 +46,15 @@ import { toast } from "sonner";
 type LeftMode = "tools" | "ada" | "commerce";
 type PreviewViewport = "desktop" | "mobile";
 
+const BUILDER_CATEGORY_BY_SURFACE_TYPE: Record<string, string> = {
+  eshop: "eshop",
+  emenu: "emenu",
+  quick_site: "esite",
+  store_listing: "estore",
+  live_bio: "influencer",
+  community_group: "community",
+};
+
 function isLightHex(hex: string): boolean {
   const c = hex.replace("#", "");
   const r = parseInt(c.substring(0, 2), 16);
@@ -1472,6 +1481,7 @@ export default function EmenuNewEditor() {
   const surfaceType = (editorState.surface.surface_type || "emenu") as BuilderSurfaceType;
   const surfaceTitle = editorState.surface.title || "Untitled";
   const sellerMode = getSellerMode(surfaceType);
+  const builderCategory = BUILDER_CATEGORY_BY_SURFACE_TYPE[surfaceType] || "esite";
 
   if (!liveHtml) {
     // If we have saved HTML that's still being initialized, show loading — not an error
@@ -1665,7 +1675,7 @@ export default function EmenuNewEditor() {
                 isLoading={adaChat.isLoading}
                 onSend={adaChat.sendMessage}
                 onClose={() => setLeftMode("tools")}
-                category="emenu"
+                category={builderCategory}
               />
             </Suspense>
           ) : (
@@ -1674,7 +1684,7 @@ export default function EmenuNewEditor() {
               onAction={handleEditorAction}
               selectedSection={null}
               businessName={surfaceTitle}
-              category="emenu"
+              category={builderCategory}
               canvasSelection={canvasSelection}
             />
           )}
@@ -1774,7 +1784,7 @@ export default function EmenuNewEditor() {
             <ButtonStylePanel onAction={handleEditorAction} initialColor={savedButtonColor} initialRadius={savedButtonRadius} />
           ) : (
             <div className="flex flex-col h-full">
-              <EmenuEditorPanel businessName={surfaceTitle} category="emenu" onAction={handleEditorAction} />
+                <EmenuEditorPanel businessName={surfaceTitle} category={builderCategory} onAction={handleEditorAction} />
               <div className="border-t border-border">
                 <ButtonStylePanel onAction={handleEditorAction} initialColor={savedButtonColor} initialRadius={savedButtonRadius} />
               </div>
