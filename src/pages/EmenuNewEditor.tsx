@@ -169,6 +169,92 @@ const CURRENCY_SYMBOL_MAP: Record<string, string> = {
   UGX: "UGX ", KES: "KES ", TZS: "TZS ", AED: "AED ", ZAR: "R",
 };
 
+const SURFACE_EDITOR_COPY: Record<string, {
+  itemSingular: string;
+  itemPlural: string;
+  categorySingular: string;
+  businessNamePrompt: string;
+  emptyTargetHint: string;
+  newItemTitle: string;
+  newItemDescription: string;
+  successMessage: string;
+}> = {
+  emenu: {
+    itemSingular: "menu item",
+    itemPlural: "menu items",
+    categorySingular: "category",
+    businessNamePrompt: "Restaurant name",
+    emptyTargetHint: "Scroll to the menu section first",
+    newItemTitle: "New Menu Item",
+    newItemDescription: "Click to add dish description",
+    successMessage: "Menu item added!",
+  },
+  eshop: {
+    itemSingular: "product",
+    itemPlural: "products",
+    categorySingular: "collection",
+    businessNamePrompt: "Shop name",
+    emptyTargetHint: "Scroll to the products section first",
+    newItemTitle: "New Product",
+    newItemDescription: "Click to add product description",
+    successMessage: "Product added!",
+  },
+  store_listing: {
+    itemSingular: "catalog item",
+    itemPlural: "catalog items",
+    categorySingular: "catalog group",
+    businessNamePrompt: "Store / company name",
+    emptyTargetHint: "Scroll to the catalog section first",
+    newItemTitle: "New Catalog Item",
+    newItemDescription: "Click to add catalog details",
+    successMessage: "Catalog item added!",
+  },
+  quick_site: {
+    itemSingular: "service",
+    itemPlural: "services",
+    categorySingular: "section group",
+    businessNamePrompt: "Business name",
+    emptyTargetHint: "Scroll to the services section first",
+    newItemTitle: "New Service",
+    newItemDescription: "Click to add service details",
+    successMessage: "Service added!",
+  },
+  live_bio: {
+    itemSingular: "link",
+    itemPlural: "links",
+    categorySingular: "content group",
+    businessNamePrompt: "Creator name",
+    emptyTargetHint: "Scroll to the links section first",
+    newItemTitle: "New Link",
+    newItemDescription: "Click to add link details",
+    successMessage: "Link added!",
+  },
+  community_group: {
+    itemSingular: "community block",
+    itemPlural: "community blocks",
+    categorySingular: "group",
+    businessNamePrompt: "Community name",
+    emptyTargetHint: "Scroll to the community content section first",
+    newItemTitle: "New Community Block",
+    newItemDescription: "Click to add community details",
+    successMessage: "Community block added!",
+  },
+  community_listing: {
+    itemSingular: "community block",
+    itemPlural: "community blocks",
+    categorySingular: "group",
+    businessNamePrompt: "Community name",
+    emptyTargetHint: "Scroll to the community content section first",
+    newItemTitle: "New Community Block",
+    newItemDescription: "Click to add community details",
+    successMessage: "Community block added!",
+  },
+};
+
+function getSurfaceEditorCopy(surfaceType?: string | null) {
+  return SURFACE_EDITOR_COPY[surfaceType || ""] || SURFACE_EDITOR_COPY.quick_site;
+}
+
 function formatProductPrice(nextPrice: string, existingPrice: string, card?: Element | null, surfaceCurrency?: string): string {
   const trimmed = nextPrice.trim();
   if (!trimmed) return "";
@@ -905,6 +991,8 @@ export default function EmenuNewEditor() {
   const handleEditorAction = useCallback((action: string, payload?: any) => {
     const iframe = getIframe();
     const doc = iframe?.contentDocument;
+    const currentSurfaceType = editorState?.surface?.surface_type || "quick_site";
+    const editorCopy = getSurfaceEditorCopy(currentSurfaceType);
 
     // Use stable nodeId-based targeting
     const getSelected = (_cls: string) => doc ? getSelectedElement(doc) : null;
@@ -1109,25 +1197,44 @@ export default function EmenuNewEditor() {
         break;
       }
 
-      // ── Menu item ──
+      // ── Category-specific item actions ──
+      case "add_product":
+      case "products":
+      case "catalog":
+      case "add_listing":
+      case "add_service":
+      case "services":
+      case "add_link_card":
+      case "links":
+      case "bio":
+      case "add_event":
+      case "events":
+      case "programs":
+      case "member_signup":
+      case "about":
+        handleEditorAction("add_menu_item", payload);
+        break;
       case "add_menu_item": {
         if (!doc) break;
-        const menuContainer = doc.querySelector('[class*="menu-grid"], [class*="menu-items"], section:nth-of-type(2) [style*="grid"]');
-        if (menuContainer) {
+        const containerSelectors = currentSurfaceType === "emenu"
+          ? '[class*="menu-grid"], [class*="menu-items"], [data-section*="menu"], section:nth-of-type(2) [style*="grid"]'
+          : '[data-section*="product"], [class*="product-grid"], [class*="products"], [class*="collection"], [class*="catalog"], [class*="listing"], [class*="services"], [class*="links"], [class*="community"], section:nth-of-type(2) [style*="grid"], section:nth-of-type(2) [style*="flex"]';
+        const itemContainer = doc.querySelector(containerSelectors);
+        if (itemContainer) {
           const card = doc.createElement("div");
-          card.className = "menu-item";
+          card.className = currentSurfaceType === "emenu" ? "menu-item" : "yangu-item-card";
           card.style.cssText = "border-radius:8px;overflow:hidden;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);";
           card.innerHTML = `
-            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop" style="width:100%;height:180px;object-fit:cover;" />
+            <img src="${currentSurfaceType === "emenu" ? "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop" : "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop"}" style="width:100%;height:180px;object-fit:cover;" />
             <div style="padding:16px;">
-              <h3 contenteditable="true" style="font-size:1.1rem;font-weight:600;margin-bottom:4px;">New Item</h3>
-              <p contenteditable="true" style="font-size:0.85rem;opacity:0.7;margin-bottom:8px;">Click to add description</p>
+              <h3 contenteditable="true" style="font-size:1.1rem;font-weight:600;margin-bottom:4px;">${editorCopy.newItemTitle}</h3>
+              <p contenteditable="true" style="font-size:0.85rem;opacity:0.7;margin-bottom:8px;">${editorCopy.newItemDescription}</p>
               <span contenteditable="true" style="font-weight:700;font-size:1rem;">$0.00</span>
             </div>`;
-          menuContainer.appendChild(card);
+          itemContainer.appendChild(card);
           pushUpdate(doc, iframe);
-          toast.success("Menu item added!");
-        } else toast.info("Scroll to the menu section first");
+          toast.success(editorCopy.successMessage);
+        } else toast.info(editorCopy.emptyTargetHint);
         break;
       }
 
@@ -1137,13 +1244,13 @@ export default function EmenuNewEditor() {
         const catContainer = doc.querySelector('[class*="categor"], [class*="filter"], nav + div');
         if (catContainer) {
           const newCat = doc.createElement("button");
-          newCat.textContent = "New Category";
+          newCat.textContent = `New ${editorCopy.categorySingular}`;
           newCat.setAttribute("contenteditable", "true");
           newCat.style.cssText = "padding:8px 16px;border-radius:8px;font-size:0.85rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);cursor:pointer;color:inherit;";
           catContainer.appendChild(newCat);
           pushUpdate(doc, iframe);
-          toast.success("Category added! Click to rename.");
-        } else toast.info("No category container found in the template");
+          toast.success(`${editorCopy.categorySingular.charAt(0).toUpperCase() + editorCopy.categorySingular.slice(1)} added! Click to rename.`);
+        } else toast.info(`No ${editorCopy.categorySingular} container found in the template`);
         break;
       }
       case "delete_category": {
@@ -1162,9 +1269,9 @@ export default function EmenuNewEditor() {
         if (!doc) break;
         const h1 = doc.querySelector("h1, [class*='brand'], [class*='logo-text'], nav h1, header h1");
         if (h1) {
-          const name = prompt("Restaurant name:", h1.textContent || "");
+          const name = prompt(`${editorCopy.businessNamePrompt}:`, h1.textContent || "");
           if (name) { h1.textContent = name; pushUpdate(doc, iframe); }
-        } else toast.info("No restaurant name element found");
+        } else toast.info(`No ${editorCopy.businessNamePrompt.toLowerCase()} element found`);
         break;
       }
       case "edit_logo": {
@@ -1376,6 +1483,31 @@ export default function EmenuNewEditor() {
       case "menu_items":
         handleEditorAction("add_menu_item");
         break;
+      case "collections":
+      case "supplier_info":
+      case "team":
+      case "testimonials":
+      case "faq":
+      case "blog":
+      case "media":
+      case "affiliate":
+      case "live_product_pins":
+      case "tips":
+      case "resources":
+      case "private_posts":
+      case "directory":
+      case "messaging":
+        handleEditorAction("add_section");
+        break;
+      case "discount_rules":
+      case "cart":
+      case "checkout":
+      case "promos":
+      case "bulk_pricing":
+      case "quote_request":
+      case "large_inventory":
+        handleEditorAction("commerce_config");
+        break;
       case "food_image_ai":
         handleEditorAction("ai_generate_image");
         break;
@@ -1438,10 +1570,10 @@ export default function EmenuNewEditor() {
       }
 
       default:
-        toast.info(`${action} — coming soon`);
+        toast.info(`${action} is not available for this ${editorCopy.itemSingular} editor.`);
         break;
     }
-  }, [getIframe, pushUpdate, getSelectedElement, canvasSelection]);
+  }, [getIframe, pushUpdate, getSelectedElement, canvasSelection, editorState?.surface?.surface_type]);
 
   // ─── Page switching handler ───
   const handlePageSwitch = useCallback((pageId: string) => {
