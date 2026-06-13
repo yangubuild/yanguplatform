@@ -24,7 +24,7 @@ const AdaBuilderPanel = lazy(() =>
 );
 import { EditablePreview } from "@/components/builder-new/EditablePreview";
 import { EditorToolsPanel } from "@/components/builder-new/EditorToolsPanel";
-import { EmenuEditorPanel } from "@/components/builder-new/EmenuEditorPanel";
+import { BuilderEditorPanel } from "@/components/builder-new/BuilderEditorPanel";
 import { TextEditorPanel } from "@/components/builder-new/TextEditorPanel";
 import { SectionEditorPanel } from "@/components/builder-new/SectionEditorPanel";
 import { MagicEditorToolbar } from "@/components/builder-new/MagicEditorToolbar";
@@ -39,6 +39,8 @@ import { useBuilderEditor } from "@/hooks/useBuilderEditor";
 import { useEditorHistory } from "@/hooks/useEditorHistory";
 import { useDebounce } from "@/hooks/useDebounce";
 import { getSellerMode } from "@/lib/builder/sellerModes";
+import { useBuilderCategory } from "@/contexts/BuilderCategoryContext";
+import { getShellBinding } from "@/lib/builder/shellRegistry";
 import type { CanvasSelection, ProductCardData } from "@/lib/builder/selectionTypes";
 import type { BuilderSurfaceType } from "@/types/builder";
 import { toast } from "sonner";
@@ -46,24 +48,10 @@ import { toast } from "sonner";
 type LeftMode = "tools" | "ada" | "commerce";
 type PreviewViewport = "desktop" | "mobile";
 
-const BUILDER_CATEGORY_BY_SURFACE_TYPE: Record<string, string> = {
-  eshop: "eshop",
-  emenu: "emenu",
-  quick_site: "esite",
-  store_listing: "estore",
-  live_bio: "influencer",
-  community_group: "community",
-  community_listing: "community",
-};
-
-const BUILDER_CATEGORY_BY_SELLER_MODE: Record<string, string> = {
-  menu: "emenu",
-  shop: "eshop",
-  catalog: "estore",
-  service: "esite",
-  bio: "influencer",
-  community: "community",
-};
+// Phase 2: category and shell/panel bindings are resolved exclusively
+// from the locked BuilderCategoryContext + canonical registry. The local
+// surface_type / seller_mode maps were removed to eliminate Emenu-as-
+// master drift and prevent silent category switching.
 
 function isLightHex(hex: string): boolean {
   const c = hex.replace("#", "");
