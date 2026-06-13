@@ -1611,7 +1611,23 @@ export default function EmenuNewEditor() {
   const surfaceType = (editorState.surface.surface_type || "quick_site") as BuilderSurfaceType;
   const surfaceTitle = editorState.surface.title || "Untitled";
   const sellerMode = getSellerMode(surfaceType);
-  const builderCategory = BUILDER_CATEGORY_BY_SELLER_MODE[sellerMode.mode] || BUILDER_CATEGORY_BY_SURFACE_TYPE[surfaceType] || "esite";
+  // Phase 2: category resolution is registry-driven and locked. The value
+  // comes from BuilderCategoryContext (mounted by BuilderEditorRouter) and
+  // CANNOT silently change for the lifetime of this editor instance.
+  const lockedCategory = useBuilderCategory();
+  const builderCategory = lockedCategory.category.key;
+  const shellBinding = getShellBinding(builderCategory);
+  // Defensive runtime guard: refuse to render if the DB-resolved surface
+  // type ever drifts from the locked context (e.g. a stale realtime
+  // update). The DB trigger from Phase 1 already prevents this, but the
+  // double check enforces the lock at every flow boundary.
+  lockedCategory.assertLocked(
+    (lockedCategory.category.surfaceType === surfaceType
+      ? builderCategory
+      : undefined),
+    "EmenuNewEditor:render",
+  );
+  void shellBinding;
 
   if (!liveHtml) {
     // If we have saved HTML that's still being initialized, show loading — not an error
