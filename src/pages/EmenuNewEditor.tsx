@@ -169,6 +169,92 @@ const CURRENCY_SYMBOL_MAP: Record<string, string> = {
   UGX: "UGX ", KES: "KES ", TZS: "TZS ", AED: "AED ", ZAR: "R",
 };
 
+const SURFACE_EDITOR_COPY: Record<string, {
+  itemSingular: string;
+  itemPlural: string;
+  categorySingular: string;
+  businessNamePrompt: string;
+  emptyTargetHint: string;
+  newItemTitle: string;
+  newItemDescription: string;
+  successMessage: string;
+}> = {
+  emenu: {
+    itemSingular: "menu item",
+    itemPlural: "menu items",
+    categorySingular: "category",
+    businessNamePrompt: "Restaurant name",
+    emptyTargetHint: "Scroll to the menu section first",
+    newItemTitle: "New Menu Item",
+    newItemDescription: "Click to add dish description",
+    successMessage: "Menu item added!",
+  },
+  eshop: {
+    itemSingular: "product",
+    itemPlural: "products",
+    categorySingular: "collection",
+    businessNamePrompt: "Shop name",
+    emptyTargetHint: "Scroll to the products section first",
+    newItemTitle: "New Product",
+    newItemDescription: "Click to add product description",
+    successMessage: "Product added!",
+  },
+  store_listing: {
+    itemSingular: "catalog item",
+    itemPlural: "catalog items",
+    categorySingular: "catalog group",
+    businessNamePrompt: "Store / company name",
+    emptyTargetHint: "Scroll to the catalog section first",
+    newItemTitle: "New Catalog Item",
+    newItemDescription: "Click to add catalog details",
+    successMessage: "Catalog item added!",
+  },
+  quick_site: {
+    itemSingular: "service",
+    itemPlural: "services",
+    categorySingular: "section group",
+    businessNamePrompt: "Business name",
+    emptyTargetHint: "Scroll to the services section first",
+    newItemTitle: "New Service",
+    newItemDescription: "Click to add service details",
+    successMessage: "Service added!",
+  },
+  live_bio: {
+    itemSingular: "link",
+    itemPlural: "links",
+    categorySingular: "content group",
+    businessNamePrompt: "Creator name",
+    emptyTargetHint: "Scroll to the links section first",
+    newItemTitle: "New Link",
+    newItemDescription: "Click to add link details",
+    successMessage: "Link added!",
+  },
+  community_group: {
+    itemSingular: "community block",
+    itemPlural: "community blocks",
+    categorySingular: "group",
+    businessNamePrompt: "Community name",
+    emptyTargetHint: "Scroll to the community content section first",
+    newItemTitle: "New Community Block",
+    newItemDescription: "Click to add community details",
+    successMessage: "Community block added!",
+  },
+  community_listing: {
+    itemSingular: "community block",
+    itemPlural: "community blocks",
+    categorySingular: "group",
+    businessNamePrompt: "Community name",
+    emptyTargetHint: "Scroll to the community content section first",
+    newItemTitle: "New Community Block",
+    newItemDescription: "Click to add community details",
+    successMessage: "Community block added!",
+  },
+};
+
+function getSurfaceEditorCopy(surfaceType?: string | null) {
+  return SURFACE_EDITOR_COPY[surfaceType || ""] || SURFACE_EDITOR_COPY.quick_site;
+}
+
 function formatProductPrice(nextPrice: string, existingPrice: string, card?: Element | null, surfaceCurrency?: string): string {
   const trimmed = nextPrice.trim();
   if (!trimmed) return "";
