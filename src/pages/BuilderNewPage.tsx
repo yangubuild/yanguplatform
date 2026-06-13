@@ -371,8 +371,9 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
     setIsThinking(true);
     try {
       const templateLabel = ctrl.selectedTemplateKey || "custom";
-      const sections = ctrl.selectedSections.join(", ") || "hero, menu, about";
-      const sysPrompt = `You are Ada, a website editor assistant. The user has a generated website draft based on the "${templateLabel}" emenu template. Current sections: ${sections}. Business: ${ctrl.businessName || "the user's business"}. Location: ${ctrl.businessLocation || "unspecified"}. The user wants refinements. Respond with clear, actionable suggestions. If they ask to change text, colors, or layout, describe exactly what to change. Keep responses short and helpful. Do NOT output JSON — respond in plain friendly text.`;
+      const categoryLabel = ctrl.category || "website";
+      const sections = ctrl.selectedSections.join(", ") || "hero, main content, about";
+      const sysPrompt = `You are Ada, a website editor assistant. The user has a generated ${categoryLabel} draft based on the "${templateLabel}" template. Current sections: ${sections}. Business: ${ctrl.businessName || "the user's business"}. Location: ${ctrl.businessLocation || "unspecified"}. The user wants refinements. Respond with clear, actionable suggestions. If they ask to change text, colors, or layout, describe exactly what to change. Keep responses short and helpful. Do NOT output JSON — respond in plain friendly text.`;
 
       const { data } = await supabase.functions.invoke("together-chat", {
         body: {
