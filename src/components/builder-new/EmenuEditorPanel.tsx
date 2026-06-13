@@ -4,6 +4,12 @@ import {
   GripVertical, Type, Phone, MapPin, Store, Clock,
   Share2, Truck, Package, Grid3X3, Percent, ClipboardList, Building
 } from "lucide-react";
+import {
+  ALL_CATEGORY_KEYS,
+  getCategory,
+  isBuilderCategory,
+  type BuilderCategory,
+} from "@/lib/builder/categoryRegistry";
 
 interface EmenuEditorPanelProps {
   businessName: string;
@@ -12,14 +18,6 @@ interface EmenuEditorPanelProps {
 }
 
 type Section = "menu" | "categories" | "images" | "layout" | "business" | "hours" | "social" | "commerce";
-
-const CATEGORY_ALIASES: Record<string, string> = {
-  quick_site: "esite",
-  store_listing: "estore",
-  live_bio: "influencer",
-  community_group: "community",
-  community_listing: "community",
-};
 
 const PANEL_CONFIG: Record<string, {
   title: string;
