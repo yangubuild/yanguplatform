@@ -991,6 +991,8 @@ export default function EmenuNewEditor() {
   const handleEditorAction = useCallback((action: string, payload?: any) => {
     const iframe = getIframe();
     const doc = iframe?.contentDocument;
+    const currentSurfaceType = editorState?.surface?.surface_type || "quick_site";
+    const editorCopy = getSurfaceEditorCopy(currentSurfaceType);
 
     // Use stable nodeId-based targeting
     const getSelected = (_cls: string) => doc ? getSelectedElement(doc) : null;
@@ -1195,25 +1197,44 @@ export default function EmenuNewEditor() {
         break;
       }
 
-      // ── Menu item ──
+      // ── Category-specific item actions ──
+      case "add_product":
+      case "products":
+      case "catalog":
+      case "add_listing":
+      case "add_service":
+      case "services":
+      case "add_link_card":
+      case "links":
+      case "bio":
+      case "add_event":
+      case "events":
+      case "programs":
+      case "member_signup":
+      case "about":
+        handleEditorAction("add_menu_item", payload);
+        break;
       case "add_menu_item": {
         if (!doc) break;
-        const menuContainer = doc.querySelector('[class*="menu-grid"], [class*="menu-items"], section:nth-of-type(2) [style*="grid"]');
-        if (menuContainer) {
+        const containerSelectors = currentSurfaceType === "emenu"
+          ? '[class*="menu-grid"], [class*="menu-items"], [data-section*="menu"], section:nth-of-type(2) [style*="grid"]'
+          : '[data-section*="product"], [class*="product-grid"], [class*="products"], [class*="collection"], [class*="catalog"], [class*="listing"], [class*="services"], [class*="links"], [class*="community"], section:nth-of-type(2) [style*="grid"], section:nth-of-type(2) [style*="flex"]';
+        const itemContainer = doc.querySelector(containerSelectors);
+        if (itemContainer) {
           const card = doc.createElement("div");
-          card.className = "menu-item";
+          card.className = currentSurfaceType === "emenu" ? "menu-item" : "yangu-item-card";
           card.style.cssText = "border-radius:8px;overflow:hidden;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);";
           card.innerHTML = `
-            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop" style="width:100%;height:180px;object-fit:cover;" />
+            <img src="${currentSurfaceType === "emenu" ? "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop" : "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop"}" style="width:100%;height:180px;object-fit:cover;" />
             <div style="padding:16px;">
-              <h3 contenteditable="true" style="font-size:1.1rem;font-weight:600;margin-bottom:4px;">New Item</h3>
-              <p contenteditable="true" style="font-size:0.85rem;opacity:0.7;margin-bottom:8px;">Click to add description</p>
+              <h3 contenteditable="true" style="font-size:1.1rem;font-weight:600;margin-bottom:4px;">${editorCopy.newItemTitle}</h3>
+              <p contenteditable="true" style="font-size:0.85rem;opacity:0.7;margin-bottom:8px;">${editorCopy.newItemDescription}</p>
               <span contenteditable="true" style="font-weight:700;font-size:1rem;">$0.00</span>
             </div>`;
-          menuContainer.appendChild(card);
+          itemContainer.appendChild(card);
           pushUpdate(doc, iframe);
-          toast.success("Menu item added!");
-        } else toast.info("Scroll to the menu section first");
+          toast.success(editorCopy.successMessage);
+        } else toast.info(editorCopy.emptyTargetHint);
         break;
       }
 
