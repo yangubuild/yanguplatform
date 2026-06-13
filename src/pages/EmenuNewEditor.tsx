@@ -1930,7 +1930,7 @@ export default function EmenuNewEditor() {
             <ButtonStylePanel onAction={handleEditorAction} initialColor={savedButtonColor} initialRadius={savedButtonRadius} />
           ) : (
             <div className="flex flex-col h-full">
-                <EmenuEditorPanel businessName={surfaceTitle} category={builderCategory} onAction={handleEditorAction} />
+                <BuilderEditorPanel businessName={surfaceTitle} category={builderCategory} onAction={handleEditorAction} />
               <div className="border-t border-border">
                 <ButtonStylePanel onAction={handleEditorAction} initialColor={savedButtonColor} initialRadius={savedButtonRadius} />
               </div>
