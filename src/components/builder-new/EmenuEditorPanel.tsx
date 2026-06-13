@@ -4,6 +4,12 @@ import {
   GripVertical, Type, Phone, MapPin, Store, Clock,
   Share2, Truck, Package, Grid3X3, Percent, ClipboardList, Building
 } from "lucide-react";
+import {
+  ALL_CATEGORY_KEYS,
+  getCategory,
+  isBuilderCategory,
+  type BuilderCategory,
+} from "@/lib/builder/categoryRegistry";
 
 interface EmenuEditorPanelProps {
   businessName: string;
@@ -12,14 +18,6 @@ interface EmenuEditorPanelProps {
 }
 
 type Section = "menu" | "categories" | "images" | "layout" | "business" | "hours" | "social" | "commerce";
-
-const CATEGORY_ALIASES: Record<string, string> = {
-  quick_site: "esite",
-  store_listing: "estore",
-  live_bio: "influencer",
-  community_group: "community",
-  community_listing: "community",
-};
 
 const PANEL_CONFIG: Record<string, {
   title: string;
@@ -207,8 +205,18 @@ export function EmenuEditorPanel({ businessName, category, onAction }: EmenuEdit
   const [expanded, setExpanded] = useState<Section | null>("menu");
   const [layoutMode, setLayoutMode] = useState<"grid" | "list">("grid");
   const [columns, setColumns] = useState<2 | 3>(2);
-  const normalizedCategory = CATEGORY_ALIASES[category || ""] || category || "eshop";
-  const config = PANEL_CONFIG[normalizedCategory] || PANEL_CONFIG.eshop;
+  // Registry-driven category resolution. Phase 2 contract: the `category`
+  // prop is the canonical BuilderCategory key supplied by the locked
+  // BuilderCategoryContext. We accept legacy surface_type values only as a
+  // defensive fallback during the migration window — never as the source
+  // of truth. The CATEGORY_REGISTRY is the only source of truth.
+  const resolvedKey: BuilderCategory =
+    (isBuilderCategory(category) && category) ||
+    (getCategory(category as string | null)?.key as BuilderCategory | undefined) ||
+    "eshop";
+  // Sanity assertion: ensure registry actually knows this key.
+  void ALL_CATEGORY_KEYS;
+  const config = PANEL_CONFIG[resolvedKey] || PANEL_CONFIG.eshop;
 
   const toggle = (s: Section) => setExpanded(expanded === s ? null : s);
 

@@ -24,7 +24,7 @@ const AdaBuilderPanel = lazy(() =>
 );
 import { EditablePreview } from "@/components/builder-new/EditablePreview";
 import { EditorToolsPanel } from "@/components/builder-new/EditorToolsPanel";
-import { EmenuEditorPanel } from "@/components/builder-new/EmenuEditorPanel";
+import { BuilderEditorPanel } from "@/components/builder-new/BuilderEditorPanel";
 import { TextEditorPanel } from "@/components/builder-new/TextEditorPanel";
 import { SectionEditorPanel } from "@/components/builder-new/SectionEditorPanel";
 import { MagicEditorToolbar } from "@/components/builder-new/MagicEditorToolbar";
@@ -38,7 +38,8 @@ import { BuilderPagesDropdown } from "@/components/builder/BuilderPagesDropdown"
 import { useBuilderEditor } from "@/hooks/useBuilderEditor";
 import { useEditorHistory } from "@/hooks/useEditorHistory";
 import { useDebounce } from "@/hooks/useDebounce";
-import { getSellerMode } from "@/lib/builder/sellerModes";
+import { useBuilderCategory } from "@/contexts/BuilderCategoryContext";
+import { getShellBinding } from "@/lib/builder/shellRegistry";
 import type { CanvasSelection, ProductCardData } from "@/lib/builder/selectionTypes";
 import type { BuilderSurfaceType } from "@/types/builder";
 import { toast } from "sonner";
@@ -46,24 +47,10 @@ import { toast } from "sonner";
 type LeftMode = "tools" | "ada" | "commerce";
 type PreviewViewport = "desktop" | "mobile";
 
-const BUILDER_CATEGORY_BY_SURFACE_TYPE: Record<string, string> = {
-  eshop: "eshop",
-  emenu: "emenu",
-  quick_site: "esite",
-  store_listing: "estore",
-  live_bio: "influencer",
-  community_group: "community",
-  community_listing: "community",
-};
-
-const BUILDER_CATEGORY_BY_SELLER_MODE: Record<string, string> = {
-  menu: "emenu",
-  shop: "eshop",
-  catalog: "estore",
-  service: "esite",
-  bio: "influencer",
-  community: "community",
-};
+// Phase 2: category and shell/panel bindings are resolved exclusively
+// from the locked BuilderCategoryContext + canonical registry. The local
+// surface_type / seller_mode maps were removed to eliminate Emenu-as-
+// master drift and prevent silent category switching.
 
 function isLightHex(hex: string): boolean {
   const c = hex.replace("#", "");
@@ -1622,8 +1609,23 @@ export default function EmenuNewEditor() {
 
   const surfaceType = (editorState.surface.surface_type || "quick_site") as BuilderSurfaceType;
   const surfaceTitle = editorState.surface.title || "Untitled";
-  const sellerMode = getSellerMode(surfaceType);
-  const builderCategory = BUILDER_CATEGORY_BY_SELLER_MODE[sellerMode.mode] || BUILDER_CATEGORY_BY_SURFACE_TYPE[surfaceType] || "esite";
+  // Phase 2: category resolution is registry-driven and locked. The value
+  // comes from BuilderCategoryContext (mounted by BuilderEditorRouter) and
+  // CANNOT silently change for the lifetime of this editor instance.
+  const lockedCategory = useBuilderCategory();
+  const builderCategory = lockedCategory.category.key;
+  const shellBinding = getShellBinding(builderCategory);
+  // Defensive runtime guard: refuse to render if the DB-resolved surface
+  // type ever drifts from the locked context (e.g. a stale realtime
+  // update). The DB trigger from Phase 1 already prevents this, but the
+  // double check enforces the lock at every flow boundary.
+  lockedCategory.assertLocked(
+    (lockedCategory.category.surfaceType === surfaceType
+      ? builderCategory
+      : undefined),
+    "EmenuNewEditor:render",
+  );
+  void shellBinding;
 
   if (!liveHtml) {
     // If we have saved HTML that's still being initialized, show loading — not an error
@@ -1678,7 +1680,7 @@ export default function EmenuNewEditor() {
         <div className="h-6 w-px bg-white/20 hidden sm:block" />
         <h1 className="text-sm font-semibold text-white truncate">{surfaceTitle}</h1>
         <span className="hidden sm:inline-flex text-[10px] font-medium px-2 py-0.5 rounded-lg bg-white/10 text-white/70">
-          {sellerMode.categoryBadge}
+          {lockedCategory.category.label}
         </span>
         <div className="hidden lg:block">
           <BuilderPagesDropdown
@@ -1926,7 +1928,7 @@ export default function EmenuNewEditor() {
             <ButtonStylePanel onAction={handleEditorAction} initialColor={savedButtonColor} initialRadius={savedButtonRadius} />
           ) : (
             <div className="flex flex-col h-full">
-                <EmenuEditorPanel businessName={surfaceTitle} category={builderCategory} onAction={handleEditorAction} />
+                <BuilderEditorPanel businessName={surfaceTitle} category={builderCategory} onAction={handleEditorAction} />
               <div className="border-t border-border">
                 <ButtonStylePanel onAction={handleEditorAction} initialColor={savedButtonColor} initialRadius={savedButtonRadius} />
               </div>
