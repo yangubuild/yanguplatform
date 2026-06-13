@@ -1244,13 +1244,13 @@ export default function EmenuNewEditor() {
         const catContainer = doc.querySelector('[class*="categor"], [class*="filter"], nav + div');
         if (catContainer) {
           const newCat = doc.createElement("button");
-          newCat.textContent = "New Category";
+          newCat.textContent = `New ${editorCopy.categorySingular}`;
           newCat.setAttribute("contenteditable", "true");
           newCat.style.cssText = "padding:8px 16px;border-radius:8px;font-size:0.85rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);cursor:pointer;color:inherit;";
           catContainer.appendChild(newCat);
           pushUpdate(doc, iframe);
-          toast.success("Category added! Click to rename.");
-        } else toast.info("No category container found in the template");
+          toast.success(`${editorCopy.categorySingular.charAt(0).toUpperCase() + editorCopy.categorySingular.slice(1)} added! Click to rename.`);
+        } else toast.info(`No ${editorCopy.categorySingular} container found in the template`);
         break;
       }
       case "delete_category": {
@@ -1269,9 +1269,9 @@ export default function EmenuNewEditor() {
         if (!doc) break;
         const h1 = doc.querySelector("h1, [class*='brand'], [class*='logo-text'], nav h1, header h1");
         if (h1) {
-          const name = prompt("Restaurant name:", h1.textContent || "");
+          const name = prompt(`${editorCopy.businessNamePrompt}:`, h1.textContent || "");
           if (name) { h1.textContent = name; pushUpdate(doc, iframe); }
-        } else toast.info("No restaurant name element found");
+        } else toast.info(`No ${editorCopy.businessNamePrompt.toLowerCase()} element found`);
         break;
       }
       case "edit_logo": {
@@ -1483,6 +1483,31 @@ export default function EmenuNewEditor() {
       case "menu_items":
         handleEditorAction("add_menu_item");
         break;
+      case "collections":
+      case "supplier_info":
+      case "team":
+      case "testimonials":
+      case "faq":
+      case "blog":
+      case "media":
+      case "affiliate":
+      case "live_product_pins":
+      case "tips":
+      case "resources":
+      case "private_posts":
+      case "directory":
+      case "messaging":
+        handleEditorAction("add_section");
+        break;
+      case "discount_rules":
+      case "cart":
+      case "checkout":
+      case "promos":
+      case "bulk_pricing":
+      case "quote_request":
+      case "large_inventory":
+        handleEditorAction("commerce_config");
+        break;
       case "food_image_ai":
         handleEditorAction("ai_generate_image");
         break;
@@ -1545,10 +1570,10 @@ export default function EmenuNewEditor() {
       }
 
       default:
-        toast.info(`${action} — coming soon`);
+        toast.info(`${action} is not available for this ${editorCopy.itemSingular} editor.`);
         break;
     }
-  }, [getIframe, pushUpdate, getSelectedElement, canvasSelection]);
+  }, [getIframe, pushUpdate, getSelectedElement, canvasSelection, editorState?.surface?.surface_type]);
 
   // ─── Page switching handler ───
   const handlePageSwitch = useCallback((pageId: string) => {
