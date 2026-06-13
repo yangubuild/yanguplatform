@@ -1682,7 +1682,7 @@ export default function EmenuNewEditor() {
         <div className="h-6 w-px bg-white/20 hidden sm:block" />
         <h1 className="text-sm font-semibold text-white truncate">{surfaceTitle}</h1>
         <span className="hidden sm:inline-flex text-[10px] font-medium px-2 py-0.5 rounded-lg bg-white/10 text-white/70">
-          {sellerMode.categoryBadge}
+          {lockedCategory.category.label}
         </span>
         <div className="hidden lg:block">
           <BuilderPagesDropdown
