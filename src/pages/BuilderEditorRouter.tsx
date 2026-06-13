@@ -1,5 +1,10 @@
 /**
  * BuilderEditorRouter — surface_type → editor shell routing contract.
+ *
+ * Phase 1 — wraps the editor with <BuilderCategoryProvider> so the
+ * dashboard-selected category is LOCKED for the entire build flow.
+ * Also enforces a defensive routing guard: refuses to mount any shell
+ * whose category cannot be resolved from the canonical registry.
  */
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -9,6 +14,8 @@ import { Card } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { lazy, Suspense } from "react";
+import { BuilderCategoryProvider } from "@/contexts/BuilderCategoryContext";
+import { getCategoryForSurfaceType } from "@/lib/builder/categoryRegistry";
 
 const EmenuNewEditor = lazy(() => import("./EmenuNewEditor"));
 
@@ -69,6 +76,29 @@ export default function BuilderEditorRouter() {
     );
   }
 
+  // ── Category lock: resolve the canonical category for this surface_type.
+  // The router refuses to mount any shell when the surface_type is not
+  // owned by a registered category. This is the first enforcement layer
+  // of the Category Lock architecture.
+  const category = getCategoryForSurfaceType(surfaceType);
+  if (!category || !surfaceId) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full p-8 text-center">
+          <AlertTriangle className="h-10 w-10 text-warning mx-auto mb-4" />
+          <h1 className="text-xl font-bold mb-2">Unknown builder category</h1>
+          <p className="text-sm text-muted-foreground mb-6">
+            surface_type "{surfaceType}" is not registered in the canonical
+            category registry. Editor mount blocked by category lock.
+          </p>
+          <Button variant="outline" onClick={() => navigate("/dashboard")}>
+            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
   const fallbackLoader = (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <Skeleton className="h-12 w-48 rounded-lg" />
@@ -78,8 +108,10 @@ export default function BuilderEditorRouter() {
   const EditorComponent = EmenuNewEditor;
 
   return (
-    <Suspense fallback={fallbackLoader}>
-      <EditorComponent />
-    </Suspense>
+    <BuilderCategoryProvider surfaceId={surfaceId} categoryKey={category.key}>
+      <Suspense fallback={fallbackLoader}>
+        <EditorComponent />
+      </Suspense>
+    </BuilderCategoryProvider>
   );
 }
