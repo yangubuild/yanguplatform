@@ -38,7 +38,6 @@ import { BuilderPagesDropdown } from "@/components/builder/BuilderPagesDropdown"
 import { useBuilderEditor } from "@/hooks/useBuilderEditor";
 import { useEditorHistory } from "@/hooks/useEditorHistory";
 import { useDebounce } from "@/hooks/useDebounce";
-import { getSellerMode } from "@/lib/builder/sellerModes";
 import { useBuilderCategory } from "@/contexts/BuilderCategoryContext";
 import { getShellBinding } from "@/lib/builder/shellRegistry";
 import type { CanvasSelection, ProductCardData } from "@/lib/builder/selectionTypes";
@@ -1610,7 +1609,6 @@ export default function EmenuNewEditor() {
 
   const surfaceType = (editorState.surface.surface_type || "quick_site") as BuilderSurfaceType;
   const surfaceTitle = editorState.surface.title || "Untitled";
-  const sellerMode = getSellerMode(surfaceType);
   // Phase 2: category resolution is registry-driven and locked. The value
   // comes from BuilderCategoryContext (mounted by BuilderEditorRouter) and
   // CANNOT silently change for the lifetime of this editor instance.
