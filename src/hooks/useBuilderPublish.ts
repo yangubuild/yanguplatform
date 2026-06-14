@@ -19,10 +19,9 @@ const SURFACE_DOMAIN_MAP: Record<BuilderSurfaceType, string[]> = {
   eshop: ["yangu.shop"],
   store_listing: ["yangu.store"],
   quick_site: ["yangu.site"],
-  // Emenu publishes to restaurant.yangu.shop (new). Existing emenu publishes
-  // on yangu.shop remain valid (not backfilled) but are no longer offered to
-  // new publish flows — see Builder Bible Ch. 13.
-  emenu: ["restaurant.yangu.shop"],
+  // Emenu publishes on the shared yangu.shop apex (shared slug namespace
+  // with Eshop). restaurant.yangu.shop is deprecated (no DNS).
+  emenu: ["yangu.shop"],
   studio_showcase: ["yangu.studio"],
 };
 

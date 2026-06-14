@@ -10,7 +10,7 @@ takes precedence.
 | Builder     | surface_type      | publishDomain              |
 |-------------|-------------------|----------------------------|
 | Eshop       | eshop             | yangu.shop                 |
-| Emenu       | emenu             | restaurant.yangu.shop      |
+| Emenu       | emenu             | yangu.shop                 |
 | Esite       | quick_site        | yangu.site                 |
 | Estore      | store_listing     | yangu.store                |
 | Influencer  | live_bio          | yangu.live                 |

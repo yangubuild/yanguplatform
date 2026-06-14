@@ -37,7 +37,7 @@ export const CATEGORY_REGISTRY: Readonly<Record<BuilderCategory, Readonly<Catego
     surfaceType: "emenu",
     label: "Emenu",
     description: "Restaurant, cafe, and food menu builder.",
-    publishDomain: "restaurant.yangu.shop",
+    publishDomain: "yangu.shop",
     icon: "UtensilsCrossed",
   }),
   esite: Object.freeze({
