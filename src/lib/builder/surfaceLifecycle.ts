@@ -41,7 +41,7 @@ export function assertPublishable(status: SurfaceStatus | string | null | undefi
 // Canonical publish domain per surface_type (mirrors YANGU_BUILDER_SPEC.md).
 const SURFACE_PUBLISH_DOMAIN: Record<string, string> = {
   eshop:             'yangu.shop',
-  emenu:             'restaurant.yangu.shop',
+  emenu:             'yangu.shop',
   quick_site:        'yangu.site',
   store_listing:     'yangu.store',
   live_bio:          'yangu.live',
