@@ -473,9 +473,19 @@ export interface UserAssets {
 
 // ─── Hook ──────────────────────────────────────────────────────────────
 
-export function useStepController() {
+export interface UseStepControllerOptions {
+  /**
+   * Phase 2 category lock. When provided (e.g. from /seller/:category route),
+   * the chat flow MUST NOT silently mutate category. AI suggestions remain
+   * advisory only; explicit user confirmation is required to switch.
+   */
+  lockedCategory?: Category | null;
+}
+
+export function useStepController(options: UseStepControllerOptions = {}) {
+  const { lockedCategory = null } = options;
   const [currentStep, setCurrentStep] = useState<BuilderStep>("greeting");
-  const [category, setCategory] = useState<Category | null>(null);
+  const [category, setCategory] = useState<Category | null>(lockedCategory ?? null);
   const [selectedScope, setSelectedScope] = useState<string | null>(null);
   const [selectedAssets, setSelectedAssets] = useState<string | null>(null);
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
