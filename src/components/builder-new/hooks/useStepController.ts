@@ -773,7 +773,7 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       default:
         return { key: "greeting", adaMessage: "", options: [] };
     }
-  }, [currentStep, category, isFoodCategory, businessLocation, menuClassification, selectedAssets, businessName, selectedScope, eshopConfig.shopType]);
+  }, [currentStep, category, lockedCategory, isFoodCategory, businessLocation, menuClassification, selectedAssets, businessName, selectedScope, eshopConfig.shopType]);
 
   const buildConfirmationMessage = useCallback(() => {
     const lines = ["Here's your summary:\n"];
@@ -962,7 +962,7 @@ export function useStepController(options: UseStepControllerOptions = {}) {
 
   const resetAll = useCallback(() => {
     setCurrentStep("greeting");
-    setCategory(null);
+    setCategory(lockedCategory ?? null);
     setSelectedScope(null);
     setSelectedAssets(null);
     setSelectedSections([]);
