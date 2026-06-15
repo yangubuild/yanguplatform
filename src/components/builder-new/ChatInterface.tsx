@@ -162,8 +162,14 @@ export function ChatInterface({
     ? (category && GREETING_PLACEHOLDERS[category]) || GREETING_PLACEHOLDERS.emenu
     : currentStep === "refinement"
     ? "e.g. Change the hero image, update the layout, make colors darker..."
-    : currentStep === "business_location"
+    : currentStep === "business_location" || currentStep === "estore_location" || currentStep === "esite_location"
     ? "e.g. Dubai, UAE..."
+    : currentStep === "estore_moq_value"
+    ? "e.g. 50 cartons, 100 kg, or AED 5,000..."
+    : currentStep === "esite_key_services"
+    ? "e.g. Strategy, branding, property sales, tours..."
+    : currentStep === "esite_booking_email"
+    ? "e.g. bookings@yourcompany.com..."
     : "Click an option above to continue";
 
   return (

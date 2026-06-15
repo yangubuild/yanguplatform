@@ -16,6 +16,22 @@ export type BuilderStep =
   | "sell_channel"
   | "business_type"
   | "shop_type"
+  | "estore_business_model"
+  | "estore_supply_type"
+  | "estore_product_volume"
+  | "estore_moq"
+  | "estore_moq_value"
+  | "estore_payment_methods"
+  | "estore_payment_condition"
+  | "estore_quote_requests"
+  | "estore_location"
+  | "esite_service_type"
+  | "esite_key_services"
+  | "esite_booking"
+  | "esite_booking_email"
+  | "esite_payment_methods"
+  | "esite_payment_condition"
+  | "esite_location"
   | "business_mode"
   | "attributes"
   | "scope"
@@ -133,6 +149,95 @@ export interface StepConfig {
   businessType?: string;
   menuType?: string;
 }
+
+type EstoreBusinessModel = "wholesale" | "trading" | "both";
+type EstoreSupplyType = "agriculture" | "distribution" | "supermarket" | "hardware" | "industrial" | "bulk_food";
+type EstoreProductVolume = "small" | "medium" | "large";
+type PaymentCondition = "upfront" | "deposit" | "net_terms" | "on_delivery";
+type YesNo = "yes" | "no";
+
+interface EstoreFlowConfig {
+  businessModel: EstoreBusinessModel | null;
+  supplyType: EstoreSupplyType | null;
+  productVolume: EstoreProductVolume | null;
+  hasMoq: YesNo | null;
+  moqValue: string;
+  paymentMethods: string[];
+  paymentCondition: PaymentCondition | null;
+  quoteRequests: YesNo | null;
+  location: string;
+}
+
+interface EsiteFlowConfig {
+  serviceType: string | null;
+  keyServices: string;
+  booking: YesNo | null;
+  bookingEmail: string;
+  paymentMethods: string[];
+  paymentCondition: PaymentCondition | null;
+  location: string;
+}
+
+const ESTORE_BUSINESS_MODEL_OPTIONS: StepOption[] = [
+  { id: "wholesale", label: "Wholesale", value: "wholesale", icon: "📦", description: "Bulk supply to retailers, resellers, or businesses" },
+  { id: "trading", label: "Trading", value: "trading", icon: "🤝", description: "Sourcing, import/export, or deal-based supply" },
+  { id: "both", label: "Both", value: "both", icon: "🔀", description: "Wholesale catalog plus trading enquiries" },
+];
+
+const ESTORE_SUPPLY_TYPE_OPTIONS: StepOption[] = [
+  { id: "agriculture", label: "Agricultural / Farm Produce", value: "agriculture", icon: "🌾", description: "Fresh produce, farm inputs, crops, or livestock supply" },
+  { id: "distribution", label: "Wholesale Distribution", value: "distribution", icon: "🚚", description: "B2B distribution, FMCG, regional supply" },
+  { id: "supermarket", label: "Supermarket / Multi-category", value: "supermarket", icon: "🏬", description: "Many product categories and fast-moving goods" },
+  { id: "hardware", label: "Hardware & Construction", value: "hardware", icon: "🧱", description: "Materials, tools, fittings, and building supplies" },
+  { id: "industrial", label: "Industrial Supplies", value: "industrial", icon: "🏭", description: "Equipment, parts, chemicals, factory supplies" },
+  { id: "bulk_food", label: "Bulk Food & Beverages", value: "bulk_food", icon: "🥫", description: "Packaged food, beverages, grains, wholesale pantry" },
+];
+
+const ESTORE_PRODUCT_VOLUME_OPTIONS: StepOption[] = [
+  { id: "small", label: "Under 50 SKUs", value: "small", icon: "▦", description: "Focused catalog or short product list" },
+  { id: "medium", label: "50–500 SKUs", value: "medium", icon: "▦▦", description: "Growing wholesale catalog" },
+  { id: "large", label: "500+ SKUs", value: "large", icon: "▦▦▦", description: "Large inventory or many categories" },
+];
+
+const YES_NO_OPTIONS: StepOption[] = [
+  { id: "yes", label: "Yes", value: "yes", icon: "✓" },
+  { id: "no", label: "No", value: "no", icon: "—" },
+];
+
+const WHOLESALE_PAYMENT_OPTIONS: StepOption[] = [
+  { id: "bank_transfer", label: "Bank Transfer", value: "bank_transfer" },
+  { id: "mobile_money", label: "Mobile Money", value: "mobile_money" },
+  { id: "cash", label: "Cash", value: "cash" },
+  { id: "cards", label: "Cards", value: "cards" },
+  { id: "invoice_po", label: "Invoice / PO", value: "invoice_po" },
+  { id: "cheque", label: "Cheque", value: "cheque" },
+];
+
+const SERVICES_PAYMENT_OPTIONS: StepOption[] = [
+  { id: "bank_transfer", label: "Bank Transfer", value: "bank_transfer" },
+  { id: "mobile_money", label: "Mobile Money", value: "mobile_money" },
+  { id: "cards", label: "Cards", value: "cards" },
+  { id: "cash", label: "Cash", value: "cash" },
+  { id: "invoice", label: "Invoice", value: "invoice" },
+];
+
+const PAYMENT_CONDITION_OPTIONS: StepOption[] = [
+  { id: "upfront", label: "Full payment upfront", value: "upfront", icon: "💳", description: "Customer pays before delivery or service starts" },
+  { id: "deposit", label: "Deposit first", value: "deposit", icon: "↧", description: "Collect an advance payment, balance later" },
+  { id: "net_terms", label: "Invoice terms", value: "net_terms", icon: "📄", description: "Net 7 / 14 / 30 or agreed business terms" },
+  { id: "on_delivery", label: "Pay on delivery / completion", value: "on_delivery", icon: "✓", description: "Payment after delivery or service completion" },
+];
+
+const ESITE_SERVICE_TYPE_OPTIONS: StepOption[] = [
+  { id: "consultancy_agency", label: "Consultancy / Agency", value: "consultancy_agency", icon: "💼", description: "Professional services, advisory, marketing, legal, finance" },
+  { id: "real_estate", label: "Real Estate", value: "real_estate", icon: "🏠", description: "Property sales, rentals, developments, brokerage" },
+  { id: "travel_tourism", label: "Travel & Tourism", value: "travel_tourism", icon: "🧭", description: "Tours, travel packages, experiences, agencies" },
+  { id: "hospitality_hotel", label: "Hospitality / Hotel", value: "hospitality_hotel", icon: "🏨", description: "Hotels, villas, lodges, guest houses, venues" },
+  { id: "clinic_wellness", label: "Clinic / Wellness", value: "clinic_wellness", icon: "✚", description: "Health, beauty, wellness, therapy, medical services" },
+  { id: "construction", label: "Construction", value: "construction", icon: "🏗️", description: "Contractors, engineering, architecture, project services" },
+  { id: "school_education", label: "School / Education", value: "school_education", icon: "🎓", description: "Schools, training centers, education programs" },
+  { id: "ngo_institution", label: "NGO / Institution", value: "ngo_institution", icon: "🏛️", description: "Organizations, foundations, institutions, programs" },
+];
 
 function getAiLogoContext(
   menuClassification: MenuComplexity | null,
@@ -439,25 +544,50 @@ function getEshopTemplateOptions(): StepOption[] {
   });
 }
 
-// ─── Esite template options (sourced from templateRegistry.ts) ─────────
-function getEsiteTemplateOptions(): StepOption[] {
-  return getTemplatesForEngine("esite").map((t) => ({
-    id: t.key,
-    label: t.label,
-    value: t.key,
-    description: t.description || "",
-    icon: t.icon || "🌐",
-  }));
-}
-
-// ─── Estore template options (sourced from templateRegistry.ts) ────────
+// ─── Estore/Esite template options (sourced from templateRegistry.ts) ──
 function getEstoreTemplateOptions(): StepOption[] {
-  return getTemplatesForEngine("estore").map((t) => ({
+  const approvedKeys = ["estore_minna", "estore_monchies", "estore_bazaro_fashion", "estore_bazaro_classic"];
+  return getTemplatesForEngine("estore").filter((t) => approvedKeys.includes(t.key)).map((t) => ({
     id: t.key,
     label: t.label,
     value: t.key,
     description: t.description || "",
     icon: t.icon || "🏬",
+  }));
+}
+
+const ESITE_TEMPLATE_KEYS_BY_SERVICE_TYPE: Record<string, string[]> = {
+  consultancy_agency: ["esite_shieldpro", "esite_interim"],
+  real_estate: ["esite_realisting", "esite_toplistings"],
+  hospitality_hotel: ["esite_luxra", "esite_telvin"],
+  travel_tourism: ["esite_tripset", "esite_key"],
+  construction: ["esite_estatoo"],
+};
+
+const ESITE_APPROVED_TEMPLATE_KEYS = [
+  "esite_shieldpro",
+  "esite_interim",
+  "esite_realisting",
+  "esite_toplistings",
+  "esite_luxra",
+  "esite_telvin",
+  "esite_tripset",
+  "esite_key",
+  "esite_estatoo",
+];
+
+function getEsiteTemplateOptions(serviceType?: string | null): StepOption[] {
+  const keys = serviceType ? ESITE_TEMPLATE_KEYS_BY_SERVICE_TYPE[serviceType] : undefined;
+  const templates = getTemplatesForEngine("esite").filter((t) => ESITE_APPROVED_TEMPLATE_KEYS.includes(t.key));
+  const scopedTemplates = keys?.length
+    ? keys.map((key) => templates.find((t) => t.key === key)).filter(Boolean) as typeof templates
+    : templates;
+  return scopedTemplates.map((t) => ({
+    id: t.key,
+    label: t.label,
+    value: t.key,
+    description: t.description || "",
+    icon: t.icon || "🌐",
   }));
 }
 
@@ -504,6 +634,26 @@ export function useStepController(options: UseStepControllerOptions = {}) {
     businessMode: null,
     attributes: { ...DEFAULT_ATTRIBUTES },
   });
+  const [estoreConfig, setEstoreConfig] = useState<EstoreFlowConfig>({
+    businessModel: null,
+    supplyType: null,
+    productVolume: null,
+    hasMoq: null,
+    moqValue: "",
+    paymentMethods: [],
+    paymentCondition: null,
+    quoteRequests: null,
+    location: "",
+  });
+  const [esiteConfig, setEsiteConfig] = useState<EsiteFlowConfig>({
+    serviceType: null,
+    keyServices: "",
+    booking: null,
+    bookingEmail: "",
+    paymentMethods: [],
+    paymentCondition: null,
+    location: "",
+  });
 
   // ─── New ADA qualification fields (parity with Speak to Build) ─────
   const [country, setCountry] = useState("");
@@ -513,6 +663,8 @@ export function useStepController(options: UseStepControllerOptions = {}) {
 
   const isFoodCategory = useMemo(() => category === "emenu", [category]);
   const isShopCategory = useMemo(() => category === "eshop", [category]);
+  const isEstoreCategory = useMemo(() => category === "estore", [category]);
+  const isEsiteCategory = useMemo(() => category === "esite", [category]);
 
   // Classify emenu on greeting
   const classifyOnGreeting = useCallback((text: string, detectedCategory: Category) => {
@@ -528,6 +680,8 @@ export function useStepController(options: UseStepControllerOptions = {}) {
   const getNextStep = useCallback((step: BuilderStep): BuilderStep => {
     switch (step) {
       case "greeting":
+        if (isEstoreCategory) return "estore_business_model";
+        if (isEsiteCategory) return "esite_service_type";
         return "country";
       case "country":         return "products_services";
       case "products_services": return "payment_methods";
@@ -540,6 +694,22 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       case "shop_type": return "business_mode";
       case "business_mode": return "attributes";
       case "attributes": return "scope";
+      case "estore_business_model": return "estore_supply_type";
+      case "estore_supply_type": return "estore_product_volume";
+      case "estore_product_volume": return "estore_moq";
+      case "estore_moq": return estoreConfig.hasMoq === "yes" ? "estore_moq_value" : "estore_payment_methods";
+      case "estore_moq_value": return "estore_payment_methods";
+      case "estore_payment_methods": return "estore_payment_condition";
+      case "estore_payment_condition": return "estore_quote_requests";
+      case "estore_quote_requests": return "estore_location";
+      case "estore_location": return "assets";
+      case "esite_service_type": return "esite_key_services";
+      case "esite_key_services": return "esite_booking";
+      case "esite_booking": return esiteConfig.booking === "yes" ? "esite_booking_email" : "esite_payment_methods";
+      case "esite_booking_email": return "esite_payment_methods";
+      case "esite_payment_methods": return "esite_payment_condition";
+      case "esite_payment_condition": return "esite_location";
+      case "esite_location": return "assets";
       case "scope": return "assets";
       case "assets":
         if (selectedAssets === "ai_generated") return "ai_logo";
@@ -555,7 +725,7 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       case "generation": return "refinement";
       default: return "refinement";
     }
-  }, [isFoodCategory, selectedAssets]);
+  }, [isFoodCategory, isEstoreCategory, isEsiteCategory, selectedAssets, estoreConfig.hasMoq, esiteConfig.booking]);
 
   const getStepConfig = useCallback((): StepConfig => {
     switch (currentStep) {
@@ -641,6 +811,125 @@ export function useStepController(options: UseStepControllerOptions = {}) {
           renderAs: "chips",
         };
       }
+      case "estore_business_model":
+        return {
+          key: "estore_business_model",
+          adaMessage: `Great, **${businessName}**. Is this mainly wholesale, trading, or both?`,
+          options: ESTORE_BUSINESS_MODEL_OPTIONS,
+          renderAs: "cards",
+        };
+      case "estore_supply_type":
+        return {
+          key: "estore_supply_type",
+          adaMessage: "What type of products do you supply?",
+          options: ESTORE_SUPPLY_TYPE_OPTIONS,
+          renderAs: "cards",
+        };
+      case "estore_product_volume":
+        return {
+          key: "estore_product_volume",
+          adaMessage: "How large is your product catalog?",
+          options: ESTORE_PRODUCT_VOLUME_OPTIONS,
+          renderAs: "cards",
+        };
+      case "estore_moq":
+        return {
+          key: "estore_moq",
+          adaMessage: "Do you require a minimum order quantity?",
+          options: YES_NO_OPTIONS,
+          renderAs: "cards",
+        };
+      case "estore_moq_value":
+        return {
+          key: "estore_moq_value",
+          adaMessage: "What is the minimum order quantity or minimum order value?",
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
+      case "estore_payment_methods":
+        return {
+          key: "estore_payment_methods",
+          adaMessage: "Which wholesale payment methods do you accept? Select all that apply, then tap **Done**.",
+          options: WHOLESALE_PAYMENT_OPTIONS,
+          multiSelect: true,
+          renderAs: "chips",
+        };
+      case "estore_payment_condition":
+        return {
+          key: "estore_payment_condition",
+          adaMessage: "What payment condition do you normally use?",
+          options: PAYMENT_CONDITION_OPTIONS,
+          renderAs: "cards",
+        };
+      case "estore_quote_requests":
+        return {
+          key: "estore_quote_requests",
+          adaMessage: "Should buyers be able to request a quote?",
+          options: YES_NO_OPTIONS,
+          renderAs: "cards",
+        };
+      case "estore_location":
+        return {
+          key: "estore_location",
+          adaMessage: "Where is your store, warehouse, or main service area based?",
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
+      case "esite_service_type":
+        return {
+          key: "esite_service_type",
+          adaMessage: `Great, **${businessName}**. What type of service website are you creating?`,
+          options: ESITE_SERVICE_TYPE_OPTIONS,
+          renderAs: "cards",
+        };
+      case "esite_key_services":
+        return {
+          key: "esite_key_services",
+          adaMessage: "What are your key services?",
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
+      case "esite_booking":
+        return {
+          key: "esite_booking",
+          adaMessage: "Do you take bookings or consultation requests?",
+          options: YES_NO_OPTIONS,
+          renderAs: "cards",
+        };
+      case "esite_booking_email":
+        return {
+          key: "esite_booking_email",
+          adaMessage: "Which email should receive bookings or consultation requests?",
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
+      case "esite_payment_methods":
+        return {
+          key: "esite_payment_methods",
+          adaMessage: "Which payment methods do you accept for services? Select all that apply, then tap **Done**.",
+          options: SERVICES_PAYMENT_OPTIONS,
+          multiSelect: true,
+          renderAs: "chips",
+        };
+      case "esite_payment_condition":
+        return {
+          key: "esite_payment_condition",
+          adaMessage: "How do clients usually pay?",
+          options: PAYMENT_CONDITION_OPTIONS,
+          renderAs: "cards",
+        };
+      case "esite_location":
+        return {
+          key: "esite_location",
+          adaMessage: "Where is your business based, or what area do you serve?",
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
       case "scope":
         return {
           key: "scope",
@@ -718,7 +1007,7 @@ export function useStepController(options: UseStepControllerOptions = {}) {
           return {
             key: "template_choice",
             adaMessage: "Pick a template for your website. These are real service-site designs I'll use as the foundation:",
-            options: getEsiteTemplateOptions(),
+            options: getEsiteTemplateOptions(esiteConfig.serviceType),
             renderAs: "carousel",
           };
         }
@@ -771,7 +1060,7 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       default:
         return { key: "greeting", adaMessage: "", options: [] };
     }
-  }, [currentStep, category, lockedCategory, isFoodCategory, businessLocation, menuClassification, selectedAssets, businessName, selectedScope, eshopConfig.shopType]);
+  }, [currentStep, category, lockedCategory, isFoodCategory, businessLocation, menuClassification, selectedAssets, businessName, selectedScope, eshopConfig.shopType, esiteConfig.serviceType]);
 
   const buildConfirmationMessage = useCallback(() => {
     const lines = ["Here's your summary:\n"];
@@ -799,7 +1088,9 @@ export function useStepController(options: UseStepControllerOptions = {}) {
     setUserIdea(text);
     // Spec parity with Speak to Build: ask qualification questions BEFORE
     // branching by category. sell_channel may re-route the category.
-    setCurrentStep("country");
+    if (effective === "estore") setCurrentStep("estore_business_model");
+    else if (effective === "esite") setCurrentStep("esite_service_type");
+    else setCurrentStep("country");
   }, [category, lockedCategory]);
 
   // Free-text handler for the new qualification steps (country / products /
@@ -839,6 +1130,28 @@ export function useStepController(options: UseStepControllerOptions = {}) {
         setCurrentStep("sell_channel");
         break;
       }
+      case "estore_moq_value":
+        setEstoreConfig(prev => ({ ...prev, moqValue: trimmed }));
+        setCurrentStep("estore_payment_methods");
+        break;
+      case "estore_location":
+        setEstoreConfig(prev => ({ ...prev, location: trimmed }));
+        setBusinessLocation(trimmed);
+        setCurrentStep("assets");
+        break;
+      case "esite_key_services":
+        setEsiteConfig(prev => ({ ...prev, keyServices: trimmed }));
+        setCurrentStep("esite_booking");
+        break;
+      case "esite_booking_email":
+        setEsiteConfig(prev => ({ ...prev, bookingEmail: trimmed }));
+        setCurrentStep("esite_payment_methods");
+        break;
+      case "esite_location":
+        setEsiteConfig(prev => ({ ...prev, location: trimmed }));
+        setBusinessLocation(trimmed);
+        setCurrentStep("assets");
+        break;
       default:
         break;
     }
@@ -865,6 +1178,8 @@ export function useStepController(options: UseStepControllerOptions = {}) {
         }
         if (effective === "emenu") setCurrentStep("business_type");
         else if (effective === "eshop") setCurrentStep("shop_type");
+        else if (effective === "estore") setCurrentStep("estore_business_model");
+        else if (effective === "esite") setCurrentStep("esite_service_type");
         else setCurrentStep("scope");
         break;
       }
@@ -879,6 +1194,58 @@ export function useStepController(options: UseStepControllerOptions = {}) {
         setCurrentStep("business_mode");
         break;
       }
+      case "estore_business_model":
+        setEstoreConfig(prev => ({ ...prev, businessModel: option.value as EstoreBusinessModel }));
+        setCurrentStep("estore_supply_type");
+        break;
+      case "estore_supply_type":
+        setEstoreConfig(prev => ({ ...prev, supplyType: option.value as EstoreSupplyType }));
+        setCurrentStep("estore_product_volume");
+        break;
+      case "estore_product_volume":
+        setEstoreConfig(prev => ({ ...prev, productVolume: option.value as EstoreProductVolume }));
+        setCurrentStep("estore_moq");
+        break;
+      case "estore_moq":
+        setEstoreConfig(prev => ({ ...prev, hasMoq: option.value as YesNo }));
+        setCurrentStep(option.value === "yes" ? "estore_moq_value" : "estore_payment_methods");
+        break;
+      case "estore_payment_methods":
+        setEstoreConfig(prev => ({
+          ...prev,
+          paymentMethods: prev.paymentMethods.includes(option.value)
+            ? prev.paymentMethods.filter(v => v !== option.value)
+            : [...prev.paymentMethods, option.value],
+        }));
+        break;
+      case "estore_payment_condition":
+        setEstoreConfig(prev => ({ ...prev, paymentCondition: option.value as PaymentCondition }));
+        setCurrentStep("estore_quote_requests");
+        break;
+      case "estore_quote_requests":
+        setEstoreConfig(prev => ({ ...prev, quoteRequests: option.value as YesNo }));
+        setCurrentStep("estore_location");
+        break;
+      case "esite_service_type":
+        setEsiteConfig(prev => ({ ...prev, serviceType: option.value }));
+        setCurrentStep("esite_key_services");
+        break;
+      case "esite_booking":
+        setEsiteConfig(prev => ({ ...prev, booking: option.value as YesNo }));
+        setCurrentStep(option.value === "yes" ? "esite_booking_email" : "esite_payment_methods");
+        break;
+      case "esite_payment_methods":
+        setEsiteConfig(prev => ({
+          ...prev,
+          paymentMethods: prev.paymentMethods.includes(option.value)
+            ? prev.paymentMethods.filter(v => v !== option.value)
+            : [...prev.paymentMethods, option.value],
+        }));
+        break;
+      case "esite_payment_condition":
+        setEsiteConfig(prev => ({ ...prev, paymentCondition: option.value as PaymentCondition }));
+        setCurrentStep("esite_location");
+        break;
       case "business_mode":
         setEshopConfig(prev => ({ ...prev, businessMode: option.value as BusinessMode }));
         setCurrentStep("attributes");
@@ -955,8 +1322,14 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       setCurrentStep("template_choice");
     } else if (currentStep === "attributes") {
       setCurrentStep("scope");
+    } else if (currentStep === "estore_payment_methods") {
+      setPaymentMethods(estoreConfig.paymentMethods);
+      setCurrentStep("estore_payment_condition");
+    } else if (currentStep === "esite_payment_methods") {
+      setPaymentMethods(esiteConfig.paymentMethods);
+      setCurrentStep("esite_payment_condition");
     }
-  }, [currentStep, isFoodCategory]);
+  }, [currentStep, estoreConfig.paymentMethods, esiteConfig.paymentMethods]);
 
   const resetAll = useCallback(() => {
     setCurrentStep("greeting");
@@ -974,6 +1347,8 @@ export function useStepController(options: UseStepControllerOptions = {}) {
     setMenuClassification(null);
     setUserUploadedAssets({ brandColors: [], images: [] });
     setEshopConfig({ shopType: null, businessMode: null, attributes: { ...DEFAULT_ATTRIBUTES } });
+    setEstoreConfig({ businessModel: null, supplyType: null, productVolume: null, hasMoq: null, moqValue: "", paymentMethods: [], paymentCondition: null, quoteRequests: null, location: "" });
+    setEsiteConfig({ serviceType: null, keyServices: "", booking: null, bookingEmail: "", paymentMethods: [], paymentCondition: null, location: "" });
     setCountry("");
     setProductsServices([]);
     setPaymentMethods([]);
@@ -987,7 +1362,12 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       currentStep === "business_location" ||
       currentStep === "country" ||
       currentStep === "products_services" ||
-      currentStep === "payment_methods"
+      currentStep === "payment_methods" ||
+      currentStep === "estore_moq_value" ||
+      currentStep === "estore_location" ||
+      currentStep === "esite_key_services" ||
+      currentStep === "esite_booking_email" ||
+      currentStep === "esite_location"
     );
   }, [currentStep]);
 
@@ -1028,6 +1408,10 @@ export function useStepController(options: UseStepControllerOptions = {}) {
     setUserUploadedAssets,
     eshopConfig,
     setEshopConfig,
+    estoreConfig,
+    setEstoreConfig,
+    esiteConfig,
+    setEsiteConfig,
     isShopCategory,
     // ADA qualification parity fields
     country,
