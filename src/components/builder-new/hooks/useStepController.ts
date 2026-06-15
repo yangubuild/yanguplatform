@@ -980,7 +980,7 @@ export function useStepController(options: UseStepControllerOptions = {}) {
     setProductsServices([]);
     setPaymentMethods([]);
     setSellChannel("");
-  }, []);
+  }, [lockedCategory]);
 
   const inputAllowed = useMemo(() => {
     return (
