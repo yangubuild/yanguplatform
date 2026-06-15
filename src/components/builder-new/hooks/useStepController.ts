@@ -566,6 +566,29 @@ function getEstoreTemplateOptions(): StepOption[] {
   }));
 }
 
+const ESITE_TEMPLATE_KEYS_BY_SERVICE_TYPE: Record<string, string[]> = {
+  consultancy_agency: ["esite_shieldpro", "esite_interim"],
+  real_estate: ["esite_realisting", "esite_toplistings"],
+  hospitality_hotel: ["esite_luxra", "esite_telvin"],
+  travel_tourism: ["esite_tripset", "esite_key"],
+  construction: ["esite_estatoo"],
+};
+
+function getEsiteTemplateOptions(serviceType?: string | null): StepOption[] {
+  const keys = serviceType ? ESITE_TEMPLATE_KEYS_BY_SERVICE_TYPE[serviceType] : undefined;
+  const templates = getTemplatesForEngine("esite");
+  const scopedTemplates = keys?.length
+    ? keys.map((key) => templates.find((t) => t.key === key)).filter(Boolean) as typeof templates
+    : templates;
+  return scopedTemplates.map((t) => ({
+    id: t.key,
+    label: t.label,
+    value: t.key,
+    description: t.description || "",
+    icon: t.icon || "🌐",
+  }));
+}
+
 // ─── User assets state ───────────────────────────────────────────────
 
 export interface UserAssets {
@@ -609,6 +632,26 @@ export function useStepController(options: UseStepControllerOptions = {}) {
     businessMode: null,
     attributes: { ...DEFAULT_ATTRIBUTES },
   });
+  const [estoreConfig, setEstoreConfig] = useState<EstoreFlowConfig>({
+    businessModel: null,
+    supplyType: null,
+    productVolume: null,
+    hasMoq: null,
+    moqValue: "",
+    paymentMethods: [],
+    paymentCondition: null,
+    quoteRequests: null,
+    location: "",
+  });
+  const [esiteConfig, setEsiteConfig] = useState<EsiteFlowConfig>({
+    serviceType: null,
+    keyServices: "",
+    booking: null,
+    bookingEmail: "",
+    paymentMethods: [],
+    paymentCondition: null,
+    location: "",
+  });
 
   // ─── New ADA qualification fields (parity with Speak to Build) ─────
   const [country, setCountry] = useState("");
@@ -618,6 +661,8 @@ export function useStepController(options: UseStepControllerOptions = {}) {
 
   const isFoodCategory = useMemo(() => category === "emenu", [category]);
   const isShopCategory = useMemo(() => category === "eshop", [category]);
+  const isEstoreCategory = useMemo(() => category === "estore", [category]);
+  const isEsiteCategory = useMemo(() => category === "esite", [category]);
 
   // Classify emenu on greeting
   const classifyOnGreeting = useCallback((text: string, detectedCategory: Category) => {
