@@ -694,8 +694,10 @@ export function useStepController(options: UseStepControllerOptions = {}) {
           renderAs: "chips",
         };
       case "template_choice": {
+        // Always prefer the locked route category, then fall back to state.
+        const effectiveCat = (lockedCategory ?? category) as Category | null;
         // For emenu, show real template previews from the classified pool
-        if (category === "emenu" && menuClassification) {
+        if (effectiveCat === "emenu" && menuClassification) {
           const templateOpts = getEmenuTemplateOptions(menuClassification);
           return {
             key: "template_choice",
@@ -705,11 +707,29 @@ export function useStepController(options: UseStepControllerOptions = {}) {
           };
         }
         // For eshop, show the 6 real e-commerce template previews
-        if (category === "eshop") {
+        if (effectiveCat === "eshop") {
           return {
             key: "template_choice",
             adaMessage: "Pick a template for your shop. These are real e-commerce designs I'll use as the foundation:",
             options: getEshopTemplateOptions(),
+            renderAs: "carousel",
+          };
+        }
+        // Esite — service / professional templates from esiteEngine
+        if (effectiveCat === "esite") {
+          return {
+            key: "template_choice",
+            adaMessage: "Pick a template for your website. These are real service-site designs I'll use as the foundation:",
+            options: getEsiteTemplateOptions(),
+            renderAs: "carousel",
+          };
+        }
+        // Estore — wholesale / B2B catalog templates from estoreEngine
+        if (effectiveCat === "estore") {
+          return {
+            key: "template_choice",
+            adaMessage: "Pick a template for your store. These are real wholesale / catalog designs I'll use as the foundation:",
+            options: getEstoreTemplateOptions(),
             renderAs: "carousel",
           };
         }
