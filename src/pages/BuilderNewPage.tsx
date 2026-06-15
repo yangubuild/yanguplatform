@@ -374,7 +374,7 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
       addMsg("user", text);
       handleRefinement(text);
     }
-  }, [addMsg, ctrl, addDelayedMsg]);
+  }, [addMsg, ctrl, addDelayedMsg, lockedCategory]);
 
   const handleRefinement = useCallback(async (text: string) => {
     setIsThinking(true);
