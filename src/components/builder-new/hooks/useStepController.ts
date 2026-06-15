@@ -22,16 +22,22 @@ export type BuilderStep =
   | "estore_moq"
   | "estore_moq_value"
   | "estore_payment_methods"
-  | "estore_payment_condition"
+  | "estore_mobile_money_number"
+  | "estore_bank_account_name"
   | "estore_quote_requests"
   | "estore_location"
+  | "estore_has_logo"
+  | "estore_wants_ai_logo"
   | "esite_service_type"
   | "esite_key_services"
   | "esite_booking"
   | "esite_booking_email"
   | "esite_payment_methods"
-  | "esite_payment_condition"
+  | "esite_mobile_money_number"
+  | "esite_payment_email"
   | "esite_location"
+  | "esite_has_logo"
+  | "esite_wants_ai_logo"
   | "business_mode"
   | "attributes"
   | "scope"
@@ -153,7 +159,6 @@ export interface StepConfig {
 type EstoreBusinessModel = "wholesale" | "trading" | "both";
 type EstoreSupplyType = "agriculture" | "distribution" | "supermarket" | "hardware" | "industrial" | "bulk_food";
 type EstoreProductVolume = "small" | "medium" | "large";
-type PaymentCondition = "upfront" | "deposit" | "net_terms" | "on_delivery";
 type YesNo = "yes" | "no";
 
 interface EstoreFlowConfig {
@@ -163,9 +168,12 @@ interface EstoreFlowConfig {
   hasMoq: YesNo | null;
   moqValue: string;
   paymentMethods: string[];
-  paymentCondition: PaymentCondition | null;
+  mobileMoneyNumber: string;
+  bankAccountName: string;
   quoteRequests: YesNo | null;
   location: string;
+  hasLogo: YesNo | null;
+  wantsAiLogo: YesNo | null;
 }
 
 interface EsiteFlowConfig {
@@ -174,8 +182,11 @@ interface EsiteFlowConfig {
   booking: YesNo | null;
   bookingEmail: string;
   paymentMethods: string[];
-  paymentCondition: PaymentCondition | null;
+  mobileMoneyNumber: string;
+  paymentEmail: string;
   location: string;
+  hasLogo: YesNo | null;
+  wantsAiLogo: YesNo | null;
 }
 
 const ESTORE_BUSINESS_MODEL_OPTIONS: StepOption[] = [
@@ -207,25 +218,13 @@ const YES_NO_OPTIONS: StepOption[] = [
 const WHOLESALE_PAYMENT_OPTIONS: StepOption[] = [
   { id: "bank_transfer", label: "Bank Transfer", value: "bank_transfer" },
   { id: "mobile_money", label: "Mobile Money", value: "mobile_money" },
-  { id: "cash", label: "Cash", value: "cash" },
-  { id: "cards", label: "Cards", value: "cards" },
-  { id: "invoice_po", label: "Invoice / PO", value: "invoice_po" },
-  { id: "cheque", label: "Cheque", value: "cheque" },
+  { id: "letter_of_credit", label: "Letter of Credit", value: "letter_of_credit" },
 ];
 
 const SERVICES_PAYMENT_OPTIONS: StepOption[] = [
   { id: "bank_transfer", label: "Bank Transfer", value: "bank_transfer" },
   { id: "mobile_money", label: "Mobile Money", value: "mobile_money" },
   { id: "cards", label: "Cards", value: "cards" },
-  { id: "cash", label: "Cash", value: "cash" },
-  { id: "invoice", label: "Invoice", value: "invoice" },
-];
-
-const PAYMENT_CONDITION_OPTIONS: StepOption[] = [
-  { id: "upfront", label: "Full payment upfront", value: "upfront", icon: "💳", description: "Customer pays before delivery or service starts" },
-  { id: "deposit", label: "Deposit first", value: "deposit", icon: "↧", description: "Collect an advance payment, balance later" },
-  { id: "net_terms", label: "Invoice terms", value: "net_terms", icon: "📄", description: "Net 7 / 14 / 30 or agreed business terms" },
-  { id: "on_delivery", label: "Pay on delivery / completion", value: "on_delivery", icon: "✓", description: "Payment after delivery or service completion" },
 ];
 
 const ESITE_SERVICE_TYPE_OPTIONS: StepOption[] = [
