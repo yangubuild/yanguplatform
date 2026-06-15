@@ -46,15 +46,59 @@ function isCafeContext(category: string, businessType: string, menuType?: string
   return ["cafe", "coffee", "tea", "espresso", "latte"].some((t) => text.includes(t));
 }
 
-function getAllowedSymbols(isCafe: boolean): string[] {
-  if (isCafe) return ["coffee cup", "steam", "bean", "pastry", "cup and saucer"];
-  return ["plate", "fork", "spoon", "grill", "dish", "serving dome", "cutlery", "flame"];
-}
+const FOOD_BLOCKED = ["plate", "fork", "spoon", "grill", "serving dome", "cutlery", "chef hat", "flame", "burger", "pizza", "coffee cup", "tea cup", "coffee bean", "restaurant", "food"];
 
-function getBlockedSymbols(isCafe: boolean): string[] {
-  const blocked = ["camera", "house", "car", "electronics", "flower", "rocket"];
-  if (!isCafe) blocked.push("coffee cup", "tea cup", "coffee bean");
-  return blocked;
+function getSymbolPolicy(category: string, businessType: string, menuType?: string): { allowed: string[]; blocked: string[] } {
+  const cat = (category || "").toLowerCase();
+  const isCafe = isCafeContext(category, businessType, menuType);
+  // Emenu / food categories
+  if (cat === "emenu" || cat === "restaurant" || cat === "cafe" || cat === "fine_dining" || isCafe) {
+    if (isCafe) {
+      return {
+        allowed: ["coffee cup", "steam", "bean", "pastry", "cup and saucer"],
+        blocked: ["camera", "house", "car", "electronics", "rocket"],
+      };
+    }
+    return {
+      allowed: ["plate", "fork", "spoon", "grill", "dish", "serving dome", "cutlery", "flame", "chef hat", "cloche"],
+      blocked: ["camera", "house", "car", "electronics", "rocket", "coffee cup", "tea cup", "coffee bean"],
+    };
+  }
+  if (cat === "eshop") {
+    return {
+      allowed: ["shopping bag", "cart", "price tag", "star", "gift box", "hanger", "store front"],
+      blocked: [...FOOD_BLOCKED, "warehouse", "pallet", "factory"],
+    };
+  }
+  if (cat === "estore") {
+    return {
+      allowed: ["shipping box", "warehouse", "handshake", "bar chart", "pallet", "truck", "factory", "weight scale"],
+      blocked: [...FOOD_BLOCKED],
+    };
+  }
+  if (cat === "esite") {
+    return {
+      allowed: ["briefcase", "office building", "calendar", "phone handset", "compass", "diploma", "graph", "target"],
+      blocked: [...FOOD_BLOCKED],
+    };
+  }
+  if (cat === "influencer") {
+    return {
+      allowed: ["sparkle", "star", "heart", "camera", "microphone", "play button"],
+      blocked: [...FOOD_BLOCKED],
+    };
+  }
+  if (cat === "community") {
+    return {
+      allowed: ["people group", "hands together", "circle of figures", "shield emblem", "flag"],
+      blocked: [...FOOD_BLOCKED],
+    };
+  }
+  // Default neutral business
+  return {
+    allowed: ["abstract mark", "monogram", "geometric shape", "wordmark"],
+    blocked: [...FOOD_BLOCKED],
+  };
 }
 
 function getFileExtension(contentType: string): string {
@@ -179,25 +223,29 @@ serve(async (req) => {
     );
     const primaryColor = palette[0] || "#b5622a";
 
-    const isCafe = isCafeContext(category, businessType, menuType);
-    const allowed = getAllowedSymbols(isCafe);
-    const blocked = getBlockedSymbols(isCafe);
+    const { allowed, blocked } = getSymbolPolicy(category, businessType, menuType);
 
     const sloganRule = slogan
       ? `Include this exact slogan: "${slogan}".`
       : "Do NOT include any slogan, tagline, or subtitle text.";
 
+    const isFoodCat = ["emenu", "restaurant", "cafe", "fine_dining"].includes((category || "").toLowerCase()) || isCafeContext(category, businessType, menuType);
+    const negativeFoodRule = isFoodCat
+      ? ""
+      : "Do NOT use food, fork, plate, spoon, chef hat, cloche, burger, pizza, coffee, restaurant, or any culinary imagery.";
+
     const prompt = [
       `Create a professional logo for "${businessName}".`,
       `Display ONLY the exact text "${businessName}" — no other text, no placeholder text, no "Lorem Ipsum", no "Your Logo Name".`,
       sloganRule,
-      `Business: ${category} / ${businessType}${menuType ? ` / ${menuType}` : ""}.`,
+      `Business category: ${category}. Business type: ${businessType}${menuType ? ` / ${menuType}` : ""}.`,
       `Style: ${style}.`,
       `Use ONLY these symbols: ${allowed.join(", ")}. NEVER use: ${blocked.join(", ")}.`,
+      negativeFoodRule,
       `Primary color: ${primaryColor}. Palette: ${palette.join(", ")}. Use only these colors plus black/white/gray neutrals.`,
       "Typography: clean, readable, balanced, professional.",
       "BACKGROUND: Fully transparent (alpha=0). No white, gray, colored, or gradient background. No shapes behind the logo. Logo elements float on pure transparency. Output as transparent PNG.",
-    ].join(" ");
+    ].filter(Boolean).join(" ");
 
     const lovableKey = Deno.env.get("LOVABLE_API_KEY");
     if (!lovableKey) {
