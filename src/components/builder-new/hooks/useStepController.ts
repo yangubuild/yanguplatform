@@ -704,17 +704,33 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       case "estore_product_volume": return "estore_moq";
       case "estore_moq": return estoreConfig.hasMoq === "yes" ? "estore_moq_value" : "estore_payment_methods";
       case "estore_moq_value": return "estore_payment_methods";
-      case "estore_payment_methods": return "estore_payment_condition";
-      case "estore_payment_condition": return "estore_quote_requests";
+      case "estore_payment_methods":
+        if (estoreConfig.paymentMethods.includes("mobile_money")) return "estore_mobile_money_number";
+        if (estoreConfig.paymentMethods.includes("bank_transfer")) return "estore_bank_account_name";
+        return "estore_quote_requests";
+      case "estore_mobile_money_number":
+        if (estoreConfig.paymentMethods.includes("bank_transfer")) return "estore_bank_account_name";
+        return "estore_quote_requests";
+      case "estore_bank_account_name": return "estore_quote_requests";
       case "estore_quote_requests": return "estore_location";
-      case "estore_location": return "assets";
+      case "estore_location": return "estore_has_logo";
+      case "estore_has_logo": return estoreConfig.hasLogo === "no" ? "estore_wants_ai_logo" : "template_choice";
+      case "estore_wants_ai_logo": return estoreConfig.wantsAiLogo === "yes" ? "ai_logo" : "template_choice";
       case "esite_service_type": return "esite_key_services";
       case "esite_key_services": return "esite_booking";
       case "esite_booking": return esiteConfig.booking === "yes" ? "esite_booking_email" : "esite_payment_methods";
       case "esite_booking_email": return "esite_payment_methods";
-      case "esite_payment_methods": return "esite_payment_condition";
-      case "esite_payment_condition": return "esite_location";
-      case "esite_location": return "assets";
+      case "esite_payment_methods":
+        if (esiteConfig.paymentMethods.includes("mobile_money")) return "esite_mobile_money_number";
+        if (esiteConfig.paymentMethods.includes("cards")) return "esite_payment_email";
+        return "esite_location";
+      case "esite_mobile_money_number":
+        if (esiteConfig.paymentMethods.includes("cards")) return "esite_payment_email";
+        return "esite_location";
+      case "esite_payment_email": return "esite_location";
+      case "esite_location": return "esite_has_logo";
+      case "esite_has_logo": return esiteConfig.hasLogo === "no" ? "esite_wants_ai_logo" : "template_choice";
+      case "esite_wants_ai_logo": return esiteConfig.wantsAiLogo === "yes" ? "ai_logo" : "template_choice";
       case "scope": return "assets";
       case "assets":
         if (selectedAssets === "ai_generated") return "ai_logo";
@@ -730,7 +746,7 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       case "generation": return "refinement";
       default: return "refinement";
     }
-  }, [isFoodCategory, isEstoreCategory, isEsiteCategory, selectedAssets, estoreConfig.hasMoq, esiteConfig.booking]);
+  }, [isFoodCategory, isEstoreCategory, isEsiteCategory, selectedAssets, estoreConfig.hasMoq, estoreConfig.paymentMethods, estoreConfig.hasLogo, estoreConfig.wantsAiLogo, esiteConfig.booking, esiteConfig.paymentMethods, esiteConfig.hasLogo, esiteConfig.wantsAiLogo]);
 
   const getStepConfig = useCallback((): StepConfig => {
     switch (currentStep) {
