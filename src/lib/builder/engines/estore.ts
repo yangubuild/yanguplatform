@@ -83,13 +83,6 @@ export const estoreEngine: BuilderEngine = {
     { type: "footer", schema: { heading: "Footer", email: "", phone: "", address: "", hours: [], social: {} }, core_slot: "footer" },
   ],
   editorModules: ["products", "catalog", "bulk_pricing", "quote_request", "large_inventory", "commerce_config", "supplier_info", "contact"],
-  templates: [
-    { key: "hero_store", label: "Hero Store", sectionType: "hero", schema: { headline: "", subheadline: "", cta_label: "Request Quote" } },
-    { key: "catalog_grid", label: "Product Catalog", sectionType: "products", schema: { heading: "Catalog", items: [], layout: "grid", filters: true } },
-    { key: "bulk_pricing_table", label: "Bulk Pricing Table", sectionType: "bulk_pricing", schema: { heading: "Volume Pricing", tiers: [] } },
-    { key: "quote_form", label: "Quote Request Form", sectionType: "quote", schema: { heading: "Request a Quote" } },
-    { key: "supplier_info", label: "Supplier Info Block", sectionType: "supplier", schema: { heading: "About Us", certifications: [], partnerships: [] } },
-  ],
   aiGenerationRules: {
     // Phase 12 — Estore is a B2B/wholesale catalog. Allowed blocks cover
     // catalog browsing, supplier trust signals, and quote-request flows.
