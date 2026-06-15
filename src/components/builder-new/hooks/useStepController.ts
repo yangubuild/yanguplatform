@@ -1117,6 +1117,28 @@ export function useStepController(options: UseStepControllerOptions = {}) {
         setCurrentStep("sell_channel");
         break;
       }
+      case "estore_moq_value":
+        setEstoreConfig(prev => ({ ...prev, moqValue: trimmed }));
+        setCurrentStep("estore_payment_methods");
+        break;
+      case "estore_location":
+        setEstoreConfig(prev => ({ ...prev, location: trimmed }));
+        setBusinessLocation(trimmed);
+        setCurrentStep("assets");
+        break;
+      case "esite_key_services":
+        setEsiteConfig(prev => ({ ...prev, keyServices: trimmed }));
+        setCurrentStep("esite_booking");
+        break;
+      case "esite_booking_email":
+        setEsiteConfig(prev => ({ ...prev, bookingEmail: trimmed }));
+        setCurrentStep("esite_payment_methods");
+        break;
+      case "esite_location":
+        setEsiteConfig(prev => ({ ...prev, location: trimmed }));
+        setBusinessLocation(trimmed);
+        setCurrentStep("assets");
+        break;
       default:
         break;
     }
@@ -1157,6 +1179,58 @@ export function useStepController(options: UseStepControllerOptions = {}) {
         setCurrentStep("business_mode");
         break;
       }
+      case "estore_business_model":
+        setEstoreConfig(prev => ({ ...prev, businessModel: option.value as EstoreBusinessModel }));
+        setCurrentStep("estore_supply_type");
+        break;
+      case "estore_supply_type":
+        setEstoreConfig(prev => ({ ...prev, supplyType: option.value as EstoreSupplyType }));
+        setCurrentStep("estore_product_volume");
+        break;
+      case "estore_product_volume":
+        setEstoreConfig(prev => ({ ...prev, productVolume: option.value as EstoreProductVolume }));
+        setCurrentStep("estore_moq");
+        break;
+      case "estore_moq":
+        setEstoreConfig(prev => ({ ...prev, hasMoq: option.value as YesNo }));
+        setCurrentStep(option.value === "yes" ? "estore_moq_value" : "estore_payment_methods");
+        break;
+      case "estore_payment_methods":
+        setEstoreConfig(prev => ({
+          ...prev,
+          paymentMethods: prev.paymentMethods.includes(option.value)
+            ? prev.paymentMethods.filter(v => v !== option.value)
+            : [...prev.paymentMethods, option.value],
+        }));
+        break;
+      case "estore_payment_condition":
+        setEstoreConfig(prev => ({ ...prev, paymentCondition: option.value as PaymentCondition }));
+        setCurrentStep("estore_quote_requests");
+        break;
+      case "estore_quote_requests":
+        setEstoreConfig(prev => ({ ...prev, quoteRequests: option.value as YesNo }));
+        setCurrentStep("estore_location");
+        break;
+      case "esite_service_type":
+        setEsiteConfig(prev => ({ ...prev, serviceType: option.value }));
+        setCurrentStep("esite_key_services");
+        break;
+      case "esite_booking":
+        setEsiteConfig(prev => ({ ...prev, booking: option.value as YesNo }));
+        setCurrentStep(option.value === "yes" ? "esite_booking_email" : "esite_payment_methods");
+        break;
+      case "esite_payment_methods":
+        setEsiteConfig(prev => ({
+          ...prev,
+          paymentMethods: prev.paymentMethods.includes(option.value)
+            ? prev.paymentMethods.filter(v => v !== option.value)
+            : [...prev.paymentMethods, option.value],
+        }));
+        break;
+      case "esite_payment_condition":
+        setEsiteConfig(prev => ({ ...prev, paymentCondition: option.value as PaymentCondition }));
+        setCurrentStep("esite_location");
+        break;
       case "business_mode":
         setEshopConfig(prev => ({ ...prev, businessMode: option.value as BusinessMode }));
         setCurrentStep("attributes");
