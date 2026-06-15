@@ -1409,10 +1409,14 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       setCurrentStep("scope");
     } else if (currentStep === "estore_payment_methods") {
       setPaymentMethods(estoreConfig.paymentMethods);
-      setCurrentStep("estore_payment_condition");
+      if (estoreConfig.paymentMethods.includes("mobile_money")) setCurrentStep("estore_mobile_money_number");
+      else if (estoreConfig.paymentMethods.includes("bank_transfer")) setCurrentStep("estore_bank_account_name");
+      else setCurrentStep("estore_quote_requests");
     } else if (currentStep === "esite_payment_methods") {
       setPaymentMethods(esiteConfig.paymentMethods);
-      setCurrentStep("esite_payment_condition");
+      if (esiteConfig.paymentMethods.includes("mobile_money")) setCurrentStep("esite_mobile_money_number");
+      else if (esiteConfig.paymentMethods.includes("cards")) setCurrentStep("esite_payment_email");
+      else setCurrentStep("esite_location");
     }
   }, [currentStep, estoreConfig.paymentMethods, esiteConfig.paymentMethods]);
 
@@ -1432,8 +1436,8 @@ export function useStepController(options: UseStepControllerOptions = {}) {
     setMenuClassification(null);
     setUserUploadedAssets({ brandColors: [], images: [] });
     setEshopConfig({ shopType: null, businessMode: null, attributes: { ...DEFAULT_ATTRIBUTES } });
-    setEstoreConfig({ businessModel: null, supplyType: null, productVolume: null, hasMoq: null, moqValue: "", paymentMethods: [], paymentCondition: null, quoteRequests: null, location: "" });
-    setEsiteConfig({ serviceType: null, keyServices: "", booking: null, bookingEmail: "", paymentMethods: [], paymentCondition: null, location: "" });
+    setEstoreConfig({ businessModel: null, supplyType: null, productVolume: null, hasMoq: null, moqValue: "", paymentMethods: [], mobileMoneyNumber: "", bankAccountName: "", quoteRequests: null, location: "", hasLogo: null, wantsAiLogo: null });
+    setEsiteConfig({ serviceType: null, keyServices: "", booking: null, bookingEmail: "", paymentMethods: [], mobileMoneyNumber: "", paymentEmail: "", location: "", hasLogo: null, wantsAiLogo: null });
     setCountry("");
     setProductsServices([]);
     setPaymentMethods([]);
