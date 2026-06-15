@@ -1285,14 +1285,23 @@ export function useStepController(options: UseStepControllerOptions = {}) {
             : [...prev.paymentMethods, option.value],
         }));
         break;
-      case "estore_payment_condition":
-        setEstoreConfig(prev => ({ ...prev, paymentCondition: option.value as PaymentCondition }));
-        setCurrentStep("estore_quote_requests");
-        break;
       case "estore_quote_requests":
         setEstoreConfig(prev => ({ ...prev, quoteRequests: option.value as YesNo }));
         setCurrentStep("estore_location");
         break;
+      case "estore_has_logo": {
+        const v = option.value as YesNo;
+        setEstoreConfig(prev => ({ ...prev, hasLogo: v }));
+        setCurrentStep(v === "yes" ? "template_choice" : "estore_wants_ai_logo");
+        break;
+      }
+      case "estore_wants_ai_logo": {
+        const v = option.value as YesNo;
+        setEstoreConfig(prev => ({ ...prev, wantsAiLogo: v }));
+        setSelectedAssets(v === "yes" ? "ai_generated" : null);
+        setCurrentStep(v === "yes" ? "ai_logo" : "template_choice");
+        break;
+      }
       case "esite_service_type":
         setEsiteConfig(prev => ({ ...prev, serviceType: option.value }));
         setCurrentStep("esite_key_services");
@@ -1309,10 +1318,19 @@ export function useStepController(options: UseStepControllerOptions = {}) {
             : [...prev.paymentMethods, option.value],
         }));
         break;
-      case "esite_payment_condition":
-        setEsiteConfig(prev => ({ ...prev, paymentCondition: option.value as PaymentCondition }));
-        setCurrentStep("esite_location");
+      case "esite_has_logo": {
+        const v = option.value as YesNo;
+        setEsiteConfig(prev => ({ ...prev, hasLogo: v }));
+        setCurrentStep(v === "yes" ? "template_choice" : "esite_wants_ai_logo");
         break;
+      }
+      case "esite_wants_ai_logo": {
+        const v = option.value as YesNo;
+        setEsiteConfig(prev => ({ ...prev, wantsAiLogo: v }));
+        setSelectedAssets(v === "yes" ? "ai_generated" : null);
+        setCurrentStep(v === "yes" ? "ai_logo" : "template_choice");
+        break;
+      }
       case "business_mode":
         setEshopConfig(prev => ({ ...prev, businessMode: option.value as BusinessMode }));
         setCurrentStep("attributes");
