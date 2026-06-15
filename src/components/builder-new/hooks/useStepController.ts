@@ -871,44 +871,67 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       case "estore_payment_methods":
         return {
           key: "estore_payment_methods",
-          adaMessage: "Which wholesale payment methods do you accept? Select all that apply, then tap **Done**.",
+          adaMessage: "How do you handle payments for wholesale orders? Select all that apply, then tap **Done**.",
           options: WHOLESALE_PAYMENT_OPTIONS,
           multiSelect: true,
           renderAs: "chips",
         };
-      case "estore_payment_condition":
+      case "estore_mobile_money_number":
         return {
-          key: "estore_payment_condition",
-          adaMessage: "What payment condition do you normally use?",
-          options: PAYMENT_CONDITION_OPTIONS,
-          renderAs: "cards",
+          key: "estore_mobile_money_number",
+          adaMessage: "What's your business mobile money number?",
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
+      case "estore_bank_account_name":
+        return {
+          key: "estore_bank_account_name",
+          adaMessage: "What's your bank account name?",
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
         };
       case "estore_quote_requests":
         return {
           key: "estore_quote_requests",
-          adaMessage: "Should buyers be able to request a quote?",
+          adaMessage: "Do you offer quotes for custom orders?",
           options: YES_NO_OPTIONS,
           renderAs: "cards",
         };
       case "estore_location":
         return {
           key: "estore_location",
-          adaMessage: "Where is your store, warehouse, or main service area based?",
+          adaMessage: "Where is your company located?",
           options: [],
           allowFreeText: true,
           renderAs: "location_input",
         };
+      case "estore_has_logo":
+        return {
+          key: "estore_has_logo",
+          adaMessage: "Do you have a company logo?",
+          options: YES_NO_OPTIONS,
+          renderAs: "cards",
+        };
+      case "estore_wants_ai_logo":
+        return {
+          key: "estore_wants_ai_logo",
+          adaMessage: "Would you like me to create a logo for you?",
+          options: YES_NO_OPTIONS,
+          renderAs: "cards",
+        };
       case "esite_service_type":
         return {
           key: "esite_service_type",
-          adaMessage: `Great, **${businessName}**. What type of service website are you creating?`,
+          adaMessage: `Great, **${businessName}**. What type of services do you offer?`,
           options: ESITE_SERVICE_TYPE_OPTIONS,
           renderAs: "cards",
         };
       case "esite_key_services":
         return {
           key: "esite_key_services",
-          adaMessage: "What are your key services?",
+          adaMessage: "What are your key services? (List 2-3 main services)",
           options: [],
           allowFreeText: true,
           renderAs: "location_input",
@@ -916,14 +939,14 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       case "esite_booking":
         return {
           key: "esite_booking",
-          adaMessage: "Do you take bookings or consultation requests?",
+          adaMessage: "Do you offer online booking or consultations?",
           options: YES_NO_OPTIONS,
           renderAs: "cards",
         };
       case "esite_booking_email":
         return {
           key: "esite_booking_email",
-          adaMessage: "Which email should receive bookings or consultation requests?",
+          adaMessage: "What email should booking confirmations go to?",
           options: [],
           allowFreeText: true,
           renderAs: "location_input",
@@ -931,25 +954,48 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       case "esite_payment_methods":
         return {
           key: "esite_payment_methods",
-          adaMessage: "Which payment methods do you accept for services? Select all that apply, then tap **Done**.",
+          adaMessage: "How would you like to accept payments? Select all that apply, then tap **Done**.",
           options: SERVICES_PAYMENT_OPTIONS,
           multiSelect: true,
           renderAs: "chips",
         };
-      case "esite_payment_condition":
+      case "esite_mobile_money_number":
         return {
-          key: "esite_payment_condition",
-          adaMessage: "How do clients usually pay?",
-          options: PAYMENT_CONDITION_OPTIONS,
-          renderAs: "cards",
+          key: "esite_mobile_money_number",
+          adaMessage: "What's your mobile money number?",
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
+      case "esite_payment_email":
+        return {
+          key: "esite_payment_email",
+          adaMessage: "What's your email for Stripe/PayPal setup?",
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
         };
       case "esite_location":
         return {
           key: "esite_location",
-          adaMessage: "Where is your business based, or what area do you serve?",
+          adaMessage: "Where is your business located?",
           options: [],
           allowFreeText: true,
           renderAs: "location_input",
+        };
+      case "esite_has_logo":
+        return {
+          key: "esite_has_logo",
+          adaMessage: "Do you have a logo?",
+          options: YES_NO_OPTIONS,
+          renderAs: "cards",
+        };
+      case "esite_wants_ai_logo":
+        return {
+          key: "esite_wants_ai_logo",
+          adaMessage: "Would you like me to create a logo for you?",
+          options: YES_NO_OPTIONS,
+          renderAs: "cards",
         };
       case "scope":
         return {
