@@ -546,7 +546,8 @@ function getEshopTemplateOptions(): StepOption[] {
 
 // ─── Estore/Esite template options (sourced from templateRegistry.ts) ──
 function getEstoreTemplateOptions(): StepOption[] {
-  return getTemplatesForEngine("estore").map((t) => ({
+  const approvedKeys = ["estore_minna", "estore_monchies", "estore_bazaro_fashion", "estore_bazaro_classic"];
+  return getTemplatesForEngine("estore").filter((t) => approvedKeys.includes(t.key)).map((t) => ({
     id: t.key,
     label: t.label,
     value: t.key,
@@ -563,9 +564,21 @@ const ESITE_TEMPLATE_KEYS_BY_SERVICE_TYPE: Record<string, string[]> = {
   construction: ["esite_estatoo"],
 };
 
+const ESITE_APPROVED_TEMPLATE_KEYS = [
+  "esite_shieldpro",
+  "esite_interim",
+  "esite_realisting",
+  "esite_toplistings",
+  "esite_luxra",
+  "esite_telvin",
+  "esite_tripset",
+  "esite_key",
+  "esite_estatoo",
+];
+
 function getEsiteTemplateOptions(serviceType?: string | null): StepOption[] {
   const keys = serviceType ? ESITE_TEMPLATE_KEYS_BY_SERVICE_TYPE[serviceType] : undefined;
-  const templates = getTemplatesForEngine("esite");
+  const templates = getTemplatesForEngine("esite").filter((t) => ESITE_APPROVED_TEMPLATE_KEYS.includes(t.key));
   const scopedTemplates = keys?.length
     ? keys.map((key) => templates.find((t) => t.key === key)).filter(Boolean) as typeof templates
     : templates;
