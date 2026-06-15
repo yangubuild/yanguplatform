@@ -16,6 +16,22 @@ export type BuilderStep =
   | "sell_channel"
   | "business_type"
   | "shop_type"
+  | "estore_business_model"
+  | "estore_supply_type"
+  | "estore_product_volume"
+  | "estore_moq"
+  | "estore_moq_value"
+  | "estore_payment_methods"
+  | "estore_payment_condition"
+  | "estore_quote_requests"
+  | "estore_location"
+  | "esite_service_type"
+  | "esite_key_services"
+  | "esite_booking"
+  | "esite_booking_email"
+  | "esite_payment_methods"
+  | "esite_payment_condition"
+  | "esite_location"
   | "business_mode"
   | "attributes"
   | "scope"
@@ -133,6 +149,95 @@ export interface StepConfig {
   businessType?: string;
   menuType?: string;
 }
+
+type EstoreBusinessModel = "wholesale" | "trading" | "both";
+type EstoreSupplyType = "agriculture" | "distribution" | "supermarket" | "hardware" | "industrial" | "bulk_food";
+type EstoreProductVolume = "small" | "medium" | "large";
+type PaymentCondition = "upfront" | "deposit" | "net_terms" | "on_delivery";
+type YesNo = "yes" | "no";
+
+interface EstoreFlowConfig {
+  businessModel: EstoreBusinessModel | null;
+  supplyType: EstoreSupplyType | null;
+  productVolume: EstoreProductVolume | null;
+  hasMoq: YesNo | null;
+  moqValue: string;
+  paymentMethods: string[];
+  paymentCondition: PaymentCondition | null;
+  quoteRequests: YesNo | null;
+  location: string;
+}
+
+interface EsiteFlowConfig {
+  serviceType: string | null;
+  keyServices: string;
+  booking: YesNo | null;
+  bookingEmail: string;
+  paymentMethods: string[];
+  paymentCondition: PaymentCondition | null;
+  location: string;
+}
+
+const ESTORE_BUSINESS_MODEL_OPTIONS: StepOption[] = [
+  { id: "wholesale", label: "Wholesale", value: "wholesale", icon: "📦", description: "Bulk supply to retailers, resellers, or businesses" },
+  { id: "trading", label: "Trading", value: "trading", icon: "🤝", description: "Sourcing, import/export, or deal-based supply" },
+  { id: "both", label: "Both", value: "both", icon: "🔀", description: "Wholesale catalog plus trading enquiries" },
+];
+
+const ESTORE_SUPPLY_TYPE_OPTIONS: StepOption[] = [
+  { id: "agriculture", label: "Agricultural / Farm Produce", value: "agriculture", icon: "🌾", description: "Fresh produce, farm inputs, crops, or livestock supply" },
+  { id: "distribution", label: "Wholesale Distribution", value: "distribution", icon: "🚚", description: "B2B distribution, FMCG, regional supply" },
+  { id: "supermarket", label: "Supermarket / Multi-category", value: "supermarket", icon: "🏬", description: "Many product categories and fast-moving goods" },
+  { id: "hardware", label: "Hardware & Construction", value: "hardware", icon: "🧱", description: "Materials, tools, fittings, and building supplies" },
+  { id: "industrial", label: "Industrial Supplies", value: "industrial", icon: "🏭", description: "Equipment, parts, chemicals, factory supplies" },
+  { id: "bulk_food", label: "Bulk Food & Beverages", value: "bulk_food", icon: "🥫", description: "Packaged food, beverages, grains, wholesale pantry" },
+];
+
+const ESTORE_PRODUCT_VOLUME_OPTIONS: StepOption[] = [
+  { id: "small", label: "Under 50 SKUs", value: "small", icon: "▦", description: "Focused catalog or short product list" },
+  { id: "medium", label: "50–500 SKUs", value: "medium", icon: "▦▦", description: "Growing wholesale catalog" },
+  { id: "large", label: "500+ SKUs", value: "large", icon: "▦▦▦", description: "Large inventory or many categories" },
+];
+
+const YES_NO_OPTIONS: StepOption[] = [
+  { id: "yes", label: "Yes", value: "yes", icon: "✓" },
+  { id: "no", label: "No", value: "no", icon: "—" },
+];
+
+const WHOLESALE_PAYMENT_OPTIONS: StepOption[] = [
+  { id: "bank_transfer", label: "Bank Transfer", value: "bank_transfer" },
+  { id: "mobile_money", label: "Mobile Money", value: "mobile_money" },
+  { id: "cash", label: "Cash", value: "cash" },
+  { id: "cards", label: "Cards", value: "cards" },
+  { id: "invoice_po", label: "Invoice / PO", value: "invoice_po" },
+  { id: "cheque", label: "Cheque", value: "cheque" },
+];
+
+const SERVICES_PAYMENT_OPTIONS: StepOption[] = [
+  { id: "bank_transfer", label: "Bank Transfer", value: "bank_transfer" },
+  { id: "mobile_money", label: "Mobile Money", value: "mobile_money" },
+  { id: "cards", label: "Cards", value: "cards" },
+  { id: "cash", label: "Cash", value: "cash" },
+  { id: "invoice", label: "Invoice", value: "invoice" },
+];
+
+const PAYMENT_CONDITION_OPTIONS: StepOption[] = [
+  { id: "upfront", label: "Full payment upfront", value: "upfront", icon: "💳", description: "Customer pays before delivery or service starts" },
+  { id: "deposit", label: "Deposit first", value: "deposit", icon: "↧", description: "Collect an advance payment, balance later" },
+  { id: "net_terms", label: "Invoice terms", value: "net_terms", icon: "📄", description: "Net 7 / 14 / 30 or agreed business terms" },
+  { id: "on_delivery", label: "Pay on delivery / completion", value: "on_delivery", icon: "✓", description: "Payment after delivery or service completion" },
+];
+
+const ESITE_SERVICE_TYPE_OPTIONS: StepOption[] = [
+  { id: "consultancy_agency", label: "Consultancy / Agency", value: "consultancy_agency", icon: "💼", description: "Professional services, advisory, marketing, legal, finance" },
+  { id: "real_estate", label: "Real Estate", value: "real_estate", icon: "🏠", description: "Property sales, rentals, developments, brokerage" },
+  { id: "travel_tourism", label: "Travel & Tourism", value: "travel_tourism", icon: "🧭", description: "Tours, travel packages, experiences, agencies" },
+  { id: "hospitality_hotel", label: "Hospitality / Hotel", value: "hospitality_hotel", icon: "🏨", description: "Hotels, villas, lodges, guest houses, venues" },
+  { id: "clinic_wellness", label: "Clinic / Wellness", value: "clinic_wellness", icon: "✚", description: "Health, beauty, wellness, therapy, medical services" },
+  { id: "construction", label: "Construction", value: "construction", icon: "🏗️", description: "Contractors, engineering, architecture, project services" },
+  { id: "school_education", label: "School / Education", value: "school_education", icon: "🎓", description: "Schools, training centers, education programs" },
+  { id: "ngo_institution", label: "NGO / Institution", value: "ngo_institution", icon: "🏛️", description: "Organizations, foundations, institutions, programs" },
+];
 
 function getAiLogoContext(
   menuClassification: MenuComplexity | null,
