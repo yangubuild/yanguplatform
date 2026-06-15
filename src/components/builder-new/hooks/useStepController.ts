@@ -994,7 +994,7 @@ export function useStepController(options: UseStepControllerOptions = {}) {
           return {
             key: "template_choice",
             adaMessage: "Pick a template for your website. These are real service-site designs I'll use as the foundation:",
-            options: getEsiteTemplateOptions(),
+            options: getEsiteTemplateOptions(esiteConfig.serviceType),
             renderAs: "carousel",
           };
         }
@@ -1047,7 +1047,7 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       default:
         return { key: "greeting", adaMessage: "", options: [] };
     }
-  }, [currentStep, category, lockedCategory, isFoodCategory, businessLocation, menuClassification, selectedAssets, businessName, selectedScope, eshopConfig.shopType]);
+  }, [currentStep, category, lockedCategory, isFoodCategory, businessLocation, menuClassification, selectedAssets, businessName, selectedScope, eshopConfig.shopType, esiteConfig.serviceType]);
 
   const buildConfirmationMessage = useCallback(() => {
     const lines = ["Here's your summary:\n"];
@@ -1075,7 +1075,9 @@ export function useStepController(options: UseStepControllerOptions = {}) {
     setUserIdea(text);
     // Spec parity with Speak to Build: ask qualification questions BEFORE
     // branching by category. sell_channel may re-route the category.
-    setCurrentStep("country");
+    if (effective === "estore") setCurrentStep("estore_business_model");
+    else if (effective === "esite") setCurrentStep("esite_service_type");
+    else setCurrentStep("country");
   }, [category, lockedCategory]);
 
   // Free-text handler for the new qualification steps (country / products /
