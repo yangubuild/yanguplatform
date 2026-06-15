@@ -1165,6 +1165,8 @@ export function useStepController(options: UseStepControllerOptions = {}) {
         }
         if (effective === "emenu") setCurrentStep("business_type");
         else if (effective === "eshop") setCurrentStep("shop_type");
+        else if (effective === "estore") setCurrentStep("estore_business_model");
+        else if (effective === "esite") setCurrentStep("esite_service_type");
         else setCurrentStep("scope");
         break;
       }
@@ -1307,8 +1309,14 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       setCurrentStep("template_choice");
     } else if (currentStep === "attributes") {
       setCurrentStep("scope");
+    } else if (currentStep === "estore_payment_methods") {
+      setPaymentMethods(estoreConfig.paymentMethods);
+      setCurrentStep("estore_payment_condition");
+    } else if (currentStep === "esite_payment_methods") {
+      setPaymentMethods(esiteConfig.paymentMethods);
+      setCurrentStep("esite_payment_condition");
     }
-  }, [currentStep, isFoodCategory]);
+  }, [currentStep, estoreConfig.paymentMethods, esiteConfig.paymentMethods]);
 
   const resetAll = useCallback(() => {
     setCurrentStep("greeting");
@@ -1326,6 +1334,8 @@ export function useStepController(options: UseStepControllerOptions = {}) {
     setMenuClassification(null);
     setUserUploadedAssets({ brandColors: [], images: [] });
     setEshopConfig({ shopType: null, businessMode: null, attributes: { ...DEFAULT_ATTRIBUTES } });
+    setEstoreConfig({ businessModel: null, supplyType: null, productVolume: null, hasMoq: null, moqValue: "", paymentMethods: [], paymentCondition: null, quoteRequests: null, location: "" });
+    setEsiteConfig({ serviceType: null, keyServices: "", booking: null, bookingEmail: "", paymentMethods: [], paymentCondition: null, location: "" });
     setCountry("");
     setProductsServices([]);
     setPaymentMethods([]);
@@ -1339,7 +1349,12 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       currentStep === "business_location" ||
       currentStep === "country" ||
       currentStep === "products_services" ||
-      currentStep === "payment_methods"
+      currentStep === "payment_methods" ||
+      currentStep === "estore_moq_value" ||
+      currentStep === "estore_location" ||
+      currentStep === "esite_key_services" ||
+      currentStep === "esite_booking_email" ||
+      currentStep === "esite_location"
     );
   }, [currentStep]);
 
@@ -1380,6 +1395,10 @@ export function useStepController(options: UseStepControllerOptions = {}) {
     setUserUploadedAssets,
     eshopConfig,
     setEshopConfig,
+    estoreConfig,
+    setEstoreConfig,
+    esiteConfig,
+    setEsiteConfig,
     isShopCategory,
     // ADA qualification parity fields
     country,
