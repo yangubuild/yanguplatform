@@ -45,7 +45,7 @@ export function SelectionPanel({ selections, category, generatedHtml, isGenerati
 
       {category && (
         <div className="rounded-lg border border-border bg-muted/30 p-3">
-          <p className="text-xs text-muted-foreground mb-1">Detected Category</p>
+          <p className="text-xs text-muted-foreground mb-1">Category</p>
           <p className="text-sm font-medium text-foreground">
             {CATEGORY_CONFIGS[category].label} ({CATEGORY_CONFIGS[category].domain})
           </p>
