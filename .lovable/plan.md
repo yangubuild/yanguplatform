@@ -1,116 +1,164 @@
-# Yangu Offline — Phase 1 Plan
+## Scope
 
-Parking (kept in code, no further work this phase): Speak-to-Build flow, Seller categories with page templates. Out of scope this phase: marketplace search across shops, public shop pages, write-from-web for shop owners.
+Rebuild ONLY the Estore and Esite Chat-to-Build flows in the New Builder. Do not touch Eshop, Emenu, Influencer, Community, publishing, routing, editor layout, product cards, WhatsApp, or currency.
 
-This phase builds the **cloud half** of Yangu Offline. The desktop app lives outside Lovable; here we ship the database, sync APIs, and the web dashboards that talk to it.
+## Files to change
 
-## 1. Database schema (single migration)
+1. `src/components/builder-new/hooks/useStepController.ts` — replace Estore/Esite step machine
+2. `src/pages/BuilderNewPage.tsx` — greet with category-specific first question; route free-text for new steps; pass category to logo
+3. `src/components/builder-new/ChatInterface.tsx` — input enabled / placeholders for the new free-text steps
+4. `src/pages/dashboard/SellerSurfacePage.tsx` — verify `initialCategory={engineKey}` (already correct in `SELLER_KEY_MAP`); persist new Estore/Esite metadata fields on completion
 
-Tables under `public`:
+No changes to `templateRegistry.ts` (already approved), `generate-logo` edge function (already enforces category symbol policy), or any other surface.
 
-- `shops` — `id`, `owner_name`, `owner_phone`, `location`, `language`, `onboarded_by` (foot_soldier id), `status` (`active|blocked|pending`), `api_token_hash`, `last_seen_at`, `created_at`
-- `catalogs` — `id`, `shop_id`, `name`, `description`, `price` (numeric), `stock_count`, `category`, `photo_url`, `language`, `sync_version` (bigint), `client_uuid` (for idempotency), `updated_at`
-- `sales` — `id`, `shop_id`, `product_id` (nullable FK to catalogs), `amount`, `customer_phone`, `payment_method`, `client_uuid` (unique per shop, idempotency), `occurred_at`, `synced_at`
-- `foot_soldiers` — `id` (= auth.users.id), `name`, `phone`, `region`, `bounty_balance` (numeric), `tier`, `joined_at`
-- `bounty_payouts` — `id`, `foot_soldier_id`, `amount`, `method`, `status`, `created_at`
-- `sync_log` — `id`, `shop_id`, `event_type`, `payload` (jsonb), `received_at`
-- `bounty_rates` — `id`, `tier`, `rate_per_shop`, `rate_per_sale_pct`, `effective_from` (admin-tunable)
-- `app_admins` — `user_id` PK (admin allow-list, separate from foot soldiers)
+## Estore step machine (replace existing)
 
-Indexes on `shop_id`, `(shop_id, client_uuid)` unique for idempotency, `occurred_at`, `received_at`.
+Delete: `estore_payment_condition`.
 
-**RLS**
-- `shops`: foot soldier sees rows where `onboarded_by = auth.uid()`; shop owner sees rows where `owner_phone = auth.jwt().phone`; admins see all.
-- `catalogs` / `sales` / `sync_log`: same shop-scoping via a `SECURITY DEFINER` helper `can_access_shop(shop_id)`.
-- `foot_soldiers`: self-row read/update; admins all.
-- `bounty_payouts`: foot soldier sees own; admins all.
-- `bounty_rates`: read for authenticated; write admin-only.
-- `app_admins`: admin-only.
-- Helper: `is_app_admin(uid)` SECURITY DEFINER to avoid recursion.
+Add new `BuilderStep` IDs:
+- `estore_business_name` (free text — "What's your company name?")
+- `estore_mobile_money_number` (free text — conditional)
+- `estore_bank_account_name` (free text — conditional)
+- `estore_has_logo` (yes/no cards)
+- `estore_wants_ai_logo` (yes/no cards)
 
-Edge functions write with the service role and bypass RLS — RLS exists to protect dashboard reads.
+Rewire `WHOLESALE_PAYMENT_OPTIONS` to exactly: Bank transfer, Mobile money, Letter of credit.
 
-## 2. Sync API (Edge Functions)
+Keep existing IDs and reorder via `getNextStep`:
 
-All functions: validate input with Zod, return CORS headers, write to `sync_log`, idempotent via `(shop_id, client_uuid)` unique constraint.
-
-Auth model: per-shop API token issued at registration. Header `x-shop-token: <token>`. Functions hash and look up `shops.api_token_hash`. `verify_jwt = false` for these (device tokens, not user JWTs).
-
-- `POST /sync-register` — body: `{ owner_name, owner_phone, location, language, foot_soldier_phone }`. Creates shop, returns `{ shop_id, api_token }` (token shown once).
-- `POST /sync-catalog` — body: `{ items: [{ client_uuid, name, price, stock_count, ... , sync_version }] }`. Upsert by `(shop_id, client_uuid)`, last-write-wins on `sync_version`.
-- `POST /sync-sales` — body: `{ sales: [{ client_uuid, product_id?, amount, customer_phone?, payment_method, occurred_at }] }`. Insert ignoring conflicts on `(shop_id, client_uuid)`.
-- `GET /sync-pull?since=<iso>` — returns `{ catalogs: [...], cursor }` for catalog rows updated since cursor (sales are device-authoritative, no pull needed in V1).
-
-Every call updates `shops.last_seen_at`.
-
-## 3. Foot-soldier dashboard (web)
-
-Route: `/offline/agent/*`. Phone OTP login (Supabase phone auth). Pages:
-
-- **Shops list** — table of shops onboarded by this agent: name, phone, location, last-seen badge (green <24h, amber <7d, red older), catalog count, sales last 7d.
-- **Shop detail** — header with owner info + status, tabs: Catalog (rows w/ price + stock), Recent sales (last 50), Sync activity (from `sync_log`).
-- **Bounty** — current balance, tier, payout history, "Request payout" button (creates `bounty_payouts` row with status `requested`).
-- **Add new shop** — manual fallback form; calls `sync-register` server-side, then shows generated API token + a printable card to hand to the owner.
-
-## 4. Admin panel
-
-Route: `/offline/admin/*`. Gated by `app_admins`. Pages:
-
-- **Overview** — KPIs: total shops, active foot soldiers, sales last 7/30d, total bounty owed.
-- **Shops** — searchable table, filters by status/region, row actions: block / unblock / view sync log.
-- **Foot soldiers** — list + drill-down to their shops & payouts; mark payouts as paid.
-- **Bounty config** — edit `bounty_rates` (tier table).
-- **Sync activity** — recent `sync_log` entries with event type filter.
-
-## 5. Shop-owner web view (read-only)
-
-Route: `/offline/shop/*`. Phone OTP login; matches by `owner_phone`. Pages: catalog (read-only), sales (read-only), profile.
-
-## Branding
-
-Tailwind tokens added to `index.css` + `tailwind.config.ts`:
-- `--offline-primary: 153 30% 12%` (#15261F dark green)
-- `--offline-accent: 19 90% 56%` (#F46D2A orange)
-- `--offline-bg: 43 25% 92%` (#F3F1EB cream)
-- `font-sans` Inter via existing system font stack
-
-Scoped to `/offline/*` routes only — does not touch the locked landing/auth/builder UI.
-
-## File layout
-
-```text
-supabase/functions/
-  sync-register/index.ts
-  sync-catalog/index.ts
-  sync-sales/index.ts
-  sync-pull/index.ts
-src/pages/offline/
-  agent/{Login,Shops,ShopDetail,Bounty,AddShop}.tsx
-  admin/{Overview,Shops,FootSoldiers,BountyConfig,SyncActivity}.tsx
-  shop/{Login,Catalog,Sales,Profile}.tsx
-src/components/offline/
-  OfflineLayout.tsx, AgentNav.tsx, AdminNav.tsx, StatusBadge.tsx, ...
-src/hooks/offline/
-  useShops.ts, useShopDetail.ts, useBounty.ts, useSyncLog.ts, useAdminShops.ts, ...
-src/lib/offline/
-  shopToken.ts (client-side helpers), bountyMath.ts
+```
+greeting → estore_business_name
+estore_business_name → estore_business_model
+estore_business_model → estore_supply_type       (industry)
+estore_supply_type    → estore_product_volume
+estore_product_volume → estore_moq
+estore_moq            → estore_moq_value (if yes) | estore_payment_methods
+estore_moq_value      → estore_payment_methods
+estore_payment_methods (multi, Done) → conditional fan-out:
+   if mobile_money selected → estore_mobile_money_number
+   else if bank_transfer    → estore_bank_account_name
+   else                     → estore_quote_requests
+estore_mobile_money_number → (if bank_transfer also picked) estore_bank_account_name
+                              else                            estore_quote_requests
+estore_bank_account_name   → estore_quote_requests
+estore_quote_requests      → estore_location
+estore_location            → estore_has_logo
+estore_has_logo (yes)      → template_choice
+estore_has_logo (no)       → estore_wants_ai_logo
+estore_wants_ai_logo (yes) → ai_logo → template_choice
+estore_wants_ai_logo (no)  → template_choice
+template_choice            → confirmation → generation
 ```
 
-Mounted in `src/App.tsx` under three new route groups; no changes to existing landing, builder, or auth routes.
+State stored on `estoreConfig`: add `mobileMoneyNumber`, `bankAccountName`, `hasLogo`, `wantsAiLogo`. Remove `paymentCondition`.
 
-## Build order
+## Esite step machine (replace existing)
 
-1. Migration (schema + RLS + helper functions + seed `bounty_rates`).
-2. Edge functions + idempotency tests via `curl_edge_functions`.
-3. Brand tokens + `OfflineLayout`.
-4. Foot-soldier dashboard.
-5. Admin panel.
-6. Shop-owner read-only view.
-7. Smoke-test end-to-end with a fake "device" curl script.
+Delete: `esite_payment_condition`.
 
-## Notes for the desktop app team (not built here)
+Add new `BuilderStep` IDs:
+- `esite_business_name`
+- `esite_mobile_money_number`
+- `esite_payment_email`
+- `esite_has_logo`
+- `esite_wants_ai_logo`
 
-- Auth: keep `x-shop-token` in OS keychain.
-- Generate `client_uuid` per row (catalog item / sale) and persist it; safe to retry.
-- Catalog uses last-write-wins on `sync_version`; bump it on every local edit.
-- `GET /sync-pull?since=<cursor>` returns server's `updated_at` cursor to store locally.
+Rewire `SERVICES_PAYMENT_OPTIONS` to exactly: Bank transfer, Mobile money, Cards.
+
+Order:
+
+```
+greeting → esite_business_name
+esite_business_name → esite_service_type
+esite_service_type  → esite_key_services
+esite_key_services  → esite_booking
+esite_booking (yes) → esite_booking_email → esite_payment_methods
+esite_booking (no)  → esite_payment_methods
+esite_payment_methods (multi, Done) → conditional fan-out:
+   if mobile_money → esite_mobile_money_number
+   else if cards   → esite_payment_email
+   else            → esite_location
+esite_mobile_money_number → (if cards also picked) esite_payment_email
+                             else                   esite_location
+esite_payment_email → esite_location
+esite_location      → esite_has_logo
+esite_has_logo (yes)        → template_choice
+esite_has_logo (no)         → esite_wants_ai_logo
+esite_wants_ai_logo (yes)   → ai_logo → template_choice
+esite_wants_ai_logo (no)    → template_choice
+template_choice → confirmation → generation
+```
+
+State on `esiteConfig`: add `mobileMoneyNumber`, `paymentEmail`, `hasLogo`, `wantsAiLogo`. Remove `paymentCondition`.
+
+## Greeting override (kill the generic flow for Estore/Esite)
+
+In `useStepController.getStepConfig`, when `lockedCategory === "estore"`, the `greeting` step renders:
+
+> "What's your company name?"
+
+`allowFreeText: true`, `renderAs: "location_input"`.
+
+For `lockedCategory === "esite"`, the same step renders:
+
+> "What's your business name?"
+
+`handleGreetingInput` (for these two categories) stores the text into `businessName` and routes to `estore_business_name → estore_business_model` (or `esite_business_name → esite_service_type`). The existing generic greeting (which infers category and pushes through `country → products_services → payment_methods → sell_channel → shop_type`) is bypassed entirely when `lockedCategory` is `estore` or `esite`.
+
+Also: `handleOptionSelect` `sell_channel` branch and any other path that could land an Estore/Esite session on Eshop steps is hard-guarded — when `lockedCategory` is estore/esite, those branches throw via `assertCategoryLocked` from `categoryRegistry.ts`.
+
+## Free-text + input enablement
+
+- `inputAllowed` in `useStepController`: add `estore_business_name`, `esite_business_name`, `estore_mobile_money_number`, `estore_bank_account_name`, `esite_mobile_money_number`, `esite_payment_email`.
+- `BuilderNewPage.handleFreeText`: same step list routes to `handleQualificationInput`.
+- `handleQualificationInput`: new cases persist each value into `estoreConfig`/`esiteConfig` and advance per the fan-out rules above.
+- `ChatInterface` placeholders: short hints (e.g. "07XX XXX XXX", "Bank account name", "bookings@yourdomain.com").
+
+## Templates (no registry change)
+
+`template_choice` already routes Estore to `getEstoreTemplateOptions()` (Minna, Monchies, Bazaro Fashion, Bazaro Classic) and Esite to `getEsiteTemplateOptions(serviceType)` (ShieldPro, Interim, Realisting, Toplistings, Luxra, Telvin, Tripset, Key Assumptions, Estatoo). Verified — no edit needed.
+
+## Logo generation
+
+`ai_logo` step already reads `getAiLogoContext(menuClassification, category)`; for Estore it returns `{category:"estore", businessType:"retail"}` and for Esite `{category:"esite", businessType:"services"}`. The `generate-logo` edge function already blocks food/restaurant symbols for non-Emenu categories. Pass `wants_ai_logo === "yes"` as the gate before entering `ai_logo`.
+
+## Metadata persistence
+
+`SellerSurfacePage.handleComplete` already forwards `answers` to seed metadata. Append the new Estore/Esite fields under `metadata.business` and `metadata.estore` / `metadata.esite`:
+
+```
+estore: { business_model, industry, product_volume, has_moq, moq_value,
+          payment_methods, mobile_money_number, bank_account_name,
+          enable_quotes, has_logo, wants_ai_logo, design_template }
+esite:  { industry, services_offered, has_booking, booking_email,
+          payment_methods, mobile_money_number, payment_email,
+          has_logo, wants_ai_logo, design_template }
+```
+
+`BuilderNewPage.handleGenerate` builds the answers payload passed downstream (already does this for `country`, `payment_methods`, etc.) — extend it to include the new fields read from `ctrl.estoreConfig` / `ctrl.esiteConfig`.
+
+## Confirm category lock at route entry
+
+Re-read `SellerSurfacePage.tsx`: `engineKey = SELLER_KEY_MAP[sellerKey]` and `<BuilderNewPage embedded initialCategory={engineKey} ... />` — this already passes `"estore"` for `/seller/estore` and `"esite"` for `/seller/esite`. `BuilderNewPage` resolves `lockedCategory` from `initialCategory ?? urlCategory`, and `useStepController` seeds `category` from `lockedCategory` on first render. No `null` window remains. Plan does not change this wiring — but the rebuilt `getStepConfig` for `greeting` will read `lockedCategory` directly (not the deferred state) so the first message is always the category-specific business-name prompt, never the generic greeting.
+
+## Validation (manual, before sign-off)
+
+I will navigate the live preview and confirm each of the 15 points by capturing the visible chat text:
+
+1. `/dashboard/seller/estore?mode=ai` first message = "What's your company name?"
+2. Estore step 2 cards = Wholesale / Trading / Both
+3. Estore payment chips = Bank transfer / Mobile money / Letter of credit
+4. Selecting Mobile money → next prompt "What's your business mobile money number?"
+5. Selecting Bank transfer → next prompt "What's your bank account name?"
+6. Estore template carousel = Minna, Monchies, Bazaro Fashion, Bazaro Classic
+7. Estore never shows shop_type / Eshop templates / 5 style cards
+8. `/dashboard/seller/esite?mode=ai` first message = "What's your business name?"
+9. Esite asks "What type of services do you offer?" with 8 cards
+10. Esite asks "What are your key services?"
+11. Booking = Yes → "What email should booking confirmations go to?"
+12. Mobile money selected → "What's your mobile money number?"
+13. Cards selected → "What's your email for Stripe/PayPal setup?"
+14. Esite template carousel = ShieldPro, Interim, Realisting, Toplistings, Luxra, Telvin, Tripset, Key Assumptions, Estatoo
+15. Esite never shows shop_type / Eshop templates / style cards
+
+I will paste the exact UI text (or screenshots) for each item in the closing report and only then mark complete.
