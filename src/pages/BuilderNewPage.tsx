@@ -366,7 +366,12 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
     } else if (
       ctrl.currentStep === "country" ||
       ctrl.currentStep === "products_services" ||
-      ctrl.currentStep === "payment_methods"
+      ctrl.currentStep === "payment_methods" ||
+      ctrl.currentStep === "estore_moq_value" ||
+      ctrl.currentStep === "estore_location" ||
+      ctrl.currentStep === "esite_key_services" ||
+      ctrl.currentStep === "esite_booking_email" ||
+      ctrl.currentStep === "esite_location"
     ) {
       addMsg("user", text);
       ctrl.handleQualificationInput(text);
@@ -704,6 +709,8 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
               onConfirmMulti={handleConfirmMulti}
               multiSelected={
                 ctrl.currentStep === "delivery_apps" ? ctrl.selectedDeliveryApps :
+                ctrl.currentStep === "estore_payment_methods" ? ctrl.estoreConfig.paymentMethods :
+                ctrl.currentStep === "esite_payment_methods" ? ctrl.esiteConfig.paymentMethods :
                 ctrl.currentStep === "attributes"
                   ? Object.entries(ctrl.eshopConfig.attributes).filter(([, v]) => v).map(([k]) => k)
                   : []
