@@ -159,13 +159,23 @@ export function ChatInterface({
   const topPadding = noticeHeight > 0 ? noticeHeight + 28 : 16;
 
   const placeholder = currentStep === "greeting"
-    ? (category && GREETING_PLACEHOLDERS[category]) || GREETING_PLACEHOLDERS.emenu
+    ? category === "estore"
+      ? "e.g. ABC Distributors"
+      : category === "esite"
+      ? "e.g. Apex Consulting"
+      : (category && GREETING_PLACEHOLDERS[category]) || GREETING_PLACEHOLDERS.emenu
     : currentStep === "refinement"
     ? "e.g. Change the hero image, update the layout, make colors darker..."
     : currentStep === "business_location" || currentStep === "estore_location" || currentStep === "esite_location"
     ? "e.g. Dubai, UAE..."
     : currentStep === "estore_moq_value"
     ? "e.g. 50 cartons, 100 kg, or AED 5,000..."
+    : currentStep === "estore_mobile_money_number" || currentStep === "esite_mobile_money_number"
+    ? "e.g. 07XX XXX XXX"
+    : currentStep === "estore_bank_account_name"
+    ? "e.g. ABC Distributors Ltd."
+    : currentStep === "esite_payment_email"
+    ? "e.g. payments@yourcompany.com"
     : currentStep === "esite_key_services"
     ? "e.g. Strategy, branding, property sales, tours..."
     : currentStep === "esite_booking_email"
