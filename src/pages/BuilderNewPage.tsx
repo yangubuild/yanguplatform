@@ -50,7 +50,16 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
   const [searchParams] = useSearchParams();
   const urlCategory = searchParams.get("category");
   const resolvedCategory = initialCategory ?? urlCategory;
-  const ctrl = useStepController();
+  // Phase 2 — Category lock. When the user enters via /seller/:category,
+  // that category is the authoritative source for the entire chat flow,
+  // template selection, logo generation and blueprint generation. AI
+  // detection remains advisory only; it can SUGGEST a switch but never
+  // mutates silently.
+  const validCategories = ["emenu", "eshop", "estore", "esite", "community", "influencer"] as const;
+  const lockedCategory = (resolvedCategory && (validCategories as readonly string[]).includes(resolvedCategory))
+    ? (resolvedCategory as (typeof validCategories)[number])
+    : null;
+  const ctrl = useStepController({ lockedCategory });
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const greetedRef = useRef(false);
   const [isThinking, setIsThinking] = useState(false);
@@ -339,14 +348,14 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
   const handleFreeText = useCallback((text: string) => {
     if (ctrl.currentStep === "greeting") {
       addMsg("user", text);
-      if (!mismatchHandledRef.current) {
+      // When the route locks the category, AI mismatch warnings are
+      // suppressed entirely — the user explicitly chose this builder.
+      if (!mismatchHandledRef.current && !lockedCategory) {
         const intent = classifyUserIntent(text, ctrl.category);
         if (intent.isMismatch && intent.confidence > 0.3) {
           mismatchHandledRef.current = true;
           const msg = getMismatchMessage(ctrl.category!, intent.detectedCategory);
           addDelayedMsg(msg);
-          (ctrl as any).__pendingSwitch = intent.detectedCategory;
-          (ctrl as any).__pendingText = text;
           return;
         }
       }
