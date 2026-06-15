@@ -544,18 +544,7 @@ function getEshopTemplateOptions(): StepOption[] {
   });
 }
 
-// ─── Esite template options (sourced from templateRegistry.ts) ─────────
-function getEsiteTemplateOptions(): StepOption[] {
-  return getTemplatesForEngine("esite").map((t) => ({
-    id: t.key,
-    label: t.label,
-    value: t.key,
-    description: t.description || "",
-    icon: t.icon || "🌐",
-  }));
-}
-
-// ─── Estore template options (sourced from templateRegistry.ts) ────────
+// ─── Estore/Esite template options (sourced from templateRegistry.ts) ──
 function getEstoreTemplateOptions(): StepOption[] {
   return getTemplatesForEngine("estore").map((t) => ({
     id: t.key,
