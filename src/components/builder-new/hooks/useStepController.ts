@@ -798,6 +798,125 @@ export function useStepController(options: UseStepControllerOptions = {}) {
           renderAs: "chips",
         };
       }
+      case "estore_business_model":
+        return {
+          key: "estore_business_model",
+          adaMessage: `Great, **${businessName}**. Is this mainly wholesale, trading, or both?`,
+          options: ESTORE_BUSINESS_MODEL_OPTIONS,
+          renderAs: "cards",
+        };
+      case "estore_supply_type":
+        return {
+          key: "estore_supply_type",
+          adaMessage: "What type of products do you supply?",
+          options: ESTORE_SUPPLY_TYPE_OPTIONS,
+          renderAs: "cards",
+        };
+      case "estore_product_volume":
+        return {
+          key: "estore_product_volume",
+          adaMessage: "How large is your product catalog?",
+          options: ESTORE_PRODUCT_VOLUME_OPTIONS,
+          renderAs: "cards",
+        };
+      case "estore_moq":
+        return {
+          key: "estore_moq",
+          adaMessage: "Do you require a minimum order quantity?",
+          options: YES_NO_OPTIONS,
+          renderAs: "cards",
+        };
+      case "estore_moq_value":
+        return {
+          key: "estore_moq_value",
+          adaMessage: "What is the minimum order quantity or minimum order value?",
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
+      case "estore_payment_methods":
+        return {
+          key: "estore_payment_methods",
+          adaMessage: "Which wholesale payment methods do you accept? Select all that apply, then tap **Done**.",
+          options: WHOLESALE_PAYMENT_OPTIONS,
+          multiSelect: true,
+          renderAs: "chips",
+        };
+      case "estore_payment_condition":
+        return {
+          key: "estore_payment_condition",
+          adaMessage: "What payment condition do you normally use?",
+          options: PAYMENT_CONDITION_OPTIONS,
+          renderAs: "cards",
+        };
+      case "estore_quote_requests":
+        return {
+          key: "estore_quote_requests",
+          adaMessage: "Should buyers be able to request a quote?",
+          options: YES_NO_OPTIONS,
+          renderAs: "cards",
+        };
+      case "estore_location":
+        return {
+          key: "estore_location",
+          adaMessage: "Where is your store, warehouse, or main service area based?",
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
+      case "esite_service_type":
+        return {
+          key: "esite_service_type",
+          adaMessage: `Great, **${businessName}**. What type of service website are you creating?`,
+          options: ESITE_SERVICE_TYPE_OPTIONS,
+          renderAs: "cards",
+        };
+      case "esite_key_services":
+        return {
+          key: "esite_key_services",
+          adaMessage: "What are your key services?",
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
+      case "esite_booking":
+        return {
+          key: "esite_booking",
+          adaMessage: "Do you take bookings or consultation requests?",
+          options: YES_NO_OPTIONS,
+          renderAs: "cards",
+        };
+      case "esite_booking_email":
+        return {
+          key: "esite_booking_email",
+          adaMessage: "Which email should receive bookings or consultation requests?",
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
+      case "esite_payment_methods":
+        return {
+          key: "esite_payment_methods",
+          adaMessage: "Which payment methods do you accept for services? Select all that apply, then tap **Done**.",
+          options: SERVICES_PAYMENT_OPTIONS,
+          multiSelect: true,
+          renderAs: "chips",
+        };
+      case "esite_payment_condition":
+        return {
+          key: "esite_payment_condition",
+          adaMessage: "How do clients usually pay?",
+          options: PAYMENT_CONDITION_OPTIONS,
+          renderAs: "cards",
+        };
+      case "esite_location":
+        return {
+          key: "esite_location",
+          adaMessage: "Where is your business based, or what area do you serve?",
+          options: [],
+          allowFreeText: true,
+          renderAs: "location_input",
+        };
       case "scope":
         return {
           key: "scope",
