@@ -667,6 +667,8 @@ export function useStepController(options: UseStepControllerOptions = {}) {
   const getNextStep = useCallback((step: BuilderStep): BuilderStep => {
     switch (step) {
       case "greeting":
+        if (isEstoreCategory) return "estore_business_model";
+        if (isEsiteCategory) return "esite_service_type";
         return "country";
       case "country":         return "products_services";
       case "products_services": return "payment_methods";
@@ -679,6 +681,22 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       case "shop_type": return "business_mode";
       case "business_mode": return "attributes";
       case "attributes": return "scope";
+      case "estore_business_model": return "estore_supply_type";
+      case "estore_supply_type": return "estore_product_volume";
+      case "estore_product_volume": return "estore_moq";
+      case "estore_moq": return estoreConfig.hasMoq === "yes" ? "estore_moq_value" : "estore_payment_methods";
+      case "estore_moq_value": return "estore_payment_methods";
+      case "estore_payment_methods": return "estore_payment_condition";
+      case "estore_payment_condition": return "estore_quote_requests";
+      case "estore_quote_requests": return "estore_location";
+      case "estore_location": return "assets";
+      case "esite_service_type": return "esite_key_services";
+      case "esite_key_services": return "esite_booking";
+      case "esite_booking": return esiteConfig.booking === "yes" ? "esite_booking_email" : "esite_payment_methods";
+      case "esite_booking_email": return "esite_payment_methods";
+      case "esite_payment_methods": return "esite_payment_condition";
+      case "esite_payment_condition": return "esite_location";
+      case "esite_location": return "assets";
       case "scope": return "assets";
       case "assets":
         if (selectedAssets === "ai_generated") return "ai_logo";
@@ -694,7 +712,7 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       case "generation": return "refinement";
       default: return "refinement";
     }
-  }, [isFoodCategory, selectedAssets]);
+  }, [isFoodCategory, isEstoreCategory, isEsiteCategory, selectedAssets, estoreConfig.hasMoq, esiteConfig.booking]);
 
   const getStepConfig = useCallback((): StepConfig => {
     switch (currentStep) {
