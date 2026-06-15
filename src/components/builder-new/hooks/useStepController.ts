@@ -439,25 +439,25 @@ function getEshopTemplateOptions(): StepOption[] {
   });
 }
 
-// ─── Esite template options (sourced from engine definition) ─────────
+// ─── Esite template options (sourced from templateRegistry.ts) ─────────
 function getEsiteTemplateOptions(): StepOption[] {
-  return (esiteEngine.templates || []).map((t) => ({
+  return getTemplatesForEngine("esite").map((t) => ({
     id: t.key,
     label: t.label,
     value: t.key,
-    description: (t as { description?: string }).description || "",
-    icon: "🌐",
+    description: t.description || "",
+    icon: t.icon || "🌐",
   }));
 }
 
-// ─── Estore template options (sourced from engine definition) ────────
+// ─── Estore template options (sourced from templateRegistry.ts) ────────
 function getEstoreTemplateOptions(): StepOption[] {
-  return (estoreEngine.templates || []).map((t) => ({
+  return getTemplatesForEngine("estore").map((t) => ({
     id: t.key,
     label: t.label,
     value: t.key,
-    description: (t as { description?: string }).description || "",
-    icon: "🏬",
+    description: t.description || "",
+    icon: t.icon || "🏬",
   }));
 }
 
