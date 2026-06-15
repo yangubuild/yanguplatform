@@ -772,16 +772,17 @@ export function useStepController(options: UseStepControllerOptions = {}) {
   }, [category, selectedScope, selectedAssets, selectedSections, selectedDeliveryApps, selectedTemplateKey, businessLocation, userUploadedAssets]);
 
   const handleGreetingInput = useCallback((text: string) => {
-    // Prefer pre-set category (from URL/embed prop) over keyword detection
-    const effective = category ?? detectCategory(text);
+    // Locked route category always wins. Otherwise prefer pre-set category
+    // over keyword detection. AI detection is advisory only when locked.
+    const effective = lockedCategory ?? category ?? detectCategory(text);
     const name = extractBusinessName(text);
-    if (!category) setCategory(effective);
+    if (!lockedCategory && !category) setCategory(effective);
     setBusinessName(name);
     setUserIdea(text);
     // Spec parity with Speak to Build: ask qualification questions BEFORE
     // branching by category. sell_channel may re-route the category.
     setCurrentStep("country");
-  }, [category]);
+  }, [category, lockedCategory]);
 
   // Free-text handler for the new qualification steps (country / products /
   // payment_methods). Parses lists where appropriate and advances the step.
