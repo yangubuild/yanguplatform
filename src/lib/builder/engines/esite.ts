@@ -135,15 +135,6 @@ export const esiteEngine: BuilderEngine = {
       extraModules: ["booking_calendar", "room_manager", "date_availability", "amenities"],
     },
   },
-  templates: [
-    { key: "hero_service", label: "Hero Service", sectionType: "hero", schema: { headline: "", subheadline: "", cta_label: "Get Started" } },
-    { key: "service_grid", label: "Service Grid", sectionType: "services", schema: { heading: "Our Services", items: [], layout: "grid" } },
-    { key: "testimonials", label: "Testimonials", sectionType: "testimonials", schema: { heading: "What Our Clients Say", items: [] } },
-    { key: "booking_block", label: "Booking Block", sectionType: "booking", schema: { heading: "Book Now", mode: "calendar" } },
-    { key: "listings_grid", label: "Listings Grid", sectionType: "listings", schema: { heading: "Properties", items: [], filters: true } },
-    { key: "team_grid", label: "Team Grid", sectionType: "team", schema: { heading: "Our Team", members: [] } },
-    { key: "faq_accordion", label: "FAQ Accordion", sectionType: "faq", schema: { heading: "FAQ", items: [] } },
-  ],
   aiGenerationRules: {
     allowedSectionTypes: ["hero", "text", "services", "about", "team", "testimonials", "contact", "contact_form", "faq", "blog", "cta", "cta_banner", "gallery", "custom_page"],
     forbiddenSectionTypes: ["menu", "menu_categories", "menu_items", "ordering_options", "products", "inventory", "cart", "checkout", "bio", "links", "affiliate", "live_selling", "member_signup"],

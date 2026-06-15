@@ -3,12 +3,10 @@ import type { Category } from "../types/builder.types";
 import { CATEGORY_CONFIGS } from "../types/builder.types";
 import { EMENU_TEMPLATE_GROUPS } from "@/lib/builder/emenu/templateClassifier";
 import { classifyEmenu } from "@/lib/builder/emenu/templateFirstGeneration";
-import { getTemplate } from "@/config/templateRegistry";
+import { getTemplate, getTemplatesForEngine } from "@/config/templateRegistry";
 import type { MenuComplexity } from "@/lib/builder/emenu/types";
 import { categoryFromText as sharedCategoryFromText, type SellChannel } from "@/lib/builder/categoryFromText";
 import { getCopy } from "@/components/builder/speak-to-build/copy";
-import { esiteEngine } from "@/lib/builder/engines/esite";
-import { estoreEngine } from "@/lib/builder/engines/estore";
 
 export type BuilderStep =
   | "greeting"
@@ -441,25 +439,25 @@ function getEshopTemplateOptions(): StepOption[] {
   });
 }
 
-// ─── Esite template options (sourced from engine definition) ─────────
+// ─── Esite template options (sourced from templateRegistry.ts) ─────────
 function getEsiteTemplateOptions(): StepOption[] {
-  return (esiteEngine.templates || []).map((t) => ({
+  return getTemplatesForEngine("esite").map((t) => ({
     id: t.key,
     label: t.label,
     value: t.key,
-    description: (t as { description?: string }).description || "",
-    icon: "🌐",
+    description: t.description || "",
+    icon: t.icon || "🌐",
   }));
 }
 
-// ─── Estore template options (sourced from engine definition) ────────
+// ─── Estore template options (sourced from templateRegistry.ts) ────────
 function getEstoreTemplateOptions(): StepOption[] {
-  return (estoreEngine.templates || []).map((t) => ({
+  return getTemplatesForEngine("estore").map((t) => ({
     id: t.key,
     label: t.label,
     value: t.key,
-    description: (t as { description?: string }).description || "",
-    icon: "🏬",
+    description: t.description || "",
+    icon: t.icon || "🏬",
   }));
 }
 
