@@ -751,6 +751,24 @@ export function useStepController(options: UseStepControllerOptions = {}) {
   const getStepConfig = useCallback((): StepConfig => {
     switch (currentStep) {
       case "greeting":
+        if (lockedCategory === "estore") {
+          return {
+            key: "greeting",
+            adaMessage: "What's your company name?",
+            options: [],
+            allowFreeText: true,
+            renderAs: "location_input",
+          };
+        }
+        if (lockedCategory === "esite") {
+          return {
+            key: "greeting",
+            adaMessage: "What's your business name?",
+            options: [],
+            allowFreeText: true,
+            renderAs: "location_input",
+          };
+        }
         return {
           key: "greeting",
           adaMessage: "Hey! 👋 Tell me about your business — what's the name, what do you do, and what are you looking to build?",
