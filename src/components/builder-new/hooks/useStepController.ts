@@ -835,10 +835,16 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       case "sell_channel": {
         const channel = option.value as SellChannel;
         setSellChannel(channel);
-        // Re-route category using the shared rules (wholesale → estore, etc.)
-        const routed = sharedCategoryFromText(userIdea || "", channel);
-        const effective = routed || category || "esite";
-        if (effective !== category) setCategory(effective as Category);
+        // Re-route category only when not locked by route. When locked, the
+        // sell channel is recorded but the category never silently mutates.
+        let effective: Category;
+        if (lockedCategory) {
+          effective = lockedCategory;
+        } else {
+          const routed = sharedCategoryFromText(userIdea || "", channel);
+          effective = (routed || category || "esite") as Category;
+          if (effective !== category) setCategory(effective);
+        }
         if (effective === "emenu") setCurrentStep("business_type");
         else if (effective === "eshop") setCurrentStep("shop_type");
         else setCurrentStep("scope");
