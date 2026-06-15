@@ -7,6 +7,8 @@ import { getTemplate } from "@/config/templateRegistry";
 import type { MenuComplexity } from "@/lib/builder/emenu/types";
 import { categoryFromText as sharedCategoryFromText, type SellChannel } from "@/lib/builder/categoryFromText";
 import { getCopy } from "@/components/builder/speak-to-build/copy";
+import { esiteEngine } from "@/lib/builder/engines/esite";
+import { estoreEngine } from "@/lib/builder/engines/estore";
 
 export type BuilderStep =
   | "greeting"
