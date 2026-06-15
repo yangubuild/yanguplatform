@@ -296,7 +296,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       default:
         break;
     }
-  }, [goNext, updateAnswer, logTurn]);
+  }, [goNext, updateAnswer, logTurn, lockedCategory]);
 
   // ---- voice engine -----------------------------------------------------
 
