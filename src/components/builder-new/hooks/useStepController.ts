@@ -1167,12 +1167,17 @@ export function useStepController(options: UseStepControllerOptions = {}) {
     // Locked route category always wins. Otherwise prefer pre-set category
     // over keyword detection. AI detection is advisory only when locked.
     const effective = lockedCategory ?? category ?? detectCategory(text);
-    const name = extractBusinessName(text);
+    // For estore/esite the greeting *is* "What's your company/business name?"
+    // so the entire trimmed input is the name. For other categories we still
+    // try to extract a name from a longer business description.
+    const name = (effective === "estore" || effective === "esite")
+      ? (text || "").trim()
+      : extractBusinessName(text);
     if (!lockedCategory && !category) setCategory(effective);
     setBusinessName(name);
     setUserIdea(text);
-    // Spec parity with Speak to Build: ask qualification questions BEFORE
-    // branching by category. sell_channel may re-route the category.
+    // Estore / Esite skip the generic country / products / sell-channel
+    // qualification steps and go straight into their own approved flow.
     if (effective === "estore") setCurrentStep("estore_business_model");
     else if (effective === "esite") setCurrentStep("esite_service_type");
     else setCurrentStep("country");
@@ -1219,10 +1224,22 @@ export function useStepController(options: UseStepControllerOptions = {}) {
         setEstoreConfig(prev => ({ ...prev, moqValue: trimmed }));
         setCurrentStep("estore_payment_methods");
         break;
+      case "estore_mobile_money_number":
+        setEstoreConfig(prev => ({ ...prev, mobileMoneyNumber: trimmed }));
+        if (estoreConfig.paymentMethods.includes("bank_transfer")) {
+          setCurrentStep("estore_bank_account_name");
+        } else {
+          setCurrentStep("estore_quote_requests");
+        }
+        break;
+      case "estore_bank_account_name":
+        setEstoreConfig(prev => ({ ...prev, bankAccountName: trimmed }));
+        setCurrentStep("estore_quote_requests");
+        break;
       case "estore_location":
         setEstoreConfig(prev => ({ ...prev, location: trimmed }));
         setBusinessLocation(trimmed);
-        setCurrentStep("assets");
+        setCurrentStep("estore_has_logo");
         break;
       case "esite_key_services":
         setEsiteConfig(prev => ({ ...prev, keyServices: trimmed }));
@@ -1232,15 +1249,27 @@ export function useStepController(options: UseStepControllerOptions = {}) {
         setEsiteConfig(prev => ({ ...prev, bookingEmail: trimmed }));
         setCurrentStep("esite_payment_methods");
         break;
+      case "esite_mobile_money_number":
+        setEsiteConfig(prev => ({ ...prev, mobileMoneyNumber: trimmed }));
+        if (esiteConfig.paymentMethods.includes("cards")) {
+          setCurrentStep("esite_payment_email");
+        } else {
+          setCurrentStep("esite_location");
+        }
+        break;
+      case "esite_payment_email":
+        setEsiteConfig(prev => ({ ...prev, paymentEmail: trimmed }));
+        setCurrentStep("esite_location");
+        break;
       case "esite_location":
         setEsiteConfig(prev => ({ ...prev, location: trimmed }));
         setBusinessLocation(trimmed);
-        setCurrentStep("assets");
+        setCurrentStep("esite_has_logo");
         break;
       default:
         break;
     }
-  }, [currentStep]);
+  }, [currentStep, estoreConfig.paymentMethods, esiteConfig.paymentMethods]);
 
   const handleOptionSelect = useCallback((option: StepOption) => {
     switch (currentStep) {
