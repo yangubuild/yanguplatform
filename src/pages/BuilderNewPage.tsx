@@ -315,6 +315,40 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
         payment_methods: ctrl.paymentMethods,
         sell_channel: ctrl.sellChannel || "",
       };
+      if (cat === "estore") {
+        const e = ctrl.estoreConfig;
+        metadata.estore = {
+          business_model: e.businessModel,
+          industry: e.supplyType,
+          product_volume: e.productVolume,
+          has_moq: e.hasMoq,
+          moq_value: e.moqValue,
+          payment_methods: e.paymentMethods,
+          mobile_money_number: e.mobileMoneyNumber,
+          bank_account_name: e.bankAccountName,
+          enable_quotes: e.quoteRequests,
+          location: e.location,
+          has_logo: e.hasLogo,
+          wants_ai_logo: e.wantsAiLogo,
+          design_template: templateKey || null,
+        };
+      }
+      if (cat === "esite") {
+        const e = ctrl.esiteConfig;
+        metadata.esite = {
+          industry: e.serviceType,
+          services_offered: e.keyServices,
+          has_booking: e.booking,
+          booking_email: e.bookingEmail,
+          payment_methods: e.paymentMethods,
+          mobile_money_number: e.mobileMoneyNumber,
+          payment_email: e.paymentEmail,
+          location: e.location,
+          has_logo: e.hasLogo,
+          wants_ai_logo: e.wantsAiLogo,
+          design_template: templateKey || null,
+        };
+      }
       // Phase 14 wiring: detect community sub-type from the user's idea and
       // persist it so the unified editor narrows quick actions to the right group.
       if (cat === "community") {
