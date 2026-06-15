@@ -640,9 +640,12 @@ export function useStepController(options: UseStepControllerOptions = {}) {
     hasMoq: null,
     moqValue: "",
     paymentMethods: [],
-    paymentCondition: null,
+    mobileMoneyNumber: "",
+    bankAccountName: "",
     quoteRequests: null,
     location: "",
+    hasLogo: null,
+    wantsAiLogo: null,
   });
   const [esiteConfig, setEsiteConfig] = useState<EsiteFlowConfig>({
     serviceType: null,
@@ -650,8 +653,11 @@ export function useStepController(options: UseStepControllerOptions = {}) {
     booking: null,
     bookingEmail: "",
     paymentMethods: [],
-    paymentCondition: null,
+    mobileMoneyNumber: "",
+    paymentEmail: "",
     location: "",
+    hasLogo: null,
+    wantsAiLogo: null,
   });
 
   // ─── New ADA qualification fields (parity with Speak to Build) ─────
