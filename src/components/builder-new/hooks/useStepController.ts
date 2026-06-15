@@ -1500,9 +1500,13 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       currentStep === "products_services" ||
       currentStep === "payment_methods" ||
       currentStep === "estore_moq_value" ||
+      currentStep === "estore_mobile_money_number" ||
+      currentStep === "estore_bank_account_name" ||
       currentStep === "estore_location" ||
       currentStep === "esite_key_services" ||
       currentStep === "esite_booking_email" ||
+      currentStep === "esite_mobile_money_number" ||
+      currentStep === "esite_payment_email" ||
       currentStep === "esite_location"
     );
   }, [currentStep]);
