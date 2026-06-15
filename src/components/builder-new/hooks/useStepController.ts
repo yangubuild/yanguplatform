@@ -3,12 +3,10 @@ import type { Category } from "../types/builder.types";
 import { CATEGORY_CONFIGS } from "../types/builder.types";
 import { EMENU_TEMPLATE_GROUPS } from "@/lib/builder/emenu/templateClassifier";
 import { classifyEmenu } from "@/lib/builder/emenu/templateFirstGeneration";
-import { getTemplate } from "@/config/templateRegistry";
+import { getTemplate, getTemplatesForEngine } from "@/config/templateRegistry";
 import type { MenuComplexity } from "@/lib/builder/emenu/types";
 import { categoryFromText as sharedCategoryFromText, type SellChannel } from "@/lib/builder/categoryFromText";
 import { getCopy } from "@/components/builder/speak-to-build/copy";
-import { esiteEngine } from "@/lib/builder/engines/esite";
-import { estoreEngine } from "@/lib/builder/engines/estore";
 
 export type BuilderStep =
   | "greeting"
