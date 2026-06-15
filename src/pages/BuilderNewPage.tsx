@@ -402,9 +402,13 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
       ctrl.currentStep === "products_services" ||
       ctrl.currentStep === "payment_methods" ||
       ctrl.currentStep === "estore_moq_value" ||
+      ctrl.currentStep === "estore_mobile_money_number" ||
+      ctrl.currentStep === "estore_bank_account_name" ||
       ctrl.currentStep === "estore_location" ||
       ctrl.currentStep === "esite_key_services" ||
       ctrl.currentStep === "esite_booking_email" ||
+      ctrl.currentStep === "esite_mobile_money_number" ||
+      ctrl.currentStep === "esite_payment_email" ||
       ctrl.currentStep === "esite_location"
     ) {
       addMsg("user", text);
