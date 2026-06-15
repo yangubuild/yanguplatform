@@ -441,6 +441,28 @@ function getEshopTemplateOptions(): StepOption[] {
   });
 }
 
+// ─── Esite template options (sourced from engine definition) ─────────
+function getEsiteTemplateOptions(): StepOption[] {
+  return (esiteEngine.templates || []).map((t) => ({
+    id: t.key,
+    label: t.label,
+    value: t.key,
+    description: (t as { description?: string }).description || "",
+    icon: "🌐",
+  }));
+}
+
+// ─── Estore template options (sourced from engine definition) ────────
+function getEstoreTemplateOptions(): StepOption[] {
+  return (estoreEngine.templates || []).map((t) => ({
+    id: t.key,
+    label: t.label,
+    value: t.key,
+    description: (t as { description?: string }).description || "",
+    icon: "🏬",
+  }));
+}
+
 // ─── User assets state ───────────────────────────────────────────────
 
 export interface UserAssets {
