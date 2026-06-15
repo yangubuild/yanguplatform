@@ -117,6 +117,10 @@ function styleFromText(text: string): string | null {
 
 export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToChat }: Props) {
   console.log("SpeakToBuild render");
+  // Phase 2 — Category lock. When voice is launched from /seller/:category
+  // (or any flow that passes initialCategory), the chat must NOT silently
+  // switch categories. AI suggestions remain advisory only.
+  const lockedCategory: SpeakCategory | null = (initialCategory as SpeakCategory) || null;
   const [step, setStep] = useState<SpeakStepId>("intro");
   const [answers, setAnswers] = useState<SpeakAnswers>({
     ...DEFAULT_ANSWERS,
@@ -170,7 +174,9 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
     switch (cur) {
       case "intro":
       case "category": {
-        const cat = categoryFromText(text) || answersRef.current.category;
+        // If a route-locked category exists, never let voice input override it.
+        const detected = categoryFromText(text);
+        const cat = lockedCategory ?? detected ?? answersRef.current.category;
         if (cat) {
           updateAnswer("category", cat);
           setStep("business_info");
@@ -273,11 +279,14 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
         else if (/\b(website|web site|site|online)\b/.test(t)) channel = "website";
         updateAnswer("sell_channel", channel);
 
-        // Single source of truth for builder routing.
-        const desc = answersRef.current.business_description || "";
-        const routed = sharedCategoryFromText(desc, channel as SellChannel);
-        if (routed && routed !== answersRef.current.category) {
-          updateAnswer("category", routed as SpeakCategory);
+        // Single source of truth for builder routing — but ONLY when no
+        // route-locked category exists. Locked category is authoritative.
+        if (!lockedCategory) {
+          const desc = answersRef.current.business_description || "";
+          const routed = sharedCategoryFromText(desc, channel as SellChannel);
+          if (routed && routed !== answersRef.current.category) {
+            updateAnswer("category", routed as SpeakCategory);
+          }
         }
 
         setStep("building");
@@ -287,7 +296,7 @@ export function SpeakToBuild({ initialCategory, onComplete, onBack, onSwitchToCh
       default:
         break;
     }
-  }, [goNext, updateAnswer, logTurn]);
+  }, [goNext, updateAnswer, logTurn, lockedCategory]);
 
   // ---- voice engine -----------------------------------------------------
 

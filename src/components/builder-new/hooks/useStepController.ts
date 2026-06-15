@@ -7,6 +7,8 @@ import { getTemplate } from "@/config/templateRegistry";
 import type { MenuComplexity } from "@/lib/builder/emenu/types";
 import { categoryFromText as sharedCategoryFromText, type SellChannel } from "@/lib/builder/categoryFromText";
 import { getCopy } from "@/components/builder/speak-to-build/copy";
+import { esiteEngine } from "@/lib/builder/engines/esite";
+import { estoreEngine } from "@/lib/builder/engines/estore";
 
 export type BuilderStep =
   | "greeting"
@@ -439,6 +441,28 @@ function getEshopTemplateOptions(): StepOption[] {
   });
 }
 
+// ─── Esite template options (sourced from engine definition) ─────────
+function getEsiteTemplateOptions(): StepOption[] {
+  return (esiteEngine.templates || []).map((t) => ({
+    id: t.key,
+    label: t.label,
+    value: t.key,
+    description: (t as { description?: string }).description || "",
+    icon: "🌐",
+  }));
+}
+
+// ─── Estore template options (sourced from engine definition) ────────
+function getEstoreTemplateOptions(): StepOption[] {
+  return (estoreEngine.templates || []).map((t) => ({
+    id: t.key,
+    label: t.label,
+    value: t.key,
+    description: (t as { description?: string }).description || "",
+    icon: "🏬",
+  }));
+}
+
 // ─── User assets state ───────────────────────────────────────────────
 
 export interface UserAssets {
@@ -449,9 +473,19 @@ export interface UserAssets {
 
 // ─── Hook ──────────────────────────────────────────────────────────────
 
-export function useStepController() {
+export interface UseStepControllerOptions {
+  /**
+   * Phase 2 category lock. When provided (e.g. from /seller/:category route),
+   * the chat flow MUST NOT silently mutate category. AI suggestions remain
+   * advisory only; explicit user confirmation is required to switch.
+   */
+  lockedCategory?: Category | null;
+}
+
+export function useStepController(options: UseStepControllerOptions = {}) {
+  const { lockedCategory = null } = options;
   const [currentStep, setCurrentStep] = useState<BuilderStep>("greeting");
-  const [category, setCategory] = useState<Category | null>(null);
+  const [category, setCategory] = useState<Category | null>(lockedCategory ?? null);
   const [selectedScope, setSelectedScope] = useState<string | null>(null);
   const [selectedAssets, setSelectedAssets] = useState<string | null>(null);
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
@@ -660,8 +694,10 @@ export function useStepController() {
           renderAs: "chips",
         };
       case "template_choice": {
+        // Always prefer the locked route category, then fall back to state.
+        const effectiveCat = (lockedCategory ?? category) as Category | null;
         // For emenu, show real template previews from the classified pool
-        if (category === "emenu" && menuClassification) {
+        if (effectiveCat === "emenu" && menuClassification) {
           const templateOpts = getEmenuTemplateOptions(menuClassification);
           return {
             key: "template_choice",
@@ -671,11 +707,29 @@ export function useStepController() {
           };
         }
         // For eshop, show the 6 real e-commerce template previews
-        if (category === "eshop") {
+        if (effectiveCat === "eshop") {
           return {
             key: "template_choice",
             adaMessage: "Pick a template for your shop. These are real e-commerce designs I'll use as the foundation:",
             options: getEshopTemplateOptions(),
+            renderAs: "carousel",
+          };
+        }
+        // Esite — service / professional templates from esiteEngine
+        if (effectiveCat === "esite") {
+          return {
+            key: "template_choice",
+            adaMessage: "Pick a template for your website. These are real service-site designs I'll use as the foundation:",
+            options: getEsiteTemplateOptions(),
+            renderAs: "carousel",
+          };
+        }
+        // Estore — wholesale / B2B catalog templates from estoreEngine
+        if (effectiveCat === "estore") {
+          return {
+            key: "template_choice",
+            adaMessage: "Pick a template for your store. These are real wholesale / catalog designs I'll use as the foundation:",
+            options: getEstoreTemplateOptions(),
             renderAs: "carousel",
           };
         }
@@ -719,7 +773,7 @@ export function useStepController() {
       default:
         return { key: "greeting", adaMessage: "", options: [] };
     }
-  }, [currentStep, category, isFoodCategory, businessLocation, menuClassification, selectedAssets, businessName, selectedScope, eshopConfig.shopType]);
+  }, [currentStep, category, lockedCategory, isFoodCategory, businessLocation, menuClassification, selectedAssets, businessName, selectedScope, eshopConfig.shopType]);
 
   const buildConfirmationMessage = useCallback(() => {
     const lines = ["Here's your summary:\n"];
@@ -738,16 +792,17 @@ export function useStepController() {
   }, [category, selectedScope, selectedAssets, selectedSections, selectedDeliveryApps, selectedTemplateKey, businessLocation, userUploadedAssets]);
 
   const handleGreetingInput = useCallback((text: string) => {
-    // Prefer pre-set category (from URL/embed prop) over keyword detection
-    const effective = category ?? detectCategory(text);
+    // Locked route category always wins. Otherwise prefer pre-set category
+    // over keyword detection. AI detection is advisory only when locked.
+    const effective = lockedCategory ?? category ?? detectCategory(text);
     const name = extractBusinessName(text);
-    if (!category) setCategory(effective);
+    if (!lockedCategory && !category) setCategory(effective);
     setBusinessName(name);
     setUserIdea(text);
     // Spec parity with Speak to Build: ask qualification questions BEFORE
     // branching by category. sell_channel may re-route the category.
     setCurrentStep("country");
-  }, [category]);
+  }, [category, lockedCategory]);
 
   // Free-text handler for the new qualification steps (country / products /
   // payment_methods). Parses lists where appropriate and advances the step.
@@ -800,10 +855,16 @@ export function useStepController() {
       case "sell_channel": {
         const channel = option.value as SellChannel;
         setSellChannel(channel);
-        // Re-route category using the shared rules (wholesale → estore, etc.)
-        const routed = sharedCategoryFromText(userIdea || "", channel);
-        const effective = routed || category || "esite";
-        if (effective !== category) setCategory(effective as Category);
+        // Re-route category only when not locked by route. When locked, the
+        // sell channel is recorded but the category never silently mutates.
+        let effective: Category;
+        if (lockedCategory) {
+          effective = lockedCategory;
+        } else {
+          const routed = sharedCategoryFromText(userIdea || "", channel);
+          effective = (routed || category || "esite") as Category;
+          if (effective !== category) setCategory(effective);
+        }
         if (effective === "emenu") setCurrentStep("business_type");
         else if (effective === "eshop") setCurrentStep("shop_type");
         else setCurrentStep("scope");
@@ -901,7 +962,7 @@ export function useStepController() {
 
   const resetAll = useCallback(() => {
     setCurrentStep("greeting");
-    setCategory(null);
+    setCategory(lockedCategory ?? null);
     setSelectedScope(null);
     setSelectedAssets(null);
     setSelectedSections([]);
@@ -919,7 +980,7 @@ export function useStepController() {
     setProductsServices([]);
     setPaymentMethods([]);
     setSellChannel("");
-  }, []);
+  }, [lockedCategory]);
 
   const inputAllowed = useMemo(() => {
     return (
