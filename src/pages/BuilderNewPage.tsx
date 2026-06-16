@@ -738,7 +738,7 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
               onAction={handleEditorAction}
               selectedSection={selectedSection}
               businessName={ctrl.businessName}
-              category={ctrl.category}
+              category={(ctrl.category ?? lockedCategory) as typeof ctrl.category}
               canvasSelection={canvasSelection}
             />
           ) : (
