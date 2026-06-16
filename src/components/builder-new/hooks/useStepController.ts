@@ -1304,11 +1304,13 @@ export function useStepController(options: UseStepControllerOptions = {}) {
         break;
       case "sell_channel": {
         if (lockedCategory === "estore") {
-          setCurrentStep("estore_business_model");
+          setEstoreConfig(prev => ({ ...prev, businessModel: option.value as EstoreBusinessModel }));
+          setCurrentStep("estore_supply_type");
           break;
         }
         if (lockedCategory === "esite") {
-          setCurrentStep("esite_service_type");
+          setEsiteConfig(prev => ({ ...prev, serviceType: option.value }));
+          setCurrentStep("esite_key_services");
           break;
         }
         const channel = option.value as SellChannel;
