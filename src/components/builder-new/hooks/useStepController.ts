@@ -749,6 +749,23 @@ export function useStepController(options: UseStepControllerOptions = {}) {
   }, [isFoodCategory, isEstoreCategory, isEsiteCategory, selectedAssets, estoreConfig.hasMoq, estoreConfig.paymentMethods, estoreConfig.hasLogo, estoreConfig.wantsAiLogo, esiteConfig.booking, esiteConfig.paymentMethods, esiteConfig.hasLogo, esiteConfig.wantsAiLogo]);
 
   const getStepConfig = useCallback((): StepConfig => {
+    if (lockedCategory === "estore" && ["country", "products_services", "payment_methods", "sell_channel"].includes(currentStep)) {
+      return {
+        key: "estore_business_model",
+        adaMessage: `Great, **${businessName || "your company"}**. Is this mainly wholesale, trading, or both?`,
+        options: ESTORE_BUSINESS_MODEL_OPTIONS,
+        renderAs: "cards",
+      };
+    }
+    if (lockedCategory === "esite" && ["country", "products_services", "payment_methods", "sell_channel"].includes(currentStep)) {
+      return {
+        key: "esite_service_type",
+        adaMessage: `Great, **${businessName || "your business"}**. What type of services do you offer?`,
+        options: ESITE_SERVICE_TYPE_OPTIONS,
+        renderAs: "cards",
+      };
+    }
+
     switch (currentStep) {
       case "greeting":
         if (lockedCategory === "estore") {
@@ -1187,6 +1204,14 @@ export function useStepController(options: UseStepControllerOptions = {}) {
   // payment_methods). Parses lists where appropriate and advances the step.
   const handleQualificationInput = useCallback((text: string) => {
     const trimmed = (text || "").trim();
+    if (lockedCategory === "estore") {
+      setCurrentStep("estore_business_model");
+      return;
+    }
+    if (lockedCategory === "esite") {
+      setCurrentStep("esite_service_type");
+      return;
+    }
     switch (currentStep) {
       case "country":
         setCountry(trimmed);
@@ -1278,6 +1303,14 @@ export function useStepController(options: UseStepControllerOptions = {}) {
         setCurrentStep("scope");
         break;
       case "sell_channel": {
+        if (lockedCategory === "estore") {
+          setCurrentStep("estore_business_model");
+          break;
+        }
+        if (lockedCategory === "esite") {
+          setCurrentStep("esite_service_type");
+          break;
+        }
         const channel = option.value as SellChannel;
         setSellChannel(channel);
         // Re-route category only when not locked by route. When locked, the
