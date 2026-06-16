@@ -916,7 +916,7 @@ function buildTemplatePresetHTML(config: GeneratorConfig, preset: TemplatePreset
       <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;">
         ${(c.links || []).map((l: string) => `<li style="font-size:13px;color:${pageText}99;">${l}</li>`).join("")}
       </ul>
-    </div>`).join("") : `<div><h4 style="font-family:${fontHeading};font-size:14px;font-weight:700;color:${pageText};margin-bottom:10px;">${footerSchema.heading || "Contact"}</h4><p style="font-size:13px;color:${pageText}99;">${config.businessLocation || ""}</p></div>`;
+    </div>`).join("") : `<div><h4 style="font-family:${fontHeading};font-size:14px;font-weight:700;color:${pageText};margin-bottom:10px;">${footerSchema.heading || "Contact"}</h4><p style="font-size:13px;color:${pageText}99;">${config.location || ""}</p></div>`;
 
   const domain = CATEGORY_CONFIGS[config.category]?.domain || ".site";
   const slug = businessName.toLowerCase().replace(/\s+/g, "-");
