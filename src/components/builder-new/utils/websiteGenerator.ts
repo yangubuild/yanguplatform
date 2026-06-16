@@ -763,3 +763,198 @@ function shiftColor(hex: string, amount: number): string {
   const b = Math.min(255, Math.max(0, (num & 0xFF) + amount));
   return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
 }
+
+// ─── Estore / Esite template-faithful renderer ─────────────────────────
+// Renders a real estore_* / esite_* template preset by reading its patches
+// (header, hero, main_content, offer, footer) and reference.sectionOrder.
+// This guarantees the user's chosen template actually shapes the output —
+// instead of a generic stock photo with the business name overlaid.
+function buildTemplatePresetHTML(config: GeneratorConfig, preset: TemplatePreset, variantIndex: number): string {
+  const patches = (preset.patches || {}) as Record<string, { schema?: Record<string, any> }>;
+  const header = (patches.header?.schema || {}) as Record<string, any>;
+  const hero = (patches.hero?.schema || {}) as Record<string, any>;
+  const main = (patches.main_content?.schema || {}) as Record<string, any>;
+  const offer = (patches.offer?.schema || {}) as Record<string, any>;
+  const footerSchema = (patches.footer?.schema || {}) as Record<string, any>;
+  const ref = (preset as any).reference || {};
+  const sectionOrder: string[] = ref.sectionOrder || ["header", "hero", "main_content", "offer", "footer"];
+
+  const businessName = config.businessName || preset.label || "My Website";
+  const userIdea = config.userIdea || "";
+
+  // Colors — prefer brand colors → template hints → sensible defaults.
+  const userColor = config.userBrandColors?.[0];
+  const primary = userColor || hero.primary_color_hint || hero.background_color || main.accent_color || "#1A1A1A";
+  const accent = hero.accent_color_hint || main.accent_color || primary;
+  const isDarkBg = (hero.background_style === "solid" || hero.background_style === "dark") &&
+    /^#0|^#1|^#2/.test(String(primary));
+
+  // Slight variant differences (still the same template).
+  const accentShifted = variantIndex === 0 ? accent : shiftColor(accent, variantIndex === 1 ? 18 : -22);
+  const heroAlign = variantIndex === 2 ? "center" : (hero.alignment || "left");
+  const heroLayout = variantIndex === 1 ? "split" : (hero.layout_variant || "full");
+
+  const pageBg = isDarkBg ? "#0F0F0F" : "#FFFFFF";
+  const pageText = isDarkBg ? "#F5F5F5" : "#1A1A1A";
+  const cardBg = isDarkBg ? "#1A1A1A" : "#FFFFFF";
+  const subtleBg = isDarkBg ? "#141414" : "#F9FAFB";
+  const borderColor = isDarkBg ? "#2A2A2A" : "#E5E7EB";
+  const heroText = "#FFFFFF";
+  const heroGradient = `linear-gradient(135deg, ${primary} 0%, ${shiftColor(primary, -20)} 100%)`;
+  const fontHeading = (hero.typography_style || "").includes("serif") || /serif/i.test(String(hero.font_family || ""))
+    ? "'Georgia', serif" : "'Inter', sans-serif";
+
+  const logoHtml = config.userLogoUrl
+    ? `<img src="${config.userLogoUrl}" alt="${businessName}" style="height:30px;width:auto;background:transparent;"/>`
+    : `<span style="font-weight:700;font-size:18px;color:${pageText};letter-spacing:0.02em;">${businessName}</span>`;
+
+  const navItems: string[] = (header.nav_items as string[]) || sectionOrder
+    .filter(s => !["header", "hero", "footer"].includes(s))
+    .map(s => s.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()));
+  const navLinks = navItems.map(n => `<a href="#${n.toLowerCase().replace(/\s+/g, "-")}" style="text-decoration:none;font-size:13px;color:${pageText}aa;font-weight:500;">${n}</a>`).join("\n");
+
+  // ── Hero ──
+  const heroHeadline = hero.headline || businessName;
+  const heroSub = hero.subheadline || userIdea || preset.description || "";
+  const heroDesc = hero.description || "";
+  const ctaText = hero.cta_text || hero.cta_label || "Get in touch";
+  const heroImg = getCategoryImage(config.category, "hero", variantIndex, config);
+  const heroHTML = heroLayout === "split"
+    ? `
+    <section id="hero" style="min-height:80vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:48px;padding:120px 48px 80px;background:${heroGradient};color:${heroText};">
+      <div style="text-align:${heroAlign};">
+        ${heroSub ? `<p style="font-size:13px;text-transform:uppercase;letter-spacing:2px;opacity:0.8;margin-bottom:14px;">${heroSub}</p>` : ""}
+        <h1 style="font-family:${fontHeading};font-size:clamp(2.2rem,4.5vw,3.6rem);font-weight:800;margin-bottom:18px;line-height:1.1;">${heroHeadline}</h1>
+        ${heroDesc ? `<p style="font-size:1rem;opacity:0.9;margin-bottom:28px;line-height:1.7;max-width:520px;">${heroDesc}</p>` : ""}
+        <a href="#contact" style="display:inline-block;padding:14px 32px;border-radius:8px;background:${accentShifted};color:#fff;text-decoration:none;font-weight:600;font-size:14px;">${ctaText}</a>
+      </div>
+      <div style="border-radius:16px;overflow:hidden;aspect-ratio:4/3;background:#0002;"><img src="${heroImg}" alt="" style="width:100%;height:100%;object-fit:cover;"/></div>
+    </section>`
+    : `
+    <section id="hero" style="min-height:80vh;display:flex;align-items:center;justify-content:${heroAlign === "center" ? "center" : "flex-start"};text-align:${heroAlign};padding:120px 48px 80px;background:${heroGradient};color:${heroText};position:relative;">
+      <div style="position:absolute;inset:0;opacity:0.18;"><img src="${heroImg}" style="width:100%;height:100%;object-fit:cover;" alt=""/></div>
+      <div style="position:relative;z-index:1;max-width:720px;">
+        ${heroSub ? `<p style="font-size:13px;text-transform:uppercase;letter-spacing:2px;opacity:0.85;margin-bottom:14px;">${heroSub}</p>` : ""}
+        <h1 style="font-family:${fontHeading};font-size:clamp(2.5rem,5vw,4rem);font-weight:800;margin-bottom:18px;line-height:1.1;">${heroHeadline}</h1>
+        ${heroDesc ? `<p style="font-size:1.05rem;opacity:0.9;margin-bottom:32px;line-height:1.7;">${heroDesc}</p>` : ""}
+        <a href="#contact" style="display:inline-block;padding:14px 32px;border-radius:8px;background:${accentShifted};color:#fff;text-decoration:none;font-weight:600;font-size:14px;">${ctaText}</a>
+      </div>
+    </section>`;
+
+  // ── Main content (services / products / listings) ──
+  const mainHeading = main.heading || "What we offer";
+  const mainDesc = main.description || "";
+  const items = (main.items as any[]) || [];
+  const sidebar = main.sidebar;
+  const cardsCfg = main.cards || {};
+  const showPrice = cardsCfg.show_price !== false;
+  const itemsHTML = items.length > 0 ? items.map((it: any, i: number) => {
+    const img = getCategoryImage(config.category, config.style.startsWith("estore_") ? "products" : "services", i, config);
+    return `
+    <div style="background:${cardBg};border:1px solid ${borderColor};border-radius:12px;overflow:hidden;display:flex;flex-direction:column;">
+      ${cardsCfg.style !== "text_only" ? `<div style="aspect-ratio:4/3;overflow:hidden;background:${subtleBg};"><img src="${it.image || img}" alt="${it.title}" style="width:100%;height:100%;object-fit:cover;"/></div>` : ""}
+      <div style="padding:16px;">
+        <h3 style="font-family:${fontHeading};font-size:1.05rem;font-weight:700;color:${pageText};margin-bottom:6px;">${it.icon ? it.icon + " " : ""}${it.title || "Item"}</h3>
+        ${it.description ? `<p style="font-size:13px;color:${pageText}99;line-height:1.6;">${it.description}</p>` : ""}
+        ${it.price && showPrice ? `<p style="font-size:14px;font-weight:700;color:${accentShifted};margin-top:8px;">${it.price}</p>` : ""}
+        ${it.badge ? `<span style="display:inline-block;margin-top:8px;font-size:11px;padding:3px 8px;border-radius:10px;background:${accentShifted}22;color:${accentShifted};font-weight:600;">${it.badge}</span>` : ""}
+      </div>
+    </div>`;
+  }).join("") : "";
+
+  const sidebarHTML = sidebar?.enabled && Array.isArray(sidebar.items) ? `
+    <aside style="background:${cardBg};border:1px solid ${borderColor};border-radius:12px;padding:18px;height:fit-content;">
+      <h4 style="font-family:${fontHeading};font-size:0.95rem;font-weight:700;color:${pageText};margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;">${sidebar.heading || "Categories"}</h4>
+      <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;">
+        ${(sidebar.items as string[]).map(s => `<li><a href="#" style="color:${pageText}cc;text-decoration:none;font-size:14px;">${s}</a></li>`).join("")}
+      </ul>
+    </aside>` : "";
+
+  const gridCols = cardsCfg?.image_ratio === "portrait" || (main.grid?.columns_desktop || 3) >= 4 ? 4 : 3;
+  const mainHTML = items.length > 0 ? `
+    <section id="${navItems[0]?.toLowerCase().replace(/\s+/g, "-") || "main"}" style="padding:72px 24px;background:${pageBg};">
+      <div style="max-width:1200px;margin:0 auto;">
+        <div style="text-align:center;margin-bottom:36px;">
+          <h2 style="font-family:${fontHeading};font-size:2rem;font-weight:700;color:${pageText};">${mainHeading}</h2>
+          ${mainDesc ? `<p style="font-size:0.95rem;color:${pageText}99;margin-top:8px;max-width:640px;margin-left:auto;margin-right:auto;">${mainDesc}</p>` : ""}
+        </div>
+        <div style="display:grid;grid-template-columns:${sidebarHTML ? "220px 1fr" : "1fr"};gap:24px;">
+          ${sidebarHTML}
+          <div style="display:grid;grid-template-columns:repeat(${gridCols},1fr);gap:16px;">${itemsHTML}</div>
+        </div>
+      </div>
+    </section>` : `
+    <section style="padding:72px 24px;background:${pageBg};text-align:center;">
+      <div style="max-width:720px;margin:0 auto;">
+        <h2 style="font-family:${fontHeading};font-size:2rem;font-weight:700;color:${pageText};">${mainHeading}</h2>
+        ${mainDesc ? `<p style="font-size:0.95rem;color:${pageText}99;margin-top:10px;">${mainDesc}</p>` : ""}
+      </div>
+    </section>`;
+
+  // ── Offer / trust block ──
+  const offerItems = (offer.items as any[]) || [];
+  const offerHTML = offerItems.length > 0 ? `
+    <section style="padding:64px 24px;background:${subtleBg};">
+      <div style="max-width:1100px;margin:0 auto;">
+        ${offer.heading ? `<h2 style="font-family:${fontHeading};font-size:1.6rem;font-weight:700;color:${pageText};text-align:center;margin-bottom:28px;">${offer.heading}</h2>` : ""}
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;">
+          ${offerItems.map((o: any) => `
+            <div style="background:${cardBg};border:1px solid ${borderColor};border-radius:12px;padding:20px;text-align:center;">
+              <h3 style="font-family:${fontHeading};font-size:1rem;font-weight:700;color:${pageText};margin-bottom:6px;">${o.title || ""}</h3>
+              ${o.description ? `<p style="font-size:13px;color:${pageText}99;line-height:1.6;">${o.description}</p>` : ""}
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </section>` : "";
+
+  // ── Footer ──
+  const footerCols = (footerSchema.columns as any[]) || [];
+  const footerColsHTML = footerCols.length > 0 ? footerCols.map((c: any) => `
+    <div>
+      <h4 style="font-family:${fontHeading};font-size:14px;font-weight:700;color:${pageText};margin-bottom:10px;">${c.title || ""}</h4>
+      <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;">
+        ${(c.links || []).map((l: string) => `<li style="font-size:13px;color:${pageText}99;">${l}</li>`).join("")}
+      </ul>
+    </div>`).join("") : `<div><h4 style="font-family:${fontHeading};font-size:14px;font-weight:700;color:${pageText};margin-bottom:10px;">${footerSchema.heading || "Contact"}</h4><p style="font-size:13px;color:${pageText}99;">${config.businessLocation || ""}</p></div>`;
+
+  const domain = CATEGORY_CONFIGS[config.category]?.domain || ".site";
+  const slug = businessName.toLowerCase().replace(/\s+/g, "-");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>${businessName} — ${preset.label}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Georgia&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: ${pageBg}; color: ${pageText}; line-height: 1.6; }
+    img { max-width: 100%; display: block; }
+    @media (max-width: 768px) {
+      section[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; padding-left:20px !important; padding-right:20px !important; }
+      [style*="grid-template-columns:repeat(4,1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
+      [style*="grid-template-columns:repeat(3,1fr)"] { grid-template-columns: 1fr !important; }
+      [style*="grid-template-columns:220px 1fr"] { grid-template-columns: 1fr !important; }
+    }
+  </style>
+</head>
+<body>
+  <nav style="position:sticky;top:0;z-index:100;background:${pageBg}ee;backdrop-filter:blur(12px);border-bottom:1px solid ${borderColor};padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;">
+    <a href="#" style="text-decoration:none;display:flex;align-items:center;gap:10px;">${logoHtml}</a>
+    <div style="display:flex;gap:22px;align-items:center;">${navLinks}</div>
+  </nav>
+  ${heroHTML}
+  ${mainHTML}
+  ${offerHTML}
+  <footer style="padding:48px 24px;background:${subtleBg};border-top:1px solid ${borderColor};">
+    <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:32px;">
+      ${footerColsHTML}
+    </div>
+    <p style="text-align:center;font-size:12px;color:${pageText}88;margin-top:32px;">${footerSchema.copyright || `${businessName} — All rights reserved.`}<br/>${slug}${domain}</p>
+  </footer>
+</body>
+</html>`;
+}
