@@ -557,14 +557,6 @@ function getEstoreTemplateOptions(): StepOption[] {
   }));
 }
 
-const ESITE_TEMPLATE_KEYS_BY_SERVICE_TYPE: Record<string, string[]> = {
-  consultancy_agency: ["esite_shieldpro", "esite_interim"],
-  real_estate: ["esite_realisting", "esite_toplistings"],
-  hospitality_hotel: ["esite_luxra", "esite_telvin"],
-  travel_tourism: ["esite_tripset", "esite_key"],
-  construction: ["esite_estatoo"],
-};
-
 const ESITE_APPROVED_TEMPLATE_KEYS = [
   "esite_shieldpro",
   "esite_interim",
@@ -577,13 +569,13 @@ const ESITE_APPROVED_TEMPLATE_KEYS = [
   "esite_estatoo",
 ];
 
-function getEsiteTemplateOptions(serviceType?: string | null): StepOption[] {
-  const keys = serviceType ? ESITE_TEMPLATE_KEYS_BY_SERVICE_TYPE[serviceType] : undefined;
-  const templates = getTemplatesForEngine("esite").filter((t) => ESITE_APPROVED_TEMPLATE_KEYS.includes(t.key));
-  const scopedTemplates = keys?.length
-    ? keys.map((key) => templates.find((t) => t.key === key)).filter(Boolean) as typeof templates
-    : templates;
-  return scopedTemplates.map((t) => ({
+function getEsiteTemplateOptions(_serviceType?: string | null): StepOption[] {
+  // Always return ALL 9 approved Esite templates regardless of service type.
+  // Service-type scoping was removed because most users were seeing only 1-2 templates.
+  const templates = ESITE_APPROVED_TEMPLATE_KEYS
+    .map((key) => getTemplatesForEngine("esite").find((t) => t.key === key))
+    .filter(Boolean) as ReturnType<typeof getTemplatesForEngine>;
+  return templates.map((t) => ({
     id: t.key,
     label: t.label,
     value: t.key,
