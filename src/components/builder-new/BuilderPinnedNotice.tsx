@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import adaMascot from "@/assets/ada-mascot-v3.png";
 
 const DEFAULT_TEXT: Record<string, string> = {
-  new: "Hello! I'm excited to help you build your website. What kind of website are you thinking of creating? Is it for a business, a personal project, or something else? Perhaps you're looking to create a website for a restaurant, a store, a community, or as an influencer?",
+  new: "Welcome! Let's build your website. First — what's your business name?",
   edit: "I will update the website building plan in real-time based on our conversation, and you can let me know anytime to make adjustments.",
 };
 
