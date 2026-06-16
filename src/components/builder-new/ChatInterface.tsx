@@ -45,6 +45,18 @@ const GREETING_PLACEHOLDERS: Record<Category, string> = {
   community: "e.g. Fitness Circle, a community for health and wellness enthusiasts...",
 };
 
+// Category-locked pinned notice text. When a route locks the builder to
+// Estore or Esite we MUST NOT show the generic "restaurant / store /
+// community / influencer" greeting — it leaks the Eshop/Emenu flow into
+// the wrong category. Each locked category gets its own first prompt
+// that matches the chat step machine.
+const PINNED_NOTICE_BY_CATEGORY: Partial<Record<Category, string>> = {
+  estore: "Welcome! Let's set up your Estore for wholesale, trading, or bulk supply. First — what's your company name?",
+  esite: "Welcome! Let's build your Esite for services, agencies, or professional work. First — what's your business name?",
+  eshop: "Welcome! Let's build your Eshop. Tell me your business name and what you sell.",
+  emenu: "Welcome! Let's build your Emenu. Tell me your restaurant name and what kind of food you serve.",
+};
+
 export function ChatInterface({
   messages,
   isLoading,
@@ -184,7 +196,15 @@ export function ChatInterface({
 
   return (
     <div className="flex flex-col h-full relative overflow-visible">
-      <BuilderPinnedNotice mode={builderMode} onHeightChange={handleNoticeHeight} />
+      <BuilderPinnedNotice
+        mode={builderMode}
+        text={
+          builderMode === "new" && category
+            ? PINNED_NOTICE_BY_CATEGORY[category]
+            : undefined
+        }
+        onHeightChange={handleNoticeHeight}
+      />
 
       {/* Messages + Step UI */}
       <div
