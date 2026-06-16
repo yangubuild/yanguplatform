@@ -1110,12 +1110,14 @@ export function useStepController(options: UseStepControllerOptions = {}) {
             renderAs: "carousel",
           };
         }
-        // Esite — service / professional templates from esiteEngine
+        // Esite — approved mapped service templates. Show the full approved
+        // set, not a narrowed subtype subset, so users always see the exact
+        // mapped document templates.
         if (effectiveCat === "esite") {
           return {
             key: "template_choice",
             adaMessage: "Pick a template for your website. These are real service-site designs I'll use as the foundation:",
-            options: getEsiteTemplateOptions(esiteConfig.serviceType),
+            options: getEsiteTemplateOptions(),
             renderAs: "carousel",
           };
         }
