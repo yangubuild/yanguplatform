@@ -113,7 +113,7 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
       if (firstLeakIndex < 0) return prev;
       return prev.slice(0, firstLeakIndex);
     });
-    ctrl.setCurrentStep(lockedCategory === "estore" ? "estore_business_model" : "esite_service_type");
+    ctrl.setCurrentStep("greeting");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lockedCategory, ctrl.currentStep]);
 
@@ -787,7 +787,7 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
               currentStep={ctrl.currentStep}
               builderMode={isEditMode ? "edit" : "new"}
               selections={selections}
-              category={ctrl.category}
+              category={(ctrl.category ?? lockedCategory) as typeof ctrl.category}
               userAssets={ctrl.userUploadedAssets}
               onAssetsChange={ctrl.setUserUploadedAssets}
               onConfirmAssetUpload={handleConfirmAssetUpload}
