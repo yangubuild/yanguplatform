@@ -16,6 +16,7 @@ export type BuilderStep =
   | "sell_channel"
   | "business_type"
   | "shop_type"
+  | "estore_business_name"
   | "estore_business_model"
   | "estore_supply_type"
   | "estore_product_volume"
@@ -28,6 +29,7 @@ export type BuilderStep =
   | "estore_location"
   | "estore_has_logo"
   | "estore_wants_ai_logo"
+  | "esite_business_name"
   | "esite_service_type"
   | "esite_key_services"
   | "esite_booking"
@@ -685,9 +687,10 @@ export function useStepController(options: UseStepControllerOptions = {}) {
   const getNextStep = useCallback((step: BuilderStep): BuilderStep => {
     switch (step) {
       case "greeting":
-        if (isEstoreCategory) return "estore_business_model";
-        if (isEsiteCategory) return "esite_service_type";
+        if (isEstoreCategory) return "estore_business_name";
+        if (isEsiteCategory) return "esite_business_name";
         return "country";
+      case "estore_business_name": return "estore_business_model";
       case "country":         return "products_services";
       case "products_services": return "payment_methods";
       case "payment_methods": return "sell_channel";
@@ -716,6 +719,7 @@ export function useStepController(options: UseStepControllerOptions = {}) {
       case "estore_location": return "estore_has_logo";
       case "estore_has_logo": return estoreConfig.hasLogo === "no" ? "estore_wants_ai_logo" : "template_choice";
       case "estore_wants_ai_logo": return estoreConfig.wantsAiLogo === "yes" ? "ai_logo" : "template_choice";
+      case "esite_business_name": return "esite_service_type";
       case "esite_service_type": return "esite_key_services";
       case "esite_key_services": return "esite_booking";
       case "esite_booking": return esiteConfig.booking === "yes" ? "esite_booking_email" : "esite_payment_methods";
@@ -867,9 +871,10 @@ export function useStepController(options: UseStepControllerOptions = {}) {
           renderAs: "chips",
         };
       }
+      case "estore_business_name":
       case "estore_business_model":
         return {
-          key: "estore_business_model",
+          key: currentStep,
           adaMessage: `Great, **${businessName}**. Is this mainly wholesale, trading, or both?`,
           options: ESTORE_BUSINESS_MODEL_OPTIONS,
           renderAs: "cards",
@@ -956,9 +961,10 @@ export function useStepController(options: UseStepControllerOptions = {}) {
           options: YES_NO_OPTIONS,
           renderAs: "cards",
         };
+      case "esite_business_name":
       case "esite_service_type":
         return {
-          key: "esite_service_type",
+          key: currentStep,
           adaMessage: `Great, **${businessName}**. What type of services do you offer?`,
           options: ESITE_SERVICE_TYPE_OPTIONS,
           renderAs: "cards",
@@ -1195,8 +1201,8 @@ export function useStepController(options: UseStepControllerOptions = {}) {
     setUserIdea(text);
     // Estore / Esite skip the generic country / products / sell-channel
     // qualification steps and go straight into their own approved flow.
-    if (effective === "estore") setCurrentStep("estore_business_model");
-    else if (effective === "esite") setCurrentStep("esite_service_type");
+    if (effective === "estore") setCurrentStep("estore_business_name");
+    else if (effective === "esite") setCurrentStep("esite_business_name");
     else setCurrentStep("country");
   }, [category, lockedCategory]);
 
@@ -1204,14 +1210,6 @@ export function useStepController(options: UseStepControllerOptions = {}) {
   // payment_methods). Parses lists where appropriate and advances the step.
   const handleQualificationInput = useCallback((text: string) => {
     const trimmed = (text || "").trim();
-    if (lockedCategory === "estore") {
-      setCurrentStep("estore_business_model");
-      return;
-    }
-    if (lockedCategory === "esite") {
-      setCurrentStep("esite_service_type");
-      return;
-    }
     switch (currentStep) {
       case "country":
         setCountry(trimmed);
@@ -1343,6 +1341,7 @@ export function useStepController(options: UseStepControllerOptions = {}) {
         setCurrentStep("business_mode");
         break;
       }
+      case "estore_business_name":
       case "estore_business_model":
         setEstoreConfig(prev => ({ ...prev, businessModel: option.value as EstoreBusinessModel }));
         setCurrentStep("estore_supply_type");
@@ -1384,6 +1383,7 @@ export function useStepController(options: UseStepControllerOptions = {}) {
         setCurrentStep(v === "yes" ? "ai_logo" : "template_choice");
         break;
       }
+      case "esite_business_name":
       case "esite_service_type":
         setEsiteConfig(prev => ({ ...prev, serviceType: option.value }));
         setCurrentStep("esite_key_services");
