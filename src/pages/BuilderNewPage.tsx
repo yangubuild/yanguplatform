@@ -36,6 +36,19 @@ function naturalDelay(): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+const GENERIC_QUALIFICATION_STEPS = ["country", "products_services", "payment_methods", "sell_channel"] as const;
+const GENERIC_QUALIFICATION_COPY = [
+  "Hello! I'm excited to help you build your website. What kind of website are you thinking",
+  "Which country is your business in?",
+  "What products or services do you offer?",
+  "How would you like to accept payments?",
+  "Where do you plan to sell most?",
+];
+
+function isGenericQualificationCopy(content: string): boolean {
+  return GENERIC_QUALIFICATION_COPY.some((copy) => content.includes(copy));
+}
+
 type LeftPanelMode = "chat" | "tools";
 type ViewportMode = "desktop" | "mobile";
 
@@ -90,6 +103,19 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resolvedCategory]);
+
+  useEffect(() => {
+    if (lockedCategory !== "estore" && lockedCategory !== "esite") return;
+    if (!GENERIC_QUALIFICATION_STEPS.includes(ctrl.currentStep as typeof GENERIC_QUALIFICATION_STEPS[number])) return;
+
+    setMessages((prev) => {
+      const firstLeakIndex = prev.findIndex((msg) => msg.role === "assistant" && isGenericQualificationCopy(msg.content));
+      if (firstLeakIndex < 0) return prev;
+      return prev.slice(0, firstLeakIndex);
+    });
+    ctrl.setCurrentStep(lockedCategory === "estore" ? "estore_business_model" : "esite_service_type");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lockedCategory, ctrl.currentStep]);
 
   const handleCanvasSelection = useCallback((sel: CanvasSelection) => {
     setCanvasSelection(sel);
