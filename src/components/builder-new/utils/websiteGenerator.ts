@@ -720,6 +720,18 @@ export function generateWebsiteVariants(config: GeneratorConfig): string[] {
     }
   }
 
+  // ── Estore / Esite: use the real template preset (header/hero/main_content/
+  //    offer/footer schemas + sectionOrder + brand color hints). Without this,
+  //    estore_* and esite_* keys fall through to the generic stock-photo
+  //    layout, ignoring the user's chosen template entirely.
+  if (config.style && (config.style.startsWith("estore_") || config.style.startsWith("esite_"))) {
+    const engine = config.style.startsWith("estore_") ? "estore" : "esite";
+    const preset = getTemplate(engine, config.style);
+    if (preset) {
+      return [0, 1, 2].map(i => buildTemplatePresetHTML(config, preset, i));
+    }
+  }
+
   const themeKey = config.styleSpecific || config.style || "modern";
   const baseTheme = STYLE_THEMES[themeKey] || STYLE_THEMES[config.style] || STYLE_THEMES.modern;
   
