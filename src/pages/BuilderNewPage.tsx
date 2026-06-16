@@ -116,11 +116,14 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
     greetedRef.current = true;
 
     // Hydrate prior conversation from a Speak-to-Build handoff, if present.
-    // The voice flow stashes its transcript in sessionStorage so the chat
-    // builder can display the same conversation seamlessly.
+    // Estore/Esite have approved category-specific chat flows; never replay
+    // the older generic qualification transcript into those locked builders.
     try {
       const raw = sessionStorage.getItem("speak_to_chat_seed_v1");
       if (raw) {
+        if (lockedCategory === "estore" || lockedCategory === "esite") {
+          sessionStorage.removeItem("speak_to_chat_seed_v1");
+        } else {
         const parsed = JSON.parse(raw) as { transcript?: { role: "assistant" | "user"; text: string; ts?: number }[] };
         const turns = Array.isArray(parsed?.transcript) ? parsed.transcript : [];
         if (turns.length > 0) {
@@ -139,6 +142,7 @@ export default function BuilderNewPage({ embedded = false, initialCategory = nul
           }
         }
         sessionStorage.removeItem("speak_to_chat_seed_v1");
+        }
       }
     } catch { /* ignore */ }
 
