@@ -7,6 +7,7 @@ import { CATEGORY_CONFIGS } from "../types/builder.types";
 import { getTemplate, type TemplatePreset } from "@/config/templateRegistry";
 import { renderPlateria, renderYumix, renderZooom, renderSofra, renderQitchen } from "./emenuFamilyRenderers";
 import { renderAema, renderUncover, renderKanva, renderMinna, renderMockhub, renderLumel } from "./eshopFamilyRenderers";
+import { renderBazaroClassic } from "./bazaroClassicRenderer";
 
 export interface GeneratorConfig {
   category: Category;
@@ -725,6 +726,10 @@ export function generateWebsiteVariants(config: GeneratorConfig): string[] {
   //    estore_* and esite_* keys fall through to the generic stock-photo
   //    layout, ignoring the user's chosen template entirely.
   if (config.style && (config.style.startsWith("estore_") || config.style.startsWith("esite_"))) {
+    // ── Source-faithful templates (real HTML mirror, NOT schema-approximated)
+    if (config.style === "estore_bazaro_classic") {
+      return [0, 1, 2].map(i => renderBazaroClassic(config, i));
+    }
     const engine = config.style.startsWith("estore_") ? "estore" : "esite";
     const preset = getTemplate(engine, config.style);
     if (preset) {
