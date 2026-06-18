@@ -49,6 +49,11 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
   const surfaceIdForShell = (surfaceMeta.id as string) || "";
   const ownerIdForShell = (surfaceMeta.user_id as string) || "";
   const businessNameForShell = (surfaceMeta.title as string) || "";
+  const isBazaroClassicSnapshot =
+    surfaceMeta.builder_new_template === "estore_bazaro_classic" ||
+    surfaceMeta.design_template === "estore_bazaro_classic" ||
+    (typeof rawHtml === "string" && rawHtml.includes("/templates/bazaro-classic/"));
+
   const sanitizedHtml = useMemo(() => {
     if (!rawHtml) return null;
     try {
@@ -61,6 +66,7 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
         FORBID_TAGS: ["script"],
         FORBID_ATTR: ["onerror", "onload", "onclick"],
       });
+      if (isBazaroClassicSnapshot) return clean;
       // Same responsive layer as PublicSurfacePage — keeps the custom-domain
       // path (yangu.shop etc.) in lockstep with the lovable.app renderer.
       return PUBLIC_RESPONSIVE_CSS + clean;
@@ -68,7 +74,7 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
       console.error("[SurfaceViewer] sanitize error:", e);
       return null;
     }
-  }, [rawHtml]);
+  }, [rawHtml, isBazaroClassicSnapshot]);
 
   useEffect(() => {
     async function load() {
@@ -128,6 +134,23 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
         <Layout className="h-12 w-12 text-muted-foreground" />
         <p className="text-muted-foreground">{error ?? "Surface not found"}</p>
+      </div>
+    );
+  }
+
+  // Source-extracted Bazaro Classic: render the same full HTML document the
+  // editor iframe uses. Do not wrap with PublicCommerceShell/Normalizer or
+  // delegate universal CTA clicks, because those mutate the template layout.
+  if (sanitizedHtml && htmlSnapshotEnabled && isBazaroClassicSnapshot) {
+    return (
+      <div className="min-h-screen bg-white">
+        <iframe
+          title={pageTitle}
+          srcDoc={sanitizedHtml}
+          className="block w-full h-screen border-0 bg-white"
+          sandbox="allow-same-origin"
+        />
+        {showBadge && <YanguBadge />}
       </div>
     );
   }
