@@ -83,6 +83,11 @@ export default function PublicSurfacePage() {
   // breaks mobile layouts, so we fall back to the JSON-section renderer.
   const htmlSnapshotEnabled = surfaceData.html_snapshot_responsive === true;
 
+  const isBazaroClassicSnapshot =
+    surfaceData.builder_new_template === "estore_bazaro_classic" ||
+    surfaceData.design_template === "estore_bazaro_classic" ||
+    (typeof rawHtml === "string" && rawHtml.includes("/templates/bazaro-classic/"));
+
   const sanitizedHtml = useMemo(() => {
     if (!rawHtml) return null;
     try {
@@ -101,6 +106,7 @@ export default function PublicSurfacePage() {
         FORBID_TAGS: ["script"],
         FORBID_ATTR: ["onerror", "onload", "onclick"],
       });
+      if (isBazaroClassicSnapshot) return clean;
       // Prepend responsive CSS so mobile breakpoints exist even when the
       // stored desktop template HTML omits them.
       return PUBLIC_RESPONSIVE_CSS + clean;
@@ -108,7 +114,7 @@ export default function PublicSurfacePage() {
       console.error("[PublicSurfacePage] sanitize error:", e);
       return null;
     }
-  }, [rawHtml]);
+  }, [rawHtml, isBazaroClassicSnapshot]);
 
   // Set document metadata
   useEffect(() => {
@@ -155,6 +161,21 @@ export default function PublicSurfacePage() {
   }
 
   const pubSurfaceType = surfaceData.surface_type;
+
+  // ─── Source-extracted Bazaro Classic render path ───
+  if (sanitizedHtml && htmlSnapshotEnabled && isBazaroClassicSnapshot) {
+    return (
+      <div className="min-h-screen bg-white">
+        <iframe
+          title={pageTitle}
+          srcDoc={sanitizedHtml}
+          className="block w-full h-screen border-0 bg-white"
+          sandbox="allow-same-origin"
+        />
+        {showBadge && <YanguBadge />}
+      </div>
+    );
+  }
 
   // ─── HTML snapshot render path (preferred) ───
   if (sanitizedHtml && htmlSnapshotEnabled) {
