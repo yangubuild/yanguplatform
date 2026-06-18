@@ -165,11 +165,11 @@ export default function PublicSurfacePage() {
   // ─── Source-extracted Bazaro Classic render path ───
   if (sanitizedHtml && htmlSnapshotEnabled && isBazaroClassicSnapshot) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-background">
         <iframe
           title={pageTitle}
           srcDoc={sanitizedHtml}
-          className="block w-full h-screen border-0 bg-white"
+          className="block w-full h-screen border-0 bg-background"
           sandbox="allow-same-origin"
         />
         {showBadge && <YanguBadge />}
