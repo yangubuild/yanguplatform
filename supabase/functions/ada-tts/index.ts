@@ -8,6 +8,7 @@
  */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { encode as base64Encode } from "https://deno.land/std@0.168.0/encoding/base64.ts";
+import { requireUser } from "../_shared/require-auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -92,6 +93,10 @@ async function synthGoogleTTS(text: string, lang: string): Promise<ArrayBuffer> 
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const auth = await requireUser(req, corsHeaders);
+  if (auth.response) return auth.response;
+
 
   try {
     const { text, language, voice_id } = await req.json().catch(() => ({}));
