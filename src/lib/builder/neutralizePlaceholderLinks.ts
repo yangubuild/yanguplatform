@@ -21,8 +21,14 @@ export function neutralizePlaceholderLinks(html: string): string {
         raw === "#" ||
         /^javascript:/i.test(raw);
       if (isPlaceholder) {
-        a.setAttribute("href", "#");
-        a.setAttribute("onclick", "return false;");
+        // Remove href entirely — without href the anchor will not navigate,
+        // and onclick="return false" alone is unreliable inside srcdoc iframes
+        // in some browsers because the click still races into navigation of
+        // the about:srcdoc document (which discards srcDoc content).
+        a.removeAttribute("href");
+        a.setAttribute("role", "button");
+        a.setAttribute("tabindex", "0");
+        a.setAttribute("onclick", "event.preventDefault();event.stopPropagation();return false;");
         a.setAttribute("data-yangu-placeholder-link", "1");
       }
     });
@@ -40,6 +46,14 @@ export function neutralizePlaceholderLinks(html: string): string {
             a.setAttribute("rel", (rel + " noopener noreferrer").trim());
           }
         }
+      }
+    });
+    // Neutralize <form> with placeholder action — same srcdoc-navigation risk.
+    doc.querySelectorAll("form").forEach((f) => {
+      const action = (f.getAttribute("action") || "").trim();
+      if (action === "" || action === "#") {
+        f.setAttribute("onsubmit", "event.preventDefault();return false;");
+        f.setAttribute("data-yangu-placeholder-form", "1");
       }
     });
     // Serialize back as a full document so <html>/<head>/<link> survive.
