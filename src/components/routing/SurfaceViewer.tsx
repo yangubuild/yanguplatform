@@ -65,6 +65,10 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
         ],
         FORBID_TAGS: ["script"],
         FORBID_ATTR: ["onerror", "onload", "onclick"],
+        // Iframe srcDoc path needs full <html>/<head>/<link> preservation so
+        // template stylesheets load. Only enabled for the extracted-template
+        // iframe branch — all other callers keep default fragment behavior.
+        ...(isBazaroClassicSnapshot ? { WHOLE_DOCUMENT: true } : {}),
       });
       if (isBazaroClassicSnapshot) return clean;
       // Same responsive layer as PublicSurfacePage — keeps the custom-domain
