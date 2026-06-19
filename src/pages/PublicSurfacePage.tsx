@@ -105,6 +105,10 @@ export default function PublicSurfacePage() {
         ],
         FORBID_TAGS: ["script"],
         FORBID_ATTR: ["onerror", "onload", "onclick"],
+        // Iframe srcDoc path needs full <html>/<head>/<link> preservation so
+        // template stylesheets load. Only enabled for the extracted-template
+        // iframe branch — all other callers keep default fragment behavior.
+        ...(isBazaroClassicSnapshot ? { WHOLE_DOCUMENT: true } : {}),
       });
       if (isBazaroClassicSnapshot) return clean;
       // Prepend responsive CSS so mobile breakpoints exist even when the
