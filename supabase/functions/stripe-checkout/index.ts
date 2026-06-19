@@ -3,6 +3,7 @@
 // stripe_account_id, funds are routed via Stripe Connect transfer_data.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { rateLimit, clientIp } from "../_shared/require-auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -21,6 +22,23 @@ Deno.serve(async (req) => {
     const { order_id, success_url, cancel_url } = await req.json();
     if (!order_id) return json({ error: "order_id required" }, 400);
 
+    // Rate-limit per IP+order to prevent session spam / order enumeration.
+    const ip = clientIp(req);
+    const rl = rateLimit(`stripe-checkout:${ip}:${order_id}`, { max: 5, windowMs: 60_000 });
+    if (!rl.allowed) {
+      return new Response(JSON.stringify({ error: "Too many requests" }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": String(rl.retryAfterSec) },
+      });
+    }
+    const ipRl = rateLimit(`stripe-checkout-ip:${ip}`, { max: 30, windowMs: 60_000 });
+    if (!ipRl.allowed) {
+      return new Response(JSON.stringify({ error: "Too many requests" }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": String(ipRl.retryAfterSec) },
+      });
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceKey);
@@ -31,6 +49,23 @@ Deno.serve(async (req) => {
       .eq("id", order_id)
       .maybeSingle();
     if (orderErr || !order) return json({ error: "Order not found" }, 404);
+
+    // Only allow checkout sessions for orders that are not already paid/cancelled.
+    if (order.stripe_payment_status === "paid" || order.status === "cancelled") {
+      return json({ error: "Order is not eligible for checkout" }, 409);
+    }
+
+    // Validate redirect URLs to prevent open-redirect / phishing via cancel_url.
+    const isSafeUrl = (u?: string) => {
+      if (!u) return true;
+      try {
+        const parsed = new URL(u);
+        return parsed.protocol === "https:" || parsed.protocol === "http:";
+      } catch { return false; }
+    };
+    if (!isSafeUrl(success_url) || !isSafeUrl(cancel_url)) {
+      return json({ error: "Invalid redirect URL" }, 400);
+    }
 
     const { data: cfg } = await supabase
       .from("surface_commerce_config")

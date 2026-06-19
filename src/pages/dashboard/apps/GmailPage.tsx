@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import DOMPurify from "dompurify";
 import { useAuth } from "@/hooks/useAuth";
 import { useGoogleApi } from "@/hooks/useGoogleApi";
 import { ArrowLeft, RefreshCw, Mail, Send, Loader2, ChevronLeft, ExternalLink, Inbox } from "lucide-react";
@@ -181,7 +182,12 @@ export default function GmailPage() {
             <p className="text-sm text-muted-foreground mb-4">To: {selectedMessage.to}</p>
             <div
               className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap"
-              dangerouslySetInnerHTML={{ __html: selectedMessage.body }}
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(selectedMessage.body, {
+                  FORBID_TAGS: ["script", "style", "iframe", "object", "embed", "form"],
+                  FORBID_ATTR: ["onerror", "onload", "onclick", "onmouseover", "onfocus", "onblur"],
+                }),
+              }}
             />
           </div>
         )}
