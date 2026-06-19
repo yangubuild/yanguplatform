@@ -2,6 +2,8 @@
 // The client uses `client_secret.value` as a Bearer token to negotiate
 // a WebRTC SDP offer/answer with https://api.openai.com/v1/realtime
 
+import { requireUser } from "../_shared/require-auth.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -38,6 +40,9 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+
+  const auth = await requireUser(req, corsHeaders);
+  if (auth.response) return auth.response;
 
   try {
     const apiKey = Deno.env.get("OPENAI_API_KEY");
