@@ -48,6 +48,14 @@ export function neutralizePlaceholderLinks(html: string): string {
         }
       }
     });
+    // Neutralize <form> with placeholder action — same srcdoc-navigation risk.
+    doc.querySelectorAll("form").forEach((f) => {
+      const action = (f.getAttribute("action") || "").trim();
+      if (action === "" || action === "#") {
+        f.setAttribute("onsubmit", "event.preventDefault();return false;");
+        f.setAttribute("data-yangu-placeholder-form", "1");
+      }
+    });
     // Serialize back as a full document so <html>/<head>/<link> survive.
     return "<!doctype html>" + doc.documentElement.outerHTML;
   } catch {
