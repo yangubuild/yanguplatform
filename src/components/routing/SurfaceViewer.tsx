@@ -12,6 +12,7 @@ import { YanguBadge } from "@/components/routing/YanguBadge";
 import { PublicSurfaceStyles } from "@/components/routing/PublicSurfaceStyles";
 import { DEFAULT_THEME, type BuilderTheme } from "@/components/builder/BuilderSettingsDrawer";
 import { deduplicatePublishedSections } from "@/config/builderCoreSections";
+import { neutralizePlaceholderLinks } from "@/lib/builder/neutralizePlaceholderLinks";
 import type {
   BuilderPublicSchemaResult,
   BuilderPublishedSection,
@@ -70,7 +71,7 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
         // iframe branch — all other callers keep default fragment behavior.
         ...(isBazaroClassicSnapshot ? { WHOLE_DOCUMENT: true } : {}),
       });
-      if (isBazaroClassicSnapshot) return clean;
+      if (isBazaroClassicSnapshot) return neutralizePlaceholderLinks(clean);
       // Same responsive layer as PublicSurfacePage — keeps the custom-domain
       // path (yangu.shop etc.) in lockstep with the lovable.app renderer.
       return PUBLIC_RESPONSIVE_CSS + clean;
