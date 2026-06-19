@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getAdapter } from "../_shared/dropship/providerRegistry.ts";
+import { rateLimit, clientIp } from "../_shared/require-auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,6 +17,15 @@ Deno.serve(async (req) => {
   );
 
   try {
+    // Rate limit per IP — guest checkout allowed, but prevent flood/order abuse.
+    const ip = clientIp(req);
+    const rl = rateLimit(`dropship-create:${ip}`, { max: 5, windowMs: 60_000 });
+    if (!rl.allowed) {
+      return new Response(JSON.stringify({
+        error: { code: "RATE_LIMITED", message: "Too many requests" },
+      }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": String(rl.retryAfterSec) } });
+    }
+
     const body = await req.json();
     const { shop_surface_id, provider_key, items, shipping_address, customer, notes } = body;
 
@@ -26,9 +36,28 @@ Deno.serve(async (req) => {
       }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    // Cap items per request to prevent abuse / cost amplification.
+    if (items.length > 50) {
+      return new Response(JSON.stringify({
+        error: { code: "BAD_REQUEST", message: "Too many items in single order (max 50)" },
+      }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     if (!shipping_address || !customer) {
       return new Response(JSON.stringify({
         error: { code: "BAD_REQUEST", message: "Missing required fields: shipping_address, customer" },
+      }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // Verify the shop surface exists and is a published commerce surface.
+    const { data: surface } = await supabase
+      .from("surfaces")
+      .select("id, status")
+      .eq("id", shop_surface_id)
+      .maybeSingle();
+    if (!surface) {
+      return new Response(JSON.stringify({
+        error: { code: "BAD_REQUEST", message: "Invalid shop_surface_id" },
       }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
