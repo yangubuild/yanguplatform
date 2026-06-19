@@ -13,6 +13,7 @@ import { YanguBadge } from "@/components/routing/YanguBadge";
 import { PublicSurfaceStyles } from "@/components/routing/PublicSurfaceStyles";
 import { DEFAULT_THEME, type BuilderTheme } from "@/components/builder/BuilderSettingsDrawer";
 import { deduplicatePublishedSections } from "@/config/builderCoreSections";
+import { neutralizePlaceholderLinks } from "@/lib/builder/neutralizePlaceholderLinks";
 import type {
   BuilderPublicSchemaResult,
   BuilderPublishedSection,
@@ -110,7 +111,7 @@ export default function PublicSurfacePage() {
         // iframe branch — all other callers keep default fragment behavior.
         ...(isBazaroClassicSnapshot ? { WHOLE_DOCUMENT: true } : {}),
       });
-      if (isBazaroClassicSnapshot) return clean;
+      if (isBazaroClassicSnapshot) return neutralizePlaceholderLinks(clean);
       // Prepend responsive CSS so mobile breakpoints exist even when the
       // stored desktop template HTML omits them.
       return PUBLIC_RESPONSIVE_CSS + clean;
