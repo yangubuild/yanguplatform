@@ -6,8 +6,8 @@
  * back to the generic SPA shell). Real destinations (http, mailto, tel, etc.)
  * are left untouched.
  *
- * Used only for the extracted-template iframe branch (Bazaro Classic). Do
- * NOT use on non-iframe rendering paths; those use React event delegation.
+ * Used for public HTML snapshots before iframe srcDoc or inline HTML injection.
+ * Real destinations (http, mailto, tel, etc.) are left untouched.
  */
 export function neutralizePlaceholderLinks(html: string): string {
   if (!html) return html;
