@@ -71,10 +71,11 @@ export function SurfaceViewer({ publishId, host, domainType }: SurfaceViewerProp
         // iframe branch — all other callers keep default fragment behavior.
         ...(isBazaroClassicSnapshot ? { WHOLE_DOCUMENT: true } : {}),
       });
-      if (isBazaroClassicSnapshot) return neutralizePlaceholderLinks(clean);
+      const neutralized = neutralizePlaceholderLinks(clean);
+      if (isBazaroClassicSnapshot) return neutralized;
       // Same responsive layer as PublicSurfacePage — keeps the custom-domain
       // path (yangu.shop etc.) in lockstep with the lovable.app renderer.
-      return PUBLIC_RESPONSIVE_CSS + clean;
+      return PUBLIC_RESPONSIVE_CSS + neutralized;
     } catch (e) {
       console.error("[SurfaceViewer] sanitize error:", e);
       return null;

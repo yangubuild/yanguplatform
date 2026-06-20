@@ -111,10 +111,11 @@ export default function PublicSurfacePage() {
         // iframe branch — all other callers keep default fragment behavior.
         ...(isBazaroClassicSnapshot ? { WHOLE_DOCUMENT: true } : {}),
       });
-      if (isBazaroClassicSnapshot) return neutralizePlaceholderLinks(clean);
+      const neutralized = neutralizePlaceholderLinks(clean);
+      if (isBazaroClassicSnapshot) return neutralized;
       // Prepend responsive CSS so mobile breakpoints exist even when the
       // stored desktop template HTML omits them.
-      return PUBLIC_RESPONSIVE_CSS + clean;
+      return PUBLIC_RESPONSIVE_CSS + neutralized;
     } catch (e) {
       console.error("[PublicSurfacePage] sanitize error:", e);
       return null;

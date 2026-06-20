@@ -1,164 +1,69 @@
-## Scope
 
-Rebuild ONLY the Estore and Esite Chat-to-Build flows in the New Builder. Do not touch Eshop, Emenu, Influencer, Community, publishing, routing, editor layout, product cards, WhatsApp, or currency.
+## What I verified (no edits made)
 
-## Files to change
+- Live deployment from here: `x-deployment-id: a2f25c41-7e1a-4d45-af03-fda75f66f9b3` (your reported `ef3c414b-…` is newer / a different CF region; both serve the same main bundle `index-BnRhEVpV.js`).
+- The chunk `neutralizePlaceholderLinks-Kwn0IiSy.js` exists on the live bundle and DOES contain all three markers (`yangu-placeholder-link`, `data-yangu-placeholder-form`, `event.preventDefault();event.stopPropagation`). So the code is shipped.
+- BUT on `https://yangu.store/jojom` the rendered iframe’s `contentDocument` shows:
+  - 0 `<link rel="stylesheet">` tags pointing at `/templates/bazaro-classic/`
+  - 3 anchors total (no Bazaro stylesheets, no Bazaro menu anchors as `<a>`)
+  - 0 anchors with `data-yangu-placeholder-link`
+  - title is `"JOJOM "` (not `"JOJOM — Wholesale Store"` that the source renderer would produce)
+- The iframe element in the React tree has no `className` and no `srcdoc` attribute (different from the React element produced by the Bazaro-classic iframe branch in `SurfaceViewer.tsx` / `PublicSurfacePage.tsx`).
 
-1. `src/components/builder-new/hooks/useStepController.ts` — replace Estore/Esite step machine
-2. `src/pages/BuilderNewPage.tsx` — greet with category-specific first question; route free-text for new steps; pass category to logo
-3. `src/components/builder-new/ChatInterface.tsx` — input enabled / placeholders for the new free-text steps
-4. `src/pages/dashboard/SellerSurfacePage.tsx` — verify `initialCategory={engineKey}` (already correct in `SELLER_KEY_MAP`); persist new Estore/Esite metadata fields on completion
+## Root cause
 
-No changes to `templateRegistry.ts` (already approved), `generate-logo` edge function (already enforces category symbol policy), or any other surface.
+`/jojom` on `yangu.store` is resolved by `PublicRouteResolver` → `SurfaceViewer`. `SurfaceViewer` only calls `neutralizePlaceholderLinks` when `isBazaroClassicSnapshot` is true, which is decided by:
 
-## Estore step machine (replace existing)
-
-Delete: `estore_payment_condition`.
-
-Add new `BuilderStep` IDs:
-- `estore_business_name` (free text — "What's your company name?")
-- `estore_mobile_money_number` (free text — conditional)
-- `estore_bank_account_name` (free text — conditional)
-- `estore_has_logo` (yes/no cards)
-- `estore_wants_ai_logo` (yes/no cards)
-
-Rewire `WHOLESALE_PAYMENT_OPTIONS` to exactly: Bank transfer, Mobile money, Letter of credit.
-
-Keep existing IDs and reorder via `getNextStep`:
-
-```
-greeting → estore_business_name
-estore_business_name → estore_business_model
-estore_business_model → estore_supply_type       (industry)
-estore_supply_type    → estore_product_volume
-estore_product_volume → estore_moq
-estore_moq            → estore_moq_value (if yes) | estore_payment_methods
-estore_moq_value      → estore_payment_methods
-estore_payment_methods (multi, Done) → conditional fan-out:
-   if mobile_money selected → estore_mobile_money_number
-   else if bank_transfer    → estore_bank_account_name
-   else                     → estore_quote_requests
-estore_mobile_money_number → (if bank_transfer also picked) estore_bank_account_name
-                              else                            estore_quote_requests
-estore_bank_account_name   → estore_quote_requests
-estore_quote_requests      → estore_location
-estore_location            → estore_has_logo
-estore_has_logo (yes)      → template_choice
-estore_has_logo (no)       → estore_wants_ai_logo
-estore_wants_ai_logo (yes) → ai_logo → template_choice
-estore_wants_ai_logo (no)  → template_choice
-template_choice            → confirmation → generation
+```ts
+surfaceMeta.builder_new_template === "estore_bazaro_classic" ||
+surfaceMeta.design_template === "estore_bazaro_classic" ||
+(typeof rawHtml === "string" && rawHtml.includes("/templates/bazaro-classic/"))
 ```
 
-State stored on `estoreConfig`: add `mobileMoneyNumber`, `bankAccountName`, `hasLogo`, `wantsAiLogo`. Remove `paymentCondition`.
+For the JOJOM surface this is false at runtime:
+- `builder_new_template` / `design_template` are not set to that string in `published_schema.surface` for jojom.
+- The stored `pages_html[home]` no longer contains the `/templates/bazaro-classic/` substring — DOMPurify-and-friends in the publish path stripped all `<link>` stylesheets at publish time (we see 0 links in the contentDocument), and the editor’s save pipeline already strips/rewrites those asset URLs.
 
-## Esite step machine (replace existing)
+So the “Bazaro Classic iframe” branch is skipped. The HTML still ends up inside an iframe because the stored snapshot itself contains an `<iframe>` element (DOMPurify’s `ADD_TAGS: ["iframe"]` allows it through), so it renders as an embedded iframe inside the inline-HTML branch — which never calls `neutralizePlaceholderLinks`. That iframe’s placeholder anchors/forms remain unmodified, and clicking them navigates the inner `about:srcdoc` document, which is what produces the Yangu fallback shell takeover you saw.
 
-Delete: `esite_payment_condition`.
+## The fallback shell flash
 
-Add new `BuilderStep` IDs:
-- `esite_business_name`
-- `esite_mobile_money_number`
-- `esite_payment_email`
-- `esite_has_logo`
-- `esite_wants_ai_logo`
+On a fresh load, `index.html` is shipped with the global `<title>YANGU — All-in-One AI Platform…</title>` and meta. Before `PublicRouteResolver` finishes RPC resolution, React paints `resolverFallback` (an empty `<div>`) but the document title/meta are still the SPA defaults — that’s the 1–2s “generic Yangu page” flash. It’s not a render of `Index`, it’s the original shell metadata staying visible while the route resolves.
 
-Rewire `SERVICES_PAYMENT_OPTIONS` to exactly: Bank transfer, Mobile money, Cards.
+## Plan
 
-Order:
+Two narrowly scoped fixes, no other systems touched.
 
-```
-greeting → esite_business_name
-esite_business_name → esite_service_type
-esite_service_type  → esite_key_services
-esite_key_services  → esite_booking
-esite_booking (yes) → esite_booking_email → esite_payment_methods
-esite_booking (no)  → esite_payment_methods
-esite_payment_methods (multi, Done) → conditional fan-out:
-   if mobile_money → esite_mobile_money_number
-   else if cards   → esite_payment_email
-   else            → esite_location
-esite_mobile_money_number → (if cards also picked) esite_payment_email
-                             else                   esite_location
-esite_payment_email → esite_location
-esite_location      → esite_has_logo
-esite_has_logo (yes)        → template_choice
-esite_has_logo (no)         → esite_wants_ai_logo
-esite_wants_ai_logo (yes)   → ai_logo → template_choice
-esite_wants_ai_logo (no)    → template_choice
-template_choice → confirmation → generation
-```
+### 1. Make neutralization fire on every srcdoc/inline injection path
 
-State on `esiteConfig`: add `mobileMoneyNumber`, `paymentEmail`, `hasLogo`, `wantsAiLogo`. Remove `paymentCondition`.
+In `src/components/routing/SurfaceViewer.tsx` and `src/pages/PublicSurfacePage.tsx`:
 
-## Greeting override (kill the generic flow for Estore/Esite)
+- Stop gating `neutralizePlaceholderLinks` on `isBazaroClassicSnapshot`. Run it unconditionally on `clean` for both branches:
+  - the Bazaro-classic iframe `srcDoc` branch (already does)
+  - the inline `dangerouslySetInnerHTML` branch (currently does not)
+- Extend `neutralizePlaceholderLinks` to also rewrite any nested `<iframe srcdoc="…">` it finds: parse the inner srcdoc string, neutralize anchors/forms inside it, re-serialize, and put it back as the iframe’s `srcdoc` attribute. This handles the JOJOM case where the snapshot stores an iframe-wrapped page.
+- Also neutralize bare `<iframe src="#">` / `src=""` (set `src="about:blank"`).
 
-In `useStepController.getStepConfig`, when `lockedCategory === "estore"`, the `greeting` step renders:
+No change to detection logic, no change to DOMPurify config, no change to publish pipeline, no change to commerce / routing / RLS / templates.
 
-> "What's your company name?"
+### 2. Eliminate the fallback-shell flash
 
-`allowFreeText: true`, `renderAs: "location_input"`.
+In `src/components/routing/PublicRouteResolver.tsx`:
 
-For `lockedCategory === "esite"`, the same step renders:
+- When `fastPathRef.current === false` (i.e. we are about to resolve a public host route), synchronously clear `document.title` to an empty string and remove the generic `<meta name="description">` / OG defaults on first render, before resolution completes. `SurfaceViewer`/`PublicSurfacePage` already re-set them once data loads.
+- Keep `resolverFallback` as a blank `<div>` — no spinner change.
 
-> "What's your business name?"
+This eliminates the visible “Yangu — All-in-One AI Platform…” title and any text from the default shell during the resolution window. It does not change route resolution, caching, or which component renders.
 
-`handleGreetingInput` (for these two categories) stores the text into `businessName` and routes to `estore_business_name → estore_business_model` (or `esite_business_name → esite_service_type`). The existing generic greeting (which infers category and pushes through `country → products_services → payment_methods → sell_channel → shop_type`) is bypassed entirely when `lockedCategory` is `estore` or `esite`.
+### Out of scope (explicitly not touched)
 
-Also: `handleOptionSelect` `sell_channel` branch and any other path that could land an Estore/Esite session on Eshop steps is hard-guarded — when `lockedCategory` is estore/esite, those branches throw via `assertCategoryLocked` from `categoryRegistry.ts`.
+Security/RLS, other templates, payments, oversized images, chat, checkout, realtime, publish pipeline, DOMPurify config, builder editor.
 
-## Free-text + input enablement
+## Verification I will run after the edit (build mode)
 
-- `inputAllowed` in `useStepController`: add `estore_business_name`, `esite_business_name`, `estore_mobile_money_number`, `estore_bank_account_name`, `esite_mobile_money_number`, `esite_payment_email`.
-- `BuilderNewPage.handleFreeText`: same step list routes to `handleQualificationInput`.
-- `handleQualificationInput`: new cases persist each value into `estoreConfig`/`esiteConfig` and advance per the fan-out rules above.
-- `ChatInterface` placeholders: short hints (e.g. "07XX XXX XXX", "Bank account name", "bookings@yourdomain.com").
-
-## Templates (no registry change)
-
-`template_choice` already routes Estore to `getEstoreTemplateOptions()` (Minna, Monchies, Bazaro Fashion, Bazaro Classic) and Esite to `getEsiteTemplateOptions(serviceType)` (ShieldPro, Interim, Realisting, Toplistings, Luxra, Telvin, Tripset, Key Assumptions, Estatoo). Verified — no edit needed.
-
-## Logo generation
-
-`ai_logo` step already reads `getAiLogoContext(menuClassification, category)`; for Estore it returns `{category:"estore", businessType:"retail"}` and for Esite `{category:"esite", businessType:"services"}`. The `generate-logo` edge function already blocks food/restaurant symbols for non-Emenu categories. Pass `wants_ai_logo === "yes"` as the gate before entering `ai_logo`.
-
-## Metadata persistence
-
-`SellerSurfacePage.handleComplete` already forwards `answers` to seed metadata. Append the new Estore/Esite fields under `metadata.business` and `metadata.estore` / `metadata.esite`:
-
-```
-estore: { business_model, industry, product_volume, has_moq, moq_value,
-          payment_methods, mobile_money_number, bank_account_name,
-          enable_quotes, has_logo, wants_ai_logo, design_template }
-esite:  { industry, services_offered, has_booking, booking_email,
-          payment_methods, mobile_money_number, payment_email,
-          has_logo, wants_ai_logo, design_template }
-```
-
-`BuilderNewPage.handleGenerate` builds the answers payload passed downstream (already does this for `country`, `payment_methods`, etc.) — extend it to include the new fields read from `ctrl.estoreConfig` / `ctrl.esiteConfig`.
-
-## Confirm category lock at route entry
-
-Re-read `SellerSurfacePage.tsx`: `engineKey = SELLER_KEY_MAP[sellerKey]` and `<BuilderNewPage embedded initialCategory={engineKey} ... />` — this already passes `"estore"` for `/seller/estore` and `"esite"` for `/seller/esite`. `BuilderNewPage` resolves `lockedCategory` from `initialCategory ?? urlCategory`, and `useStepController` seeds `category` from `lockedCategory` on first render. No `null` window remains. Plan does not change this wiring — but the rebuilt `getStepConfig` for `greeting` will read `lockedCategory` directly (not the deferred state) so the first message is always the category-specific business-name prompt, never the generic greeting.
-
-## Validation (manual, before sign-off)
-
-I will navigate the live preview and confirm each of the 15 points by capturing the visible chat text:
-
-1. `/dashboard/seller/estore?mode=ai` first message = "What's your company name?"
-2. Estore step 2 cards = Wholesale / Trading / Both
-3. Estore payment chips = Bank transfer / Mobile money / Letter of credit
-4. Selecting Mobile money → next prompt "What's your business mobile money number?"
-5. Selecting Bank transfer → next prompt "What's your bank account name?"
-6. Estore template carousel = Minna, Monchies, Bazaro Fashion, Bazaro Classic
-7. Estore never shows shop_type / Eshop templates / 5 style cards
-8. `/dashboard/seller/esite?mode=ai` first message = "What's your business name?"
-9. Esite asks "What type of services do you offer?" with 8 cards
-10. Esite asks "What are your key services?"
-11. Booking = Yes → "What email should booking confirmations go to?"
-12. Mobile money selected → "What's your mobile money number?"
-13. Cards selected → "What's your email for Stripe/PayPal setup?"
-14. Esite template carousel = ShieldPro, Interim, Realisting, Toplistings, Luxra, Telvin, Tripset, Key Assumptions, Estatoo
-15. Esite never shows shop_type / Eshop templates / style cards
-
-I will paste the exact UI text (or screenshots) for each item in the closing report and only then mark complete.
+1. Rebuild + publish.
+2. Hit `https://yangu.store/jojom` fresh (cache-busted) and via the browser tool:
+   - Confirm `iframe.contentDocument` (and any nested `<iframe srcdoc>` inside it) now contains `data-yangu-placeholder-link` and `data-yangu-placeholder-form`.
+   - Click the “Shop all” / `<a href="#">` anchor and assert `iframe.contentDocument.title` and `URL` do not change, and the Yangu shell does not take over.
+   - Submit a placeholder form and assert the same.
+3. Reload with empty cache and watch `document.title` over the first 2s — confirm the generic shell title never appears before the surface’s own title is set.
