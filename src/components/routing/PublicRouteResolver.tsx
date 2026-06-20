@@ -1,5 +1,5 @@
 import { lazyRetry } from "@/lib/lazyRetry";
-import { useEffect, useState, ReactNode, lazy, Suspense, useRef } from "react";
+import { useEffect, useLayoutEffect, useState, ReactNode, lazy, Suspense, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { resolveRoute, isDevEnvironment, normalizeHostname, type ResolvedRoute, type RouteDebugInfo } from "@/lib/routing/resolveRoute";
 import { resolveAppMode } from "@/lib/routing/appMode";
@@ -142,6 +142,23 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
 
   // If fast-path determined we're internal, start with isLoading=false
   const [isLoading, setIsLoading] = useState(!fastPathRef.current);
+
+  useLayoutEffect(() => {
+    if (fastPathRef.current !== false) return;
+    document.title = "";
+    const genericMetaSelectors = [
+      'meta[name="description"]',
+      'meta[property="og:title"]',
+      'meta[property="og:description"]',
+      'meta[name="twitter:title"]',
+      'meta[name="twitter:description"]',
+    ];
+    genericMetaSelectors.forEach((selector) => {
+      const meta = document.querySelector(selector) as HTMLMetaElement | null;
+      const content = meta?.getAttribute("content") || "";
+      if (/yangu|all-in-one ai platform/i.test(content)) meta?.remove();
+    });
+  }, []);
 
   useEffect(() => {
     // Once internal routing is determined, never re-resolve
