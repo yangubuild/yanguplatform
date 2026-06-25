@@ -23,6 +23,7 @@ import { template as paymentSuccessful } from './payment-successful.tsx'
 import { template as kycApproved } from './kyc-approved.tsx'
 import { template as supportTicketReceived } from './support-ticket-received.tsx'
 import { template as supportTicketAlert } from './support-ticket-alert.tsx'
+import { template as newSignupNotification } from './new-signup-notification.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   // TYPE B — System Alerts
@@ -39,4 +40,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   // Support
   'support-ticket-received': supportTicketReceived,
   'support-ticket-alert': supportTicketAlert,
+  'new-signup-notification': newSignupNotification,
 }
