@@ -11,6 +11,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { EmojiProvider } from "@/contexts/EmojiContext";
 import { DomainProvider } from "@/contexts/DomainContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { AllowlistGate } from "@/components/auth/AllowlistGate";
 import { DomainGate } from "@/components/domain/DomainGate";
 import { PublicRouteResolver } from "@/components/routing";
 import { ConsoleAuthGuard } from "@/components/developers/ConsoleAuthGuard";
@@ -318,8 +319,8 @@ const App = () => (
                 <Route path="/privacypolicy" element={<PrivacyPolicy />} />
                 <Route path="/aisafety" element={<AiSafety />} />
                 
-                <Route path="/builder" element={<ProtectedRoute requireOnboarding={false}><BuilderPage /></ProtectedRoute>} />
-                <Route path="/builder/new" element={<ProtectedRoute requireOnboarding={false}><BuilderNewPage /></ProtectedRoute>} />
+                <Route path="/builder" element={<ProtectedRoute requireOnboarding={false}><AllowlistGate><BuilderPage /></AllowlistGate></ProtectedRoute>} />
+                <Route path="/builder/new" element={<ProtectedRoute requireOnboarding={false}><AllowlistGate><BuilderNewPage /></AllowlistGate></ProtectedRoute>} />
                 <Route path="/support" element={<SupportPage />} />
                 <Route path="/help-center" element={<HelpCenter />} />
                 <Route path="/updates" element={<PlatformUpdates />} />
