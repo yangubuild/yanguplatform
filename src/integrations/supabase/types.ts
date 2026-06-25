@@ -2895,6 +2895,27 @@ export type Database = {
         }
         Relationships: []
       }
+      dashboard_allowlist: {
+        Row: {
+          added_by: string | null
+          created_at: string
+          email: string
+          note: string | null
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string
+          email: string
+          note?: string | null
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string
+          email?: string
+          note?: string | null
+        }
+        Relationships: []
+      }
       department_reports: {
         Row: {
           blockers: string[] | null
@@ -11419,6 +11440,7 @@ export type Database = {
         Args: { p_action_key: string }
         Returns: number
       }
+      is_dashboard_allowed: { Args: { _user_id: string }; Returns: boolean }
       is_drive_connected: { Args: never; Returns: boolean }
       is_dropship_provider_cooled_down: {
         Args: { p_provider_key: string }
