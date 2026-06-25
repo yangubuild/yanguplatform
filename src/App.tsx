@@ -449,7 +449,9 @@ const App = () => (
                   path="/dashboard"
                   element={
                     <ProtectedRoute>
-                      <NavigationDashboardPage />
+                      <AllowlistGate>
+                        <NavigationDashboardPage />
+                      </AllowlistGate>
                     </ProtectedRoute>
                   }>
                   <Route index element={<Navigate to="/dashboard/offers" replace />} />
@@ -574,7 +576,9 @@ const App = () => (
                   path="/dashboard/studio/video-editor"
                   element={
                     <ProtectedRoute>
-                      <VideoEditorPage />
+                      <AllowlistGate>
+                        <VideoEditorPage />
+                      </AllowlistGate>
                     </ProtectedRoute>
                   }
                 />
@@ -584,7 +588,9 @@ const App = () => (
                   path="/builder/:surfaceId"
                   element={
                     <ProtectedRoute>
-                      <BuilderEditorRouter />
+                      <AllowlistGate>
+                        <BuilderEditorRouter />
+                      </AllowlistGate>
                     </ProtectedRoute>
                   }
                 />
@@ -594,7 +600,9 @@ const App = () => (
                   path="/speak/seller/:sellerKey"
                   element={
                     <ProtectedRoute>
-                      <SellerSpeakToBuildPage />
+                      <AllowlistGate>
+                        <SellerSpeakToBuildPage />
+                      </AllowlistGate>
                     </ProtectedRoute>
                   }
                 />
