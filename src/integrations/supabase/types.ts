@@ -11112,6 +11112,7 @@ export type Database = {
         | { Args: { p_app_id?: string; p_days?: number }; Returns: Json }
       discovery_analytics_summary: { Args: { p_days?: number }; Returns: Json }
       dismiss_promo: { Args: { p_campaign_key: string }; Returns: undefined }
+      email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_dropship_order_sync_jobs: {
         Args: { p_limit?: number }
         Returns: number
