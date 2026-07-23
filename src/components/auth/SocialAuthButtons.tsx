@@ -53,8 +53,13 @@ export function SocialAuthButtons({ disabled }: SocialAuthButtonsProps) {
     });
 
     try {
+      // Preserve the caller's returnTo through the provider round-trip so
+      // OAuth consent flows land back on the original consent URL, not "/".
+      const rawReturnTo = searchParams.get("returnTo");
+      const callback = new URL(`${window.location.origin}/auth/callback`);
+      if (rawReturnTo) callback.searchParams.set("returnTo", rawReturnTo);
       const result = await cloudAuth.auth.signInWithOAuth(provider, {
-        redirect_uri: `${window.location.origin}/auth/callback`,
+        redirect_uri: callback.toString(),
       });
 
       if (result.error) {

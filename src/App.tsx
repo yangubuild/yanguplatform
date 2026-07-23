@@ -28,6 +28,7 @@ const VerifyEmail = lazy(() => lazyRetry(() => import("./pages/auth/VerifyEmail"
 const ResetPassword = lazy(() => lazyRetry(() => import("./pages/auth/ResetPassword")));
 const UpdatePassword = lazy(() => lazyRetry(() => import("./pages/auth/UpdatePassword")));
 const AuthCallback = lazy(() => lazyRetry(() => import("./pages/auth/AuthCallback")));
+const OAuthConsent = lazy(() => lazyRetry(() => import("./pages/auth/OAuthConsent")));
 const Onboarding = lazy(() => lazyRetry(() => import("./pages/Onboarding")));
 const Dashboard = lazy(() => lazyRetry(() => import("./pages/Dashboard")));
 const SurfacePreview = lazy(() => lazyRetry(() => import("./pages/SurfacePreview")));
@@ -424,6 +425,7 @@ const App = () => (
                 <Route path="/auth/reset-password" element={<ResetPassword />} />
                 <Route path="/auth/update-password" element={<UpdatePassword />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
+                <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                 
                 {/* Onboarding - requires auth but not completed onboarding */}
                 <Route
