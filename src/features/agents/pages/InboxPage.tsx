@@ -11,6 +11,10 @@ import {
 } from "lucide-react";
 import { db } from "../data/mock";
 import { conversationDb } from "../data/conversationDb";
+import {
+  useConversations, useSendHumanMessage, useAddConversationNote,
+  useTakeoverConversation, useReturnToAI, useSetConversationStatus,
+} from "../data/hooks";
 import type { Conversation, ConversationStatus, Message } from "../data/types";
 import { PageHeader } from "../components/PageHeader";
 import { cn } from "@/lib/utils";
@@ -29,13 +33,22 @@ type StatusFilter = "all" | "new" | "active" | "waiting" | "escalated" | "human"
 type ChannelFilter = "all" | "web" | "whatsapp" | "email" | "voice";
 
 export default function InboxPage() {
-  const [convos, setConvos] = useState<Conversation[]>(() => db.conversations.list() as Conversation[]);
-  const [activeId, setActiveId] = useState(convos[0]?.id);
+  const { data: convosRemote = [], isLoading, refetch } = useConversations();
+  const [tick, setTick] = useState(0); // force re-render for conversationDb mutations
+  const convos = convosRemote;
+  const [activeId, setActiveId] = useState<string | undefined>();
+  // Ensure a default selection once conversations arrive.
+  if (!activeId && convos.length > 0) setTimeout(() => setActiveId(convos[0]?.id), 0);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [channelFilter, setChannelFilter] = useState<ChannelFilter>("all");
   const [reply, setReply] = useState("");
   const [note, setNote] = useState("");
   const team = db.team.list();
+  const sendHumanMut = useSendHumanMessage();
+  const addNoteMut = useAddConversationNote();
+  const takeoverMut = useTakeoverConversation();
+  const returnAIMut = useReturnToAI();
+  const statusMut = useSetConversationStatus();
 
   const filtered = useMemo(() => convos.filter((c) => {
     if (channelFilter !== "all" && c.channel !== channelFilter) return false;
@@ -47,12 +60,13 @@ export default function InboxPage() {
   const active = convos.find((c) => c.id === activeId);
   const agent = active ? db.agents.get(active.agentId) : undefined;
 
-  const refresh = () => setConvos([...(db.conversations.list() as Conversation[])]);
+  const refresh = () => { setTick((n) => n + 1); void refetch(); };
 
   const send = () => {
     if (!active || !reply.trim()) return;
     if (active.status === "human") {
       conversationDb.sendHuman(active.id, reply.trim());
+      sendHumanMut.mutate({ conversationId: active.id, text: reply.trim() });
     } else {
       // In the inbox, a typed reply from the operator posts as a customer-simulation only if we're in human mode.
       // Otherwise, simulate an inbound customer message so the AI answers (useful for demos).
@@ -61,14 +75,34 @@ export default function InboxPage() {
     setReply("");
     refresh();
   };
-  const takeover = () => { if (!active) return; conversationDb.takeover(active.id); refresh(); toast({ title: "You took over the conversation" }); };
-  const returnAI = () => { if (!active) return; conversationDb.returnToAI(active.id); refresh(); toast({ title: "Returned to AI", description: "Summary added to timeline." }); };
-  const doStatus = (s: ConversationStatus, label: string) => { if (!active) return; conversationDb.setStatus(active.id, s, { note: label }); refresh(); };
+  const takeover = () => {
+    if (!active) return;
+    conversationDb.takeover(active.id);
+    takeoverMut.mutate({ conversationId: active.id });
+    refresh();
+  };
+  const returnAI = () => {
+    if (!active) return;
+    const c = conversationDb.returnToAI(active.id);
+    returnAIMut.mutate({ conversationId: active.id, summary: c.handoverSummary ?? "Returned by operator" });
+    refresh();
+  };
+  const doStatus = (s: ConversationStatus, label: string) => {
+    if (!active) return;
+    conversationDb.setStatus(active.id, s, { note: label });
+    statusMut.mutate({ conversationId: active.id, status: s });
+    refresh();
+  };
   const createLead = () => { if (!active) return; conversationDb.createLead(active.id); refresh(); toast({ title: "Lead created" }); };
   const bookAppt = () => { if (!active) return; conversationDb.bookAppointment(active.id); refresh(); toast({ title: "Appointment booked" }); };
   const createTicket = () => { if (!active) return; conversationDb.createTicket(active.id); refresh(); toast({ title: "Support ticket created" }); };
-  const resolve = () => { if (!active) return; conversationDb.resolve(active.id); refresh(); toast({ title: "Marked resolved" }); };
-  const addNote = () => { if (!active || !note.trim()) return; conversationDb.addNote(active.id, note.trim()); setNote(""); refresh(); toast({ title: "Note added" }); };
+  const resolve = () => { if (!active) return; conversationDb.resolve(active.id); statusMut.mutate({ conversationId: active.id, status: "resolved" }); refresh(); };
+  const addNote = () => {
+    if (!active || !note.trim()) return;
+    conversationDb.addNote(active.id, note.trim());
+    addNoteMut.mutate({ conversationId: active.id, text: note.trim() });
+    setNote(""); refresh();
+  };
   const assign = (member: string) => { if (!active) return; conversationDb.assignTo(active.id, member); refresh(); };
 
   const priorityBadge = (p?: Conversation["priority"]) =>
