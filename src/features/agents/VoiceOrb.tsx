@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { Mic, PhoneOff, Volume2 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { db } from "./data/mock";
+import { useAgents } from "./data/hooks";
 
 const STATES = ["Listening…", "Thinking…", "Speaking…"];
 
 export function VoiceOrb() {
   const [open, setOpen] = useState(false);
-  const agents = db.agents.list();
+  const { data: agents = [] } = useAgents();
   const defaultAgent = agents.find((a) => a.status === "live") ?? agents[0];
   const [activeId, setActiveId] = useState(defaultAgent?.id);
   const active = agents.find((a) => a.id === activeId) ?? defaultAgent;
