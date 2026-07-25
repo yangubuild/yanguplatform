@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { db } from "../data/mock";
-import { conversationDb, route as routeMessage, TEST_SCENARIOS } from "../data/conversationDb";
+import { route as routeMessage, TEST_SCENARIOS } from "../data/conversationDb";
 import type {
   AgentConfig, AgentCommand, QualificationQuestion, HandoverRule, Channel,
 } from "../data/types";
