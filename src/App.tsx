@@ -145,6 +145,26 @@ const SocialMediaCallback = lazy(() => lazyRetry(() => import("./pages/dashboard
 const SocialMediaCreatePost = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaCreatePost")));
 const SocialMediaCampaigns = lazy(() => lazyRetry(() => import("./pages/dashboard/social-media/SocialMediaCampaigns")));
 
+// AI Agents module
+const AgentsLayout = lazy(() => lazyRetry(() => import("./features/agents/AgentsLayout")));
+const AgentsDashboardPage = lazy(() => lazyRetry(() => import("./features/agents/pages/DashboardPage")));
+const AgentsListPage = lazy(() => lazyRetry(() => import("./features/agents/pages/AgentsListPage")));
+const AgentBuilderPage = lazy(() => lazyRetry(() => import("./features/agents/pages/AgentBuilderPage")));
+const AgentsInboxPage = lazy(() => lazyRetry(() => import("./features/agents/pages/InboxPage")));
+const AgentsCallsPage = lazy(() => lazyRetry(() => import("./features/agents/pages/CallsPage")));
+const AgentsLeadsPage = lazy(() => lazyRetry(() => import("./features/agents/pages/LeadsPage")));
+const AgentsAppointmentsPage = lazy(() => lazyRetry(() => import("./features/agents/pages/AppointmentsPage")));
+const AgentsKnowledgePage = lazy(() => lazyRetry(() => import("./features/agents/pages/KnowledgePage")));
+const AgentsWorkflowsPage = lazy(() => lazyRetry(() => import("./features/agents/pages/WorkflowsPage")));
+const AgentsAnalyticsPage = lazy(() => lazyRetry(() => import("./features/agents/pages/AnalyticsPage")));
+const AgentsIntegrationsPage = lazy(() => lazyRetry(() => import("./features/agents/pages/IntegrationsPage")));
+const AgentsAssistantPage = lazy(() => lazyRetry(() => import("./features/agents/pages/AssistantPage")));
+const AgentsMobilePage = lazy(() => lazyRetry(() => import("./features/agents/pages/MobilePage")));
+const AgentsTeamPage = lazy(() => lazyRetry(() => import("./features/agents/pages/TeamPage")));
+const AgentsBillingPage = lazy(() => lazyRetry(() => import("./features/agents/pages/BillingPage")));
+const AgentsSettingsPage = lazy(() => lazyRetry(() => import("./features/agents/pages/SettingsPage")));
+const AgentsAccountPage = lazy(() => lazyRetry(() => import("./features/agents/pages/AccountPage")));
+
 // Developer Portal (lazy)
 const PortalLayoutModule = lazy(() => lazyRetry(() => import("./components/developers/portal/PortalLayout").then(m => ({ default: m.PortalLayout }))));
 const PortalOverview = lazy(() => lazyRetry(() => import("./pages/developers/portal/PortalOverview")));
@@ -548,6 +568,27 @@ const App = () => (
                     <Route path="ai-profile" element={<SocialMediaAiProfile />} />
                     <Route path="workspace" element={<SocialMediaWorkspace />} />
                     <Route path="callback" element={<SocialMediaCallback />} />
+                  </Route>
+
+                  {/* AI Agents module */}
+                  <Route path="agents" element={<AgentsLayout />}>
+                    <Route index element={<AgentsDashboardPage />} />
+                    <Route path="agents" element={<AgentsListPage />} />
+                    <Route path="agents/:id" element={<AgentBuilderPage />} />
+                    <Route path="inbox" element={<AgentsInboxPage />} />
+                    <Route path="calls" element={<AgentsCallsPage />} />
+                    <Route path="leads" element={<AgentsLeadsPage />} />
+                    <Route path="appointments" element={<AgentsAppointmentsPage />} />
+                    <Route path="knowledge" element={<AgentsKnowledgePage />} />
+                    <Route path="workflows" element={<AgentsWorkflowsPage />} />
+                    <Route path="analytics" element={<AgentsAnalyticsPage />} />
+                    <Route path="integrations" element={<AgentsIntegrationsPage />} />
+                    <Route path="assistant" element={<AgentsAssistantPage />} />
+                    <Route path="mobile" element={<AgentsMobilePage />} />
+                    <Route path="team" element={<AgentsTeamPage />} />
+                    <Route path="billing" element={<AgentsBillingPage />} />
+                    <Route path="settings/*" element={<AgentsSettingsPage />} />
+                    <Route path="account" element={<AgentsAccountPage />} />
                   </Route>
 
                   {/* Agency routes — agency only */}
