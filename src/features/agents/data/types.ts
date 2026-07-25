@@ -184,3 +184,125 @@ export interface TeamMember {
   role: "owner" | "admin" | "manager" | "agent";
   status: "active" | "invited"; avatar: string; lastActive: string;
 }
+
+// ─── Knowledge Engine ──────────────────────────────────────────────────
+
+export type KSourceKind =
+  | "pdf" | "docx" | "txt" | "csv" | "url" | "faq"
+  | "product" | "service" | "policy" | "sop" | "manual" | "note";
+
+export type KSourceStatus =
+  | "uploading" | "processing" | "indexed" | "ready" | "failed" | "archived";
+
+export type KPermission = "all" | "sales" | "support" | "receptionist" | "internal" | "custom";
+
+export interface KVersion {
+  id: string;
+  version: number;
+  createdAt: string;
+  note: string;
+  size: string;
+  status: KSourceStatus;
+}
+
+export interface KSource {
+  id: string;
+  name: string;
+  kind: KSourceKind;
+  collectionId: string;
+  language: string;
+  version: number;
+  status: KSourceStatus;
+  uploadedAt: string;
+  updatedAt: string;
+  size: string;
+  active: boolean;
+  permission: KPermission;
+  agentIds: string[];                // when permission = "custom"
+  sourceUrl?: string;
+  tags: string[];
+  chunks: number;
+  history: KVersion[];
+}
+
+export interface KCollection {
+  id: string;
+  name: string;
+  description: string;
+  color: string;                     // tailwind color token e.g. "sky", "emerald"
+  agentIds: string[];
+  createdAt: string;
+}
+
+export interface KFAQ {
+  id: string;
+  question: string;
+  answer: string;
+  category: string;
+  language: string;
+  active: boolean;
+  collectionId: string;
+  updatedAt: string;
+}
+
+export interface KProduct {
+  id: string;
+  name: string;
+  description: string;
+  features: string[];
+  price: string;
+  category: string;
+  availability: "in_stock" | "out_of_stock" | "preorder" | "discontinued";
+  images: string[];
+  relatedProductIds: string[];
+  collectionId: string;
+  updatedAt: string;
+}
+
+export interface KService {
+  id: string;
+  name: string;
+  description: string;
+  features: string[];
+  price: string;
+  availability: "available" | "waitlist" | "unavailable";
+  collectionId: string;
+  updatedAt: string;
+}
+
+export interface KWebsiteImport {
+  id: string;
+  rootUrl: string;
+  mode: "homepage" | "entire_site" | "selected";
+  pages: string[];
+  status: KSourceStatus;
+  createdAt: string;
+  collectionId: string;
+}
+
+export interface KSearchHit {
+  sourceId: string;
+  sourceName: string;
+  kind: KSourceKind;
+  snippet: string;
+  score: number;                     // 0–1
+}
+
+export interface KTestResult {
+  question: string;
+  answer: string;
+  confidence: number;                // 0–1
+  processingMs: number;
+  sources: KSearchHit[];
+  missing: boolean;
+}
+
+export interface KAnalytics {
+  mostUsedSources: { sourceId: string; name: string; uses: number }[];
+  topSearches: { query: string; count: number }[];
+  unanswered: { query: string; count: number; lastAt: string }[];
+  lowConfidence: { query: string; confidence: number; at: string }[];
+  missingAreas: string[];
+  uploads: { day: string; count: number }[];
+  totals: { sources: number; faqs: number; products: number; services: number; indexed: number };
+}
