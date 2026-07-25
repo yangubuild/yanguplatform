@@ -2,6 +2,7 @@ import type {
   Agent, Conversation, Lead, Appointment, Call, KnowledgeItem,
   Workflow, Integration, TeamMember, AgentConfig, Channel,
 } from "./types";
+import { knowledgeDb } from "./knowledgeDb";
 
 const now = new Date();
 const iso = (d: number, h = 0, m = 0) => new Date(now.getTime() - d * 86400000 + h * 3600000 + m * 60000).toISOString();
@@ -315,7 +316,7 @@ export const db = {
   leads:        { list: () => LEADS },
   appointments: { list: () => APPOINTMENTS },
   calls:        { list: () => CALLS },
-  knowledge:    { list: () => KNOWLEDGE },
+  knowledge:    { list: () => KNOWLEDGE, ...knowledgeDb },
   workflows:    { list: () => WORKFLOWS },
   integrations: { list: () => INTEGRATIONS },
   team:         { list: () => TEAM },
