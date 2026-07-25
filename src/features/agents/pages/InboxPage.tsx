@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,11 +34,12 @@ type ChannelFilter = "all" | "web" | "whatsapp" | "email" | "voice";
 
 export default function InboxPage() {
   const { data: convosRemote = [], isLoading, refetch } = useConversations();
-  const [tick, setTick] = useState(0); // force re-render for conversationDb mutations
+  const [, setTick] = useState(0); // force re-render for conversationDb mutations
   const convos = convosRemote;
   const [activeId, setActiveId] = useState<string | undefined>();
-  // Ensure a default selection once conversations arrive.
-  if (!activeId && convos.length > 0) setTimeout(() => setActiveId(convos[0]?.id), 0);
+  useEffect(() => {
+    if (!activeId && convos.length > 0) setActiveId(convos[0]?.id);
+  }, [activeId, convos]);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [channelFilter, setChannelFilter] = useState<ChannelFilter>("all");
   const [reply, setReply] = useState("");
