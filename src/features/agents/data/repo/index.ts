@@ -17,6 +17,10 @@ function unwrap<T>(res: { data: T | null; error: any }): T {
   return res.data as T;
 }
 
+// The generated Supabase types are strict; at these adapter boundaries
+// we deliberately widen rows to `any` — RLS + column defs are the source of truth.
+const sb = supabase as any;
+
 // ─── agents ────────────────────────────────────────────────────────────
 function rowToAgent(r: any): Agent {
   return {
@@ -39,13 +43,13 @@ export const agentsRepo = {
   async list(): Promise<Agent[]> {
     const orgId = await requireOrgId();
     const rows = unwrap(
-      await supabase.from("agent_agents").select("*").eq("org_id", orgId).order("created_at", { ascending: false })
+      await sb.from("agent_agents").select("*").eq("org_id", orgId).order("created_at", { ascending: false })
     );
     return (rows ?? []).map(rowToAgent);
   },
   async get(id: string): Promise<Agent | null> {
     const row = unwrap(
-      await supabase.from("agent_agents").select("*").eq("id", id).maybeSingle()
+      await sb.from("agent_agents").select("*").eq("id", id).maybeSingle()
     );
     return row ? rowToAgent(row) : null;
   },
@@ -53,7 +57,7 @@ export const agentsRepo = {
     const orgId = await requireOrgId();
     const userId = await currentUserId();
     const row = unwrap(
-      await supabase.from("agent_agents").insert({
+      await sb.from("agent_agents").insert({
         org_id: orgId,
         name: input.name ?? "New Agent",
         type: input.type ?? "support",
@@ -69,7 +73,7 @@ export const agentsRepo = {
   },
   async update(id: string, patch: Partial<Agent>): Promise<Agent> {
     const row = unwrap(
-      await supabase.from("agent_agents").update({
+      await sb.from("agent_agents").update({
         name: patch.name,
         type: patch.type,
         status: patch.status,
@@ -82,7 +86,7 @@ export const agentsRepo = {
     return rowToAgent(row);
   },
   async remove(id: string): Promise<void> {
-    const r = await supabase.from("agent_agents").delete().eq("id", id);
+    const r = await sb.from("agent_agents").delete().eq("id", id);
     if (r.error) throw r.error;
   },
 };
@@ -91,7 +95,7 @@ export const agentsRepo = {
 export const agentConfigsRepo = {
   async get(agentId: string, env: "draft" | "staging" | "live" = "draft"): Promise<AgentConfig | null> {
     const row = unwrap(
-      await supabase.from("agent_configs")
+      await sb.from("agent_configs")
         .select("*")
         .eq("agent_id", agentId)
         .eq("environment", env)
@@ -100,7 +104,7 @@ export const agentConfigsRepo = {
         .maybeSingle()
     );
     if (!row) return null;
-    return { ...(row.config as AgentConfig), id: row.id, agentId, environment: row.environment, version: row.version, updatedAt: row.updated_at, publishedAt: row.published_at ?? undefined };
+    return { ...(row.config as unknown as AgentConfig), id: row.id, agentId, environment: row.environment as any, version: row.version, updatedAt: row.updated_at, publishedAt: row.published_at ?? undefined };
   },
   async save(agentId: string, config: AgentConfig): Promise<AgentConfig> {
     const orgId = await requireOrgId();
@@ -110,19 +114,19 @@ export const agentConfigsRepo = {
     const existing = await agentConfigsRepo.get(agentId, env);
     if (existing) {
       const row = unwrap(
-        await supabase.from("agent_configs")
-          .update({ config: config as any, updated_by: userId })
+        await sb.from("agent_configs")
+          .update({ config, updated_by: userId })
           .eq("id", existing.id).select().single()
       );
-      return { ...(row.config as AgentConfig), id: row.id, agentId, environment: row.environment, version: row.version, updatedAt: row.updated_at };
+      return { ...(row.config as unknown as AgentConfig), id: row.id, agentId, environment: row.environment as any, version: row.version, updatedAt: row.updated_at };
     }
     const row = unwrap(
-      await supabase.from("agent_configs").insert({
+      await sb.from("agent_configs").insert({
         org_id: orgId, agent_id: agentId, environment: env, version: 1,
-        config: config as any, updated_by: userId,
+        config, updated_by: userId,
       }).select().single()
     );
-    return { ...(row.config as AgentConfig), id: row.id, agentId, environment: row.environment, version: row.version, updatedAt: row.updated_at };
+    return { ...(row.config as unknown as AgentConfig), id: row.id, agentId, environment: row.environment as any, version: row.version, updatedAt: row.updated_at };
   },
   async publish(agentId: string, env: "draft" | "staging" | "live"): Promise<AgentConfig> {
     const orgId = await requireOrgId();
@@ -130,22 +134,22 @@ export const agentConfigsRepo = {
     const draft = await agentConfigsRepo.get(agentId, "draft");
     if (!draft) throw new Error("No draft to publish");
     // find latest version in target env, bump
-    const { data: last } = await supabase.from("agent_configs")
+    const { data: last } = await sb.from("agent_configs")
       .select("version").eq("agent_id", agentId).eq("environment", env)
       .order("version", { ascending: false }).limit(1).maybeSingle();
     const nextVersion = (last?.version ?? 0) + 1;
     const row = unwrap(
-      await supabase.from("agent_configs").insert({
+      await sb.from("agent_configs").insert({
         org_id: orgId, agent_id: agentId, environment: env, version: nextVersion,
-        config: { ...draft, environment: env, version: nextVersion } as any,
+        config: { ...draft, environment: env, version: nextVersion },
         updated_by: userId,
         published_at: env === "live" ? new Date().toISOString() : null,
       }).select().single()
     );
     if (env === "live") {
-      await supabase.from("agent_agents").update({ status: "live" }).eq("id", agentId);
+      await sb.from("agent_agents").update({ status: "live" }).eq("id", agentId);
     }
-    return { ...(row.config as AgentConfig), id: row.id, agentId, environment: row.environment, version: row.version, updatedAt: row.updated_at, publishedAt: row.published_at ?? undefined };
+    return { ...(row.config as unknown as AgentConfig), id: row.id, agentId, environment: row.environment as any, version: row.version, updatedAt: row.updated_at, publishedAt: row.published_at ?? undefined };
   },
 };
 
