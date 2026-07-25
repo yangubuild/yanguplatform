@@ -403,7 +403,7 @@ export function useCreateKnowledgeSource() {
   const qc = useQueryClient();
   const remote = useRemote();
   return useMutation({
-    mutationFn: async (input: Partial<KSource>) => {
+    mutationFn: async (input: Partial<KSource> & { name: string; kind: KSource["kind"]; collectionId: string }) => {
       if (!remote) return db.knowledge.sources.add(input);
       const s = await knowledgeRepo.createSource(input);
       await auditRepo.log("ksource.create", "ksource", s.id, null, s);
