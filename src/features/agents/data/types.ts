@@ -142,11 +142,86 @@ export interface AgentConfig {
 
 export interface Message {
   id: string; role: "customer" | "agent" | "human" | "system"; text: string; at: string;
+  meta?: MessageMeta;
 }
 export interface Conversation {
   id: string; contactName: string; contactHandle: string; channel: Channel;
   agentId: string; lastMessage: string; unread: number; updatedAt: string;
-  status: "open" | "handover" | "closed"; messages: Message[];
+  status: ConversationStatus; messages: Message[];
+  priority?: "low" | "normal" | "high" | "urgent";
+  sentiment?: "positive" | "neutral" | "negative";
+  language?: string;
+  outcome?: ConversationOutcome;
+  assignedTo?: string;            // team member id when a human takes over
+  takeoverBy?: string;
+  takeoverAt?: string;
+  returnedBy?: string;
+  returnedAt?: string;
+  handoverSummary?: string;
+  tags?: string[];
+  notes?: ConversationNote[];
+  memoryRetention?: MemoryRetention;
+  spam?: boolean;
+  archived?: boolean;
+}
+
+// ─── Conversation Engine ───────────────────────────────────────────────
+
+export type ConversationStatus =
+  | "new" | "open" | "active" | "waiting" | "escalated"
+  | "human" | "handover" | "resolved" | "closed" | "spam" | "archived";
+
+export type ConversationOutcome =
+  | "answered" | "lead_created" | "appointment_booked" | "ticket_created"
+  | "handover" | "refused" | "resolved" | "abandoned" | "open";
+
+export type MemoryRetention =
+  | "session" | "7d" | "30d" | "90d" | "custom" | "none";
+
+export type AgentDecision =
+  | "answer" | "follow_up" | "command" | "action"
+  | "create_lead" | "book_appointment" | "handover" | "refuse";
+
+export interface MessageMeta {
+  language?: string;
+  confidence?: number;           // 0–1
+  sources?: { id: string; name: string; score: number }[];
+  command?: string;              // trigger fired e.g. "/pricing"
+  action?: string;               // allowedAction id e.g. "book_appointment"
+  decision?: AgentDecision;
+  ruleApplied?: string;
+  latencyMs?: number;
+  tokensEstimate?: number;
+  sentiment?: "positive" | "neutral" | "negative";
+  systemKind?: "handover" | "return" | "command" | "action" | "note" | "info";
+}
+
+export interface ConversationNote {
+  id: string; author: string; text: string; at: string;
+}
+
+export interface ConversationDecision {
+  decision: AgentDecision;
+  reply: string;
+  language: string;
+  confidence: number;
+  sources: { id: string; name: string; score: number }[];
+  command?: string;
+  action?: string;
+  ruleApplied?: string;
+  handover?: { route: string; reason: string };
+  latencyMs: number;
+  tokensEstimate: number;
+  sentiment: "positive" | "neutral" | "negative";
+}
+
+export interface TestScenario {
+  id: string;
+  label: string;
+  category:
+    | "sales" | "support" | "appointment" | "complaint" | "pricing"
+    | "unsupported" | "handover" | "multilingual" | "language_switch";
+  messages: string[];
 }
 export interface Lead {
   id: string; name: string; email?: string; phone?: string; source: Channel;

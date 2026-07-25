@@ -1,62 +1,112 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageCircle, PhoneCall, Mail, Instagram, Globe, Send, UserPlus, StickyNote } from "lucide-react";
+import {
+  MessageCircle, PhoneCall, Mail, Instagram, Globe, Send, UserPlus,
+  StickyNote, Calendar, TicketCheck, CheckCircle2, ShieldAlert, Archive,
+  Bot, User, AlertTriangle, Sparkles,
+} from "lucide-react";
 import { db } from "../data/mock";
-import type { Conversation } from "../data/types";
+import { conversationDb } from "../data/conversationDb";
+import type { Conversation, ConversationStatus, Message } from "../data/types";
 import { PageHeader } from "../components/PageHeader";
 import { cn } from "@/lib/utils";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import { toast } from "@/hooks/use-toast";
 
 const channelIcon: Record<string, any> = {
   whatsapp: MessageCircle, web: Globe, voice: PhoneCall,
   email: Mail, instagram: Instagram, sms: MessageCircle,
 };
 
-export default function InboxPage() {
-  const [convos, setConvos] = useState<Conversation[]>(() => db.conversations.list().map((c) => ({ ...c })));
-  const [activeId, setActiveId] = useState(convos[0]?.id);
-  const [filter, setFilter] = useState<"all" | "unread" | "handover" | "closed">("all");
-  const [reply, setReply] = useState("");
+type StatusFilter = "all" | "new" | "active" | "waiting" | "escalated" | "human" | "resolved" | "spam" | "archived" | "unread";
+type ChannelFilter = "all" | "web" | "whatsapp" | "email" | "voice";
 
-  const filtered = convos.filter((c) => {
-    if (filter === "all") return true;
-    if (filter === "unread") return c.unread > 0;
-    if (filter === "handover") return c.status === "handover";
-    return c.status === "closed";
-  });
+export default function InboxPage() {
+  const [convos, setConvos] = useState<Conversation[]>(() => db.conversations.list() as Conversation[]);
+  const [activeId, setActiveId] = useState(convos[0]?.id);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [channelFilter, setChannelFilter] = useState<ChannelFilter>("all");
+  const [reply, setReply] = useState("");
+  const [note, setNote] = useState("");
+  const team = db.team.list();
+
+  const filtered = useMemo(() => convos.filter((c) => {
+    if (channelFilter !== "all" && c.channel !== channelFilter) return false;
+    if (statusFilter === "all") return !c.archived && !c.spam;
+    if (statusFilter === "unread") return c.unread > 0;
+    if (statusFilter === "escalated") return c.status === "escalated" || c.status === "handover";
+    return c.status === statusFilter;
+  }), [convos, statusFilter, channelFilter]);
   const active = convos.find((c) => c.id === activeId);
   const agent = active ? db.agents.get(active.agentId) : undefined;
 
-  const setStatus = (next: Conversation["status"], sysText: string) => {
-    if (!active) return;
-    setConvos((prev) => prev.map((c) => c.id === active.id ? {
-      ...c, status: next,
-      messages: [...c.messages, { id: `sys-${Date.now()}`, role: "system", text: sysText, at: new Date().toISOString() }],
-    } : c));
-  };
+  const refresh = () => setConvos([...(db.conversations.list() as Conversation[])]);
+
   const send = () => {
     if (!active || !reply.trim()) return;
-    const role = active.status === "handover" ? "human" : "agent";
-    setConvos((prev) => prev.map((c) => c.id === active.id ? {
-      ...c, lastMessage: reply,
-      messages: [...c.messages, { id: `m-${Date.now()}`, role, text: reply, at: new Date().toISOString() }],
-    } : c));
+    if (active.status === "human") {
+      conversationDb.sendHuman(active.id, reply.trim());
+    } else {
+      // In the inbox, a typed reply from the operator posts as a customer-simulation only if we're in human mode.
+      // Otherwise, simulate an inbound customer message so the AI answers (useful for demos).
+      conversationDb.send(active.id, reply.trim());
+    }
     setReply("");
+    refresh();
   };
+  const takeover = () => { if (!active) return; conversationDb.takeover(active.id); refresh(); toast({ title: "You took over the conversation" }); };
+  const returnAI = () => { if (!active) return; conversationDb.returnToAI(active.id); refresh(); toast({ title: "Returned to AI", description: "Summary added to timeline." }); };
+  const doStatus = (s: ConversationStatus, label: string) => { if (!active) return; conversationDb.setStatus(active.id, s, { note: label }); refresh(); };
+  const createLead = () => { if (!active) return; conversationDb.createLead(active.id); refresh(); toast({ title: "Lead created" }); };
+  const bookAppt = () => { if (!active) return; conversationDb.bookAppointment(active.id); refresh(); toast({ title: "Appointment booked" }); };
+  const createTicket = () => { if (!active) return; conversationDb.createTicket(active.id); refresh(); toast({ title: "Support ticket created" }); };
+  const resolve = () => { if (!active) return; conversationDb.resolve(active.id); refresh(); toast({ title: "Marked resolved" }); };
+  const addNote = () => { if (!active || !note.trim()) return; conversationDb.addNote(active.id, note.trim()); setNote(""); refresh(); toast({ title: "Note added" }); };
+  const assign = (member: string) => { if (!active) return; conversationDb.assignTo(active.id, member); refresh(); };
+
+  const priorityBadge = (p?: Conversation["priority"]) =>
+    p === "urgent" ? "bg-destructive text-destructive-foreground" :
+    p === "high" ? "bg-amber-500/20 text-amber-700 dark:text-amber-400" :
+    "bg-muted text-muted-foreground";
 
   return (
     <div className="space-y-4">
-      <PageHeader title="Inbox" description="Every channel, one thread." />
+      <PageHeader title="Inbox" description="Every channel, one thread — powered by the Conversation Engine." />
       <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-4 h-[calc(100vh-260px)] min-h-[560px]">
         {/* List */}
         <Card className="overflow-hidden flex flex-col">
-          <div className="p-3 border-b border-border">
-            <Tabs value={filter} onValueChange={(v) => setFilter(v as any)}>
-              <TabsList className="w-full grid grid-cols-4"><TabsTrigger value="all">All</TabsTrigger><TabsTrigger value="unread">Unread</TabsTrigger><TabsTrigger value="handover">Handover</TabsTrigger><TabsTrigger value="closed">Closed</TabsTrigger></TabsList>
+          <div className="p-3 border-b border-border space-y-2">
+            <Tabs value={channelFilter} onValueChange={(v) => setChannelFilter(v as ChannelFilter)}>
+              <TabsList className="w-full grid grid-cols-5">
+                <TabsTrigger value="all">All</TabsTrigger>
+                <TabsTrigger value="web">Web</TabsTrigger>
+                <TabsTrigger value="whatsapp">WA</TabsTrigger>
+                <TabsTrigger value="email">Email</TabsTrigger>
+                <TabsTrigger value="voice">Voice</TabsTrigger>
+              </TabsList>
             </Tabs>
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All conversations</SelectItem>
+                <SelectItem value="unread">Unread</SelectItem>
+                <SelectItem value="new">New</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="waiting">Waiting</SelectItem>
+                <SelectItem value="escalated">Escalated</SelectItem>
+                <SelectItem value="human">Human-controlled</SelectItem>
+                <SelectItem value="resolved">Resolved</SelectItem>
+                <SelectItem value="spam">Spam</SelectItem>
+                <SelectItem value="archived">Archived</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex-1 overflow-auto">
             {filtered.map((c) => {
@@ -74,8 +124,14 @@ export default function InboxPage() {
                         <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                       </div>
                       <p className="text-xs text-muted-foreground truncate">{c.lastMessage}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        {c.status === "handover" && <Badge variant="destructive" className="text-[10px] h-4">Handover</Badge>}
+                      <div className="flex items-center gap-1 mt-1 flex-wrap">
+                        {(c.status === "escalated" || c.status === "handover") && <Badge variant="destructive" className="text-[10px] h-4">Escalated</Badge>}
+                        {c.status === "human" && <Badge className="text-[10px] h-4 bg-primary">Human</Badge>}
+                        {c.status === "resolved" && <Badge variant="outline" className="text-[10px] h-4">Resolved</Badge>}
+                        {c.priority && c.priority !== "normal" && (
+                          <span className={cn("text-[10px] h-4 px-1.5 rounded-lg leading-4", priorityBadge(c.priority))}>{c.priority}</span>
+                        )}
+                        {c.language && c.language !== "English" && <Badge variant="outline" className="text-[10px] h-4">{c.language}</Badge>}
                         {c.unread > 0 && <Badge className="text-[10px] h-4">{c.unread}</Badge>}
                       </div>
                     </div>
@@ -83,6 +139,7 @@ export default function InboxPage() {
                 </button>
               );
             })}
+            {filtered.length === 0 && <div className="p-6 text-sm text-muted-foreground text-center">No conversations match.</div>}
           </div>
         </Card>
 
@@ -90,36 +147,32 @@ export default function InboxPage() {
         <Card className="overflow-hidden flex flex-col">
           {active ? (
             <>
-              <div className="p-3 border-b border-border flex items-center justify-between gap-2">
+              <div className="p-3 border-b border-border flex items-center justify-between gap-2 flex-wrap">
                 <div>
                   <p className="font-medium text-sm">{active.contactName}</p>
-                  <p className="text-xs text-muted-foreground">{active.contactHandle} · {active.channel}</p>
+                  <p className="text-xs text-muted-foreground">{active.contactHandle} · {active.channel} · <span className="capitalize">{active.status}</span></p>
                 </div>
-                {active.status === "open" && <Button size="sm" variant="outline" onClick={() => setStatus("handover", "Human took over — you are now replying")}>Take over</Button>}
-                {active.status === "handover" && <Button size="sm" onClick={() => setStatus("open", `Returned to ${agent?.name ?? "agent"}`)}>Return to agent</Button>}
+                <div className="flex gap-1 flex-wrap">
+                  {active.status !== "human" ? (
+                    <Button size="sm" variant="outline" onClick={takeover}><User className="h-3.5 w-3.5 mr-1" />Take over</Button>
+                  ) : (
+                    <Button size="sm" onClick={returnAI}><Bot className="h-3.5 w-3.5 mr-1" />Return to AI</Button>
+                  )}
+                  <Button size="sm" variant="outline" onClick={resolve}><CheckCircle2 className="h-3.5 w-3.5 mr-1" />Resolve</Button>
+                  <Button size="sm" variant="outline" onClick={() => doStatus("spam", "Marked spam")}><ShieldAlert className="h-3.5 w-3.5" /></Button>
+                  <Button size="sm" variant="outline" onClick={() => doStatus("archived", "Archived")}><Archive className="h-3.5 w-3.5" /></Button>
+                </div>
               </div>
               <div className="flex-1 overflow-auto p-4 space-y-3 bg-muted/20">
-                {active.messages.map((m) => (
-                  <div key={m.id} className={cn(
-                    "flex", m.role === "customer" ? "justify-start" : m.role === "system" ? "justify-center" : "justify-end"
-                  )}>
-                    {m.role === "system" ? (
-                      <span className="text-xs text-muted-foreground bg-background border border-border rounded-full px-3 py-1">{m.text}</span>
-                    ) : (
-                      <div className={cn(
-                        "max-w-[75%] rounded-lg px-3 py-2 text-sm",
-                        m.role === "customer" ? "bg-background border border-border" :
-                        m.role === "human" ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground"
-                      )}>
-                        {m.role !== "customer" && <div className="text-[10px] uppercase opacity-70 mb-0.5">{m.role === "human" ? "You" : agent?.name}</div>}
-                        {m.text}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                {active.messages.map((m) => <MessageBubble key={m.id} m={m} agentName={agent?.name} />)}
               </div>
               <div className="p-3 border-t border-border flex gap-2">
-                <Input placeholder={active.status === "handover" ? "Reply as human…" : "Reply as agent…"} value={reply} onChange={(e) => setReply(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} />
+                <Input
+                  placeholder={active.status === "human" ? "Reply as human…" : "Simulate a customer message (AI will respond)…"}
+                  value={reply}
+                  onChange={(e) => setReply(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && send()}
+                />
                 <Button onClick={send}><Send className="h-4 w-4" /></Button>
               </div>
             </>
@@ -136,21 +189,104 @@ export default function InboxPage() {
                 <p className="text-sm text-muted-foreground">{active.contactHandle}</p>
                 <p className="text-xs text-muted-foreground mt-1">Source: {active.channel}</p>
               </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <Stat label="Priority" value={active.priority ?? "normal"} />
+                <Stat label="Sentiment" value={active.sentiment ?? "neutral"} />
+                <Stat label="Language" value={active.language ?? "English"} />
+                <Stat label="Outcome" value={active.outcome ?? "open"} />
+              </div>
               <div>
                 <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Agent handling</p>
                 <p className="text-sm">{agent?.name} · <span className="capitalize text-muted-foreground">{agent?.type}</span></p>
+                {active.assignedTo && <p className="text-xs text-muted-foreground mt-1">Assigned to {active.assignedTo}</p>}
+                {active.takeoverBy && <p className="text-xs text-muted-foreground">Taken over by {active.takeoverBy}</p>}
               </div>
               <div>
-                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Tags</p>
-                <div className="flex flex-wrap gap-1"><Badge variant="secondary">VIP</Badge><Badge variant="secondary">Repeat</Badge></div>
+                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Assign to</p>
+                <Select onValueChange={assign}>
+                  <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Choose teammate…" /></SelectTrigger>
+                  <SelectContent>
+                    {team.map((t) => <SelectItem key={t.id} value={t.name}>{t.name} · {t.role}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
-                <Button variant="outline" size="sm" className="w-full"><UserPlus className="h-4 w-4 mr-1.5" />Create lead</Button>
-                <Button variant="outline" size="sm" className="w-full"><StickyNote className="h-4 w-4 mr-1.5" />Add note</Button>
+                <Button variant="outline" size="sm" className="w-full" onClick={createLead}><UserPlus className="h-4 w-4 mr-1.5" />Create lead</Button>
+                <Button variant="outline" size="sm" className="w-full" onClick={bookAppt}><Calendar className="h-4 w-4 mr-1.5" />Book appointment</Button>
+                <Button variant="outline" size="sm" className="w-full" onClick={createTicket}><TicketCheck className="h-4 w-4 mr-1.5" />Create ticket</Button>
               </div>
+              <div>
+                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Internal notes</p>
+                <div className="space-y-1 mb-2 max-h-32 overflow-auto">
+                  {(active.notes ?? []).map((n) => (
+                    <div key={n.id} className="text-xs bg-muted/50 rounded-lg p-2">
+                      <p className="text-muted-foreground">{n.author} · {new Date(n.at).toLocaleTimeString()}</p>
+                      <p>{n.text}</p>
+                    </div>
+                  ))}
+                  {(!active.notes || active.notes.length === 0) && <p className="text-xs text-muted-foreground">No notes yet.</p>}
+                </div>
+                <Textarea rows={2} placeholder="Add an internal note…" value={note} onChange={(e) => setNote(e.target.value)} />
+                <Button variant="outline" size="sm" className="w-full mt-2" onClick={addNote}><StickyNote className="h-4 w-4 mr-1.5" />Add note</Button>
+              </div>
+              {active.handoverSummary && (
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Last handover summary</p>
+                  <p className="text-xs bg-muted/50 rounded-lg p-2">{active.handoverSummary}</p>
+                </div>
+              )}
             </div>
           )}
         </Card>
+      </div>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-border p-2">
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="text-xs font-medium capitalize">{value}</p>
+    </div>
+  );
+}
+
+function MessageBubble({ m, agentName }: { m: Message; agentName?: string }) {
+  if (m.role === "system") {
+    return (
+      <div className="flex justify-center">
+        <span className="text-[11px] text-muted-foreground bg-background border border-border rounded-full px-3 py-1 flex items-center gap-1">
+          {m.meta?.systemKind === "handover" && <AlertTriangle className="h-3 w-3" />}
+          {m.meta?.systemKind === "command" && <Sparkles className="h-3 w-3" />}
+          {m.text}
+        </span>
+      </div>
+    );
+  }
+  const isCustomer = m.role === "customer";
+  const isHuman = m.role === "human";
+  return (
+    <div className={cn("flex", isCustomer ? "justify-start" : "justify-end")}>
+      <div className={cn(
+        "max-w-[75%] rounded-lg px-3 py-2 text-sm",
+        isCustomer ? "bg-background border border-border" :
+        isHuman ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground"
+      )}>
+        {!isCustomer && (
+          <div className="text-[10px] uppercase opacity-70 mb-0.5 flex items-center gap-1">
+            {isHuman ? <User className="h-2.5 w-2.5" /> : <Bot className="h-2.5 w-2.5" />}
+            {isHuman ? "You" : agentName ?? "Agent"}
+            {m.meta?.confidence !== undefined && <span className="ml-1">· {Math.round(m.meta.confidence * 100)}%</span>}
+            {m.meta?.language && m.meta.language !== "English" && <span>· {m.meta.language}</span>}
+          </div>
+        )}
+        <div>{m.text}</div>
+        {m.meta?.sources && m.meta.sources.length > 0 && (
+          <div className="mt-1 pt-1 border-t border-current/10 text-[10px] opacity-80">
+            Sources: {m.meta.sources.slice(0, 3).map((s) => s.name).join(" · ")}
+          </div>
+        )}
       </div>
     </div>
   );
