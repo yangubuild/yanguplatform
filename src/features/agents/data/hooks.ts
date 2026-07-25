@@ -17,12 +17,13 @@ import { db } from "./mock";
 import {
   agentsRepo, agentConfigsRepo, conversationsRepo, leadsRepo,
   appointmentsRepo, callsRepo, knowledgeRepo, workflowsRepo,
-  integrationsRepo, usageRepo, auditRepo,
+  integrationsRepo, usageRepo, auditRepo, dashboardKpisRepo, type AgentKpis,
 } from "./repo";
 import { getActiveOrgId } from "./repo/orgContext";
 import type {
   Agent, AgentConfig, Conversation, Lead, Appointment, Call,
-  Workflow, Integration, KCollection, KSource, Message, ConversationNote,
+  Workflow, Integration, KCollection, KSource, KFAQ, KProduct, KService, KWebsiteImport,
+  Message, ConversationNote,
   ConversationStatus, PublishEnv, Channel,
 } from "./types";
 
@@ -74,17 +75,10 @@ function useRemoteOrMock<T>(
     queryKey: [...key, orgId ?? "mock"],
     queryFn: async () => {
       if (!orgId) return mockFn();
-      try {
-        const remote = await remoteFn();
-        // If the remote store is empty, keep showing mock in dev so screens are not blank.
-        if (Array.isArray(remote) && remote.length === 0 && import.meta.env.DEV) {
-          return mockFn();
-        }
-        return remote;
-      } catch (err) {
-        if (import.meta.env.DEV) console.warn("[agents] remote query failed — using mock", err);
-        return mockFn();
-      }
+      // Authenticated org — always return the real (org-scoped) result, even
+      // if empty. Empty is a genuine state; the UI must render an empty state
+      // rather than leak seeded data across tenants.
+      return await remoteFn();
     },
     enabled: !orgLoading,
     staleTime: 15_000,
@@ -391,6 +385,38 @@ export function useCreateKnowledgeCollection() {
   });
 }
 
+export function useUpdateKnowledgeCollection() {
+  const qc = useQueryClient();
+  const remote = useRemote();
+  return useMutation({
+    mutationFn: async ({ id, patch }: { id: string; patch: Partial<KCollection> }) => {
+      if (!remote) { db.knowledge.collections.update(id, patch); return; }
+      await knowledgeRepo.updateCollection(id, patch);
+      await auditRepo.log("kcollection.update", "kcollection", id, null, patch);
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["agents", "kcollections"] }); toast.success("Collection updated"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useDeleteKnowledgeCollection() {
+  const qc = useQueryClient();
+  const remote = useRemote();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (!remote) { db.knowledge.collections.remove(id); return; }
+      await knowledgeRepo.deleteCollection(id);
+      await auditRepo.log("kcollection.delete", "kcollection", id);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["agents", "kcollections"] });
+      qc.invalidateQueries({ queryKey: ["agents", "ksources"] });
+      toast.success("Collection deleted");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
 export function useKnowledgeSources() {
   return useRemoteOrMock<KSource[]>(
     K.knowledgeSources,
@@ -414,6 +440,70 @@ export function useCreateKnowledgeSource() {
   });
 }
 
+export function useUpdateKnowledgeSource() {
+  const qc = useQueryClient();
+  const remote = useRemote();
+  return useMutation({
+    mutationFn: async ({ id, patch }: { id: string; patch: Partial<KSource> }) => {
+      if (!remote) { db.knowledge.sources.update(id, patch); return; }
+      await knowledgeRepo.updateSource(id, patch);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["agents", "ksources"] }),
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useSetKnowledgeSourceStatus() {
+  const qc = useQueryClient();
+  const remote = useRemote();
+  return useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: KSource["status"] }) => {
+      if (!remote) { db.knowledge.sources.setStatus(id, status); return; }
+      await knowledgeRepo.setSourceStatus(id, status);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["agents", "ksources"] }),
+  });
+}
+
+export function useArchiveKnowledgeSource() {
+  const qc = useQueryClient();
+  const remote = useRemote();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (!remote) { db.knowledge.sources.archive(id); return; }
+      await knowledgeRepo.archiveSource(id);
+      await auditRepo.log("ksource.archive", "ksource", id);
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["agents", "ksources"] }); toast.success("Archived"); },
+  });
+}
+
+export function useRestoreKnowledgeSource() {
+  const qc = useQueryClient();
+  const remote = useRemote();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (!remote) { db.knowledge.sources.restore(id); return; }
+      await knowledgeRepo.restoreSource(id);
+      await auditRepo.log("ksource.restore", "ksource", id);
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["agents", "ksources"] }); toast.success("Restored"); },
+  });
+}
+
+export function useDeleteKnowledgeSource() {
+  const qc = useQueryClient();
+  const remote = useRemote();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (!remote) { db.knowledge.sources.remove(id); return; }
+      await knowledgeRepo.deleteSource(id);
+      await auditRepo.log("ksource.delete", "ksource", id);
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["agents", "ksources"] }); toast.success("Deleted"); },
+  });
+}
+
 export function useAssignKnowledgeToAgent() {
   const qc = useQueryClient();
   const remote = useRemote();
@@ -424,6 +514,153 @@ export function useAssignKnowledgeToAgent() {
       else await knowledgeRepo.unassign(agentId, sourceId);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["agents", "ksources"] }),
+  });
+}
+
+export function useUnassignKnowledgeFromAgent() {
+  const qc = useQueryClient();
+  const remote = useRemote();
+  return useMutation({
+    mutationFn: async ({ agentId, sourceId }: { agentId: string; sourceId: string }) => {
+      if (!remote) return;
+      await knowledgeRepo.unassign(agentId, sourceId);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["agents", "ksources"] }),
+  });
+}
+
+// FAQs / Products / Services / Website imports
+export function useFaqs() {
+  return useRemoteOrMock<KFAQ[]>(
+    ["agents", "faqs"] as const,
+    () => knowledgeRepo.listFaqs(),
+    () => db.knowledge.faqs.list(),
+  );
+}
+export function useCreateFaq() {
+  const qc = useQueryClient(); const remote = useRemote();
+  return useMutation({
+    mutationFn: async (input: { question: string; answer: string; category?: string; language?: string; collectionId: string }) => {
+      if (!remote) return db.knowledge.faqs.add(input);
+      return knowledgeRepo.createFaq(input);
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["agents", "faqs"] }); toast.success("FAQ added"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+export function useUpdateFaq() {
+  const qc = useQueryClient(); const remote = useRemote();
+  return useMutation({
+    mutationFn: async ({ id, patch }: { id: string; patch: Partial<KFAQ> }) => {
+      if (!remote) { db.knowledge.faqs.update(id, patch); return; }
+      await knowledgeRepo.updateFaq(id, patch);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["agents", "faqs"] }),
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+export function useDeleteFaq() {
+  const qc = useQueryClient(); const remote = useRemote();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (!remote) { db.knowledge.faqs.remove(id); return; }
+      await knowledgeRepo.deleteFaq(id);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["agents", "faqs"] }),
+  });
+}
+
+export function useProducts() {
+  return useRemoteOrMock<KProduct[]>(["agents", "products"] as const, () => knowledgeRepo.listProducts(), () => db.knowledge.products.list());
+}
+export function useCreateProduct() {
+  const qc = useQueryClient(); const remote = useRemote();
+  return useMutation({
+    mutationFn: async (input: Partial<KProduct> & { name: string; collectionId: string }) => {
+      if (!remote) return db.knowledge.products.add(input);
+      return knowledgeRepo.createProduct(input);
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["agents", "products"] }); toast.success("Product added"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+export function useDeleteProduct() {
+  const qc = useQueryClient(); const remote = useRemote();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (!remote) { db.knowledge.products.remove(id); return; }
+      await knowledgeRepo.deleteProduct(id);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["agents", "products"] }),
+  });
+}
+
+export function useServices() {
+  return useRemoteOrMock<KService[]>(["agents", "services"] as const, () => knowledgeRepo.listServices(), () => db.knowledge.services.list());
+}
+export function useCreateService() {
+  const qc = useQueryClient(); const remote = useRemote();
+  return useMutation({
+    mutationFn: async (input: Partial<KService> & { name: string; collectionId: string }) => {
+      if (!remote) return db.knowledge.services.add(input);
+      return knowledgeRepo.createService(input);
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["agents", "services"] }); toast.success("Service added"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+export function useDeleteService() {
+  const qc = useQueryClient(); const remote = useRemote();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (!remote) { db.knowledge.services.remove(id); return; }
+      await knowledgeRepo.deleteService(id);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["agents", "services"] }),
+  });
+}
+
+export function useWebsiteImports() {
+  return useRemoteOrMock<KWebsiteImport[]>(["agents", "wimports"] as const, () => knowledgeRepo.listWebsiteImports(), () => db.knowledge.websiteImports.list());
+}
+export function useCreateWebsiteImport() {
+  const qc = useQueryClient(); const remote = useRemote();
+  return useMutation({
+    mutationFn: async (input: { rootUrl: string; mode: KWebsiteImport["mode"]; pages?: string[]; collectionId: string }) => {
+      if (!remote) return db.knowledge.websiteImports.add(input);
+      return knowledgeRepo.createWebsiteImport(input);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["agents", "wimports"] });
+      qc.invalidateQueries({ queryKey: ["agents", "ksources"] });
+      toast.success("Website import queued");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+export function useDeleteWebsiteImport() {
+  const qc = useQueryClient(); const remote = useRemote();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (!remote) { db.knowledge.websiteImports.remove(id); return; }
+      await knowledgeRepo.deleteWebsiteImport(id);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["agents", "wimports"] });
+      qc.invalidateQueries({ queryKey: ["agents", "ksources"] });
+    },
+  });
+}
+
+// ─── DASHBOARD KPIs (Supabase-derived) ────────────────────────────────
+
+export function useAgentKpis() {
+  const { data: orgId, isLoading: orgLoading } = useOrgId();
+  return useQuery<AgentKpis | null>({
+    queryKey: ["agents", "kpis", orgId ?? "none"],
+    queryFn: async () => (orgId ? await dashboardKpisRepo.load() : null),
+    enabled: !orgLoading,
+    staleTime: 30_000,
   });
 }
 
