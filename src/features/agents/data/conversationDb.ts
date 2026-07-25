@@ -195,7 +195,7 @@ export function route(input: RouteInput): ConversationDecision {
   }
 
   // Knowledge lookup
-  const testResult = db.knowledge.testQuestion(input.text);
+  const testResult = db.knowledge.test(input.text);
   const knowledgeHits = testResult.sources.map((s) => ({ id: s.sourceId, name: s.sourceName, score: s.score }));
   const confidenceRaw = testResult.confidence;
 
