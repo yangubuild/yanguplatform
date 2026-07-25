@@ -784,54 +784,106 @@ function Toggle({ label, desc, checked, onChange }: { label: string; desc?: stri
 }
 
 function TestSandbox({ cfg }: { cfg: AgentConfig }) {
-  const [msgs, setMsgs] = useState<{ role: "you" | "agent"; text: string }[]>([
+  type Trace = { input: string; decision: ReturnType<typeof routeMessage> };
+  const [msgs, setMsgs] = useState<{ role: "you" | "agent"; text: string; trace?: Trace["decision"] }[]>([
     { role: "agent", text: cfg.greeting },
   ]);
   const [input, setInput] = useState("");
-  function send() {
-    if (!input.trim()) return;
-    const you = input.trim();
+  const [scenarioResults, setScenarioResults] = useState<{ scenarioId: string; traces: Trace[] } | null>(null);
+
+  function send(text?: string) {
+    const you = (text ?? input).trim();
+    if (!you) return;
     setMsgs((m) => [...m, { role: "you", text: you }]);
     setInput("");
-    setTimeout(() => {
-      const reply =
-        you.toLowerCase().includes("price") ? "Our published pricing is on yangu.io/pricing — want me to walk you through it?"
-        : you.toLowerCase().includes("book") ? "Sure — what day works best for you?"
-        : cfg.fallbackAnswer;
-      setMsgs((m) => [...m, { role: "agent", text: reply }]);
-    }, 400);
+    const decision = routeMessage({ agentId: cfg.agentId, channel: "web", text: you });
+    setMsgs((m) => [...m, { role: "agent", text: decision.reply, trace: decision }]);
   }
+
+  function runScenario(scenarioId: string) {
+    const scenario = TEST_SCENARIOS.find((s) => s.id === scenarioId)!;
+    const traces: Trace[] = scenario.messages.map((msg) => ({ input: msg, decision: routeMessage({ agentId: cfg.agentId, channel: "web", text: msg }) }));
+    setScenarioResults({ scenarioId, traces });
+  }
+
   return (
     <>
       <Card><CardContent className="p-5 space-y-3">
-        <SectionTitle title="Sandbox" hint="Chat with a mock of this employee. Nothing is sent to real customers." />
-        <div className="rounded-lg border border-border bg-muted/40 p-4 h-72 overflow-auto text-sm space-y-2">
+        <SectionTitle title="Sandbox" hint="Chat with a mock of this employee. Powered by the Conversation Engine — same pipeline used at runtime." />
+        <div className="rounded-lg border border-border bg-muted/40 p-4 h-80 overflow-auto text-sm space-y-3">
           {msgs.map((m, i) => (
             <div key={i}>
-              <span className={m.role === "agent" ? "font-medium text-primary" : "font-medium"}>{m.role === "agent" ? cfg.name : "You"}:</span> {m.text}
+              <div>
+                <span className={m.role === "agent" ? "font-medium text-primary" : "font-medium"}>{m.role === "agent" ? cfg.name : "You"}:</span> {m.text}
+              </div>
+              {m.trace && (
+                <div className="mt-1 text-[11px] text-muted-foreground flex flex-wrap gap-x-3 gap-y-0.5">
+                  <span>Lang: {m.trace.language}</span>
+                  <span>Confidence: {Math.round(m.trace.confidence * 100)}%</span>
+                  <span>Decision: {m.trace.decision}</span>
+                  <span>{m.trace.latencyMs}ms</span>
+                  <span>~{m.trace.tokensEstimate} tokens</span>
+                  {m.trace.command && <span>Command: {m.trace.command}</span>}
+                  {m.trace.action && <span>Action: {m.trace.action}</span>}
+                  {m.trace.ruleApplied && <span>Rule: {m.trace.ruleApplied}</span>}
+                  {m.trace.handover && <span className="text-destructive">Handover: {m.trace.handover.route}</span>}
+                  {m.trace.sources.length > 0 && <span>Sources: {m.trace.sources.map((s) => s.name).slice(0, 2).join(", ")}</span>}
+                </div>
+              )}
             </div>
           ))}
         </div>
         <div className="flex gap-2">
           <Input placeholder="Try a message…" className="flex-1" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} />
-          <Button onClick={send}>Send</Button>
+          <Button onClick={() => send()}>Send</Button>
         </div>
       </CardContent></Card>
+
       <Card><CardContent className="p-5 space-y-3">
-        <SectionTitle title="Test suite" hint="Automated checks against your knowledge base and business rules." />
-        {[
-          { name: "Answers pricing question", status: "pass" },
-          { name: "Follows do-not-say list", status: "pass" },
-          { name: "Handovers on refund intent", status: "pass" },
-          { name: "Respects working hours", status: "warn" },
-        ].map((t) => (
-          <div key={t.name} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-            <span className="text-sm">{t.name}</span>
-            <Badge variant={t.status === "pass" ? "secondary" : "outline"} className={t.status === "warn" ? "text-amber-600 border-amber-500/40" : ""}>{t.status}</Badge>
+        <SectionTitle title="Test scenarios" hint="Run pre-built scenarios covering sales, support, complaints, multilingual and handover." />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {TEST_SCENARIOS.map((s) => (
+            <Button key={s.id} variant="outline" size="sm" className="justify-start" onClick={() => runScenario(s.id)}>
+              <Play className="h-3.5 w-3.5 mr-1.5" />{s.label}
+            </Button>
+          ))}
+        </div>
+        {scenarioResults && (
+          <div className="mt-3 space-y-3">
+            <p className="text-xs text-muted-foreground">Results — {TEST_SCENARIOS.find((s) => s.id === scenarioResults.scenarioId)?.label}</p>
+            {scenarioResults.traces.map((t, i) => (
+              <div key={i} className="rounded-lg border border-border p-3 space-y-2">
+                <p className="text-sm"><span className="font-medium">Input:</span> {t.input}</p>
+                <p className="text-sm"><span className="font-medium text-primary">Reply:</span> {t.decision.reply}</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
+                  <TraceStat label="Language" value={t.decision.language} />
+                  <TraceStat label="Confidence" value={`${Math.round(t.decision.confidence * 100)}%`} />
+                  <TraceStat label="Decision" value={t.decision.decision} />
+                  <TraceStat label="Sentiment" value={t.decision.sentiment} />
+                  <TraceStat label="Latency" value={`${t.decision.latencyMs}ms`} />
+                  <TraceStat label="Tokens" value={`~${t.decision.tokensEstimate}`} />
+                  <TraceStat label="Command" value={t.decision.command ?? "—"} />
+                  <TraceStat label="Action" value={t.decision.action ?? "—"} />
+                </div>
+                {t.decision.ruleApplied && <p className="text-[11px] text-muted-foreground">Rule applied: {t.decision.ruleApplied}</p>}
+                {t.decision.handover && <p className="text-[11px] text-destructive">Handover → {t.decision.handover.route} · {t.decision.handover.reason}</p>}
+                {t.decision.sources.length > 0 && (
+                  <p className="text-[11px] text-muted-foreground">Sources: {t.decision.sources.map((s) => `${s.name} (${Math.round(s.score * 100)}%)`).join(" · ")}</p>
+                )}
+              </div>
+            ))}
           </div>
-        ))}
-        <Button variant="outline" className="w-full">Run full test suite</Button>
+        )}
       </CardContent></Card>
     </>
+  );
+}
+
+function TraceStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg bg-muted/40 px-2 py-1">
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="font-medium truncate">{value}</p>
+    </div>
   );
 }
