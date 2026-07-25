@@ -9,7 +9,7 @@ import {
   UtensilsCrossed, Home, Lightbulb, Bookmark, TrendingUp,
   Layers, Image, FileText, Settings, Zap, Sparkle, Grid3X3,
   Building2, CreditCard, FileBarChart, BarChart3, UserCircle,
-  ShieldCheck, Briefcase, GraduationCap, FlaskConical,
+  ShieldCheck, Briefcase, GraduationCap, FlaskConical, Bot,
 } from "lucide-react";
 
 // ── Account type model ───────────────────────────────────────
@@ -84,6 +84,7 @@ export const PRIMARY_NAV_ITEMS: NavItem[] = [
     ],
   },
   { icon: Sparkles, label: "Influencer", chevron: true, to: "/dashboard/influencer" },
+  { icon: Bot, label: "AI Agents", chevron: false, badge: "NEW", to: "/dashboard/agents" },
   { icon: Palette, label: "Yangu Studio", chevron: true, to: "/dashboard/studio" },
   { icon: BookOpen, label: "Visionaire", chevron: true, to: "/dashboard/visionaire" },
   { icon: Package, label: "App Store", chevron: false, badge: "+120%", to: "/dashboard/app-store" },
