@@ -1,17 +1,26 @@
-import { Helmet } from "react-helmet-async";
+import { useEffect } from "react";
 
 export function PageHeader({ title, description, actions, seoTitle, seoDescription }: {
   title: string; description?: string; actions?: React.ReactNode;
   seoTitle?: string; seoDescription?: string;
 }) {
+  useEffect(() => {
+    const prevTitle = document.title;
+    const prevDesc = document.querySelector('meta[name="description"]')?.getAttribute("content");
+    document.title = seoTitle ?? `${title} · Yangu AI Agents`;
+    const desc = seoDescription ?? description;
+    if (desc) {
+      let el = document.querySelector('meta[name="description"]');
+      if (!el) { el = document.createElement("meta"); el.setAttribute("name", "description"); document.head.appendChild(el); }
+      el.setAttribute("content", desc);
+    }
+    return () => {
+      document.title = prevTitle;
+      if (prevDesc) document.querySelector('meta[name="description"]')?.setAttribute("content", prevDesc);
+    };
+  }, [title, description, seoTitle, seoDescription]);
   return (
     <>
-      <Helmet>
-        <title>{seoTitle ?? `${title} · Yangu AI Agents`}</title>
-        {(seoDescription ?? description) && (
-          <meta name="description" content={seoDescription ?? description!} />
-        )}
-      </Helmet>
       <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
         <div>
           <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
