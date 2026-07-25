@@ -190,7 +190,7 @@ export const conversationsRepo = {
     const orgId = await requireOrgId();
     // fetch conversations + join contact
     const rows = unwrap(
-      await supabase.from("agent_conversations")
+      await sb.from("agent_conversations")
         .select("*, contact:agent_contacts(name, handle)")
         .eq("org_id", orgId)
         .order("updated_at", { ascending: false })
@@ -204,9 +204,9 @@ export const conversationsRepo = {
   },
   async get(id: string): Promise<Conversation | null> {
     const [convRes, msgRes, noteRes] = await Promise.all([
-      supabase.from("agent_conversations").select("*, contact:agent_contacts(name, handle)").eq("id", id).maybeSingle(),
-      supabase.from("agent_messages").select("*").eq("conversation_id", id).order("at", { ascending: true }),
-      supabase.from("agent_conversation_notes").select("*").eq("conversation_id", id).order("at", { ascending: true }),
+      sb.from("agent_conversations").select("*, contact:agent_contacts(name, handle)").eq("id", id).maybeSingle(),
+      sb.from("agent_messages").select("*").eq("conversation_id", id).order("at", { ascending: true }),
+      sb.from("agent_conversation_notes").select("*").eq("conversation_id", id).order("at", { ascending: true }),
     ]);
     const r: any = unwrap(convRes);
     if (!r) return null;
@@ -226,7 +226,7 @@ export const conversationsRepo = {
     const orgId = await requireOrgId();
     // upsert contact
     const contact = unwrap(
-      await supabase.from("agent_contacts").insert({
+      await sb.from("agent_contacts").insert({
         org_id: orgId,
         name: input.contactName,
         handle: input.contactHandle ?? null,
@@ -235,7 +235,7 @@ export const conversationsRepo = {
       }).select().single()
     );
     const row = unwrap(
-      await supabase.from("agent_conversations").insert({
+      await sb.from("agent_conversations").insert({
         org_id: orgId,
         agent_id: input.agentId ?? null,
         contact_id: contact.id,
@@ -249,7 +249,7 @@ export const conversationsRepo = {
     return rowToConversation({ ...row, contact_name: contact.name, contact_handle: contact.handle });
   },
   async update(id: string, patch: Partial<Conversation>): Promise<void> {
-    const r = await supabase.from("agent_conversations").update({
+    const r = await sb.from("agent_conversations").update({
       status: patch.status,
       priority: patch.priority,
       sentiment: patch.sentiment,
@@ -270,7 +270,7 @@ export const conversationsRepo = {
     const orgId = await requireOrgId();
     const userId = await currentUserId();
     const row = unwrap(
-      await supabase.from("agent_messages").insert({
+      await sb.from("agent_messages").insert({
         org_id: orgId,
         conversation_id: conversationId,
         role: msg.role,
@@ -280,7 +280,7 @@ export const conversationsRepo = {
         at: msg.at,
       }).select().single()
     );
-    await supabase.from("agent_conversations").update({
+    await sb.from("agent_conversations").update({
       last_message: msg.text,
       last_message_at: msg.at,
       updated_at: new Date().toISOString(),
@@ -291,7 +291,7 @@ export const conversationsRepo = {
     const orgId = await requireOrgId();
     const userId = await currentUserId();
     const row = unwrap(
-      await supabase.from("agent_conversation_notes").insert({
+      await sb.from("agent_conversation_notes").insert({
         org_id: orgId,
         conversation_id: conversationId,
         author_user_id: userId,
@@ -305,13 +305,13 @@ export const conversationsRepo = {
     const orgId = await requireOrgId();
     const userId = await currentUserId();
     const now = new Date().toISOString();
-    await supabase.from("agent_conversations").update({
+    await sb.from("agent_conversations").update({
       status: "human",
       takeover_by: userId,
       takeover_at: now,
       assigned_to: userId,
     }).eq("id", conversationId);
-    await supabase.from("agent_handover_events").insert({
+    await sb.from("agent_handover_events").insert({
       org_id: orgId, conversation_id: conversationId,
       kind: "takeover", actor_user_id: userId, summary: summary ?? null,
     });
@@ -320,14 +320,14 @@ export const conversationsRepo = {
     const orgId = await requireOrgId();
     const userId = await currentUserId();
     const now = new Date().toISOString();
-    await supabase.from("agent_conversations").update({
+    await sb.from("agent_conversations").update({
       status: "active",
       returned_by: userId,
       returned_at: now,
       handover_summary: summary,
       assigned_to: null,
     }).eq("id", conversationId);
-    await supabase.from("agent_handover_events").insert({
+    await sb.from("agent_handover_events").insert({
       org_id: orgId, conversation_id: conversationId,
       kind: "return", actor_user_id: userId, summary,
     });
@@ -339,7 +339,7 @@ export const leadsRepo = {
   async list(): Promise<Lead[]> {
     const orgId = await requireOrgId();
     const rows = unwrap(
-      await supabase.from("agent_leads").select("*").eq("org_id", orgId).order("created_at", { ascending: false })
+      await sb.from("agent_leads").select("*").eq("org_id", orgId).order("created_at", { ascending: false })
     );
     return (rows ?? []).map((r: any) => ({
       id: r.id, name: r.name, email: r.email ?? undefined, phone: r.phone ?? undefined,
@@ -350,7 +350,7 @@ export const leadsRepo = {
   async create(input: Omit<Lead, "id" | "createdAt">): Promise<Lead> {
     const orgId = await requireOrgId();
     const row = unwrap(
-      await supabase.from("agent_leads").insert({
+      await sb.from("agent_leads").insert({
         org_id: orgId,
         name: input.name, email: input.email ?? null, phone: input.phone ?? null,
         source: input.source, intent: input.intent, score: input.score, stage: input.stage,
@@ -363,7 +363,7 @@ export const leadsRepo = {
     };
   },
   async update(id: string, patch: Partial<Lead>): Promise<void> {
-    const r = await supabase.from("agent_leads").update({
+    const r = await sb.from("agent_leads").update({
       name: patch.name, email: patch.email, phone: patch.phone,
       intent: patch.intent, score: patch.score, stage: patch.stage,
     }).eq("id", id);
@@ -376,7 +376,7 @@ export const appointmentsRepo = {
   async list(): Promise<Appointment[]> {
     const orgId = await requireOrgId();
     const rows = unwrap(
-      await supabase.from("agent_appointments").select("*").eq("org_id", orgId).order("scheduled_at", { ascending: true })
+      await sb.from("agent_appointments").select("*").eq("org_id", orgId).order("scheduled_at", { ascending: true })
     );
     return (rows ?? []).map((r: any) => ({
       id: r.id, title: r.title, contact: r.contact_name ?? "",
@@ -387,7 +387,7 @@ export const appointmentsRepo = {
   async create(input: Omit<Appointment, "id">): Promise<Appointment> {
     const orgId = await requireOrgId();
     const row = unwrap(
-      await supabase.from("agent_appointments").insert({
+      await sb.from("agent_appointments").insert({
         org_id: orgId, agent_id: input.agentId || null,
         title: input.title, contact_name: input.contact, channel: input.channel,
         scheduled_at: input.when, duration_min: input.duration, status: input.status,
@@ -406,7 +406,7 @@ export const callsRepo = {
   async list(): Promise<Call[]> {
     const orgId = await requireOrgId();
     const rows = unwrap(
-      await supabase.from("agent_calls").select("*").eq("org_id", orgId).order("started_at", { ascending: false })
+      await sb.from("agent_calls").select("*").eq("org_id", orgId).order("started_at", { ascending: false })
     );
     return (rows ?? []).map((r: any) => ({
       id: r.id, contact: r.contact_name ?? "", direction: r.direction,
@@ -422,7 +422,7 @@ export const knowledgeRepo = {
   async listCollections(): Promise<KCollection[]> {
     const orgId = await requireOrgId();
     const rows = unwrap(
-      await supabase.from("agent_knowledge_collections").select("*").eq("org_id", orgId).order("created_at")
+      await sb.from("agent_knowledge_collections").select("*").eq("org_id", orgId).order("created_at")
     );
     return (rows ?? []).map((r: any) => ({
       id: r.id, name: r.name, description: r.description ?? "",
@@ -433,7 +433,7 @@ export const knowledgeRepo = {
   async createCollection(input: Partial<KCollection>): Promise<KCollection> {
     const orgId = await requireOrgId();
     const row = unwrap(
-      await supabase.from("agent_knowledge_collections").insert({
+      await sb.from("agent_knowledge_collections").insert({
         org_id: orgId,
         name: input.name ?? "New Collection",
         description: input.description ?? "",
@@ -449,8 +449,8 @@ export const knowledgeRepo = {
   async listSources(): Promise<KSource[]> {
     const orgId = await requireOrgId();
     const [srcRes, assignRes] = await Promise.all([
-      supabase.from("agent_knowledge_sources").select("*").eq("org_id", orgId).order("uploaded_at", { ascending: false }),
-      supabase.from("agent_knowledge_assignments").select("agent_id, source_id").eq("org_id", orgId),
+      sb.from("agent_knowledge_sources").select("*").eq("org_id", orgId).order("uploaded_at", { ascending: false }),
+      sb.from("agent_knowledge_assignments").select("agent_id, source_id").eq("org_id", orgId),
     ]);
     const assigns = assignRes.data ?? [];
     const byId: Record<string, string[]> = {};
@@ -470,7 +470,7 @@ export const knowledgeRepo = {
   async createSource(input: Partial<KSource>): Promise<KSource> {
     const orgId = await requireOrgId();
     const row = unwrap(
-      await supabase.from("agent_knowledge_sources").insert({
+      await sb.from("agent_knowledge_sources").insert({
         org_id: orgId,
         collection_id: input.collectionId || null,
         name: input.name ?? "Untitled",
@@ -493,19 +493,19 @@ export const knowledgeRepo = {
     };
   },
   async setSourceStatus(id: string, status: KSource["status"]): Promise<void> {
-    const r = await supabase.from("agent_knowledge_sources").update({ status }).eq("id", id);
+    const r = await sb.from("agent_knowledge_sources").update({ status }).eq("id", id);
     if (r.error) throw r.error;
   },
   async assign(agentId: string, sourceId: string): Promise<void> {
     const orgId = await requireOrgId();
-    const r = await supabase.from("agent_knowledge_assignments").upsert(
+    const r = await sb.from("agent_knowledge_assignments").upsert(
       { org_id: orgId, agent_id: agentId, source_id: sourceId },
       { onConflict: "agent_id,source_id" }
     );
     if (r.error) throw r.error;
   },
   async unassign(agentId: string, sourceId: string): Promise<void> {
-    const r = await supabase.from("agent_knowledge_assignments")
+    const r = await sb.from("agent_knowledge_assignments")
       .delete().eq("agent_id", agentId).eq("source_id", sourceId);
     if (r.error) throw r.error;
   },
@@ -516,7 +516,7 @@ export const workflowsRepo = {
   async list(): Promise<Workflow[]> {
     const orgId = await requireOrgId();
     const rows = unwrap(
-      await supabase.from("agent_workflows").select("*").eq("org_id", orgId).order("created_at", { ascending: false })
+      await sb.from("agent_workflows").select("*").eq("org_id", orgId).order("created_at", { ascending: false })
     );
     return (rows ?? []).map((r: any) => ({
       id: r.id, name: r.name, trigger: r.trigger ?? "",
@@ -531,7 +531,7 @@ export const integrationsRepo = {
   async list(): Promise<Integration[]> {
     const orgId = await requireOrgId();
     const rows = unwrap(
-      await supabase.from("agent_integrations").select("*").eq("org_id", orgId).order("name")
+      await sb.from("agent_integrations").select("*").eq("org_id", orgId).order("name")
     );
     return (rows ?? []).map((r: any) => ({
       id: r.id, name: r.name, category: r.category,
@@ -540,7 +540,7 @@ export const integrationsRepo = {
     }));
   },
   async setConnected(id: string, connected: boolean): Promise<void> {
-    const r = await supabase.from("agent_integrations").update({
+    const r = await sb.from("agent_integrations").update({
       connected, connected_at: connected ? new Date().toISOString() : null,
     }).eq("id", id);
     if (r.error) throw r.error;
@@ -551,7 +551,7 @@ export const integrationsRepo = {
 export const usageRepo = {
   async record(eventType: string, units = 1, meta: Record<string, unknown> = {}, agentId?: string, conversationId?: string) {
     const orgId = await requireOrgId();
-    await supabase.from("agent_usage_events").insert({
+    await sb.from("agent_usage_events").insert({
       org_id: orgId, event_type: eventType, units, meta,
       agent_id: agentId ?? null, conversation_id: conversationId ?? null,
     });
@@ -562,7 +562,7 @@ export const auditRepo = {
   async log(action: string, entityType: string, entityId?: string, oldData?: unknown, newData?: unknown) {
     const orgId = await requireOrgId();
     const userId = await currentUserId();
-    await supabase.from("agent_audit_logs").insert({
+    await sb.from("agent_audit_logs").insert({
       org_id: orgId, actor_user_id: userId, action, entity_type: entityType,
       entity_id: entityId ?? null,
       old_data: (oldData ?? null) as any, new_data: (newData ?? null) as any,
