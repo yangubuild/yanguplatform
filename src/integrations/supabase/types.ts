@@ -972,6 +972,920 @@ export type Database = {
           },
         ]
       }
+      agent_agents: {
+        Row: {
+          channels: string[]
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          language: string
+          name: string
+          org_id: string
+          status: string
+          type: string
+          updated_at: string
+          voice: string | null
+        }
+        Insert: {
+          channels?: string[]
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          language?: string
+          name: string
+          org_id: string
+          status?: string
+          type?: string
+          updated_at?: string
+          voice?: string | null
+        }
+        Update: {
+          channels?: string[]
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          language?: string
+          name?: string
+          org_id?: string
+          status?: string
+          type?: string
+          updated_at?: string
+          voice?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_agents_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_appointments: {
+        Row: {
+          agent_id: string | null
+          channel: string | null
+          contact_id: string | null
+          contact_name: string | null
+          conversation_id: string | null
+          created_at: string
+          duration_min: number
+          id: string
+          meta: Json
+          org_id: string
+          scheduled_at: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          agent_id?: string | null
+          channel?: string | null
+          contact_id?: string | null
+          contact_name?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          duration_min?: number
+          id?: string
+          meta?: Json
+          org_id: string
+          scheduled_at: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string | null
+          channel?: string | null
+          contact_id?: string | null
+          contact_name?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          duration_min?: number
+          id?: string
+          meta?: Json
+          org_id?: string
+          scheduled_at?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_appointments_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_appointments_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "agent_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_appointments_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "agent_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_appointments_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_audit_logs: {
+        Row: {
+          action: string
+          actor_user_id: string | null
+          at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          meta: Json
+          new_data: Json | null
+          old_data: Json | null
+          org_id: string
+        }
+        Insert: {
+          action: string
+          actor_user_id?: string | null
+          at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          meta?: Json
+          new_data?: Json | null
+          old_data?: Json | null
+          org_id: string
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string | null
+          at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          meta?: Json
+          new_data?: Json | null
+          old_data?: Json | null
+          org_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_audit_logs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_calls: {
+        Row: {
+          agent_id: string | null
+          contact_id: string | null
+          contact_name: string | null
+          conversation_id: string | null
+          created_at: string
+          direction: string
+          duration_sec: number
+          id: string
+          meta: Json
+          org_id: string
+          outcome: string | null
+          recording_url: string | null
+          started_at: string
+          transcript: string | null
+          updated_at: string
+        }
+        Insert: {
+          agent_id?: string | null
+          contact_id?: string | null
+          contact_name?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          direction: string
+          duration_sec?: number
+          id?: string
+          meta?: Json
+          org_id: string
+          outcome?: string | null
+          recording_url?: string | null
+          started_at?: string
+          transcript?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string | null
+          contact_id?: string | null
+          contact_name?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          direction?: string
+          duration_sec?: number
+          id?: string
+          meta?: Json
+          org_id?: string
+          outcome?: string | null
+          recording_url?: string | null
+          started_at?: string
+          transcript?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_calls_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_calls_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "agent_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_calls_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "agent_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_calls_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_configs: {
+        Row: {
+          agent_id: string
+          config: Json
+          created_at: string
+          environment: string
+          id: string
+          org_id: string
+          published_at: string | null
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          agent_id: string
+          config?: Json
+          created_at?: string
+          environment?: string
+          id?: string
+          org_id: string
+          published_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          agent_id?: string
+          config?: Json
+          created_at?: string
+          environment?: string
+          id?: string
+          org_id?: string
+          published_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_configs_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_configs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_contacts: {
+        Row: {
+          channel: string | null
+          created_at: string
+          email: string | null
+          handle: string | null
+          id: string
+          language: string | null
+          meta: Json
+          name: string
+          org_id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          channel?: string | null
+          created_at?: string
+          email?: string | null
+          handle?: string | null
+          id?: string
+          language?: string | null
+          meta?: Json
+          name: string
+          org_id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          channel?: string | null
+          created_at?: string
+          email?: string | null
+          handle?: string | null
+          id?: string
+          language?: string | null
+          meta?: Json
+          name?: string
+          org_id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_contacts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_conversation_notes: {
+        Row: {
+          at: string
+          author_name: string | null
+          author_user_id: string | null
+          conversation_id: string
+          created_at: string
+          id: string
+          org_id: string
+          text: string
+        }
+        Insert: {
+          at?: string
+          author_name?: string | null
+          author_user_id?: string | null
+          conversation_id: string
+          created_at?: string
+          id?: string
+          org_id: string
+          text: string
+        }
+        Update: {
+          at?: string
+          author_name?: string | null
+          author_user_id?: string | null
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          org_id?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_conversation_notes_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "agent_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_conversation_notes_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_conversations: {
+        Row: {
+          agent_id: string | null
+          archived: boolean
+          assigned_to: string | null
+          channel: string
+          contact_id: string | null
+          created_at: string
+          handover_summary: string | null
+          id: string
+          language: string | null
+          last_message: string | null
+          last_message_at: string | null
+          memory_retention: string | null
+          org_id: string
+          outcome: string | null
+          priority: string | null
+          returned_at: string | null
+          returned_by: string | null
+          sentiment: string | null
+          spam: boolean
+          status: string
+          tags: string[]
+          takeover_at: string | null
+          takeover_by: string | null
+          unread: number
+          updated_at: string
+        }
+        Insert: {
+          agent_id?: string | null
+          archived?: boolean
+          assigned_to?: string | null
+          channel?: string
+          contact_id?: string | null
+          created_at?: string
+          handover_summary?: string | null
+          id?: string
+          language?: string | null
+          last_message?: string | null
+          last_message_at?: string | null
+          memory_retention?: string | null
+          org_id: string
+          outcome?: string | null
+          priority?: string | null
+          returned_at?: string | null
+          returned_by?: string | null
+          sentiment?: string | null
+          spam?: boolean
+          status?: string
+          tags?: string[]
+          takeover_at?: string | null
+          takeover_by?: string | null
+          unread?: number
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string | null
+          archived?: boolean
+          assigned_to?: string | null
+          channel?: string
+          contact_id?: string | null
+          created_at?: string
+          handover_summary?: string | null
+          id?: string
+          language?: string | null
+          last_message?: string | null
+          last_message_at?: string | null
+          memory_retention?: string | null
+          org_id?: string
+          outcome?: string | null
+          priority?: string | null
+          returned_at?: string | null
+          returned_by?: string | null
+          sentiment?: string | null
+          spam?: boolean
+          status?: string
+          tags?: string[]
+          takeover_at?: string | null
+          takeover_by?: string | null
+          unread?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_conversations_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_conversations_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "agent_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_conversations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_handover_events: {
+        Row: {
+          actor_user_id: string | null
+          at: string
+          conversation_id: string
+          id: string
+          kind: string
+          meta: Json
+          org_id: string
+          summary: string | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          at?: string
+          conversation_id: string
+          id?: string
+          kind: string
+          meta?: Json
+          org_id: string
+          summary?: string | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          at?: string
+          conversation_id?: string
+          id?: string
+          kind?: string
+          meta?: Json
+          org_id?: string
+          summary?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_handover_events_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "agent_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_handover_events_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_integrations: {
+        Row: {
+          category: string | null
+          config: Json
+          connected: boolean
+          connected_at: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          org_id: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          config?: Json
+          connected?: boolean
+          connected_at?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          org_id: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          config?: Json
+          connected?: boolean
+          connected_at?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          org_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_integrations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_knowledge_assignments: {
+        Row: {
+          agent_id: string
+          created_at: string
+          id: string
+          org_id: string
+          source_id: string
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string
+          id?: string
+          org_id: string
+          source_id: string
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string
+          id?: string
+          org_id?: string
+          source_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_knowledge_assignments_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_knowledge_assignments_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_knowledge_assignments_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "agent_knowledge_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_knowledge_collections: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          meta: Json
+          name: string
+          org_id: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          meta?: Json
+          name: string
+          org_id: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          meta?: Json
+          name?: string
+          org_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_knowledge_collections_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_knowledge_sources: {
+        Row: {
+          active: boolean
+          chunks: number
+          collection_id: string | null
+          content: Json
+          created_at: string
+          history: Json
+          id: string
+          kind: string
+          language: string | null
+          name: string
+          org_id: string
+          permission: string
+          size: string | null
+          source_url: string | null
+          status: string
+          tags: string[]
+          updated_at: string
+          uploaded_at: string
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          chunks?: number
+          collection_id?: string | null
+          content?: Json
+          created_at?: string
+          history?: Json
+          id?: string
+          kind: string
+          language?: string | null
+          name: string
+          org_id: string
+          permission?: string
+          size?: string | null
+          source_url?: string | null
+          status?: string
+          tags?: string[]
+          updated_at?: string
+          uploaded_at?: string
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          chunks?: number
+          collection_id?: string | null
+          content?: Json
+          created_at?: string
+          history?: Json
+          id?: string
+          kind?: string
+          language?: string | null
+          name?: string
+          org_id?: string
+          permission?: string
+          size?: string | null
+          source_url?: string | null
+          status?: string
+          tags?: string[]
+          updated_at?: string
+          uploaded_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_knowledge_sources_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "agent_knowledge_collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_knowledge_sources_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_leads: {
+        Row: {
+          contact_id: string | null
+          conversation_id: string | null
+          created_at: string
+          email: string | null
+          id: string
+          intent: string | null
+          meta: Json
+          name: string
+          org_id: string
+          owner_user_id: string | null
+          phone: string | null
+          score: number
+          source: string | null
+          stage: string
+          updated_at: string
+        }
+        Insert: {
+          contact_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          intent?: string | null
+          meta?: Json
+          name: string
+          org_id: string
+          owner_user_id?: string | null
+          phone?: string | null
+          score?: number
+          source?: string | null
+          stage?: string
+          updated_at?: string
+        }
+        Update: {
+          contact_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          intent?: string | null
+          meta?: Json
+          name?: string
+          org_id?: string
+          owner_user_id?: string | null
+          phone?: string | null
+          score?: number
+          source?: string | null
+          stage?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_leads_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "agent_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_leads_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "agent_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_leads_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_messages: {
+        Row: {
+          at: string
+          author_user_id: string | null
+          conversation_id: string
+          created_at: string
+          id: string
+          meta: Json
+          org_id: string
+          role: string
+          text: string
+        }
+        Insert: {
+          at?: string
+          author_user_id?: string | null
+          conversation_id: string
+          created_at?: string
+          id?: string
+          meta?: Json
+          org_id: string
+          role: string
+          text: string
+        }
+        Update: {
+          at?: string
+          author_user_id?: string | null
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          meta?: Json
+          org_id?: string
+          role?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "agent_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_messages_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_onboardings: {
         Row: {
           agent_id: string
@@ -1012,6 +1926,118 @@ export type Database = {
             columns: ["agent_id"]
             isOneToOne: false
             referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_usage_events: {
+        Row: {
+          agent_id: string | null
+          at: string
+          conversation_id: string | null
+          event_type: string
+          id: string
+          meta: Json
+          org_id: string
+          units: number
+        }
+        Insert: {
+          agent_id?: string | null
+          at?: string
+          conversation_id?: string | null
+          event_type: string
+          id?: string
+          meta?: Json
+          org_id: string
+          units?: number
+        }
+        Update: {
+          agent_id?: string | null
+          at?: string
+          conversation_id?: string | null
+          event_type?: string
+          id?: string
+          meta?: Json
+          org_id?: string
+          units?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_usage_events_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_usage_events_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "agent_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_usage_events_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_workflows: {
+        Row: {
+          agent_id: string | null
+          created_at: string
+          id: string
+          meta: Json
+          name: string
+          org_id: string
+          runs: number
+          status: string
+          steps: Json
+          trigger: string | null
+          updated_at: string
+        }
+        Insert: {
+          agent_id?: string | null
+          created_at?: string
+          id?: string
+          meta?: Json
+          name: string
+          org_id: string
+          runs?: number
+          status?: string
+          steps?: Json
+          trigger?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string | null
+          created_at?: string
+          id?: string
+          meta?: Json
+          name?: string
+          org_id?: string
+          runs?: number
+          status?: string
+          steps?: Json
+          trigger?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_workflows_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_workflows_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
             referencedColumns: ["id"]
           },
         ]
@@ -11459,6 +12485,10 @@ export type Database = {
         Args: { _group_id: string; _user_id: string }
         Returns: boolean
       }
+      is_org_member: {
+        Args: { _org_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_owner: { Args: { _user_id: string }; Returns: boolean }
       is_slug_available: {
         Args: { _domain_id: string; _slug: string }
@@ -11765,6 +12795,10 @@ export type Database = {
       }
       org_has_active_subscription: {
         Args: { p_org_id: string }
+        Returns: boolean
+      }
+      org_role_in: {
+        Args: { _org_id: string; _roles: string[]; _user_id: string }
         Returns: boolean
       }
       process_dropship_order_sync_batch: {
