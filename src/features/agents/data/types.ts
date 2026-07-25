@@ -8,6 +8,138 @@ export interface Agent {
   conversationsToday: number; leadsThisWeek: number; handoverRate: number;
   updatedAt: string; description: string;
 }
+
+// ─── Production-ready AI Employee configuration ────────────────────────
+
+export type Department =
+  | "sales" | "customer_support" | "reception" | "operations"
+  | "hr" | "finance" | "marketing" | "it" | "logistics" | "custom";
+
+export type VoiceProvider = "elevenlabs" | "openai" | "google" | "azure" | "polly" | "coqui";
+export type Gender = "female" | "male" | "neutral";
+export type ToneStyle = "warm" | "professional" | "friendly" | "playful" | "direct" | "empathetic";
+export type MemoryScope = "session" | "contact" | "org";
+export type PublishEnv = "draft" | "staging" | "live";
+
+export interface WorkingHours {
+  timezone: string;
+  days: Record<"mon"|"tue"|"wed"|"thu"|"fri"|"sat"|"sun", { enabled: boolean; open: string; close: string }>;
+  holidays: string[];        // ISO dates
+  afterHoursBehavior: "handover" | "take_message" | "book_callback" | "auto_reply";
+}
+
+export interface QualificationQuestion {
+  id: string; question: string; required: boolean;
+  type: "text" | "email" | "phone" | "choice" | "budget";
+  choices?: string[];
+}
+
+export interface AgentCommand {
+  id: string; trigger: string; response: string; enabled: boolean;
+}
+
+export interface HandoverRule {
+  id: string; trigger: string; enabled: boolean;
+  route: "support_queue" | "sales_queue" | "owner" | "custom";
+  customTarget?: string;
+}
+
+export interface AgentConfig {
+  id: string;
+  agentId: string;
+
+  // Identity
+  name: string;
+  avatarUrl?: string;
+  role: string;
+  department: Department;
+
+  // Personality
+  personaDescription: string;
+  toneStyle: ToneStyle;
+  formalCasual: number;   // 0-100
+  conciseDetailed: number;
+  warmDirect: number;
+  doSay: string;
+  dontSay: string;
+  sampleGreetings: string;
+
+  // Voice
+  voiceEnabled: boolean;
+  voiceProvider: VoiceProvider;
+  voiceId: string;
+  gender: Gender;
+  language: string;
+  secondaryLanguages: string[];
+  regionalAccent: string;
+  speakingSpeed: number;   // 0.5–2.0 (stored *100)
+  pitch: number;           // 0-100
+  fillerWords: boolean;
+  phoneNumber?: string;
+
+  // Behaviour
+  greeting: string;
+  businessGoals: string;
+  companyInstructions: string;
+  companyKnowledge: string;
+  businessRules: string;
+  commands: AgentCommand[];
+  qualificationQuestions: QualificationQuestion[];
+
+  // Knowledge base
+  attachedKnowledgeIds: string[];
+  topK: number;
+  similarityThreshold: number;
+  fallbackAnswer: string;
+
+  // Actions
+  allowedActions: Record<string, boolean>;
+
+  // Channels
+  channels: Record<Channel, { enabled: boolean; config?: Record<string, string> }>;
+  webWidgetTheme: "light" | "dark" | "auto";
+
+  // Workflows
+  attachedWorkflowIds: string[];
+
+  // Handover
+  handoverRules: HandoverRule[];
+  confidenceThreshold: number;
+  notifyChannel: string;
+  businessHoursRoute: string;
+  afterHoursRoute: string;
+
+  // Integrations
+  connectedIntegrationIds: string[];
+
+  // Working hours
+  workingHours: WorkingHours;
+
+  // Memory
+  memoryEnabled: boolean;
+  memoryScope: MemoryScope;
+  memoryRetentionDays: number;
+
+  // Compliance
+  piiRedaction: boolean;
+  recordingConsent: boolean;
+  gdprMode: boolean;
+  dataResidency: "eu" | "us" | "africa" | "global";
+  disclaimer: string;
+
+  // Settings
+  rateLimitPerMin: number;
+
+  // Deploy
+  environment: PublishEnv;
+  version: number;
+  webhookUrl: string;
+
+  // Meta
+  updatedAt: string;
+  publishedAt?: string;
+}
+
 export interface Message {
   id: string; role: "customer" | "agent" | "human" | "system"; text: string; at: string;
 }
