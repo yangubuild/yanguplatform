@@ -20,7 +20,6 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { db } from "../data/mock";
-import { useKnowledgeCollections, useKnowledgeSources, useCreateKnowledgeCollection, useCreateKnowledgeSource } from "../data/hooks";
 import type {
   KSource, KSourceKind, KSourceStatus, KPermission, KCollection, KFAQ,
   KProduct, KService, KTestResult,
