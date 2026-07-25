@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { db } from "../data/mock";
+import { useLeads } from "../data/hooks";
 import type { Lead } from "../data/types";
 import { PageHeader } from "../components/PageHeader";
 
 const STAGES: Lead["stage"][] = ["new","qualified","booked","won","lost"];
 
 export default function LeadsPage() {
-  const leads = db.leads.list();
+  const { data: leads = [], isLoading, error, refetch } = useLeads();
   const [view, setView] = useState<"table" | "kanban">("table");
   const [active, setActive] = useState<Lead | null>(null);
 
@@ -19,6 +19,15 @@ export default function LeadsPage() {
     <div className="space-y-5">
       <PageHeader title="Leads" description="Every qualified prospect in one pipeline."
         actions={<div className="flex gap-2"><Button size="sm" variant={view==="table"?"default":"outline"} onClick={()=>setView("table")}>Table</Button><Button size="sm" variant={view==="kanban"?"default":"outline"} onClick={()=>setView("kanban")}>Kanban</Button></div>} />
+      {error && (
+        <div className="flex items-center justify-between rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm">
+          <span>Could not load leads.</span>
+          <Button size="sm" variant="outline" onClick={() => refetch()}>Retry</Button>
+        </div>
+      )}
+      {!isLoading && !error && leads.length === 0 && (
+        <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">No leads yet.</div>
+      )}
       {view === "table" ? (
         <Card>
           <Table>

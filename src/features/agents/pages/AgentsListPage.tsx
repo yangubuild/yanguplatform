@@ -4,12 +4,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Bot, Plus, Copy, Pause, Play } from "lucide-react";
-import { db } from "../data/mock";
+import { Bot, Plus, Copy, Pause, Play, Loader2 } from "lucide-react";
+import { useAgents, useCreateAgent, useUpdateAgent } from "../data/hooks";
+import type { AgentType } from "../data/types";
 import { PageHeader, StatusDot } from "../components/PageHeader";
 
 const FILTERS = ["All", "Live", "Draft", "Paused", "Sales", "Receptionist", "Support", "Knowledge"];
-const TEMPLATES = [
+const TEMPLATES: { id: AgentType; name: string; desc: string }[] = [
   { id: "sales", name: "Sales Agent", desc: "Qualifies leads, books demos, closes deals." },
   { id: "receptionist", name: "Receptionist", desc: "Answers calls, books appointments, takes messages." },
   { id: "support", name: "Support Agent", desc: "Resolves tickets, escalates when unsure." },
@@ -19,7 +20,10 @@ const TEMPLATES = [
 export default function AgentsListPage() {
   const [filter, setFilter] = useState("All");
   const [picker, setPicker] = useState(false);
-  const agents = db.agents.list().filter((a) => {
+  const { data: allAgents = [], isLoading, error, refetch } = useAgents();
+  const createMut = useCreateAgent();
+  const updateMut = useUpdateAgent();
+  const agents = allAgents.filter((a) => {
     if (filter === "All") return true;
     if (["Live", "Draft", "Paused"].includes(filter)) return a.status === filter.toLowerCase();
     return a.type === filter.toLowerCase();
@@ -38,6 +42,20 @@ export default function AgentsListPage() {
         ))}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {isLoading && agents.length === 0 && (
+          <div className="col-span-full flex items-center gap-2 text-sm text-muted-foreground p-8"><Loader2 className="h-4 w-4 animate-spin" />Loading agents…</div>
+        )}
+        {error && (
+          <div className="col-span-full flex items-center justify-between rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm">
+            <span>Could not load agents.</span>
+            <Button size="sm" variant="outline" onClick={() => refetch()}>Retry</Button>
+          </div>
+        )}
+        {!isLoading && agents.length === 0 && !error && (
+          <div className="col-span-full rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            No agents yet. Click <span className="font-medium">New agent</span> to build your first AI employee.
+          </div>
+        )}
         {agents.map((a) => (
           <Card key={a.id}>
             <CardContent className="p-5 space-y-3">
@@ -62,8 +80,12 @@ export default function AgentsListPage() {
               </div>
               <div className="flex gap-2">
                 <Button asChild size="sm" className="flex-1"><Link to={`/dashboard/agents/agents/${a.id}`}>Open builder</Link></Button>
-                <Button size="sm" variant="outline" aria-label="Duplicate"><Copy className="h-4 w-4" /></Button>
-                <Button size="sm" variant="outline" aria-label={a.status === "paused" ? "Resume" : "Pause"}>
+                <Button size="sm" variant="outline" aria-label="Duplicate"
+                  onClick={() => createMut.mutate({ name: `${a.name} copy`, type: a.type, status: "draft", description: a.description, channels: a.channels, language: a.language, voice: a.voice })}>
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button size="sm" variant="outline" aria-label={a.status === "paused" ? "Resume" : "Pause"}
+                  onClick={() => updateMut.mutate({ id: a.id, patch: { status: a.status === "paused" ? "live" : "paused" } })}>
                   {a.status === "paused" ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
                 </Button>
               </div>
@@ -77,7 +99,8 @@ export default function AgentsListPage() {
           <DialogHeader><DialogTitle>Pick a template</DialogTitle></DialogHeader>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
             {TEMPLATES.map((t) => (
-              <Card key={t.id} className="cursor-pointer hover:border-primary transition">
+              <Card key={t.id} className="cursor-pointer hover:border-primary transition"
+                onClick={() => { createMut.mutate({ name: t.name, type: t.id, status: "draft", description: t.desc, channels: ["web"], language: "English" }); setPicker(false); }}>
                 <CardContent className="p-4">
                   <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-2"><Bot className="h-4 w-4" /></div>
                   <p className="font-semibold text-sm">{t.name}</p>

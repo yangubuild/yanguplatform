@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { PhoneIncoming, PhoneOutgoing, Play } from "lucide-react";
-import { db } from "../data/mock";
+import { useCalls } from "../data/hooks";
 import type { Call } from "../data/types";
 import { PageHeader } from "../components/PageHeader";
 
@@ -15,7 +15,7 @@ const outcomeVariant: Record<string, "default" | "secondary" | "destructive" | "
 };
 
 export default function CallsPage() {
-  const calls = db.calls.list();
+  const { data: calls = [], isLoading, error, refetch } = useCalls();
   const [open, setOpen] = useState<Call | null>(null);
   const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
@@ -28,6 +28,8 @@ export default function CallsPage() {
         ))}
       </div>
       <Card>
+        {error && <div className="p-4 text-sm flex items-center justify-between"><span>Could not load calls.</span><Button size="sm" variant="outline" onClick={() => refetch()}>Retry</Button></div>}
+        {!isLoading && !error && calls.length === 0 && <div className="p-8 text-center text-sm text-muted-foreground">No calls recorded yet.</div>}
         <Table>
           <TableHeader><TableRow><TableHead>Contact</TableHead><TableHead>Direction</TableHead><TableHead>Duration</TableHead><TableHead>Outcome</TableHead><TableHead>When</TableHead><TableHead className="text-right">Recording</TableHead></TableRow></TableHeader>
           <TableBody>

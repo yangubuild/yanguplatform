@@ -5,21 +5,29 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import * as Icons from "lucide-react";
-import { db } from "../data/mock";
+import { useIntegrations, useSetIntegrationConnected } from "../data/hooks";
 import type { Integration } from "../data/types";
 import { PageHeader } from "../components/PageHeader";
 
 const CATEGORIES: Integration["category"][] = ["channels","calendar","crm","payments","automation","storage"];
 
 export default function IntegrationsPage() {
-  const [items, setItems] = useState<Integration[]>(() => db.integrations.list().map((i) => ({ ...i })));
+  const { data: items = [], isLoading, error, refetch } = useIntegrations();
+  const toggleMut = useSetIntegrationConnected();
   const [active, setActive] = useState<Integration | null>(null);
 
-  const toggle = (id: string, next: boolean) => setItems((prev) => prev.map((i) => i.id === id ? { ...i, connected: next } : i));
+  const toggle = (id: string, next: boolean) => toggleMut.mutate({ id, connected: next });
 
   return (
     <div className="space-y-6">
       <PageHeader title="Integrations" description="Connect the tools your business already uses." />
+      {isLoading && <p className="text-sm text-muted-foreground">Loading integrations…</p>}
+      {error && (
+        <div className="flex items-center justify-between rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm">
+          <span>Could not load integrations.</span>
+          <Button size="sm" variant="outline" onClick={() => refetch()}>Retry</Button>
+        </div>
+      )}
       {CATEGORIES.map((cat) => {
         const inCat = items.filter((i) => i.category === cat);
         const count = inCat.filter((i) => i.connected).length;

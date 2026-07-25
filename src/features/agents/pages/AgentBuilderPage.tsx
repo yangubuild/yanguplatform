@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { db } from "../data/mock";
+import { useAgent, useAgentConfig, useSaveAgentConfig, usePublishAgentConfig, useUpdateAgent, useDeleteAgent, useAgents } from "../data/hooks";
+import { Loader2 } from "lucide-react";
 import { route as routeMessage, TEST_SCENARIOS } from "../data/conversationDb";
 import type {
   AgentConfig, AgentCommand, QualificationQuestion, HandoverRule, Channel,
@@ -99,14 +101,34 @@ function validate(cfg: AgentConfig): string[] {
 
 export default function AgentBuilderPage() {
   const { id } = useParams();
-  const agent = db.agents.get(id ?? "") ?? db.agents.list()[0];
-  const [cfg, setCfg] = useState<AgentConfig>(() => db.agentConfigs.get(agent.id));
+  const { data: allAgents = [] } = useAgents();
+  const { data: liveAgent } = useAgent(id);
+  const agent = liveAgent ?? allAgents[0] ?? db.agents.get(id ?? "") ?? db.agents.list()[0];
+  const { data: remoteCfg, isLoading: cfgLoading } = useAgentConfig(agent?.id, "draft");
+  const [cfg, setCfg] = useState<AgentConfig | null>(null);
   const [dirty, setDirty] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const errors = useMemo(() => validate(cfg), [cfg]);
+  const saveMut = useSaveAgentConfig();
+  const publishMut = usePublishAgentConfig();
+  const updateAgentMut = useUpdateAgent();
+  const deleteAgentMut = useDeleteAgent();
+
+  // Hydrate local editor state whenever the remote config resolves (or mock fallback).
+  useMemo(() => {
+    if (remoteCfg && !dirty) setCfg(remoteCfg);
+  }, [remoteCfg?.id, remoteCfg?.version]);
+  const errors = useMemo(() => (cfg ? validate(cfg) : ["Loading configuration…"]), [cfg]);
+  const saving = saveMut.isPending || publishMut.isPending;
+
+  if (!cfg || cfgLoading) {
+    return (
+      <div className="flex items-center gap-2 p-12 text-sm text-muted-foreground justify-center">
+        <Loader2 className="h-4 w-4 animate-spin" />Loading agent configuration…
+      </div>
+    );
+  }
 
   function update<K extends keyof AgentConfig>(key: K, value: AgentConfig[K]) {
-    setCfg((c) => ({ ...c, [key]: value }));
+    setCfg((c) => (c ? { ...c, [key]: value } : c));
     setDirty(true);
   }
 
@@ -115,12 +137,13 @@ export default function AgentBuilderPage() {
       toast({ title: "Fix validation errors", description: errors[0], variant: "destructive" });
       return;
     }
-    setSaving(true);
-    setTimeout(() => {
-      const next = db.agentConfigs.save(cfg.agentId, cfg);
-      setCfg(next); setDirty(false); setSaving(false);
-      toast({ title: "Changes saved", description: "Your AI employee has been updated." });
-    }, 300);
+    if (!cfg) return;
+    saveMut.mutate(
+      { agentId: cfg.agentId, config: cfg },
+      {
+        onSuccess: (next) => { setCfg(next); setDirty(false); },
+      },
+    );
   }
 
   function handlePublish(env: "draft" | "staging" | "live") {
@@ -128,9 +151,12 @@ export default function AgentBuilderPage() {
       toast({ title: "Cannot publish", description: errors[0], variant: "destructive" });
       return;
     }
-    const next = db.agentConfigs.publish(cfg.agentId, env);
-    setCfg(next); setDirty(false);
-    toast({ title: `Moved to ${env}`, description: env === "live" ? `Version ${next.version} is now live.` : `Environment updated.` });
+    if (!cfg) return;
+    publishMut.mutate({ agentId: cfg.agentId, env }, {
+      onSuccess: (next) => { setCfg(next); setDirty(false); },
+    });
+    // Mirror status onto the agent so lists reflect the environment.
+    updateAgentMut.mutate({ id: cfg.agentId, patch: { status: env === "live" ? "live" : env === "staging" ? "paused" : "draft" } });
   }
 
   return (
