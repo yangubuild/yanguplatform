@@ -8,10 +8,9 @@ import { Check } from "lucide-react";
 import { PageHeader } from "../components/PageHeader";
 
 const PLANS = [
-  { name: "Starter", price: "$99", features: ["1,000 conversations", "200 voice minutes", "2 seats", "1 agent", "WhatsApp + Web"] },
-  { name: "Growth", price: "$399", features: ["10,000 conversations", "2,000 voice minutes", "10 seats", "Unlimited agents", "All channels", "Workflows & integrations"], recommended: true },
-  { name: "Business", price: "$999", features: ["50,000 conversations", "10,000 voice minutes", "25 seats", "Priority support", "Advanced analytics", "Custom voice"] },
-  { name: "Enterprise", price: "Custom", features: ["Unlimited everything", "SSO / SAML", "Dedicated CSM", "On-prem option", "Custom SLAs"] },
+  { name: "Starter", price: "$189", setup: "$950 setup", features: ["1,000 conversations / mo", "200 voice minutes / mo", "2 seats", "1 agent", "WhatsApp + Web channels"] },
+  { name: "Growth", price: "$399", setup: "$2,000 setup", features: ["10,000 conversations / mo", "2,000 voice minutes / mo", "10 seats", "Unlimited agents", "All channels", "Workflows & integrations"], recommended: true },
+  { name: "Enterprise", price: "Custom", setup: "Implementation from $5,500", features: ["Unlimited conversations & minutes", "Unlimited seats & agents", "SSO / SAML", "Dedicated CSM", "On-prem option", "Custom SLAs"] },
 ];
 
 const INVOICES = [
@@ -68,10 +67,14 @@ export default function BillingPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-4xl">
           <DialogHeader><DialogTitle>Change plan</DialogTitle></DialogHeader>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
             {PLANS.map((p) => (
               <div key={p.name} className={`rounded-lg border p-4 flex flex-col gap-3 ${p.recommended ? "border-primary" : "border-border"}`}>
-                <div><p className="font-semibold">{p.name}</p><p className="text-xl font-semibold mt-1">{p.price}<span className="text-xs text-muted-foreground font-normal">{p.price!=="Custom"?"/mo":""}</span></p></div>
+                <div>
+                  <p className="font-semibold">{p.name}</p>
+                  <p className="text-xl font-semibold mt-1">{p.price}<span className="text-xs text-muted-foreground font-normal">{p.price!=="Custom"?"/mo":""}</span></p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{p.setup}</p>
+                </div>
                 <ul className="space-y-1.5 text-xs flex-1">{p.features.map((f)=>(<li key={f} className="flex items-start gap-1.5"><Check className="h-3.5 w-3.5 mt-0.5 text-primary shrink-0"/>{f}</li>))}</ul>
                 <Button variant={p.recommended ? "default" : "outline"} size="sm">{p.price === "Custom" ? "Contact us" : "Select"}</Button>
               </div>
