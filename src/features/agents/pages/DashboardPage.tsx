@@ -4,14 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, MessageCircle, PhoneCall, Calendar, TrendingUp, Bot, Plus } from "lucide-react";
 import { db } from "../data/mock";
+import { useAgents, useConversations } from "../data/hooks";
 import { PageHeader, StatusDot } from "../components/PageHeader";
 
 const channelIcon: Record<string, any> = { whatsapp: MessageCircle, web: MessageCircle, voice: PhoneCall, email: MessageCircle, sms: MessageCircle, instagram: MessageCircle };
 
 export default function DashboardPage() {
-  const kpis = db.kpis();
-  const agents = db.agents.list();
-  const convos = db.conversations.list().slice(0, 4);
+  const kpis = db.kpis(); // KPIs stay on mock — see hooks module scope
+  const { data: agents = [], isLoading: agentsLoading } = useAgents();
+  const { data: convos = [] } = useConversations();
+  const recent = convos.slice(0, 4);
 
   const kpiCards = [
     { label: "Conversations today", value: kpis.conversationsToday, delta: kpis.conversationsDelta, icon: MessageCircle },
@@ -51,6 +53,9 @@ export default function DashboardPage() {
 
       <div>
         <h3 className="text-sm font-semibold mb-3">Your agents</h3>
+        {agentsLoading && agents.length === 0 && (
+          <p className="text-sm text-muted-foreground">Loading agents…</p>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {agents.map((a) => (
             <Card key={a.id}>
@@ -91,7 +96,8 @@ export default function DashboardPage() {
         <Card>
           <CardHeader><CardTitle className="text-base">Recent activity</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            {convos.map((c) => (
+            {recent.length === 0 && <p className="text-sm text-muted-foreground">No conversations yet.</p>}
+            {recent.map((c) => (
               <div key={c.id} className="flex items-start gap-3 text-sm">
                 <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-xs font-medium">{c.contactName.split(" ").map(x=>x[0]).join("").slice(0,2)}</div>
                 <div className="min-w-0 flex-1">
