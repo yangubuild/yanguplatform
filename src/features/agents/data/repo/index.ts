@@ -12,14 +12,15 @@ import type {
 import { requireOrgId, currentUserId } from "./orgContext";
 
 // ─── helpers ───────────────────────────────────────────────────────────
-function unwrap<T>(res: { data: T | null; error: any }): T {
-  if (res.error) throw res.error;
-  return res.data as T;
-}
-
-// The generated Supabase types are strict; at these adapter boundaries
-// we deliberately widen rows to `any` — RLS + column defs are the source of truth.
+// The new agent_* tables aren't in the generated Database types yet
+// (typegen runs after the migration is approved). At these adapter
+// boundaries we widen the client and rows to `any` — the RLS policies
+// and column defs are the source of truth.
 const sb = supabase as any;
+function unwrap(res: { data: unknown; error: any }): any {
+  if (res.error) throw res.error;
+  return res.data;
+}
 
 // ─── agents ────────────────────────────────────────────────────────────
 function rowToAgent(r: any): Agent {
