@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { db } from "../data/mock";
+import { useAgents } from "../data/hooks";
 import { PageHeader } from "../components/PageHeader";
 
 function Sparkline({ points }: { points: number[] }) {
@@ -34,7 +34,7 @@ function Donut({ segments }: { segments: { label: string; value: number; color: 
 }
 
 export default function AnalyticsPage() {
-  const agents = db.agents.list();
+  const { data: agents = [] } = useAgents();
   return (
     <div className="space-y-5">
       <PageHeader title="Analytics" description="Metrics across every agent, channel and workflow."

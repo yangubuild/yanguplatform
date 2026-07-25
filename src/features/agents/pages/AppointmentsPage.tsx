@@ -3,11 +3,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus } from "lucide-react";
-import { db } from "../data/mock";
+import { useAppointments } from "../data/hooks";
 import { PageHeader } from "../components/PageHeader";
 
 export default function AppointmentsPage() {
-  const appts = db.appointments.list();
+  const { data: appts = [], isLoading, error, refetch } = useAppointments();
   const [view, setView] = useState<"list" | "calendar">("list");
 
   return (
@@ -18,6 +18,15 @@ export default function AppointmentsPage() {
           <Button size="sm" variant={view==="calendar"?"default":"outline"} onClick={()=>setView("calendar")}>Calendar</Button>
           <Button size="sm"><Plus className="h-4 w-4 mr-1.5" />New booking</Button>
         </div>} />
+      {error && (
+        <div className="flex items-center justify-between rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm">
+          <span>Could not load appointments.</span>
+          <Button size="sm" variant="outline" onClick={() => refetch()}>Retry</Button>
+        </div>
+      )}
+      {!isLoading && !error && appts.length === 0 && (
+        <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">No appointments booked yet.</div>
+      )}
       {view === "list" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {appts.map((a) => (
