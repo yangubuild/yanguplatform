@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type {
   Agent, AgentConfig, Conversation, Message, ConversationNote,
   Lead, Appointment, Call, Workflow, Integration,
-  KCollection, KSource, Channel,
+  KCollection, KSource, KFAQ, KProduct, KService, KWebsiteImport, Channel,
 } from "../types";
 import { requireOrgId, currentUserId } from "./orgContext";
 
@@ -418,7 +418,22 @@ export const callsRepo = {
 };
 
 // ─── knowledge (collections + sources) ─────────────────────────────────
+function rowToSource(r: any, agentIds: string[] = []): KSource {
+  return {
+    id: r.id, name: r.name, kind: r.kind, collectionId: r.collection_id ?? "",
+    language: r.language ?? "en", version: r.version ?? 1, status: r.status,
+    uploadedAt: r.uploaded_at, updatedAt: r.updated_at, size: r.size ?? "",
+    active: r.active, permission: r.permission,
+    agentIds,
+    sourceUrl: r.source_url ?? undefined,
+    tags: r.tags ?? [],
+    chunks: r.chunks ?? 0,
+    history: r.history ?? [],
+  };
+}
+
 export const knowledgeRepo = {
+  // ── collections ──
   async listCollections(): Promise<KCollection[]> {
     const orgId = await requireOrgId();
     const rows = unwrap(
@@ -446,6 +461,21 @@ export const knowledgeRepo = {
       color: row.color, agentIds: row.meta?.agentIds ?? [], createdAt: row.created_at,
     };
   },
+  async updateCollection(id: string, patch: Partial<KCollection>): Promise<void> {
+    const update: any = {};
+    if (patch.name !== undefined) update.name = patch.name;
+    if (patch.description !== undefined) update.description = patch.description;
+    if (patch.color !== undefined) update.color = patch.color;
+    if (patch.agentIds !== undefined) update.meta = { agentIds: patch.agentIds };
+    const r = await sb.from("agent_knowledge_collections").update(update).eq("id", id);
+    if (r.error) throw r.error;
+  },
+  async deleteCollection(id: string): Promise<void> {
+    const r = await sb.from("agent_knowledge_collections").delete().eq("id", id);
+    if (r.error) throw r.error;
+  },
+
+  // ── sources (all kinds — pdf/docx/faq/product/service/url/…) ──
   async listSources(): Promise<KSource[]> {
     const orgId = await requireOrgId();
     const [srcRes, assignRes] = await Promise.all([
@@ -454,20 +484,10 @@ export const knowledgeRepo = {
     ]);
     const assigns = assignRes.data ?? [];
     const byId: Record<string, string[]> = {};
-    for (const a of assigns) {
-      byId[a.source_id] = [...(byId[a.source_id] ?? []), a.agent_id];
-    }
-    return (srcRes.data ?? []).map((r: any) => ({
-      id: r.id, name: r.name, kind: r.kind, collectionId: r.collection_id ?? "",
-      language: r.language ?? "en", version: r.version, status: r.status,
-      uploadedAt: r.uploaded_at, updatedAt: r.updated_at, size: r.size ?? "",
-      active: r.active, permission: r.permission,
-      agentIds: byId[r.id] ?? [],
-      sourceUrl: r.source_url ?? undefined, tags: r.tags ?? [], chunks: r.chunks ?? 0,
-      history: r.history ?? [],
-    }));
+    for (const a of assigns) byId[a.source_id] = [...(byId[a.source_id] ?? []), a.agent_id];
+    return (srcRes.data ?? []).map((r: any) => rowToSource(r, byId[r.id] ?? []));
   },
-  async createSource(input: Partial<KSource>): Promise<KSource> {
+  async createSource(input: Partial<KSource> & { content?: any }): Promise<KSource> {
     const orgId = await requireOrgId();
     const row = unwrap(
       await sb.from("agent_knowledge_sources").insert({
@@ -482,20 +502,47 @@ export const knowledgeRepo = {
         permission: input.permission ?? "all",
         source_url: input.sourceUrl ?? null,
         tags: input.tags ?? [],
+        content: (input as any).content ?? {},
       }).select().single()
     );
-    return {
-      id: row.id, name: row.name, kind: row.kind, collectionId: row.collection_id ?? "",
-      language: row.language, version: row.version, status: row.status,
-      uploadedAt: row.uploaded_at, updatedAt: row.updated_at, size: row.size ?? "",
-      active: row.active, permission: row.permission, agentIds: [],
-      sourceUrl: row.source_url ?? undefined, tags: row.tags ?? [], chunks: 0, history: [],
-    };
+    return rowToSource(row);
   },
-  async setSourceStatus(id: string, status: KSource["status"]): Promise<void> {
-    const r = await sb.from("agent_knowledge_sources").update({ status }).eq("id", id);
+  async updateSource(id: string, patch: Partial<KSource> & { content?: any }): Promise<void> {
+    const update: any = {};
+    if (patch.name !== undefined) update.name = patch.name;
+    if (patch.collectionId !== undefined) update.collection_id = patch.collectionId || null;
+    if (patch.language !== undefined) update.language = patch.language;
+    if (patch.status !== undefined) update.status = patch.status;
+    if (patch.size !== undefined) update.size = patch.size;
+    if (patch.active !== undefined) update.active = patch.active;
+    if (patch.permission !== undefined) update.permission = patch.permission;
+    if (patch.sourceUrl !== undefined) update.source_url = patch.sourceUrl;
+    if (patch.tags !== undefined) update.tags = patch.tags;
+    if ((patch as any).content !== undefined) update.content = (patch as any).content;
+    if (patch.chunks !== undefined) update.chunks = patch.chunks;
+    if (patch.version !== undefined) update.version = patch.version;
+    if (patch.history !== undefined) update.history = patch.history;
+    update.updated_at = new Date().toISOString();
+    const r = await sb.from("agent_knowledge_sources").update(update).eq("id", id);
     if (r.error) throw r.error;
   },
+  async setSourceStatus(id: string, status: KSource["status"]): Promise<void> {
+    const r = await sb.from("agent_knowledge_sources")
+      .update({ status, updated_at: new Date().toISOString() }).eq("id", id);
+    if (r.error) throw r.error;
+  },
+  async archiveSource(id: string): Promise<void> {
+    await knowledgeRepo.updateSource(id, { status: "archived", active: false });
+  },
+  async restoreSource(id: string): Promise<void> {
+    await knowledgeRepo.updateSource(id, { status: "indexed", active: true });
+  },
+  async deleteSource(id: string): Promise<void> {
+    const r = await sb.from("agent_knowledge_sources").delete().eq("id", id);
+    if (r.error) throw r.error;
+  },
+
+  // ── assignments ──
   async assign(agentId: string, sourceId: string): Promise<void> {
     const orgId = await requireOrgId();
     const r = await sb.from("agent_knowledge_assignments").upsert(
@@ -508,6 +555,216 @@ export const knowledgeRepo = {
     const r = await sb.from("agent_knowledge_assignments")
       .delete().eq("agent_id", agentId).eq("source_id", sourceId);
     if (r.error) throw r.error;
+  },
+
+  // ── FAQs / Products / Services / Website imports
+  // All are stored as agent_knowledge_sources rows with the corresponding `kind`
+  // and specifics inside the `content` jsonb column.
+  async listFaqs(): Promise<KFAQ[]> {
+    const orgId = await requireOrgId();
+    const rows = unwrap(await sb.from("agent_knowledge_sources").select("*").eq("org_id", orgId).eq("kind", "faq"));
+    return (rows ?? []).map((r: any) => ({
+      id: r.id, question: r.name, answer: r.content?.answer ?? "",
+      category: r.content?.category ?? "General", language: r.language ?? "English",
+      active: r.active, collectionId: r.collection_id ?? "", updatedAt: r.updated_at,
+    }));
+  },
+  async createFaq(input: Partial<KFAQ> & { question: string; answer: string; collectionId: string }): Promise<KFAQ> {
+    const src = await knowledgeRepo.createSource({
+      name: input.question, kind: "faq", collectionId: input.collectionId,
+      language: input.language ?? "English", status: "indexed", size: "1 entry",
+      content: { answer: input.answer, category: input.category ?? "General" },
+    } as any);
+    return {
+      id: src.id, question: input.question, answer: input.answer,
+      category: input.category ?? "General", language: input.language ?? "English",
+      active: input.active ?? true, collectionId: input.collectionId, updatedAt: src.updatedAt,
+    };
+  },
+  async updateFaq(id: string, patch: Partial<KFAQ>): Promise<void> {
+    const update: any = {};
+    if (patch.question !== undefined) update.name = patch.question;
+    if (patch.language !== undefined) update.language = patch.language;
+    if (patch.collectionId !== undefined) update.collectionId = patch.collectionId;
+    if (patch.active !== undefined) update.active = patch.active;
+    if (patch.answer !== undefined || patch.category !== undefined) {
+      // Merge into content jsonb
+      const cur = unwrap(await sb.from("agent_knowledge_sources").select("content").eq("id", id).maybeSingle());
+      const merged = { ...(cur?.content ?? {}) };
+      if (patch.answer !== undefined) merged.answer = patch.answer;
+      if (patch.category !== undefined) merged.category = patch.category;
+      update.content = merged;
+    }
+    await knowledgeRepo.updateSource(id, update);
+  },
+  async deleteFaq(id: string): Promise<void> { await knowledgeRepo.deleteSource(id); },
+
+  async listProducts(): Promise<KProduct[]> {
+    const orgId = await requireOrgId();
+    const rows = unwrap(await sb.from("agent_knowledge_sources").select("*").eq("org_id", orgId).eq("kind", "product"));
+    return (rows ?? []).map((r: any) => ({
+      id: r.id, name: r.name,
+      description: r.content?.description ?? "",
+      features: r.content?.features ?? [],
+      price: r.content?.price ?? "",
+      category: r.content?.category ?? "General",
+      availability: r.content?.availability ?? "in_stock",
+      images: r.content?.images ?? [],
+      relatedProductIds: r.content?.relatedProductIds ?? [],
+      collectionId: r.collection_id ?? "",
+      updatedAt: r.updated_at,
+    }));
+  },
+  async createProduct(input: Partial<KProduct> & { name: string; collectionId: string }): Promise<KProduct> {
+    const src = await knowledgeRepo.createSource({
+      name: input.name, kind: "product", collectionId: input.collectionId, status: "indexed",
+      content: {
+        description: input.description ?? "", features: input.features ?? [],
+        price: input.price ?? "", category: input.category ?? "General",
+        availability: input.availability ?? "in_stock",
+        images: input.images ?? [], relatedProductIds: input.relatedProductIds ?? [],
+      },
+    } as any);
+    return {
+      id: src.id, name: input.name, description: input.description ?? "",
+      features: input.features ?? [], price: input.price ?? "",
+      category: input.category ?? "General", availability: input.availability ?? "in_stock",
+      images: input.images ?? [], relatedProductIds: input.relatedProductIds ?? [],
+      collectionId: input.collectionId, updatedAt: src.updatedAt,
+    };
+  },
+  async deleteProduct(id: string): Promise<void> { await knowledgeRepo.deleteSource(id); },
+
+  async listServices(): Promise<KService[]> {
+    const orgId = await requireOrgId();
+    const rows = unwrap(await sb.from("agent_knowledge_sources").select("*").eq("org_id", orgId).eq("kind", "service"));
+    return (rows ?? []).map((r: any) => ({
+      id: r.id, name: r.name,
+      description: r.content?.description ?? "",
+      features: r.content?.features ?? [],
+      price: r.content?.price ?? "",
+      availability: r.content?.availability ?? "available",
+      collectionId: r.collection_id ?? "",
+      updatedAt: r.updated_at,
+    }));
+  },
+  async createService(input: Partial<KService> & { name: string; collectionId: string }): Promise<KService> {
+    const src = await knowledgeRepo.createSource({
+      name: input.name, kind: "service", collectionId: input.collectionId, status: "indexed",
+      content: {
+        description: input.description ?? "", features: input.features ?? [],
+        price: input.price ?? "", availability: input.availability ?? "available",
+      },
+    } as any);
+    return {
+      id: src.id, name: input.name, description: input.description ?? "",
+      features: input.features ?? [], price: input.price ?? "",
+      availability: input.availability ?? "available",
+      collectionId: input.collectionId, updatedAt: src.updatedAt,
+    };
+  },
+  async deleteService(id: string): Promise<void> { await knowledgeRepo.deleteSource(id); },
+
+  async listWebsiteImports(): Promise<KWebsiteImport[]> {
+    const orgId = await requireOrgId();
+    const rows = unwrap(
+      await sb.from("agent_knowledge_sources").select("*").eq("org_id", orgId).eq("kind", "url")
+    );
+    return (rows ?? []).map((r: any) => ({
+      id: r.id, rootUrl: r.source_url ?? r.name,
+      mode: r.content?.mode ?? "homepage",
+      pages: r.content?.pages ?? [],
+      status: r.status, createdAt: r.uploaded_at,
+      collectionId: r.collection_id ?? "",
+    }));
+  },
+  async createWebsiteImport(input: Partial<KWebsiteImport> & { rootUrl: string; mode: KWebsiteImport["mode"]; collectionId: string }): Promise<KWebsiteImport> {
+    const src = await knowledgeRepo.createSource({
+      name: input.rootUrl, kind: "url", collectionId: input.collectionId,
+      sourceUrl: input.rootUrl, size: `${(input.pages ?? [input.rootUrl]).length} page(s)`,
+      tags: ["web-import"], status: "processing",
+      content: { mode: input.mode, pages: input.pages ?? [input.rootUrl] },
+    } as any);
+    return {
+      id: src.id, rootUrl: input.rootUrl, mode: input.mode,
+      pages: input.pages ?? [input.rootUrl], status: "processing",
+      createdAt: src.uploadedAt, collectionId: input.collectionId,
+    };
+  },
+  async deleteWebsiteImport(id: string): Promise<void> { await knowledgeRepo.deleteSource(id); },
+};
+
+// ─── dashboard KPIs (org-scoped) ───────────────────────────────────────
+function startOfDay(d = new Date()) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
+function startOfWeek(d = new Date()) {
+  const x = startOfDay(d); const day = x.getDay(); // 0=Sun
+  const diff = (day + 6) % 7; // week starts Monday
+  x.setDate(x.getDate() - diff); return x;
+}
+
+export interface AgentKpis {
+  conversationsToday: number;
+  leadsThisWeek: number;
+  appointmentsBooked: number;
+  handoverRate: number;
+  agents: { total: number; live: number; draft: number; paused: number };
+  channels: Record<string, number>;
+  recent: { id: string; kind: "message" | "lead" | "appointment"; text: string; at: string }[];
+  usageThisMonth: number;
+}
+
+export const dashboardKpisRepo = {
+  async load(): Promise<AgentKpis> {
+    const orgId = await requireOrgId();
+    const todayIso = startOfDay().toISOString();
+    const weekIso = startOfWeek().toISOString();
+    const monthIso = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+
+    const [convToday, leadsWeek, apptsBooked, convForRate, agents, recentMsgs, recentLeads, recentAppts, usage] = await Promise.all([
+      sb.from("agent_conversations").select("id, channel, updated_at").eq("org_id", orgId).gte("updated_at", todayIso),
+      sb.from("agent_leads").select("id").eq("org_id", orgId).gte("created_at", weekIso),
+      sb.from("agent_appointments").select("id").eq("org_id", orgId).eq("status", "scheduled"),
+      sb.from("agent_conversations").select("status").eq("org_id", orgId).gte("updated_at", weekIso),
+      sb.from("agent_agents").select("status").eq("org_id", orgId),
+      sb.from("agent_messages").select("id, text, at").eq("org_id", orgId).order("at", { ascending: false }).limit(4),
+      sb.from("agent_leads").select("id, name, created_at").eq("org_id", orgId).order("created_at", { ascending: false }).limit(4),
+      sb.from("agent_appointments").select("id, title, scheduled_at").eq("org_id", orgId).order("scheduled_at", { ascending: false }).limit(4),
+      sb.from("agent_usage_events").select("units").eq("org_id", orgId).gte("created_at", monthIso),
+    ]);
+
+    const channels: Record<string, number> = {};
+    for (const c of (convToday.data ?? [])) channels[c.channel] = (channels[c.channel] ?? 0) + 1;
+
+    const totalWeek = (convForRate.data ?? []).length;
+    const handedOver = (convForRate.data ?? []).filter((c: any) => c.status === "human" || c.status === "handover" || c.status === "escalated").length;
+    const handoverRate = totalWeek > 0 ? Math.round((handedOver / totalWeek) * 100) : 0;
+
+    const agentRows = agents.data ?? [];
+    const agentCounts = {
+      total: agentRows.length,
+      live: agentRows.filter((a: any) => a.status === "live").length,
+      draft: agentRows.filter((a: any) => a.status === "draft").length,
+      paused: agentRows.filter((a: any) => a.status === "paused").length,
+    };
+
+    const recent = [
+      ...(recentMsgs.data ?? []).map((r: any) => ({ id: r.id, kind: "message" as const, text: r.text?.slice(0, 90) ?? "", at: r.at })),
+      ...(recentLeads.data ?? []).map((r: any) => ({ id: r.id, kind: "lead" as const, text: `New lead — ${r.name}`, at: r.created_at })),
+      ...(recentAppts.data ?? []).map((r: any) => ({ id: r.id, kind: "appointment" as const, text: `Appointment — ${r.title}`, at: r.scheduled_at })),
+    ].sort((a, b) => (b.at ?? "").localeCompare(a.at ?? "")).slice(0, 6);
+
+    const usageThisMonth = (usage.data ?? []).reduce((sum: number, u: any) => sum + (u.units ?? 0), 0);
+
+    return {
+      conversationsToday: (convToday.data ?? []).length,
+      leadsThisWeek: (leadsWeek.data ?? []).length,
+      appointmentsBooked: (apptsBooked.data ?? []).length,
+      handoverRate,
+      agents: agentCounts,
+      channels,
+      recent,
+      usageThisMonth,
+    };
   },
 };
 
@@ -583,6 +840,7 @@ export const dbRemote = {
   integrations: integrationsRepo,
   usage: usageRepo,
   audit: auditRepo,
+  kpis: dashboardKpisRepo,
 };
 
 export type DbRemote = typeof dbRemote;

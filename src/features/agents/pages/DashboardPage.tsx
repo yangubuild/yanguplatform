@@ -2,25 +2,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, MessageCircle, PhoneCall, Calendar, TrendingUp, Bot, Plus } from "lucide-react";
-import { db } from "../data/mock";
-import { useAgents, useConversations } from "../data/hooks";
+import { ArrowUpRight, MessageCircle, PhoneCall, Calendar, TrendingUp, Bot, Plus, Loader2 } from "lucide-react";
+import { useAgents, useAgentKpis, useOrgId } from "../data/hooks";
 import { PageHeader, StatusDot } from "../components/PageHeader";
 
 const channelIcon: Record<string, any> = { whatsapp: MessageCircle, web: MessageCircle, voice: PhoneCall, email: MessageCircle, sms: MessageCircle, instagram: MessageCircle };
 
 export default function DashboardPage() {
-  const kpis = db.kpis(); // KPIs stay on mock — see hooks module scope
+  const { data: orgId } = useOrgId();
   const { data: agents = [], isLoading: agentsLoading } = useAgents();
-  const { data: convos = [] } = useConversations();
-  const recent = convos.slice(0, 4);
+  const { data: kpis, isLoading: kpisLoading } = useAgentKpis();
 
   const kpiCards = [
-    { label: "Conversations today", value: kpis.conversationsToday, delta: kpis.conversationsDelta, icon: MessageCircle },
-    { label: "Leads this week", value: kpis.leadsThisWeek, delta: kpis.leadsDelta, icon: TrendingUp },
-    { label: "Appointments booked", value: kpis.appointmentsBooked, delta: kpis.appointmentsDelta, icon: Calendar },
-    { label: "Handover rate", value: `${kpis.handoverRate}%`, delta: kpis.handoverDelta, icon: PhoneCall },
+    { label: "Conversations today", value: kpis?.conversationsToday ?? 0, icon: MessageCircle },
+    { label: "Leads this week",     value: kpis?.leadsThisWeek ?? 0,     icon: TrendingUp },
+    { label: "Appointments booked", value: kpis?.appointmentsBooked ?? 0, icon: Calendar },
+    { label: "Handover rate",       value: `${kpis?.handoverRate ?? 0}%`, icon: PhoneCall },
   ];
+  const recent = kpis?.recent ?? [];
 
   return (
     <div className="space-y-6">
@@ -42,7 +41,7 @@ export default function DashboardPage() {
                 <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
                   <k.icon className="h-4 w-4" />
                 </div>
-                <span className="text-xs text-emerald-600 font-medium">{k.delta}</span>
+                {kpisLoading && orgId && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
               </div>
               <div className="text-2xl font-semibold">{k.value}</div>
               <p className="text-xs text-muted-foreground mt-1">{k.label}</p>
@@ -52,9 +51,24 @@ export default function DashboardPage() {
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold mb-3">Your agents</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold">Your agents</h3>
+          {kpis && (
+            <p className="text-xs text-muted-foreground">
+              {kpis.agents.live} live · {kpis.agents.draft} draft · {kpis.agents.paused} paused
+            </p>
+          )}
+        </div>
         {agentsLoading && agents.length === 0 && (
           <p className="text-sm text-muted-foreground">Loading agents…</p>
+        )}
+        {!agentsLoading && agents.length === 0 && (
+          <Card><CardContent className="p-8 text-center">
+            <Bot className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+            <p className="text-sm font-medium">No agents yet</p>
+            <p className="text-xs text-muted-foreground mt-1">Create your first AI Employee to start handling conversations.</p>
+            <Button asChild className="mt-4"><Link to="/dashboard/agents/agents"><Plus className="h-4 w-4 mr-1.5" />New agent</Link></Button>
+          </CardContent></Card>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {agents.map((a) => (
@@ -96,15 +110,14 @@ export default function DashboardPage() {
         <Card>
           <CardHeader><CardTitle className="text-base">Recent activity</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            {recent.length === 0 && <p className="text-sm text-muted-foreground">No conversations yet.</p>}
-            {recent.map((c) => (
-              <div key={c.id} className="flex items-start gap-3 text-sm">
-                <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-xs font-medium">{c.contactName.split(" ").map(x=>x[0]).join("").slice(0,2)}</div>
+            {recent.length === 0 && <p className="text-sm text-muted-foreground">No activity yet.</p>}
+            {recent.map((r) => (
+              <div key={r.kind + r.id} className="flex items-start gap-3 text-sm">
+                <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-xs font-medium capitalize">{r.kind[0]}</div>
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium truncate">{c.contactName}</p>
-                  <p className="text-xs text-muted-foreground truncate">{c.lastMessage}</p>
+                  <p className="text-xs text-muted-foreground truncate">{r.text}</p>
                 </div>
-                <span className="text-xs text-muted-foreground">{c.channel}</span>
+                <span className="text-xs text-muted-foreground">{new Date(r.at).toLocaleDateString()}</span>
               </div>
             ))}
           </CardContent>
@@ -114,6 +127,12 @@ export default function DashboardPage() {
           <CardContent>
             <p className="text-sm text-muted-foreground mb-4">Pick a template — Sales, Receptionist, Support or Knowledge — and be live in under 10 minutes.</p>
             <Button asChild><Link to="/dashboard/agents/agents"><Plus className="h-4 w-4 mr-1.5" />New agent</Link></Button>
+            {kpis && (
+              <div className="mt-4 pt-4 border-t border-border text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-1">
+                <span>Usage this month: <span className="text-foreground font-medium">{kpis.usageThisMonth.toLocaleString()}</span></span>
+                {Object.entries(kpis.channels).map(([c, n]) => <span key={c} className="capitalize">{c}: <span className="text-foreground font-medium">{n}</span></span>)}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
