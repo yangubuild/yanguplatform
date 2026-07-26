@@ -112,3 +112,7 @@ project_id = "xcipuyvcwfytlsjryhvs"
     verify_jwt = false
   [functions.stripe-webhook]
     verify_jwt = false
+  [functions.agents-answer]
+    verify_jwt = false
+  [functions.agents-index-source]
+    verify_jwt = false
