@@ -912,23 +912,37 @@ function SearchTab() {
 // Heuristic responder while the real retrieval + LLM stage is not yet wired.
 function TestTab() {
   const [q, setQ] = useState("");
-  const [result, setResult] = useState<KTestResult | null>(null);
+  const [result, setResult] = useState<any | null>(null);
   const [running, setRunning] = useState(false);
+  const { data: agents = [] } = useAgents();
+  const firstAgentId = agents[0]?.id;
 
-  function ask() {
-    if (!q.trim()) return;
+  async function ask() {
+    if (!q.trim() || !firstAgentId) return;
     setRunning(true);
-    setTimeout(() => {
-      const r = mockDb.knowledge.test(q);
-      setResult(r); setRunning(false);
-    }, 400);
+    const { answerViaEngine } = await import("../data/aiEngine");
+    const r = await answerViaEngine({ agentId: firstAgentId, text: q, testMode: true });
+    setResult({
+      question: q,
+      answer: r.reply,
+      confidence: r.confidence,
+      processingMs: r.latencyMs,
+      sources: (r.sources ?? []).map((s: any) => ({ sourceId: s.id, sourceName: s.name, score: s.score, kind: "chunk", snippet: "" })),
+      missing: !!r.missingKnowledge,
+      language: r.language,
+      decision: r.decision,
+      model: r.model,
+      tokens: r.tokensEstimate,
+      cost: r.estimatedCost,
+    });
+    setRunning(false);
   }
 
   return (
     <div className="space-y-4">
-      <Card className="border-amber-500/40 bg-amber-500/5"><CardContent className="p-4 text-sm">
-        <p className="font-medium">Admin-only sandbox</p>
-        <p className="text-xs text-muted-foreground mt-1">Uses a heuristic responder for now. When retrieval + LLM are connected, this switches over automatically.</p>
+      <Card className="border-emerald-500/40 bg-emerald-500/5"><CardContent className="p-4 text-sm">
+        <p className="font-medium">Live retrieval sandbox</p>
+        <p className="text-xs text-muted-foreground mt-1">Runs against your indexed knowledge base with the real AI engine. Sources, confidence, language and cost are actual.</p>
       </CardContent></Card>
 
       <Card><CardContent className="p-5 space-y-3">
@@ -970,6 +984,12 @@ function TestTab() {
               <p className="text-xs text-muted-foreground mt-1">Your AI Employees don't have enough context to answer this well. Add a source or FAQ covering this topic.</p>
             </div>
           )}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
+            <div className="rounded-lg bg-muted/40 px-2 py-1"><p className="text-muted-foreground">Language</p><p className="font-medium">{result.language}</p></div>
+            <div className="rounded-lg bg-muted/40 px-2 py-1"><p className="text-muted-foreground">Decision</p><p className="font-medium">{result.decision}</p></div>
+            <div className="rounded-lg bg-muted/40 px-2 py-1"><p className="text-muted-foreground">Model</p><p className="font-medium truncate">{result.model}</p></div>
+            <div className="rounded-lg bg-muted/40 px-2 py-1"><p className="text-muted-foreground">Tokens · Cost</p><p className="font-medium">~{result.tokens} · ${(result.cost ?? 0).toFixed(5)}</p></div>
+          </div>
         </CardContent></Card>
       )}
     </div>
