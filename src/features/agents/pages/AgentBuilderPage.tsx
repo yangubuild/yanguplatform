@@ -19,7 +19,8 @@ import { Separator } from "@/components/ui/separator";
 import { db } from "../data/mock";
 import { useAgent, useAgentConfig, useSaveAgentConfig, usePublishAgentConfig, useUpdateAgent, useDeleteAgent, useAgents } from "../data/hooks";
 import { Loader2 } from "lucide-react";
-import { route as routeMessage, TEST_SCENARIOS } from "../data/conversationDb";
+import { TEST_SCENARIOS } from "../data/conversationDb";
+import { answerViaEngine, type AnswerResult } from "../data/aiEngine";
 import type {
   AgentConfig, AgentCommand, QualificationQuestion, HandoverRule, Channel,
 } from "../data/types";
@@ -810,26 +811,35 @@ function Toggle({ label, desc, checked, onChange }: { label: string; desc?: stri
 }
 
 function TestSandbox({ cfg }: { cfg: AgentConfig }) {
-  type Trace = { input: string; decision: ReturnType<typeof routeMessage> };
+  type Trace = { input: string; decision: AnswerResult };
   const [msgs, setMsgs] = useState<{ role: "you" | "agent"; text: string; trace?: Trace["decision"] }[]>([
     { role: "agent", text: cfg.greeting },
   ]);
   const [input, setInput] = useState("");
   const [scenarioResults, setScenarioResults] = useState<{ scenarioId: string; traces: Trace[] } | null>(null);
+  const [busy, setBusy] = useState(false);
 
-  function send(text?: string) {
+  async function send(text?: string) {
     const you = (text ?? input).trim();
-    if (!you) return;
+    if (!you || busy) return;
     setMsgs((m) => [...m, { role: "you", text: you }]);
     setInput("");
-    const decision = routeMessage({ agentId: cfg.agentId, channel: "web", text: you });
+    setBusy(true);
+    const decision = await answerViaEngine({ agentId: cfg.agentId, text: you, agentConfig: cfg, testMode: true });
     setMsgs((m) => [...m, { role: "agent", text: decision.reply, trace: decision }]);
+    setBusy(false);
   }
 
-  function runScenario(scenarioId: string) {
+  async function runScenario(scenarioId: string) {
     const scenario = TEST_SCENARIOS.find((s) => s.id === scenarioId)!;
-    const traces: Trace[] = scenario.messages.map((msg) => ({ input: msg, decision: routeMessage({ agentId: cfg.agentId, channel: "web", text: msg }) }));
+    setBusy(true);
+    const traces: Trace[] = [];
+    for (const msg of scenario.messages) {
+      const decision = await answerViaEngine({ agentId: cfg.agentId, text: msg, agentConfig: cfg, testMode: true });
+      traces.push({ input: msg, decision });
+    }
     setScenarioResults({ scenarioId, traces });
+    setBusy(false);
   }
 
   return (
@@ -860,8 +870,8 @@ function TestSandbox({ cfg }: { cfg: AgentConfig }) {
           ))}
         </div>
         <div className="flex gap-2">
-          <Input placeholder="Try a message…" className="flex-1" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} />
-          <Button onClick={() => send()}>Send</Button>
+          <Input placeholder="Try a message…" className="flex-1" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !busy && send()} disabled={busy} />
+          <Button onClick={() => send()} disabled={busy}>{busy ? "Thinking…" : "Send"}</Button>
         </div>
       </CardContent></Card>
 

@@ -1637,6 +1637,67 @@ export type Database = {
           },
         ]
       }
+      agent_knowledge_chunks: {
+        Row: {
+          chunk_index: number
+          collection_id: string | null
+          content: string
+          created_at: string
+          embedding: string | null
+          id: string
+          language: string | null
+          org_id: string
+          section: string | null
+          source_id: string
+        }
+        Insert: {
+          chunk_index: number
+          collection_id?: string | null
+          content: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          language?: string | null
+          org_id: string
+          section?: string | null
+          source_id: string
+        }
+        Update: {
+          chunk_index?: number
+          collection_id?: string | null
+          content?: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          language?: string | null
+          org_id?: string
+          section?: string | null
+          source_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_knowledge_chunks_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "agent_knowledge_collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_knowledge_chunks_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_knowledge_chunks_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "agent_knowledge_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_knowledge_collections: {
         Row: {
           color: string | null
@@ -1681,12 +1742,15 @@ export type Database = {
       agent_knowledge_sources: {
         Row: {
           active: boolean
+          chunk_count: number
           chunks: number
           collection_id: string | null
           content: Json
           created_at: string
+          failure_reason: string | null
           history: Json
           id: string
+          indexed_at: string | null
           kind: string
           language: string | null
           name: string
@@ -1696,18 +1760,22 @@ export type Database = {
           source_url: string | null
           status: string
           tags: string[]
+          text_content: string | null
           updated_at: string
           uploaded_at: string
           version: number
         }
         Insert: {
           active?: boolean
+          chunk_count?: number
           chunks?: number
           collection_id?: string | null
           content?: Json
           created_at?: string
+          failure_reason?: string | null
           history?: Json
           id?: string
+          indexed_at?: string | null
           kind: string
           language?: string | null
           name: string
@@ -1717,18 +1785,22 @@ export type Database = {
           source_url?: string | null
           status?: string
           tags?: string[]
+          text_content?: string | null
           updated_at?: string
           uploaded_at?: string
           version?: number
         }
         Update: {
           active?: boolean
+          chunk_count?: number
           chunks?: number
           collection_id?: string | null
           content?: Json
           created_at?: string
+          failure_reason?: string | null
           history?: Json
           id?: string
+          indexed_at?: string | null
           kind?: string
           language?: string | null
           name?: string
@@ -1738,6 +1810,7 @@ export type Database = {
           source_url?: string | null
           status?: string
           tags?: string[]
+          text_content?: string | null
           updated_at?: string
           uploaded_at?: string
           version?: number
@@ -1934,31 +2007,61 @@ export type Database = {
         Row: {
           agent_id: string | null
           at: string
+          confidence: number | null
           conversation_id: string | null
+          decision: string | null
+          estimated_cost: number | null
           event_type: string
+          failure_reason: string | null
           id: string
+          input_tokens: number | null
+          latency_ms: number | null
           meta: Json
+          model: string | null
           org_id: string
+          output_tokens: number | null
+          provider: string | null
+          retrieval_count: number | null
           units: number
         }
         Insert: {
           agent_id?: string | null
           at?: string
+          confidence?: number | null
           conversation_id?: string | null
+          decision?: string | null
+          estimated_cost?: number | null
           event_type: string
+          failure_reason?: string | null
           id?: string
+          input_tokens?: number | null
+          latency_ms?: number | null
           meta?: Json
+          model?: string | null
           org_id: string
+          output_tokens?: number | null
+          provider?: string | null
+          retrieval_count?: number | null
           units?: number
         }
         Update: {
           agent_id?: string | null
           at?: string
+          confidence?: number | null
           conversation_id?: string | null
+          decision?: string | null
+          estimated_cost?: number | null
           event_type?: string
+          failure_reason?: string | null
           id?: string
+          input_tokens?: number | null
+          latency_ms?: number | null
           meta?: Json
+          model?: string | null
           org_id?: string
+          output_tokens?: number | null
+          provider?: string | null
+          retrieval_count?: number | null
           units?: number
         }
         Relationships: [
@@ -12761,6 +12864,24 @@ export type Database = {
         Returns: string
       }
       mark_first_free_used: { Args: { p_action_key: string }; Returns: boolean }
+      match_agent_chunks: {
+        Args: {
+          p_match_count?: number
+          p_min_similarity?: number
+          p_org_id: string
+          p_query: string
+          p_source_ids?: string[]
+        }
+        Returns: {
+          collection_id: string
+          content: string
+          id: string
+          language: string
+          section: string
+          similarity: number
+          source_id: string
+        }[]
+      }
       modify_hub_booking: {
         Args: {
           p_booking_id: string
