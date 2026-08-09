@@ -242,7 +242,16 @@ export function PublicRouteResolver({ children }: PublicRouteResolverProps) {
         setResolvedRoute(route);
         setDebugInfo(debug);
         
-        if (route.route_kind === "not_found" && route.reason === "unknown_host") {
+        // Fall through to internal React Router when:
+        //  - the host is unknown to the resolver, or
+        //  - the resolver itself is unreachable/errored (backend paused, network
+        //    failure). Without this, a transient resolver failure renders a 404
+        //    on platform domains instead of the real landing page.
+        const resolverUnavailable = !!debug.rpcError || !route;
+        if (
+          resolverUnavailable ||
+          (route.route_kind === "not_found" && route.reason === "unknown_host")
+        ) {
           setShouldUseInternalRouting(true);
         }
       } catch (err) {
