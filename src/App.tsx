@@ -21,6 +21,7 @@ import { resolveAppMode } from "@/lib/routing/appMode";
 import { OfflineAnalytics } from "@/components/offline/OfflineAnalytics";
 
 import Index from "./pages/Index";
+import { RootRoute } from "./components/routing/RootRoute";
 import NotFound from "./pages/NotFound";
 const Login = lazy(() => lazyRetry(() => import("./pages/auth/Login")));
 const Signup = lazy(() => lazyRetry(() => import("./pages/auth/Signup")));
@@ -316,7 +317,8 @@ const App = () => (
               <Routes>
                 {/* Public routes */}
                 <Route path="/unsubscribe" element={<Unsubscribe />} />
-                <Route path="/" element={<Index />} />
+                <Route path="/" element={<RootRoute />} />
+                <Route path="/login" element={<Navigate to="/auth/login" replace />} />
                 <Route path="/community/*" element={<Community />} />
                 <Route path="/why-yangu" element={<WhyYangu />} />
                 <Route path="/discover" element={<DiscoverYangu />} />
