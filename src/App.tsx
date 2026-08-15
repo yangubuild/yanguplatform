@@ -316,7 +316,8 @@ const App = () => (
               <Routes>
                 {/* Public routes */}
                 <Route path="/unsubscribe" element={<Unsubscribe />} />
-                <Route path="/" element={<Index />} />
+                <Route path="/" element={<RootRoute />} />
+                <Route path="/login" element={<Navigate to="/auth/login" replace />} />
                 <Route path="/community/*" element={<Community />} />
                 <Route path="/why-yangu" element={<WhyYangu />} />
                 <Route path="/discover" element={<DiscoverYangu />} />
