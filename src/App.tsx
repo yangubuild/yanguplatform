@@ -21,6 +21,7 @@ import { resolveAppMode } from "@/lib/routing/appMode";
 import { OfflineAnalytics } from "@/components/offline/OfflineAnalytics";
 
 import Index from "./pages/Index";
+import { RootRoute } from "./components/routing/RootRoute";
 import NotFound from "./pages/NotFound";
 const Login = lazy(() => lazyRetry(() => import("./pages/auth/Login")));
 const Signup = lazy(() => lazyRetry(() => import("./pages/auth/Signup")));
