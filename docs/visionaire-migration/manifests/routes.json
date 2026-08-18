@@ -1,0 +1,30 @@
+{
+  "basePathToday": "/dashboard/visionaire",
+  "basePathIndependent": "/",
+  "routes": [
+    {"today": "/dashboard/visionaire", "new": "/", "component": "VisionaireHome", "sidebar": true, "auth": "public"},
+    {"today": "/dashboard/visionaire/bundles", "new": "/bundles", "component": "VisionaireBundles", "sidebar": true, "auth": "public"},
+    {"today": "/dashboard/visionaire/bundle/:id", "new": "/bundle/:id", "component": "VisionaireBundleDetail", "sidebar": false, "auth": "public"},
+    {"today": "/dashboard/visionaire/item/:id", "new": "/item/:id", "component": "VisionaireItemDetail", "sidebar": false, "auth": "public"},
+    {"today": "/dashboard/visionaire/requests", "new": "/requests", "component": "ProductRequests", "sidebar": true, "auth": "mixed"},
+    {"today": "/dashboard/visionaire/saved", "new": "/saved", "component": "SavedProducts", "sidebar": true, "auth": "required"},
+    {"today": "/dashboard/visionaire/deals", "new": "/deals", "component": "SpecialDeals", "sidebar": true, "auth": "public"},
+    {"today": "/dashboard/visionaire/book-covers", "new": "/book-covers", "component": "BookCoverTemplates", "sidebar": true, "auth": "public"},
+    {"today": "/dashboard/visionaire/mockups", "new": "/mockups", "component": "ProductMockups", "sidebar": true, "auth": "public"},
+    {"today": "/dashboard/visionaire/evergreen", "new": "/evergreen", "component": "EvergreenProblems", "sidebar": true, "auth": "public"},
+    {"today": "/dashboard/visionaire/evergreen/:slug", "new": "/evergreen/:slug", "component": "EvergreenProblemDetail", "sidebar": false, "auth": "public"},
+    {"today": "/dashboard/visionaire/university", "new": "/university", "component": "DigitalProductUniversity", "sidebar": true, "auth": "public"},
+    {"today": "/dashboard/visionaire/university/:slug", "new": "/university/:slug", "component": "UniversityCourseDetail", "sidebar": false, "auth": "public"},
+    {"today": "/dashboard/visionaire/university/:slug/course/:courseSlug", "new": "/university/:slug/course/:courseSlug", "component": "UniversityLessonViewer", "sidebar": false, "auth": "public"},
+    {"today": "/dashboard/visionaire/university/:slug/course/:courseSlug/lesson/:courseLessonIndex", "new": "/university/:slug/course/:courseSlug/lesson/:index", "component": "UniversityLessonViewer", "sidebar": false, "auth": "public"},
+    {"today": "/dashboard/visionaire/university/:slug/lessons/:lessonIndex", "new": "/university/:slug/lessons/:index", "component": "UniversityLessonViewer", "sidebar": false, "auth": "public"},
+    {"today": "/dashboard/visionaire/tools/pdf-rebrander", "new": "/tools/pdf-rebrander", "component": "PDFRebrander", "sidebar": true, "auth": "required"},
+    {"today": "/dashboard/visionaire/tools/product-descriptions", "new": "/tools/product-descriptions", "component": "ProductDescriptions", "sidebar": true, "auth": "required"},
+    {"today": "/dashboard/visionaire/tools/product-ideas", "new": "/tools/product-ideas", "component": "ProductIdeas", "sidebar": true, "auth": "required"},
+    {"today": "/dashboard/visionaire/tools/book-title-generator", "new": "/tools/book-title-generator", "component": "BookTitleGenerator", "sidebar": true, "auth": "required"}
+  ],
+  "newRoutes": [
+    {"new": "/admin/items", "auth": "admin"},
+    {"new": "/admin/requests", "auth": "admin"}
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "copyExactly": {
+    "pages": ["src/pages/dashboard/visionaire/VisionaireHome.tsx","src/pages/dashboard/visionaire/VisionaireBundles.tsx","src/pages/dashboard/visionaire/VisionaireBundleDetail.tsx","src/pages/dashboard/visionaire/SavedProducts.tsx","src/pages/dashboard/visionaire/ProductRequests.tsx","src/pages/dashboard/visionaire/SpecialDeals.tsx","src/pages/dashboard/visionaire/BookCoverTemplates.tsx","src/pages/dashboard/visionaire/ProductMockups.tsx","src/pages/dashboard/visionaire/EvergreenProblems.tsx","src/pages/dashboard/visionaire/EvergreenProblemDetail.tsx","src/pages/dashboard/visionaire/DigitalProductUniversity.tsx","src/pages/dashboard/visionaire/UniversityCourseDetail.tsx","src/pages/dashboard/visionaire/UniversityLessonViewer.tsx","src/pages/dashboard/visionaire/ProductDescriptions.tsx","src/pages/dashboard/visionaire/ProductIdeas.tsx","src/pages/dashboard/visionaire/BookTitleGenerator.tsx"],
+    "components": ["src/components/visionaire/VisionaireGrid.tsx","src/components/visionaire/VisionairePageContainer.tsx","src/components/visionaire/CompletedProducts.tsx","src/components/visionaire/mockups/BoxMockupGallery.tsx","src/components/visionaire/mockups/BoxMockupEditor.tsx"],
+    "data": ["src/data/university/masterclass-courses.ts","src/data/university/master-library-lessons.tsx","src/data/university/visionaire-library.json","src/data/university/course-content/index.ts","src/data/university/course-content/course-1-content.tsx","src/data/university/course-content/course-2-content.tsx","src/data/university/course-content/course-3-content.tsx","src/data/university/course-content/course-4-content.tsx","src/data/university/course-content/course-5-content.tsx","src/data/university/course-content/course-6-content.tsx","src/data/university/course-content/course-7-content.tsx","src/data/evergreen-problems.json"],
+    "libsAndHooks": ["src/hooks/useVisionaireItems.ts","src/hooks/useAuth.tsx","src/hooks/useDebounce.ts","src/lib/driveUtils.ts","src/lib/typography.ts","src/lib/utils.ts"],
+    "styling": ["src/index.css (token + @font-face blocks)","tailwind.config.ts","public/fonts/Lufga-*.otf"],
+    "assets": ["src/assets/university/** (16 files, 5.6MB)","src/assets/mockups/** (24 files, 7.9MB)","src/assets/products/** (8 files, 9.2MB)","src/assets/custom-ebook-promo.jpg"],
+    "edgeFunctions": ["supabase/functions/visionaire-llm","supabase/functions/drive-download-proxy","supabase/functions/drive-ingest-library","supabase/functions/drive-fix-ebook-covers","supabase/functions/drive-debug-folders","supabase/functions/_shared/require-auth.ts"]
+  },
+  "copyAndModify": [
+    {"file": "src/components/visionaire/VisionaireItemCard.tsx", "change": "remove useUnlockGate/ActionKey, getDownloadActionKey, UnlockDialog; call handleDriveDownload directly"},
+    {"file": "src/pages/dashboard/visionaire/VisionaireItemDetail.tsx", "change": "remove unlock gate on download"},
+    {"file": "src/pages/dashboard/visionaire/PDFRebrander.tsx", "change": "remove export_pdf gate; point upload at new visionaire-uploads bucket"},
+    {"file": "src/config/dashboardNav.ts", "change": "extract Visionaire subtree into standalone visionaireNav.ts"},
+    {"file": "src/App.tsx", "change": "flatten routes, drop ProtectedRoute/AllowlistGate/onboarding"},
+    {"file": "src/index.css", "change": "keep tokens + fonts, strip non-Visionaire blocks"}
+  ],
+  "doNotCopy": ["src/features/agents/**","src/pages/manage/**","src/pages/offline/**","src/pages/developers/**","src/lib/builder/**","src/pages/SurfaceEditor.tsx","src/pages/BuilderPage.tsx","public/templates/**","src/services/socialMedia/**","src/lib/ads/**","src/hooks/useUnlockGate.tsx","src/components/auth/AllowlistGate.tsx","src/lib/mcp/**","src/integrations/supabase/client.ts","src/integrations/supabase/types.ts",".env","src/components/brand/YanguLogo.tsx"],
+  "dataExports": ["/mnt/documents/visionaire-migration/data/visionaire_items.csv","/mnt/documents/visionaire-migration/data/visionaire_items_seed.sql","/mnt/documents/visionaire-migration/data/visionaire_product_requests.csv","/mnt/documents/visionaire-migration/data/visionaire_request_votes.csv","/mnt/documents/visionaire-migration/data/visionaire_user_saves.csv"]
+}

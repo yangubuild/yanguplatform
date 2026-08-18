@@ -1,0 +1,22 @@
+{
+  "capturedAt": "2026-08-18",
+  "owned": [
+    {"table": "visionaire_items", "rows": 660, "activeRows": 595, "verdict": "COPY", "rlsPolicies": ["public SELECT where is_active"], "writePath": "service-role edge functions + migrations only"},
+    {"table": "visionaire_user_saves", "rows": 2, "verdict": "RECREATE", "rlsPolicies": ["authenticated own SELECT", "own INSERT", "own DELETE"]},
+    {"table": "visionaire_product_requests", "rows": 63, "verdict": "COPY (user_id nulled)", "rlsPolicies": ["public SELECT active", "authenticated INSERT"]},
+    {"table": "visionaire_request_votes", "rows": 3, "verdict": "RECREATE", "rlsPolicies": ["authenticated own SELECT/INSERT/DELETE"]},
+    {"table": "visionaire_tool_runs", "rows": 0, "verdict": "RECREATE", "rlsPolicies": ["authenticated own SELECT/INSERT"]}
+  ],
+  "shared": [
+    {"table": "drive_tokens", "verdict": "SHARED", "note": "platform-wide per-user Drive OAuth; only needed if uploads are kept"},
+    {"table": "profiles", "verdict": "RECREATE", "note": "new project needs its own"},
+    {"table": "user_roles", "verdict": "RECREATE", "note": "roles in a separate table + has_role()"}
+  ],
+  "doNotMove": ["learning_courses", "learning_lessons", "learning_enrollments", "learning_lesson_progress", "learning_quiz_attempts", "learning_quiz_options", "learning_quiz_questions", "learning_resources", "learning_tracks", "learning_track_completions", "learning_course_completions", "learning_role_defaults", "dashboard_allowlist"],
+  "buckets": [
+    {"name": "visionaire-assets", "public": true, "objects": 0, "verdict": "RECREATE"},
+    {"name": "visionaire-uploads", "public": false, "objects": 0, "verdict": "RECREATE with owner-scoped policies"}
+  ],
+  "categoryDistribution": {"ebooks": 181, "bundles": 68, "video_learning": 65, "guide": 60, "master_library": 64, "audio": 58, "checklists": 41, "vls": 23, "toolstack": 17, "workbook": 16, "courses": 14, "templates": 13, "mockups": 12, "special_deals": 8, "evergreen": 8, "university": 6, "tools": 4, "business_podcast": 2},
+  "externalHosts": {"drive.google.com": {"downloadUrls": 435, "thumbnails": 42}, "lh3.googleusercontent.com": {"thumbnails": 195}, "entrepedia-products.com": {"thumbnails": 121}}
+}
