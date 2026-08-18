@@ -4,7 +4,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { PLATFORM_NAME } from "@/config/platform";
 import { Button } from "@/components/ui/button";
 import { Sun, Moon, ArrowLeft } from "lucide-react";
-import authLogo from "@/assets/yangu-logo-auth.png";
+import { YanguLogo, YANGU_SITE_URL } from "@/components/brand/YanguLogo";
 
 interface AuthShellProps {
   children: ReactNode;
@@ -22,7 +22,7 @@ export function AuthShell({
   title,
   subtitle,
   showBackLink = true,
-  backLinkHref = "/",
+  backLinkHref = YANGU_SITE_URL,
   backLinkLabel = "Back to home",
   maxWidth,
 }: AuthShellProps) {
@@ -32,9 +32,9 @@ export function AuthShell({
     <div className="min-h-screen flex flex-col bg-background">
       {/* Header */}
       <header className="flex items-center justify-between p-4 md:p-6">
-        <Link to="/" className="flex items-center gap-2">
-          <img src={authLogo} alt="yangu" className="h-8" />
-        </Link>
+        <a href={YANGU_SITE_URL} className="flex items-center gap-2">
+          <YanguLogo className="h-8" />
+        </a>
 
         <Button
           variant="ghost"
@@ -50,12 +50,21 @@ export function AuthShell({
         <div className={`w-full ${maxWidth || "max-w-md"} space-y-8`}>
           {/* Back link */}
           {showBackLink && (
-            <Link
-              to={backLinkHref}
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-              <ArrowLeft className="h-4 w-4" />
-              {backLinkLabel}
-            </Link>
+            /^https?:\/\//.test(backLinkHref) ? (
+              <a
+                href={backLinkHref}
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <ArrowLeft className="h-4 w-4" />
+                {backLinkLabel}
+              </a>
+            ) : (
+              <Link
+                to={backLinkHref}
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <ArrowLeft className="h-4 w-4" />
+                {backLinkLabel}
+              </Link>
+            )
           )}
 
           {/* Title section */}

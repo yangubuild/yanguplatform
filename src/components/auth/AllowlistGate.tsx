@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useTheme } from "@/components/ThemeProvider";
 import { Button } from "@/components/ui/button";
 import { Sun, Moon, LogOut } from "lucide-react";
-import authLogo from "@/assets/yangu-logo-auth.png";
+import { YanguLogo } from "@/components/brand/YanguLogo";
 
 interface AllowlistGateProps {
   children: ReactNode;
@@ -63,7 +63,7 @@ export function AllowlistGate({ children }: AllowlistGateProps) {
       aria-labelledby="allowlist-gate-title">
       <header className="flex items-center justify-between p-4 md:p-6">
         <div className="flex items-center gap-2">
-          <img src={authLogo} alt="yangu" className="h-8" />
+          <YanguLogo className="h-8" />
         </div>
         <Button
           variant="ghost"
