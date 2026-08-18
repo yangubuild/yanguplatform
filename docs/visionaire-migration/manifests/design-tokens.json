@@ -1,0 +1,52 @@
+{
+  "radius": "0.5rem",
+  "fonts": {"sans": "Lufga", "display": "Lufga", "mono": "JetBrains Mono", "source": "/public/fonts/Lufga-*.otf", "weights": "100-900 + italics", "fontDisplay": "swap"},
+  "dark": {
+    "background": {"hsl": "150 20% 5%", "hex": "#0A0F0D"},
+    "foreground": {"hsl": "150 10% 95%", "hex": "#F1F4F2"},
+    "card": {"hsl": "150 15% 8%", "hex": "#111714"},
+    "popover": {"hsl": "150 15% 8%", "hex": "#111714"},
+    "surfaceElevated": {"hsl": "150 14% 11%", "hex": "#18201C"},
+    "surfaceSunken": {"hsl": "150 20% 4%", "hex": "#080C0A"},
+    "border": {"hsl": "150 12% 15%", "hex": "#222B26"},
+    "input": {"hsl": "150 12% 15%", "hex": "#222B26"},
+    "ring": {"hsl": "150 12% 25%", "hex": "#384740"},
+    "muted": {"hsl": "150 12% 15%", "hex": "#222B26"},
+    "mutedForeground": {"hsl": "150 10% 60%", "hex": "#8FA399"},
+    "secondary": {"hsl": "150 12% 15%", "hex": "#222B26"},
+    "accent": {"hsl": "25 85% 45%", "hex": "#D46211"},
+    "accentForeground": {"hsl": "0 0% 100%", "hex": "#FFFFFF"},
+    "success": {"hsl": "160 84% 45%", "hex": "#12D393"},
+    "warning": {"hsl": "38 92% 55%", "hex": "#F6A823"},
+    "destructive": {"hsl": "0 72% 51%", "hex": "#DC2828"}
+  },
+  "sidebar": {
+    "background": {"hsl": "150 20% 5%", "hex": "#0A0F0D"},
+    "foreground": {"hsl": "150 10% 92%", "hex": "#E9EDEB"},
+    "primary": {"hsl": "25 85% 45%", "hex": "#D46211"},
+    "accentSelected": {"hsl": "150 14% 11%", "hex": "#18201C"},
+    "border": {"hsl": "150 12% 15%", "hex": "#222B26"}
+  },
+  "light": {
+    "background": {"hsl": "210 20% 98%", "hex": "#F9FAFB"},
+    "foreground": {"hsl": "222 47% 11%", "hex": "#0F1729"},
+    "card": {"hsl": "0 0% 100%", "hex": "#FFFFFF"},
+    "muted": {"hsl": "210 40% 96%", "hex": "#F1F5F9"},
+    "mutedForeground": {"hsl": "215 16% 47%", "hex": "#65758B"},
+    "accent": {"hsl": "217 91% 60%", "hex": "#3C83F6"},
+    "border": {"hsl": "214 32% 91%", "hex": "#E1E7EF"}
+  },
+  "gradients": {
+    "primary": "linear-gradient(135deg, #D46211 0%, #863913 100%)",
+    "hero": "linear-gradient(180deg, #0A0F0D 0%, #111714 100%)",
+    "glow": "radial-gradient(ellipse at center, hsl(25 85% 45% / 0.2) 0%, transparent 70%)"
+  },
+  "shadows": {
+    "sm": "0 1px 2px 0 hsl(0 0% 0% / .3)",
+    "md": "0 4px 6px -1px hsl(0 0% 0% / .4), 0 2px 4px -2px hsl(0 0% 0% / .3)",
+    "lg": "0 10px 15px -3px hsl(0 0% 0% / .5), 0 4px 6px -4px hsl(0 0% 0% / .4)",
+    "xl": "0 20px 25px -5px hsl(0 0% 0% / .6), 0 8px 10px -6px hsl(0 0% 0% / .5)",
+    "glow": "0 0 60px hsl(24 95% 53% / .3)"
+  },
+  "container": {"maxWidth": "1200px", "gutters": "px-3 sm:px-4 lg:px-6", "vertical": "pt-4 sm:pt-6 pb-8 sm:pb-10"}
+}
