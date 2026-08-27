@@ -360,10 +360,10 @@ Deno.serve(async (req) => {
         }
         const orgId = await resolveOrg();
         if (!orgId) return json({ ok: false, error: "no_org", message: "No workspace found for this account." }, 400);
-        const number = String(body.number ?? "").replace(/[\s\-()]/g, "");
+        const number = toE164(body.number);
         const sid = String(body.accountSid ?? "").trim();
         const token = String(body.authToken ?? "").trim();
-        if (!/^\+[1-9]\d{6,15}$/.test(number)) {
+        if (!isE164(number)) {
           return json({ ok: false, error: "invalid_number", message: "Enter the number in international format, e.g. +971501234567." }, 400);
         }
         if (!sid || !token) {
@@ -386,8 +386,8 @@ Deno.serve(async (req) => {
         if (!agent.vapi_assistant_id) {
           return json({ ok: false, error: "not_deployed", message: "Not deployed to voice provider — deploy this agent first." }, 400);
         }
-        const to = String(body.to ?? "").trim().replace(/[\s\-()]/g, "");
-        if (!/^\+[1-9]\d{6,15}$/.test(to)) {
+        const to = toE164(body.to);
+        if (!isE164(to)) {
           return json({ ok: false, error: "invalid_number", message: "Enter the number to call in international format, e.g. +971501234567." }, 400);
         }
 
