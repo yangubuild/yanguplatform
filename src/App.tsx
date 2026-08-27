@@ -577,8 +577,10 @@ const App = () => (
 
                   {/* AI Agents module */}
                   <Route path="agents" element={<AgentsLayout />}>
-                    <Route index element={<AgentsDashboardPage />} />
+                    <Route index element={<AgentComposerPage />} />
+                    <Route path="dashboard" element={<AgentsDashboardPage />} />
                     <Route path="agents" element={<AgentsListPage />} />
+
                     <Route path="agents/new" element={<AgentCreatePage />} />
                     <Route path="agents/:id" element={<AgentBuilderPage />} />
                     <Route path="build" element={<AgentComposerPage />} />

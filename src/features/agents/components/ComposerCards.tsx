@@ -1,0 +1,489 @@
+// Contextual cards the Composer renders inline under an assistant reply.
+// Every card acts on real workspace data — there are no placeholder controls.
+
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  ArrowUpRight, BarChart3, BookOpen, Bot, Calendar, CheckCircle2, Loader2,
+  PhoneCall, PhoneOutgoing, Play, Pause, Phone, Users, Volume2, Languages, MessageSquareQuote,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+import { updateAgentFields, voiceOps, type ComposerUi } from "../data/builderDb";
+import { useSetAgentRunState } from "../data/builderHooks";
+import { useOrgId } from "../data/hooks";
+
+const VOICES = ["Elliot", "Kylie", "Rohan", "Lily", "Savannah", "Hana", "Cole", "Paige", "Spencer"];
+const LANGUAGES = ["English", "Arabic", "Swahili", "French", "Hindi", "Urdu", "Portuguese"];
+
+const fmt = (v?: string | null) => (v ? new Date(v).toLocaleString() : "—");
+
+function CardShell({ icon: Icon, title, children, action }: {
+  icon: React.ElementType; title: string; children: React.ReactNode; action?: React.ReactNode;
+}) {
+  return (
+    <Card className="mt-2 border-border/70">
+      <CardContent className="space-y-3 p-3 sm:p-4">
+        <div className="flex items-center gap-2">
+          <Icon className="h-4 w-4 text-primary" />
+          <p className="mr-auto text-sm font-semibold">{title}</p>
+          {action}
+        </div>
+        {children}
+      </CardContent>
+    </Card>
+  );
+}
+
+function Rows({ items }: { items: { key: string; primary: string; secondary?: string; right?: React.ReactNode; to?: string }[] }) {
+  return (
+    <ul className="divide-y divide-border/60 rounded-lg border border-border/60">
+      {items.map((r) => (
+        <li key={r.key} className="flex items-center gap-3 px-3 py-2 text-sm">
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-medium">{r.primary}</p>
+            {r.secondary && <p className="truncate text-xs text-muted-foreground">{r.secondary}</p>}
+          </div>
+          {r.right}
+          {r.to && (
+            <Button asChild size="icon" variant="ghost" className="h-7 w-7" aria-label={`Open ${r.primary}`}>
+              <Link to={r.to}><ArrowUpRight className="h-3.5 w-3.5" /></Link>
+            </Button>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export function ComposerCard({ ui }: { ui: ComposerUi }) {
+  const { toast } = useToast();
+  const qc = useQueryClient();
+  const runState = useSetAgentRunState();
+  const { data: orgId } = useOrgId();
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState<string | null>(null);
+
+  const agent = (ui.agent ?? null) as any;
+  const agents = (ui.agents ?? []) as any[];
+
+  // local editable state per card type
+  const [voice, setVoice] = useState<string>(String(agent?.voice ?? "Elliot"));
+  const [greeting, setGreeting] = useState<string>(String(ui.greeting ?? ""));
+  const [langs, setLangs] = useState<string[]>(agent?.language ? [String(agent.language)] : ["English"]);
+  const [to, setTo] = useState<string>("");
+  const [callPurpose, setCallPurpose] = useState<string>(String(ui.purpose ?? ""));
+  const [campaignAgent, setCampaignAgent] = useState<string>(agents[0]?.id ?? "");
+  const [picked, setPicked] = useState<string[]>([]);
+  const [numbers, setNumbers] = useState<any[] | null>(null);
+
+  const contacts = (ui.contacts ?? []) as any[];
+  const calls = (ui.calls ?? []) as any[];
+  const leads = (ui.leads ?? []) as any[];
+  const appointments = (ui.appointments ?? []) as any[];
+  const sources = (ui.sources ?? []) as any[];
+  const totals = (ui.totals ?? {}) as Record<string, number>;
+  const agentName = useMemo(() => new Map(agents.map((a) => [a.id, a.name])), [agents]);
+
+  const fail = (e: unknown) =>
+    toast({
+      title: "That didn't go through",
+      description: e instanceof Error ? e.message : "Please try again.",
+      variant: "destructive",
+    });
+
+  async function run(label: string, fn: () => Promise<unknown>) {
+    setBusy(true);
+    try {
+      await fn();
+      setDone(label);
+      qc.invalidateQueries({ queryKey: ["agents"] });
+    } catch (e) { fail(e); } finally { setBusy(false); }
+  }
+
+  if (done) {
+    return (
+      <p className="mt-2 flex items-center gap-1.5 text-xs text-primary">
+        <CheckCircle2 className="h-3.5 w-3.5" />{done}
+      </p>
+    );
+  }
+
+  switch (ui.type) {
+    case "agent_list":
+      return (
+        <CardShell icon={Bot} title={agents.length === 1 ? "Agent" : "Your AI employees"}>
+          <Rows
+            items={agents.map((a) => ({
+              key: a.id,
+              primary: a.name,
+              secondary: `${a.type} · ${a.status}${a.phone_number ? ` · ${a.phone_number}` : ""}`,
+              right: <Badge variant={a.status === "live" ? "default" : "secondary"} className="capitalize">{a.status}</Badge>,
+              to: `/dashboard/agents/agent/${a.id}`,
+            }))}
+          />
+        </CardShell>
+      );
+
+    case "voice_selector":
+      return (
+        <CardShell icon={Volume2} title={`Voice for ${agent?.name ?? "agent"}`}>
+          <div className="flex flex-wrap gap-2">
+            {VOICES.map((v) => (
+              <Button key={v} size="sm" variant={voice === v ? "default" : "outline"} onClick={() => setVoice(v)}>
+                {v}
+              </Button>
+            ))}
+          </div>
+          <Button
+            size="sm" disabled={busy || !agent}
+            onClick={() => run(`Voice updated to ${voice}.`, () => updateAgentFields(agent.id, { voice }))}
+          >
+            {busy && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}Save voice
+          </Button>
+        </CardShell>
+      );
+
+    case "greeting_editor":
+      return (
+        <CardShell icon={MessageSquareQuote} title={`Greeting for ${agent?.name ?? "agent"}`}>
+          <Textarea
+            value={greeting} onChange={(e) => setGreeting(e.target.value)} rows={3}
+            placeholder="Thank you for calling — how can I help?"
+            className="resize-none rounded-lg"
+          />
+          <Button
+            size="sm" disabled={busy || !greeting.trim() || !agent}
+            onClick={() => run("Greeting updated.", () => updateAgentFields(agent.id, { greeting: greeting.trim() }))}
+          >
+            {busy && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}Save greeting
+          </Button>
+        </CardShell>
+      );
+
+    case "language_selector":
+      return (
+        <CardShell icon={Languages} title={`Languages for ${agent?.name ?? "agent"}`}>
+          <div className="flex flex-wrap gap-2">
+            {LANGUAGES.map((l) => (
+              <Button
+                key={l} size="sm" variant={langs.includes(l) ? "default" : "outline"}
+                onClick={() => setLangs((p) => (p.includes(l) ? p.filter((x) => x !== l) : [...p, l]))}
+              >
+                {l}
+              </Button>
+            ))}
+          </div>
+          <Button
+            size="sm" disabled={busy || !langs.length || !agent}
+            onClick={() => run(`Languages updated: ${langs.join(", ")}.`, () => updateAgentFields(agent.id, { languages: langs }))}
+          >
+            {busy && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}Save languages
+          </Button>
+        </CardShell>
+      );
+
+    case "agent_run_state": {
+      const next = String(ui.next) === "pause" ? "pause" : "resume";
+      return (
+        <CardShell icon={next === "pause" ? Pause : Play} title={`${next === "pause" ? "Pause" : "Resume"} ${agent?.name ?? "agent"}`}>
+          <Button
+            size="sm" disabled={runState.isPending || !agent}
+            onClick={() =>
+              run(next === "pause" ? "Agent paused." : "Agent resumed.", () =>
+                runState.mutateAsync({ agentId: agent.id, next: next as "pause" | "resume" }))
+            }
+          >
+            {runState.isPending && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+            {next === "pause" ? "Pause agent" : "Resume agent"}
+          </Button>
+        </CardShell>
+      );
+    }
+
+    case "call_confirm":
+      return (
+        <CardShell icon={PhoneOutgoing} title={`Place a call with ${agent?.name ?? "your agent"}`}>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <div>
+              <Label className="text-xs">Number to call</Label>
+              <Input
+                value={to} onChange={(e) => setTo(e.target.value)} inputMode="tel"
+                placeholder="+971 50 123 4567" className="rounded-lg"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Purpose</Label>
+              <Input
+                value={callPurpose} onChange={(e) => setCallPurpose(e.target.value)}
+                placeholder="Follow up on the quote" className="rounded-lg"
+              />
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Calling from {agent?.phone_number ?? "your agent's number"}. Nothing is dialled until you confirm.
+          </p>
+          <Button
+            size="sm" disabled={busy || !to.trim() || !agent}
+            onClick={() =>
+              run(`Calling ${to.trim()} now.`, () =>
+                voiceOps.placeCall({
+                  agentId: agent.id, to: to.trim(),
+                  name: String(ui.person ?? "") || undefined,
+                  purpose: callPurpose || undefined,
+                }))
+            }
+          >
+            {busy ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <PhoneCall className="mr-1.5 h-4 w-4" />}
+            Call now
+          </Button>
+        </CardShell>
+      );
+
+    case "call_list":
+      return (
+        <CardShell
+          icon={PhoneCall} title="Calls"
+          action={<Button asChild size="sm" variant="ghost"><Link to="/dashboard/agents/calls">All calls</Link></Button>}
+        >
+          <Rows
+            items={calls.map((c) => ({
+              key: c.id,
+              primary: `${c.direction === "outbound" ? "To" : "From"} ${c.destination ?? c.caller_id ?? "unknown"}`,
+              secondary: `${agentName.get(c.agent_id) ?? "Agent"} · ${fmt(c.started_at)} · ${c.duration_sec ? `${Math.round(c.duration_sec / 60)} min` : "—"}`,
+              right: (
+                <Badge
+                  variant={["failed", "no-answer", "busy", "error"].includes(String(c.status)) ? "destructive" : "secondary"}
+                  className="capitalize"
+                >
+                  {c.outcome ?? c.status ?? "—"}
+                </Badge>
+              ),
+            }))}
+          />
+        </CardShell>
+      );
+
+    case "lead_list":
+      return (
+        <CardShell
+          icon={Users} title="Leads"
+          action={<Button asChild size="sm" variant="ghost"><Link to="/dashboard/agents/leads">All leads</Link></Button>}
+        >
+          <Rows
+            items={leads.map((l) => ({
+              key: l.id,
+              primary: l.name,
+              secondary: [l.phone, l.email, l.intent].filter(Boolean).join(" · ") || fmt(l.created_at),
+              right: <Badge variant="secondary">{l.stage}</Badge>,
+            }))}
+          />
+        </CardShell>
+      );
+
+    case "appointment_list":
+      return (
+        <CardShell
+          icon={Calendar} title="Appointments"
+          action={<Button asChild size="sm" variant="ghost"><Link to="/dashboard/agents/appointments">Calendar</Link></Button>}
+        >
+          <Rows
+            items={appointments.map((a) => ({
+              key: a.id,
+              primary: a.title,
+              secondary: `${a.contact_name ?? "Customer"} · ${fmt(a.scheduled_at)} · ${a.duration_min} min`,
+              right: <Badge variant="secondary" className="capitalize">{a.status}</Badge>,
+            }))}
+          />
+        </CardShell>
+      );
+
+    case "analytics":
+      return (
+        <CardShell
+          icon={BarChart3} title="Performance"
+          action={<Button asChild size="sm" variant="ghost"><Link to="/dashboard/agents/analytics">Full analytics</Link></Button>}
+        >
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {[
+              { label: "Calls", value: totals.calls ?? 0 },
+              { label: "Connected", value: totals.connected ?? 0 },
+              { label: "Minutes", value: totals.minutes ?? 0 },
+              { label: "Unanswered", value: totals.failed ?? 0 },
+              { label: "Live agents", value: totals.live ?? 0 },
+              { label: "Spend", value: `${totals.cost ?? 0}` },
+            ].map((m) => (
+              <div key={m.label} className="rounded-lg border border-border/60 p-3">
+                <p className="text-lg font-semibold">{m.value}</p>
+                <p className="text-[11px] text-muted-foreground">{m.label}</p>
+              </div>
+            ))}
+          </div>
+        </CardShell>
+      );
+
+    case "knowledge_panel":
+      return (
+        <CardShell
+          icon={BookOpen} title={agent ? `Knowledge for ${agent.name}` : "Business knowledge"}
+          action={<Button asChild size="sm" variant="ghost"><Link to="/dashboard/agents/knowledge">Manage</Link></Button>}
+        >
+          {sources.length === 0 ? (
+            <p className="text-xs text-muted-foreground">
+              Nothing added yet. Paste your prices, policies or FAQs into the message box and I'll store them,
+              or open Manage to upload a document.
+            </p>
+          ) : (
+            <Rows
+              items={sources.map((s) => ({
+                key: s.id,
+                primary: s.name,
+                secondary: `${s.kind ?? "text"} · ${fmt(s.created_at)}`,
+                right: <Badge variant="secondary" className="capitalize">{s.status ?? "ready"}</Badge>,
+              }))}
+            />
+          )}
+        </CardShell>
+      );
+
+    case "phone_numbers": {
+      const list = numbers ?? (ui.numbers as any[]) ?? [];
+      return (
+        <CardShell
+          icon={Phone} title="Phone numbers"
+          action={
+            <Button
+              size="sm" variant="outline" disabled={busy || !orgId}
+              onClick={async () => {
+                setBusy(true);
+                try {
+                  const res = await voiceOps.listNumbers(orgId!);
+                  setNumbers(
+                    (res?.numbers ?? []).map((n: any) => ({
+                      id: n.id, number: n.number, label: n.name, status: n.assistantId ? "assigned" : "available",
+                    })),
+                  );
+                } catch (e) { fail(e); } finally { setBusy(false); }
+              }}
+            >
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Refresh"}
+            </Button>
+          }
+        >
+          {list.length === 0 ? (
+            <p className="text-xs text-muted-foreground">
+              No numbers connected yet. Tap Refresh to pull in numbers available to your workspace.
+            </p>
+          ) : (
+            <Rows
+              items={list.map((n: any) => ({
+                key: n.id,
+                primary: n.number,
+                secondary: n.label ?? n.status,
+                right: agent ? (
+                  <Button
+                    size="sm" variant="outline" disabled={busy}
+                    onClick={() => run(`${n.number} assigned to ${agent.name}.`, () => voiceOps.assignNumber(agent.id, n.id))}
+                  >
+                    Assign
+                  </Button>
+                ) : (
+                  <Badge variant="secondary" className="capitalize">{n.status}</Badge>
+                ),
+              }))}
+            />
+          )}
+        </CardShell>
+      );
+    }
+
+    case "campaign_form": {
+      if (!agents.length) return null;
+      const selected = agents.find((a) => a.id === campaignAgent) ?? agents[0];
+      return (
+        <CardShell icon={PhoneOutgoing} title="Outbound campaign">
+          <div>
+            <Label className="text-xs">Agent</Label>
+            <div className="mt-1 flex flex-wrap gap-2">
+              {agents.map((a) => (
+                <Button
+                  key={a.id} size="sm" variant={selected?.id === a.id ? "default" : "outline"}
+                  onClick={() => setCampaignAgent(a.id)}
+                >
+                  {a.name}
+                </Button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs">Objective</Label>
+            <Input
+              value={callPurpose} onChange={(e) => setCallPurpose(e.target.value)}
+              placeholder="Follow up with last week's enquiries" className="rounded-lg"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Contacts ({picked.length} selected)</Label>
+            {contacts.length === 0 ? (
+              <p className="mt-1 text-xs text-muted-foreground">
+                No contacts with phone numbers yet. Leads captured by your agents appear here automatically.
+              </p>
+            ) : (
+              <ul className="mt-1 max-h-48 divide-y divide-border/60 overflow-y-auto rounded-lg border border-border/60">
+                {contacts.map((c) => (
+                  <li key={c.id} className="flex items-center gap-2 px-3 py-2 text-sm">
+                    <Checkbox
+                      id={`c-${c.id}`} checked={picked.includes(c.id)}
+                      onCheckedChange={(v) =>
+                        setPicked((p) => (v ? [...p, c.id] : p.filter((x) => x !== c.id)))
+                      }
+                    />
+                    <label htmlFor={`c-${c.id}`} className="min-w-0 flex-1 cursor-pointer">
+                      <span className="block truncate font-medium">{c.name}</span>
+                      <span className="block truncate text-xs text-muted-foreground">{c.phone}</span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <Button
+            size="sm" disabled={busy || !picked.length || !selected}
+            onClick={() =>
+              run(`Campaign launched to ${picked.length} contact${picked.length === 1 ? "" : "s"}.`, async () => {
+                for (const id of picked) {
+                  const c = contacts.find((x) => x.id === id);
+                  if (!c?.phone) continue;
+                  await voiceOps.placeCall({ agentId: selected.id, to: c.phone, name: c.name, purpose: callPurpose });
+                }
+              })
+            }
+          >
+            {busy ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <PhoneOutgoing className="mr-1.5 h-4 w-4" />}
+            Launch campaign
+          </Button>
+        </CardShell>
+      );
+    }
+
+    default:
+      return null;
+  }
+}
+
+export function SkillTag({ label, className }: { label?: string | null; className?: string }) {
+  if (!label) return null;
+  return (
+    <p className={cn("flex items-center gap-1.5 text-xs text-muted-foreground", className)}>
+      <Bot className="h-3.5 w-3.5" />Loaded {label}
+    </p>
+  );
+}

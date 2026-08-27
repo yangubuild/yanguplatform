@@ -1,7 +1,12 @@
+// Composer — the primary AI Agents workspace. One conversation surface that
+// routes internally to skills (build, manage, call, campaigns, knowledge,
+// leads, appointments, analytics, numbers) and renders contextual cards inline.
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
-  ArrowUp, Bot, Loader2, Plus, Rocket, Sparkles, Trash2, Wrench, PanelRightClose, PanelRightOpen, TestTube2,
+  ArrowUp, Bot, Loader2, Plus, Rocket, Sparkles, Trash2, TestTube2,
+  PanelRightClose, PanelRightOpen, PhoneOutgoing, BarChart3, Users, BookOpen, Wrench,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,7 +24,17 @@ import {
   useBuilderMessages, useBuilderThread, useBuilderThreads, useDeleteBuilderThread,
   useDeployAgent, useSaveDraftAgent, useSendBuilderTurn,
 } from "../data/builderHooks";
-import type { AgentDraftConfig, BuilderThread } from "../data/builderDb";
+import type { AgentDraftConfig, BuilderThread, ComposerUi } from "../data/builderDb";
+import { ComposerCard, SkillTag } from "../components/ComposerCards";
+
+const SUGGESTIONS = [
+  { icon: Bot, label: "Build an AI employee", prompt: "Build an AI receptionist for my business that answers calls and books appointments." },
+  { icon: PhoneOutgoing, label: "Call a customer", prompt: "Call a customer for me to follow up on their enquiry." },
+  { icon: Users, label: "Show my leads", prompt: "Show me the leads my agents captured this week." },
+  { icon: BarChart3, label: "How are my agents doing?", prompt: "How are my agents performing this week?" },
+  { icon: BookOpen, label: "Add business knowledge", prompt: "I want to give my agent knowledge about my prices and policies." },
+  { icon: PhoneOutgoing, label: "Run a campaign", prompt: "Call my recent leads to follow up on their quotes." },
+];
 
 function summaryRows(c: AgentDraftConfig) {
   const rows: { label: string; value: string }[] = [];
@@ -50,12 +65,12 @@ function ConfigSummary({ thread }: { thread: BuilderThread | null | undefined })
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold">Agent configuration</p>
+        <p className="text-sm font-semibold">Context</p>
         <Badge variant={status === "Live" ? "default" : "secondary"}>{status}</Badge>
       </div>
       {rows.length === 0 && (
         <p className="text-xs text-muted-foreground">
-          Details appear here as you answer Yangu's questions.
+          Details of what you're working on appear here as the conversation goes on.
         </p>
       )}
       <dl className="space-y-2.5">
@@ -91,13 +106,13 @@ export default function ComposerPage() {
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages.length, turn.isPending]);
   useEffect(() => { inputRef.current?.focus(); }, [threadId, turn.isPending]);
 
-  async function send() {
-    const value = text.trim();
-    if (!value || turn.isPending) return;
+  async function send(value?: string) {
+    const body = (value ?? text).trim();
+    if (!body || turn.isPending) return;
     setText("");
-    setStage("Understanding business requirements…");
+    setStage("Working on it…");
     try {
-      const result = await turn.mutateAsync({ threadId, text: value });
+      const result = await turn.mutateAsync({ threadId, text: body });
       if (!threadId) navigate(`/dashboard/agents/build/${result.threadId}`, { replace: true });
     } catch (e) {
       toast({ title: "Yangu AI couldn't respond", description: e instanceof Error ? e.message : "Please try again.", variant: "destructive" });
@@ -107,11 +122,11 @@ export default function ComposerPage() {
   }
 
   async function onSaveDraft() {
-    if (!thread) return;
+    if (!thread) return null;
     setStage("Saving draft…");
     try {
       const agentId = await saveDraft.mutateAsync(thread);
-      toast({ title: "Draft saved", description: "Your agent configuration is stored. You can test it before deploying." });
+      toast({ title: "Draft saved", description: "Your agent is stored. You can test it before deploying." });
       return agentId;
     } catch (e) {
       toast({ title: "Couldn't save the draft", description: e instanceof Error ? e.message : "Please try again.", variant: "destructive" });
@@ -121,13 +136,12 @@ export default function ComposerPage() {
 
   async function onDeploy() {
     if (!thread) return;
-    setStage("Saving draft…");
     const agentId = await onSaveDraft();
     if (!agentId) return;
     setStage("Deploying agent…");
     try {
       await deploy.mutateAsync(agentId);
-      toast({ title: "Agent is live", description: "Your agent has been deployed. Assign a phone number to start taking calls." });
+      toast({ title: "Agent is live", description: "Your agent has been deployed. Give it a phone number to start taking calls." });
       navigate(`/dashboard/agents/agent/${agentId}`);
     } catch (e) {
       toast({
@@ -139,12 +153,16 @@ export default function ComposerPage() {
   }
 
   const ready = thread?.status === "ready" || thread?.status === "deployed";
+  const empty = !msgsLoading && messages.length === 0 && !turn.isPending;
 
   const threadList = (
     <div className="space-y-1">
       <Button asChild variant="outline" size="sm" className="w-full justify-start">
-        <Link to="/dashboard/agents/agents/new"><Plus className="mr-1.5 h-4 w-4" />New thread</Link>
+        <Link to="/dashboard/agents"><Plus className="mr-1.5 h-4 w-4" />New conversation</Link>
       </Button>
+      {threads.length === 0 && (
+        <p className="px-2 py-3 text-xs text-muted-foreground">Your conversations will be saved here.</p>
+      )}
       {threads.map((t) => (
         <div
           key={t.id}
@@ -162,13 +180,13 @@ export default function ComposerPage() {
           </Link>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button size="icon" variant="ghost" aria-label="Delete thread" className="h-7 w-7 opacity-0 group-hover:opacity-100">
+              <Button size="icon" variant="ghost" aria-label="Delete conversation" className="h-7 w-7 opacity-0 group-hover:opacity-100">
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete this setup thread?</AlertDialogTitle>
+                <AlertDialogTitle>Delete this conversation?</AlertDialogTitle>
                 <AlertDialogDescription>
                   The conversation will be removed. Any agent already saved from it stays untouched.
                 </AlertDialogDescription>
@@ -178,7 +196,7 @@ export default function ComposerPage() {
                 <AlertDialogAction
                   onClick={async () => {
                     await removeThread.mutateAsync(t.id);
-                    if (t.id === threadId) navigate("/dashboard/agents/agents/new");
+                    if (t.id === threadId) navigate("/dashboard/agents");
                   }}
                 >
                   Delete
@@ -194,7 +212,7 @@ export default function ComposerPage() {
   return (
     <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_300px]">
       <aside className="hidden lg:block">
-        <p className="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Threads</p>
+        <p className="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Conversations</p>
         <ScrollArea className="h-[calc(100vh-14rem)] pr-1">{threadList}</ScrollArea>
       </aside>
 
@@ -203,26 +221,26 @@ export default function ComposerPage() {
           <div className="flex min-w-0 items-center gap-2">
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="sm" className="lg:hidden">Threads</Button>
+                <Button variant="outline" size="sm" className="lg:hidden">Conversations</Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[85vw] max-w-xs overflow-y-auto">
-                <p className="mb-3 text-sm font-semibold">Threads</p>
+                <p className="mb-3 text-sm font-semibold">Conversations</p>
                 {threadList}
               </SheetContent>
             </Sheet>
-            <h2 className="truncate text-base font-semibold">{thread?.title ?? "Agent Builder"}</h2>
+            <h2 className="truncate text-base font-semibold">{thread?.title ?? "Composer"}</h2>
           </div>
           <div className="flex items-center gap-2">
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="sm" className="xl:hidden">Configuration</Button>
+                <Button variant="outline" size="sm" className="xl:hidden">Context</Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[85vw] max-w-sm overflow-y-auto">
                 <ConfigSummary thread={thread} />
               </SheetContent>
             </Sheet>
             <Button
-              variant="ghost" size="icon" aria-label="Toggle configuration panel"
+              variant="ghost" size="icon" aria-label="Toggle context panel"
               className="hidden xl:inline-flex" onClick={() => setShowPanel((v) => !v)}
             >
               {showPanel ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
@@ -233,36 +251,54 @@ export default function ComposerPage() {
         <ScrollArea className="flex-1 rounded-lg border border-border bg-card/40 p-3 sm:p-4">
           <div className="space-y-4">
             {msgsLoading && <p className="text-sm text-muted-foreground">Loading conversation…</p>}
-            {!msgsLoading && messages.length === 0 && !turn.isPending && (
-              <div className="py-10 text-center">
-                <Wrench className="mx-auto h-7 w-7 text-muted-foreground" />
-                <p className="mt-2 text-sm font-medium">Agent Builder ready</p>
-                <p className="mx-auto mt-1 max-w-sm text-xs text-muted-foreground">
-                  Describe the agent you need — its role, languages, hours and how it should escalate.
-                  Yangu will only ask for what's missing.
+
+            {empty && (
+              <div className="py-8 text-center sm:py-12">
+                <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <p className="mt-3 text-base font-semibold">What would you like to get done?</p>
+                <p className="mx-auto mt-1 max-w-md text-xs text-muted-foreground">
+                  Ask for anything — build an AI employee, call a customer, run a follow-up campaign,
+                  add business knowledge or review performance. Yangu handles the rest.
                 </p>
+                <div className="mx-auto mt-5 grid max-w-xl grid-cols-1 gap-2 sm:grid-cols-2">
+                  {SUGGESTIONS.map((s) => (
+                    <button
+                      key={s.label}
+                      onClick={() => send(s.prompt)}
+                      className="flex items-center gap-2 rounded-lg border border-border/70 px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted/60"
+                    >
+                      <s.icon className="h-4 w-4 shrink-0 text-primary" />
+                      <span className="min-w-0 truncate">{s.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 
-            {messages.map((m, i) => (
-              <div key={m.id} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
-                <div className={cn("max-w-[85%] space-y-1", m.role === "user" ? "text-right" : "")}>
-                  {m.role === "assistant" && i === 0 && (
-                    <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Wrench className="h-3.5 w-3.5" />Loaded Agent Builder
-                    </p>
-                  )}
-                  <div
-                    className={cn(
-                      "rounded-lg px-3.5 py-2.5 text-sm leading-relaxed",
-                      m.role === "user" ? "bg-primary/10 text-foreground" : "bg-muted",
+            {messages.map((m) => {
+              const meta = (m.metadata ?? {}) as { skillLabel?: string; ui?: ComposerUi | null };
+              return (
+                <div key={m.id} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
+                  <div className={cn("max-w-[92%] space-y-1 sm:max-w-[85%]", m.role === "user" && "text-right")}>
+                    {m.role === "assistant" && <SkillTag label={meta.skillLabel} />}
+                    <div
+                      className={cn(
+                        "rounded-lg px-3.5 py-2.5 text-sm leading-relaxed",
+                        m.role === "user" ? "bg-primary/10 text-foreground" : "bg-muted",
+                      )}
+                    >
+                      {m.content}
+                    </div>
+                    {m.role === "assistant" && meta.ui && meta.ui.type !== "agent_ready" && (
+                      <div className="text-left"><ComposerCard ui={meta.ui} /></div>
                     )}
-                  >
-                    {m.content}
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
+
             {(turn.isPending || stage) && (
               <p className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -276,15 +312,15 @@ export default function ComposerPage() {
         {ready && (
           <Card className="mt-3 border-primary/40">
             <CardContent className="flex flex-wrap items-center gap-2 p-4">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <p className="mr-auto text-sm font-medium">Agent Ready</p>
+              <Wrench className="h-4 w-4 text-primary" />
+              <p className="mr-auto text-sm font-medium">Agent ready</p>
               <Button size="sm" variant="outline" onClick={onSaveDraft} disabled={saveDraft.isPending}>
                 {saveDraft.isPending ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <TestTube2 className="mr-1.5 h-4 w-4" />}
                 Save draft &amp; test
               </Button>
               {thread?.agentId && (
                 <Button asChild size="sm" variant="outline">
-                  <Link to={`/dashboard/agents/agents/${thread.agentId}`}>Edit configuration</Link>
+                  <Link to={`/dashboard/agents/agent/${thread.agentId}`}>Open agent</Link>
                 </Button>
               )}
               <AlertDialog>
@@ -298,7 +334,7 @@ export default function ComposerPage() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Deploy this agent?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Yangu will create the live voice agent from this configuration. No phone number is purchased —
+                      Yangu will create the live agent from this configuration. No phone number is purchased —
                       you assign a number separately.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
@@ -319,11 +355,11 @@ export default function ComposerPage() {
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
             rows={2}
-            placeholder="Answer Yangu, or add more detail…"
+            placeholder="Ask Yangu to build an agent, call someone, run a campaign…"
             className="min-h-[64px] resize-none rounded-lg pr-14"
           />
           <Button
-            size="icon" aria-label="Send" onClick={send} disabled={!text.trim() || turn.isPending}
+            size="icon" aria-label="Send" onClick={() => send()} disabled={!text.trim() || turn.isPending}
             className="absolute bottom-2.5 right-2.5 h-9 w-9 rounded-lg"
           >
             {turn.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUp className="h-4 w-4" />}
@@ -338,7 +374,7 @@ export default function ComposerPage() {
               <ConfigSummary thread={thread} />
               {!thread && (
                 <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Bot className="h-3.5 w-3.5" />Describe your agent to begin.
+                  <Bot className="h-3.5 w-3.5" />Start a conversation to begin.
                 </p>
               )}
             </CardContent>

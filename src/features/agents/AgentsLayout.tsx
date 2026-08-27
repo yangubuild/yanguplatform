@@ -1,32 +1,21 @@
-import { NavLink, Outlet } from "react-router-dom";
-import {
-  LayoutDashboard, Bot, Inbox, PhoneCall, Users, Calendar,
-  BookOpen, Workflow as WorkflowIcon, BarChart3, Puzzle,
-  Sparkles, Smartphone, UsersRound, CreditCard, Settings, UserCircle,
-} from "lucide-react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { Bot, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VoiceOrb } from "./VoiceOrb";
 
+// Persistent navigation is deliberately minimal: the Composer is the workspace,
+// Agents is the secondary directory. Everything else is reached contextually
+// from the conversation (those routes still exist for direct links).
 const NAV = [
-  { to: "/dashboard/agents", label: "Dashboard", icon: LayoutDashboard, end: true },
+  { to: "/dashboard/agents", label: "Composer", icon: MessageSquare, end: true },
   { to: "/dashboard/agents/agents", label: "Agents", icon: Bot },
-  { to: "/dashboard/agents/inbox", label: "Inbox", icon: Inbox },
-  { to: "/dashboard/agents/calls", label: "Calls", icon: PhoneCall },
-  { to: "/dashboard/agents/leads", label: "Leads", icon: Users },
-  { to: "/dashboard/agents/appointments", label: "Appointments", icon: Calendar },
-  { to: "/dashboard/agents/knowledge", label: "Knowledge", icon: BookOpen },
-  { to: "/dashboard/agents/workflows", label: "Workflows", icon: WorkflowIcon },
-  { to: "/dashboard/agents/analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/dashboard/agents/integrations", label: "Integrations", icon: Puzzle },
-  { to: "/dashboard/agents/assistant", label: "Assistant", icon: Sparkles },
-  { to: "/dashboard/agents/mobile", label: "Mobile & Pendant", icon: Smartphone },
-  { to: "/dashboard/agents/team", label: "Team", icon: UsersRound },
-  { to: "/dashboard/agents/billing", label: "Billing", icon: CreditCard },
-  { to: "/dashboard/agents/settings", label: "Settings", icon: Settings },
-  { to: "/dashboard/agents/account", label: "Account", icon: UserCircle },
 ];
 
+
 export default function AgentsLayout() {
+  const { pathname } = useLocation();
+  const composerActive = pathname === "/dashboard/agents" || pathname.startsWith("/dashboard/agents/build");
+
   return (
     <div className="relative min-h-full">
       <div className="border-b border-border bg-background/60 backdrop-blur sticky top-0 z-20">
@@ -49,7 +38,7 @@ export default function AgentsLayout() {
                 className={({ isActive }) =>
                   cn(
                     "flex !min-w-max !shrink-0 items-center gap-2 whitespace-nowrap px-3 py-2 text-sm rounded-t-md border-b-2 transition-colors",
-                    isActive
+                    (item.end ? composerActive : isActive)
                       ? "border-primary text-foreground font-medium"
                       : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   )
@@ -63,6 +52,7 @@ export default function AgentsLayout() {
           </nav>
         </div>
       </div>
+
       <div className="p-4 lg:p-6">
         <Outlet />
       </div>
