@@ -3,9 +3,10 @@ import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Bot, Plus, Copy, Pause, Play, Loader2, Phone } from "lucide-react";
+import { Bot, Plus, Copy, Pause, Play, Phone } from "lucide-react";
 import { useAgents, useCreateAgent, useUpdateAgent } from "../data/hooks";
 import { PageHeader, StatusDot } from "../components/PageHeader";
+import { YanguSpinner } from "../components/YanguSpinner";
 
 const FILTERS = ["All", "Live", "Draft", "Paused", "Inbound", "Outbound", "Support"];
 
@@ -36,7 +37,7 @@ export default function AgentsListPage() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {isLoading && agents.length === 0 && (
-          <div className="col-span-full flex items-center gap-2 text-sm text-muted-foreground p-8"><Loader2 className="h-4 w-4 animate-spin" />Loading agents…</div>
+          <div className="col-span-full flex items-center gap-2 text-sm text-muted-foreground p-8"><YanguSpinner size={16} />Loading agents…</div>
         )}
         {error && (
           <div className="col-span-full flex items-center justify-between rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm">

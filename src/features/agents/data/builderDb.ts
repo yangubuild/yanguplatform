@@ -115,9 +115,10 @@ export interface BuilderTurn {
  * Every failure resolves to a readable message — nothing is swallowed.
  */
 async function invokeFn<T>(fn: string, body: Record<string, unknown>, timeoutMs: number): Promise<T> {
-  const timeout = new Promise<never>((_, reject) =>
-    setTimeout(() => reject(new Error("TIMEOUT")), timeoutMs),
-  );
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error("TIMEOUT")), timeoutMs);
+  });
   let data: any, error: any;
   try {
     ({ data, error } = await Promise.race([supabase.functions.invoke(fn, { body }), timeout]));
@@ -126,8 +127,27 @@ async function invokeFn<T>(fn: string, body: Record<string, unknown>, timeoutMs:
       throw new Error("This took too long to respond. Please try again.");
     }
     throw e;
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
   }
-  if (error) throw new Error(data?.message || error.message || "The service is unavailable.");
+  if (error) {
+    let responseData = data;
+    const response = error?.context;
+    if (!responseData && response instanceof Response) {
+      try { responseData = await response.clone().json(); } catch { /* use mapped fallback */ }
+    }
+    const code = String(responseData?.error ?? "");
+    const mapped: Record<string, string> = {
+      auth_failed: "Voice service connection needs attention.",
+      not_configured: "Voice service connection needs attention.",
+      no_number: "Connect a phone number before making calls.",
+      no_outbound_number: "No outbound phone number is connected yet.",
+      not_deployed: "This agent hasn't been deployed yet.",
+      international_not_supported: "Your current calling number doesn't support this destination.",
+      provider_unavailable: "Voice service is temporarily unavailable. Try again.",
+    };
+    throw new Error(responseData?.message || mapped[code] || "The service is temporarily unavailable. Try again.");
+  }
   if (data && data.ok === false) throw new Error(data.message || "That request could not be completed.");
   return data as T;
 }
@@ -228,9 +248,16 @@ export interface VoiceDiagnostics {
   keyPresent: boolean;
   auth?: "pass" | "fail" | "fail_auth";
   assistantCount?: number;
-  assistants?: { id: string | null; name: string | null }[];
+  secretName?: string;
+  authorization?: string;
+  assistantsApi?: { ok: boolean; httpStatus: number | null };
+  phoneNumbersApi?: { ok: boolean; httpStatus: number | null };
+  callsApi?: { ok: boolean; httpStatus: number | null };
+  callCount?: number | null;
+  webVoiceReady?: boolean;
+  assistants?: { id: string | null; name: string | null; updatedAt?: string | null }[];
   numberCount?: number | null;
-  numbers?: { id: string; number: string | null; provider: string; assistantId: string | null }[];
+  numbers?: { id: string; number: string | null; provider: string; status?: string | null; assistantId: string | null }[];
   message?: string;
 }
 

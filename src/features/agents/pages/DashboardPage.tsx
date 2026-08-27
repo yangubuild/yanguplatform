@@ -2,9 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, MessageCircle, PhoneCall, Calendar, TrendingUp, Bot, Plus, Loader2 } from "lucide-react";
+import { ArrowUpRight, MessageCircle, PhoneCall, Calendar, TrendingUp, Bot, Plus } from "lucide-react";
 import { useAgents, useAgentKpis, useOrgId } from "../data/hooks";
 import { PageHeader, StatusDot } from "../components/PageHeader";
+import { YanguSpinner } from "../components/YanguSpinner";
 
 const channelIcon: Record<string, any> = { whatsapp: MessageCircle, web: MessageCircle, voice: PhoneCall, email: MessageCircle, sms: MessageCircle, instagram: MessageCircle };
 
@@ -41,7 +42,7 @@ export default function DashboardPage() {
                 <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
                   <k.icon className="h-4 w-4" />
                 </div>
-                {kpisLoading && orgId && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
+                {kpisLoading && orgId && <YanguSpinner size={14} />}
               </div>
               <div className="text-2xl font-semibold">{k.value}</div>
               <p className="text-xs text-muted-foreground mt-1">{k.label}</p>
@@ -60,7 +61,7 @@ export default function DashboardPage() {
           )}
         </div>
         {agentsLoading && agents.length === 0 && (
-          <p className="text-sm text-muted-foreground">Loading agents…</p>
+          <p className="flex items-center gap-2 text-sm text-muted-foreground"><YanguSpinner size={16} />Loading agents…</p>
         )}
         {!agentsLoading && agents.length === 0 && (
           <Card><CardContent className="p-8 text-center">

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bot, PhoneCall, PhoneOutgoing, MessageSquare, ArrowUp, Loader2 } from "lucide-react";
+import { Bot, PhoneCall, PhoneOutgoing, MessageSquare, ArrowUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useSendBuilderTurn } from "../data/builderHooks";
+import { YanguSpinner } from "../components/YanguSpinner";
 
 const QUICK_STARTS = [
   {
@@ -102,11 +103,11 @@ export default function CreateAgentPage() {
           onClick={() => start(text)}
           className="absolute bottom-3 right-3 h-10 w-10 rounded-lg"
         >
-          {turn.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUp className="h-4 w-4" />}
+          {turn.isPending ? <YanguSpinner size={16} /> : <ArrowUp className="h-4 w-4" />}
         </Button>
       </div>
       {turn.isPending && (
-        <p className="mt-3 text-xs text-muted-foreground">Loading Agent Builder…</p>
+        <p className="mt-3 flex items-center justify-center gap-2 text-xs text-muted-foreground"><YanguSpinner size={14} />Loading Agent Builder…</p>
       )}
     </div>
   );

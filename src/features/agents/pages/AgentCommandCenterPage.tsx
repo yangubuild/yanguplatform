@@ -79,6 +79,16 @@ function useProviderStatus(agentId: string | undefined) {
   });
 }
 
+function useVoiceDiagnostics(enabled: boolean) {
+  return useQuery({
+    queryKey: ["agents", "voice", "diagnostics"],
+    enabled,
+    retry: 0,
+    staleTime: 15_000,
+    queryFn: voiceOps.diagnostics,
+  });
+}
+
 function Metric({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <Card>
@@ -109,6 +119,7 @@ export default function AgentCommandCenterPage() {
   const { data: row, isLoading: rowLoading, isError: rowError, error: rowErrObj, refetch: refetchRow } = useAgentRow(id);
   const { data: calls = [], isLoading: callsLoading, isError: callsError, refetch } = useAgentCalls(id);
   const provider = useProviderStatus(id);
+  const diagnostics = useVoiceDiagnostics(import.meta.env.DEV);
 
   const sync = useSyncAgentCalls();
   const runState = useSetAgentRunState();
@@ -450,6 +461,42 @@ export default function AgentCommandCenterPage() {
               </Button>
             </CardContent>
           </Card>
+          {import.meta.env.DEV && (
+            <Card>
+              <CardContent className="space-y-3 p-5 text-sm">
+                <div className="flex items-center gap-2">
+                  <p className="mr-auto font-medium">Vapi connection</p>
+                  {diagnostics.isFetching && <YanguSpinner size={14} />}
+                  <Button size="sm" variant="outline" onClick={() => diagnostics.refetch()}>
+                    <RefreshCw className="mr-1.5 h-4 w-4" />Run checks
+                  </Button>
+                </div>
+                {diagnostics.isError ? (
+                  <p className="text-xs text-destructive">Unable to run voice diagnostics.</p>
+                ) : diagnostics.data ? (
+                  <dl className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-2 text-xs">
+                    {[
+                      ["Authentication", diagnostics.data.auth === "pass"],
+                      ["Assistants API", diagnostics.data.assistantsApi?.ok],
+                      ["Phone Numbers API", diagnostics.data.phoneNumbersApi?.ok],
+                      ["Calls API", diagnostics.data.callsApi?.ok],
+                      ["Abba mapped", diagnostics.data.assistants?.some((a) => a.id === row.vapi_assistant_id)],
+                      ["Outbound number", (diagnostics.data.numberCount ?? 0) > 0],
+                      ["Web voice ready", diagnostics.data.webVoiceReady],
+                      ["International ready", diagnostics.data.numbers?.some((n) => n.provider !== "vapi")],
+                    ].map(([label, ok]) => (
+                      <div key={String(label)} className="contents">
+                        <dt className="text-muted-foreground">{String(label)}</dt>
+                        <dd className={ok ? "text-primary" : "text-destructive"}>{ok ? "✓" : "✕"}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                ) : (
+                  <p className="flex items-center gap-2 text-xs text-muted-foreground"><YanguSpinner size={14} />Running checks…</p>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
       </Tabs>
