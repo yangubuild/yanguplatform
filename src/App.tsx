@@ -151,6 +151,9 @@ const AgentsLayout = lazy(() => lazyRetry(() => import("./features/agents/Agents
 const AgentsDashboardPage = lazy(() => lazyRetry(() => import("./features/agents/pages/DashboardPage")));
 const AgentsListPage = lazy(() => lazyRetry(() => import("./features/agents/pages/AgentsListPage")));
 const AgentBuilderPage = lazy(() => lazyRetry(() => import("./features/agents/pages/AgentBuilderPage")));
+const AgentCreatePage = lazy(() => lazyRetry(() => import("./features/agents/pages/CreateAgentPage")));
+const AgentComposerPage = lazy(() => lazyRetry(() => import("./features/agents/pages/ComposerPage")));
+const AgentCommandCenterPage = lazy(() => lazyRetry(() => import("./features/agents/pages/AgentCommandCenterPage")));
 const AgentsInboxPage = lazy(() => lazyRetry(() => import("./features/agents/pages/InboxPage")));
 const AgentsCallsPage = lazy(() => lazyRetry(() => import("./features/agents/pages/CallsPage")));
 const AgentsLeadsPage = lazy(() => lazyRetry(() => import("./features/agents/pages/LeadsPage")));
@@ -576,7 +579,11 @@ const App = () => (
                   <Route path="agents" element={<AgentsLayout />}>
                     <Route index element={<AgentsDashboardPage />} />
                     <Route path="agents" element={<AgentsListPage />} />
+                    <Route path="agents/new" element={<AgentCreatePage />} />
                     <Route path="agents/:id" element={<AgentBuilderPage />} />
+                    <Route path="build" element={<AgentComposerPage />} />
+                    <Route path="build/:threadId" element={<AgentComposerPage />} />
+                    <Route path="agent/:id" element={<AgentCommandCenterPage />} />
                     <Route path="inbox" element={<AgentsInboxPage />} />
                     <Route path="calls" element={<AgentsCallsPage />} />
                     <Route path="leads" element={<AgentsLeadsPage />} />

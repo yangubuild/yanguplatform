@@ -48,15 +48,16 @@ export default function AgentsLayout() {
                 end={item.end}
                 className={({ isActive }) =>
                   cn(
-                    "flex items-center gap-2 whitespace-nowrap px-3 py-2 text-sm rounded-t-md border-b-2 transition-colors",
+                    "flex flex-none items-center gap-2 whitespace-nowrap px-3 py-2 text-sm rounded-t-md border-b-2 transition-colors",
                     isActive
                       ? "border-primary text-foreground font-medium"
                       : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   )
                 }
               >
-                <item.icon className="h-4 w-4" />
-                {item.label}
+                <item.icon className="h-4 w-4 flex-none" />
+                <span className="whitespace-nowrap">{item.label}</span>
+
               </NavLink>
             ))}
           </nav>

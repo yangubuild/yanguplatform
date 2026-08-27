@@ -37,6 +37,10 @@ function rowToAgent(r: any): Agent {
     handoverRate: 0,
     updatedAt: r.updated_at,
     description: r.description ?? "",
+    phoneNumber: r.phone_number ?? null,
+    vapiAssistantId: r.vapi_assistant_id ?? null,
+    deployedAt: r.deployed_at ?? null,
+
   };
 }
 
