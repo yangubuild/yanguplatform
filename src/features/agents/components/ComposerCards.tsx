@@ -428,22 +428,18 @@ export function ComposerCard({ ui }: { ui: ComposerUi }) {
       );
 
     case "phone_numbers": {
-      const list = numbers ?? (ui.numbers as any[]) ?? [];
+      const list: VoiceNumber[] = numbers ?? ((ui.numbers as VoiceNumber[]) ?? []);
       return (
         <CardShell
           icon={Phone} title="Phone numbers"
           action={
             <Button
-              size="sm" variant="outline" disabled={busy || !orgId}
+              size="sm" variant="outline" disabled={busy}
               onClick={async () => {
-                setBusy(true);
+                setBusy(true); setError(null);
                 try {
-                  const res = await voiceOps.listNumbers(orgId!);
-                  setNumbers(
-                    (res?.numbers ?? []).map((n: any) => ({
-                      id: n.id, number: n.number, label: n.name, status: n.assistantId ? "assigned" : "available",
-                    })),
-                  );
+                  const res = await voiceOps.listNumbers(orgId ?? undefined);
+                  setNumbers(res?.numbers ?? []);
                 } catch (e) { fail(e); } finally { setBusy(false); }
               }}
             >
@@ -451,16 +447,22 @@ export function ComposerCard({ ui }: { ui: ComposerUi }) {
             </Button>
           }
         >
+          {errorBanner}
           {list.length === 0 ? (
             <p className="text-xs text-muted-foreground">
-              No numbers connected yet. Tap Refresh to pull in numbers available to your workspace.
+              No phone number connected yet. Connect one below, then assign it to an agent so it can take
+              and place calls.
             </p>
           ) : (
             <Rows
-              items={list.map((n: any) => ({
+              items={list.map((n) => ({
                 key: n.id,
-                primary: n.number,
-                secondary: n.label ?? n.status,
+                primary: n.number ?? "Number",
+                secondary: [
+                  n.assistantId ? "Assigned" : "Available",
+                  n.provider === "vapi" ? "Yangu-issued (US dialling)" : `Your carrier (${n.provider})`,
+                  n.outboundCapable ? "Outbound ready" : "Inbound only",
+                ].join(" · "),
                 right: agent ? (
                   <Button
                     size="sm" variant="outline" disabled={busy}
@@ -469,14 +471,89 @@ export function ComposerCard({ ui }: { ui: ComposerUi }) {
                     Assign
                   </Button>
                 ) : (
-                  <Badge variant="secondary" className="capitalize">{n.status}</Badge>
+                  <Badge variant="secondary">{n.assistantId ? "Assigned" : "Available"}</Badge>
                 ),
               }))}
             />
           )}
+
+          {/* Connect a number. Both paths are chargeable, so each is confirmed explicitly. */}
+          {connectMode === "none" && (
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" onClick={() => setConnectMode("new")}>
+                <Plus className="mr-1.5 h-4 w-4" />Get a new number
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setConnectMode("import")}>
+                <Link2 className="mr-1.5 h-4 w-4" />Connect my own number
+              </Button>
+            </div>
+          )}
+
+          {connectMode === "new" && (
+            <div className="space-y-2 rounded-lg border border-border/60 p-3">
+              <p className="text-xs text-muted-foreground">
+                New numbers issued by Yangu are US numbers (+1) and are best for testing and US dialling.
+                For UAE or other countries, connect a number from your own carrier instead. Creating a
+                number may incur charges on your workspace.
+              </p>
+              <div>
+                <Label className="text-xs">Preferred area code (optional)</Label>
+                <Input value={areaCode} onChange={(e) => setAreaCode(e.target.value)} inputMode="numeric" placeholder="415" className="rounded-lg" />
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  size="sm" disabled={busy}
+                  onClick={() => run("Number created and added to your workspace.", async () => {
+                    await voiceOps.createNumber({ areaCode: areaCode || undefined });
+                  })}
+                >
+                  {busy && <YanguSpinner size={16} className="mr-1.5" />}Confirm &amp; create
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setConnectMode("none")}>Cancel</Button>
+              </div>
+            </div>
+          )}
+
+          {connectMode === "import" && (
+            <div className="space-y-2 rounded-lg border border-border/60 p-3">
+              <p className="text-xs text-muted-foreground">
+                Connect a number you already own with your carrier (Twilio). Your carrier credentials are
+                passed straight to the voice infrastructure and are never stored by Yangu.
+              </p>
+              <div className="grid gap-2 sm:grid-cols-3">
+                <div>
+                  <Label className="text-xs">Number</Label>
+                  <Input value={importNumber} onChange={(e) => setImportNumber(e.target.value)} placeholder="+971501234567" className="rounded-lg" />
+                </div>
+                <div>
+                  <Label className="text-xs">Account SID</Label>
+                  <Input value={importSid} onChange={(e) => setImportSid(e.target.value)} className="rounded-lg" />
+                </div>
+                <div>
+                  <Label className="text-xs">Auth token</Label>
+                  <Input type="password" value={importToken} onChange={(e) => setImportToken(e.target.value)} className="rounded-lg" />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  size="sm" disabled={busy || !importNumber.trim() || !importSid.trim() || !importToken.trim()}
+                  onClick={() => run("Number connected to your workspace.", async () => {
+                    await voiceOps.importNumber({
+                      number: importNumber.trim(), accountSid: importSid.trim(), authToken: importToken.trim(),
+                    });
+                    setImportToken("");
+                  })}
+                >
+                  {busy && <YanguSpinner size={16} className="mr-1.5" />}Confirm &amp; connect
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setConnectMode("none")}>Cancel</Button>
+              </div>
+            </div>
+          )}
         </CardShell>
       );
     }
+
 
     case "campaign_form": {
       if (!agents.length) return null;
