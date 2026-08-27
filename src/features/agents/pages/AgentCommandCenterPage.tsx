@@ -144,7 +144,44 @@ export default function AgentCommandCenterPage() {
     }
   }
 
+  // Every load resolves: agent, empty, or an explicit error with a retry.
+  if (rowError) {
+    return (
+      <Card className="border-destructive/40 bg-destructive/5">
+        <CardContent className="space-y-3 p-6">
+          <p className="flex items-center gap-2 text-sm font-medium">
+            <AlertTriangle className="h-4 w-4 text-destructive" />We couldn't load this agent
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {rowErrObj instanceof Error ? rowErrObj.message : "Please try again."}
+          </p>
+          <Button size="sm" variant="outline" onClick={() => refetchRow()}>
+            <RefreshCw className="mr-1.5 h-4 w-4" />Try again
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (rowLoading) {
+    return (
+      <p className="flex items-center gap-2 p-6 text-sm text-muted-foreground" role="status">
+        <YanguSpinner size={18} />Loading agent…
+      </p>
+    );
+  }
+
+  if (!row) {
+    return (
+      <div className="space-y-3">
+        <EmptyState title="Agent not found" body="This agent may have been deleted, or it belongs to another workspace." />
+        <Button asChild size="sm" variant="outline"><Link to="/dashboard/agents/agents">All agents</Link></Button>
+      </div>
+    );
+  }
+
   return (
+
     <div className="space-y-5">
       <Button asChild variant="ghost" size="sm" className="-ml-2">
         <Link to="/dashboard/agents/agents"><ArrowLeft className="mr-1.5 h-4 w-4" />All agents</Link>
