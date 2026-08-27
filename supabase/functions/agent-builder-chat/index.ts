@@ -150,6 +150,21 @@ Deno.serve(async (req) => {
   let params: Record<string, any> = {};
 
   if (!skill) {
+    // Current explicit intent wins over an unfinished prior workflow. This
+    // pauses (but preserves) builder context instead of consuming a phone
+    // number or command as the answer to an earlier setup question.
+    if (/\b(call|ring|dial|phone)\b/i.test(text) && /(?:\+|00)?\d[\d\s().-]{6,}/.test(text)) {
+      skill = "call_manager";
+      params = {
+        personName: null,
+        purpose: text.replace(/\b(call|ring|dial|phone)(?:\s+this\s+client)?\b/ig, "").replace(/(?:\+|00)?\d[\d\s().-]{6,}/, "").trim() || null,
+      };
+    } else if (/\b(phone number|connect.*number|assign.*number|outbound number)\b/i.test(text)) {
+      skill = "phone_number_manager";
+    }
+  }
+
+  if (!skill) {
     const routeSystem = `You are the Yangu AI Agents intent router. Pick exactly ONE skill for the user's latest message.
 
 Skills:
@@ -206,7 +221,11 @@ Reply with ONLY JSON:
 
   let reply = "";
   let ui: any = null;
-  let nextConfig: Record<string, unknown> = { ...config, __skill: skill };
+  let nextConfig: Record<string, unknown> = {
+    ...config,
+    ...(config.__skill && config.__skill !== skill ? { __pausedSkill: config.__skill } : {}),
+    __skill: skill,
+  };
   let ready = Boolean(config.__ready);
   let missing: string[] = [];
   let title = thread.title;
@@ -271,6 +290,7 @@ Reply with ONLY a JSON object, no markdown fences:
       const placing = /^(call|ring|dial|phone)\b/i.test(text) || (params.personName && params.personName !== "null");
       if (placing && skill === "call_manager") {
         const a = agents.find((x: any) => x.type === "outbound" && x.status === "live") ?? matchAgent();
+        const numberMatch = text.match(/(?:\+|00)?\d[\d\s().-]{6,}/);
         reply = a
           ? "Review the call before I place it."
           : "You'll need a live agent before I can place calls. Want me to build one?";
@@ -280,6 +300,7 @@ Reply with ONLY a JSON object, no markdown fences:
             agent: a,
             person: params.personName && params.personName !== "null" ? params.personName : "",
             purpose: params.purpose && params.purpose !== "null" ? params.purpose : "",
+            to: numberMatch?.[0] ?? "",
             fromNumber: a.phone_number ?? null,
           }
           : null;

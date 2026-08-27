@@ -45,6 +45,19 @@ function providerMessage(e: unknown): string {
   return "Unable to reach voice provider.";
 }
 
+function productError(error: string, fallback?: string): string {
+  const messages: Record<string, string> = {
+    auth_failed: "Voice service connection needs attention.",
+    not_configured: "Voice service connection needs attention.",
+    no_number: "Connect a phone number before making calls.",
+    no_outbound_number: "No outbound phone number is connected yet.",
+    not_deployed: "This agent hasn't been deployed yet.",
+    international_not_supported: "Your current calling number doesn't support this destination.",
+    provider_unavailable: "Voice service is temporarily unavailable. Try again.",
+  };
+  return messages[error] ?? fallback ?? "Voice service is temporarily unavailable. Try again.";
+}
+
 function shortId(id?: string | null) {
   return id ? `${String(id).slice(0, 8)}…` : null;
 }
@@ -158,27 +171,53 @@ Deno.serve(async (req) => {
 
       /** Read-only end-to-end connectivity report used by the UI and support. */
       case "diagnostics": {
-        const result: Record<string, unknown> = { ok: true, keyPresent };
+        const result: Record<string, unknown> = {
+          ok: true,
+          keyPresent,
+          secretName: "VAPI_API_KEY",
+          authorization: "Bearer",
+          assistantsApi: { ok: false, httpStatus: null },
+          phoneNumbersApi: { ok: false, httpStatus: null },
+          callsApi: { ok: false, httpStatus: null },
+          webVoiceReady: Boolean(Deno.env.get("VAPI_PUBLIC_KEY")),
+        };
         try {
           const assistants = await vapiFetch("/assistant?limit=100");
           const list = Array.isArray(assistants) ? assistants : [];
           result.auth = "pass";
+          result.assistantsApi = { ok: true, httpStatus: 200 };
           result.assistantCount = list.length;
-          result.assistants = list.map((a: any) => ({ id: shortId(a.id), name: a.name }));
+          result.assistants = list.map((a: any) => ({ id: a.id, name: a.name, updatedAt: a.updatedAt ?? null }));
         } catch (e) {
           return json({
             ok: false, keyPresent, auth: e instanceof VapiError && e.status === 401 ? "fail_auth" : "fail",
+            assistantsApi: { ok: false, httpStatus: e instanceof VapiError ? e.status : 500 },
             message: providerMessage(e),
           });
         }
         try {
           const numbers = await vapiFetch("/phone-number?limit=50");
           const list = Array.isArray(numbers) ? numbers : [];
+          result.phoneNumbersApi = { ok: true, httpStatus: 200 };
           result.numberCount = list.length;
-          result.numbers = list.map((n: any) => ({ id: n.id, number: n.number, provider: n.provider, assistantId: n.assistantId ?? null }));
+          result.numbers = list.map((n: any) => ({
+            id: n.id, number: n.number, provider: n.provider, status: n.status ?? null,
+            assistantId: n.assistantId ?? null,
+          }));
         } catch (e) {
+          result.phoneNumbersApi = { ok: false, httpStatus: e instanceof VapiError ? e.status : 500 };
           result.numberCount = null;
           result.numbersMessage = providerMessage(e);
+        }
+        try {
+          const calls = await vapiFetch("/call?limit=100");
+          const list = Array.isArray(calls) ? calls : [];
+          result.callsApi = { ok: true, httpStatus: 200 };
+          result.callCount = list.length;
+        } catch (e) {
+          result.callsApi = { ok: false, httpStatus: e instanceof VapiError ? e.status : 500 };
+          result.callCount = null;
+          result.callsMessage = providerMessage(e);
         }
         return json(result);
       }
@@ -384,34 +423,71 @@ Deno.serve(async (req) => {
         const { agent, error } = await loadAgent(String(body.agentId));
         if (error) return error;
         if (!agent.vapi_assistant_id) {
-          return json({ ok: false, error: "not_deployed", message: "Not deployed to voice provider — deploy this agent first." }, 400);
+          return json({ ok: false, error: "not_deployed", message: productError("not_deployed") }, 400);
         }
         const to = toE164(body.to);
         if (!isE164(to)) {
           return json({ ok: false, error: "invalid_number", message: "Enter the number to call in international format, e.g. +971501234567." }, 400);
         }
 
-        // Use the agent's own number, else fall back to any number in the account.
-        let numberId: string | null = agent.vapi_phone_number_id ?? null;
-        let fromNumber: string | null = agent.phone_number ?? null;
-        if (!numberId) {
-          const numbers = await vapiFetch("/phone-number?limit=50");
-          const first = (Array.isArray(numbers) ? numbers : [])[0];
-          if (!first) {
-            return json({ ok: false, error: "no_number", message: "No phone number is connected." }, 400);
-          }
-          numberId = first.id;
-          fromNumber = first.number ?? null;
+        // Resolve the ID from the provider itself. Never send a local ID,
+        // displayed number, stale mapping, or undefined identifier to Vapi.
+        const numberRows = await vapiFetch("/phone-number?limit=50");
+        const providerNumbers = Array.isArray(numberRows) ? numberRows : [];
+        const selected = agent.vapi_phone_number_id
+          ? providerNumbers.find((n: any) => n.id === agent.vapi_phone_number_id)
+          : providerNumbers[0];
+        if (!selected?.id) {
+          console.warn("vapi place_call blocked", {
+            reason: "no_number", agentId: agent.id, assistantIdPresent: true,
+            phoneNumberIdPresent: false, customerNumberPresent: true,
+          });
+          return json({ ok: false, error: "no_number", message: "No outbound phone number is connected yet." }, 400);
+        }
+        const numberId = String(selected.id);
+        const fromNumber = selected.number ?? null;
+        const isUaeDestination = to.startsWith("+971");
+        // Provider-issued numbers are currently US-oriented. Do not claim that
+        // they support UAE/international routes without a carrier-backed number.
+        if (isUaeDestination && selected.provider === "vapi") {
+          return json({
+            ok: false,
+            error: "international_not_supported",
+            message: "This calling number is not configured for UAE/international outbound calls.",
+          }, 400);
         }
 
-        const call = await vapiFetch("/call", {
-          method: "POST",
-          body: {
-            assistantId: agent.vapi_assistant_id,
-            phoneNumberId: numberId,
-            customer: { number: to, name: body.name ? String(body.name).slice(0, 80) : undefined },
-          },
-        });
+        const providerPayload = {
+          assistantId: String(agent.vapi_assistant_id),
+          phoneNumberId: numberId,
+          customer: { number: to, name: body.name ? String(body.name).slice(0, 80) : undefined },
+        };
+        let call: any;
+        try {
+          call = await vapiFetch("/call", { method: "POST", body: providerPayload });
+        } catch (e) {
+          console.error("vapi create call failed", {
+            vapiStatus: e instanceof VapiError ? e.status : 500,
+            vapiResponse: e instanceof VapiError ? e.detail : String(e),
+            request: {
+              assistantId: providerPayload.assistantId,
+              phoneNumberId: providerPayload.phoneNumberId,
+              customerNumber: `${to.slice(0, 4)}••••${to.slice(-4)}`,
+            },
+            secretName: "VAPI_API_KEY",
+            authorization: "Bearer",
+          });
+          if (e instanceof VapiError && (e.status === 401 || e.status === 403)) {
+            return json({ ok: false, error: "auth_failed", message: productError("auth_failed") }, 502);
+          }
+          return json({
+            ok: false,
+            error: "provider_unavailable",
+            message: e instanceof VapiError && e.status === 400
+              ? "The voice service rejected this call configuration. Check the agent and calling number."
+              : productError("provider_unavailable"),
+          }, 502);
+        }
         await db.from("agent_calls").upsert({
           org_id: agent.org_id, agent_id: agent.id, vapi_call_id: call.id,
           direction: "outbound", destination: to, contact_name: body.name ? String(body.name).slice(0, 80) : null,

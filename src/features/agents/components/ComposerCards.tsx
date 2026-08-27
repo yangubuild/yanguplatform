@@ -80,7 +80,7 @@ export function ComposerCard({ ui }: { ui: ComposerUi }) {
   const [voice, setVoice] = useState<string>(String(agent?.voice ?? "Elliot"));
   const [greeting, setGreeting] = useState<string>(String(ui.greeting ?? ""));
   const [langs, setLangs] = useState<string[]>(agent?.language ? [String(agent.language)] : ["English"]);
-  const [to, setTo] = useState<string>("");
+  const [to, setTo] = useState<string>(String(ui.to ?? ""));
   const [callPurpose, setCallPurpose] = useState<string>(String(ui.purpose ?? ""));
   const [campaignAgent, setCampaignAgent] = useState<string>(agents[0]?.id ?? "");
   const [picked, setPicked] = useState<string[]>([]);
@@ -293,7 +293,9 @@ export function ComposerCard({ ui }: { ui: ComposerUi }) {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                Calling from {agent?.phone_number ?? "your connected number"}. Nothing is dialled until you press Call now.
+                {agent?.phone_number
+                  ? `Calling from ${agent.phone_number}. Nothing is dialled until you press Call now.`
+                  : "No outbound phone number is connected."}
               </p>
               {errorBanner}
               <Button
