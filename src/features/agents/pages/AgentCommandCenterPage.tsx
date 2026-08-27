@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
-  ArrowLeft, Loader2, Pause, Phone, PhoneCall, Play, RefreshCw, Rocket, Settings2,
+  ArrowLeft, AlertTriangle, Pause, Phone, PhoneCall, Play, RefreshCw, Rocket, Settings2, CheckCircle2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useAgent } from "../data/hooks";
 import { useDeployAgent, useSetAgentRunState, useSyncAgentCalls } from "../data/builderHooks";
 import { PageHeader, StatusDot } from "../components/PageHeader";
+import { YanguSpinner } from "../components/YanguSpinner";
+import { BrowserTestButton } from "../components/BrowserTestButton";
+import { ComposerCard } from "../components/ComposerCards";
+import { voiceOps } from "../data/builderDb";
 
 interface CallRow {
   id: string;
@@ -61,6 +65,17 @@ function useAgentRow(agentId: string | undefined) {
       if (error) throw error;
       return data as any;
     },
+  });
+}
+
+/** Real provider state for this agent — resolves to a definite answer. */
+function useProviderStatus(agentId: string | undefined) {
+  return useQuery({
+    queryKey: ["agents", "provider-status", agentId],
+    enabled: !!agentId,
+    retry: 0,
+    staleTime: 30_000,
+    queryFn: () => voiceOps.agentStatus(agentId!),
   });
 }
 
@@ -190,7 +205,7 @@ export default function AgentCommandCenterPage() {
                   }
                 }}
               >
-                {deploy.isPending ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Rocket className="mr-1.5 h-4 w-4" />}
+                {deploy.isPending ? <YanguSpinner size={16} className="mr-1.5" /> : <Rocket className="mr-1.5 h-4 w-4" />}
                 Deploy
               </Button>
             )}
@@ -238,7 +253,7 @@ export default function AgentCommandCenterPage() {
           )}
           <div>
             <Button size="sm" variant="outline" onClick={onSync} disabled={sync.isPending || !deployed}>
-              {sync.isPending ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-1.5 h-4 w-4" />}
+              {sync.isPending ? <YanguSpinner size={16} className="mr-1.5" /> : <RefreshCw className="mr-1.5 h-4 w-4" />}
               Sync call data
             </Button>
           </div>
