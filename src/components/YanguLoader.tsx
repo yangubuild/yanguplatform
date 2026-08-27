@@ -1,4 +1,4 @@
-import yanguYIcon from "@/assets/yangu-y-icon.png";
+import yanguYIcon from "@/assets/yangu-y-loader.png";
 
 interface YanguLoaderProps {
   /** Size of the loader icon in pixels (default: 40) */
