@@ -233,6 +233,17 @@ export default function ComposerPage() {
         <ScrollArea className="flex-1 rounded-lg border border-border bg-card/40 p-3 sm:p-4">
           <div className="space-y-4">
             {msgsLoading && <p className="text-sm text-muted-foreground">Loading conversation…</p>}
+            {!msgsLoading && messages.length === 0 && !turn.isPending && (
+              <div className="py-10 text-center">
+                <Wrench className="mx-auto h-7 w-7 text-muted-foreground" />
+                <p className="mt-2 text-sm font-medium">Agent Builder ready</p>
+                <p className="mx-auto mt-1 max-w-sm text-xs text-muted-foreground">
+                  Describe the agent you need — its role, languages, hours and how it should escalate.
+                  Yangu will only ask for what's missing.
+                </p>
+              </div>
+            )}
+
             {messages.map((m, i) => (
               <div key={m.id} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
                 <div className={cn("max-w-[85%] space-y-1", m.role === "user" ? "text-right" : "")}>
