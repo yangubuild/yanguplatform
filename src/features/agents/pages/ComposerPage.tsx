@@ -5,9 +5,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
-  ArrowUp, Bot, Loader2, Plus, Rocket, Sparkles, Trash2, TestTube2,
+  ArrowUp, Bot, Plus, Rocket, Trash2, TestTube2, AlertTriangle, RefreshCw,
   PanelRightClose, PanelRightOpen, PhoneOutgoing, BarChart3, Users, BookOpen, Wrench,
 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,8 @@ import {
 } from "../data/builderHooks";
 import type { AgentDraftConfig, BuilderThread, ComposerUi } from "../data/builderDb";
 import { ComposerCard, SkillTag } from "../components/ComposerCards";
+import { YanguSpinner } from "../components/YanguSpinner";
+
 
 const SUGGESTIONS = [
   { icon: Bot, label: "Build an AI employee", prompt: "Build an AI receptionist for my business that answers calls and books appointments." },
@@ -92,6 +95,9 @@ export default function ComposerPage() {
   const [text, setText] = useState("");
   const [showPanel, setShowPanel] = useState(true);
   const [stage, setStage] = useState<string | null>(null);
+  // Explicit failure state — a failed turn never leaves a silent spinner.
+  const [lastError, setLastError] = useState<{ message: string; retry: string } | null>(null);
+
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -110,16 +116,25 @@ export default function ComposerPage() {
     const body = (value ?? text).trim();
     if (!body || turn.isPending) return;
     setText("");
-    setStage("Working on it…");
+    setLastError(null);
+    // Visible execution stages so the user always knows what is happening.
+    setStage("Understanding your request…");
+    const t1 = setTimeout(() => setStage("Choosing the right skill…"), 1200);
+    const t2 = setTimeout(() => setStage("Working on it…"), 4000);
+    const t3 = setTimeout(() => setStage("Still working — almost there…"), 20000);
     try {
       const result = await turn.mutateAsync({ threadId, text: body });
       if (!threadId) navigate(`/dashboard/agents/build/${result.threadId}`, { replace: true });
     } catch (e) {
-      toast({ title: "Yangu AI couldn't respond", description: e instanceof Error ? e.message : "Please try again.", variant: "destructive" });
+      const message = e instanceof Error ? e.message : "Please try again.";
+      setLastError({ message, retry: body });
+      toast({ title: "Yangu AI couldn't respond", description: message, variant: "destructive" });
     } finally {
+      [t1, t2, t3].forEach(clearTimeout);
       setStage(null);
     }
   }
+
 
   async function onSaveDraft() {
     if (!thread) return null;
@@ -250,13 +265,18 @@ export default function ComposerPage() {
 
         <ScrollArea className="flex-1 rounded-lg border border-border bg-card/40 p-3 sm:p-4">
           <div className="space-y-4">
-            {msgsLoading && <p className="text-sm text-muted-foreground">Loading conversation…</p>}
+            {msgsLoading && (
+              <p className="flex items-center gap-2 text-sm text-muted-foreground" role="status">
+                <YanguSpinner size={16} />Loading conversation…
+              </p>
+            )}
 
             {empty && (
               <div className="py-8 text-center sm:py-12">
                 <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Sparkles className="h-5 w-5" />
+                  <Bot className="h-5 w-5" />
                 </div>
+
                 <p className="mt-3 text-base font-semibold">What would you like to get done?</p>
                 <p className="mx-auto mt-1 max-w-md text-xs text-muted-foreground">
                   Ask for anything — build an AI employee, call a customer, run a follow-up campaign,
@@ -300,11 +320,22 @@ export default function ComposerPage() {
             })}
 
             {(turn.isPending || stage) && (
-              <p className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <p className="flex items-center gap-2 text-xs text-muted-foreground" role="status">
+                <YanguSpinner size={14} />
                 {stage ?? "Working…"}
               </p>
             )}
+
+            {lastError && !turn.isPending && (
+              <div className="flex flex-wrap items-center gap-2 rounded-lg border border-destructive/40 bg-destructive/5 p-3">
+                <AlertTriangle className="h-4 w-4 shrink-0 text-destructive" />
+                <p className="mr-auto min-w-0 text-xs text-foreground">{lastError.message}</p>
+                <Button size="sm" variant="outline" onClick={() => send(lastError.retry)}>
+                  <RefreshCw className="mr-1.5 h-3.5 w-3.5" />Try again
+                </Button>
+              </div>
+            )}
+
             <div ref={endRef} />
           </div>
         </ScrollArea>

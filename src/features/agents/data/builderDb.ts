@@ -110,17 +110,37 @@ export interface BuilderTurn {
   status: string;
 }
 
+/**
+ * Invoke an edge function with a hard deadline so the UI can never hang.
+ * Every failure resolves to a readable message — nothing is swallowed.
+ */
+async function invokeFn<T>(fn: string, body: Record<string, unknown>, timeoutMs: number): Promise<T> {
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error("TIMEOUT")), timeoutMs),
+  );
+  let data: any, error: any;
+  try {
+    ({ data, error } = await Promise.race([supabase.functions.invoke(fn, { body }), timeout]));
+  } catch (e) {
+    if (e instanceof Error && e.message === "TIMEOUT") {
+      throw new Error("This took too long to respond. Please try again.");
+    }
+    throw e;
+  }
+  if (error) throw new Error(data?.message || error.message || "The service is unavailable.");
+  if (data && data.ok === false) throw new Error(data.message || "That request could not be completed.");
+  return data as T;
+}
+
 /** One conversational turn of the Composer. The skill is chosen server-side. */
 export async function sendBuilderTurn(input: { threadId?: string; text: string; skill?: string }): Promise<BuilderTurn> {
-  const { data, error } = await supabase.functions.invoke("agent-builder-chat", {
-    body: { threadId: input.threadId, text: input.text, skill: input.skill },
-  });
-  if (error) {
-    const msg = (data as any)?.message || error.message || "Yangu AI could not respond.";
-    throw new Error(msg);
-  }
-  return data as BuilderTurn;
+  return invokeFn<BuilderTurn>(
+    "agent-builder-chat",
+    { threadId: input.threadId, text: input.text, skill: input.skill },
+    120_000,
+  );
 }
+
 
 /** Patch an existing agent's configuration and push it live when deployed. */
 export async function updateAgentFields(
@@ -197,22 +217,86 @@ export async function saveDraftAgent(thread: BuilderThread): Promise<string> {
 }
 
 // ─── voice infrastructure (server-side only) ──────────────────────────
-async function vapiAction(action: string, payload: Record<string, unknown> = {}) {
-  const { data, error } = await supabase.functions.invoke("vapi-agent", { body: { action, ...payload } });
-  if (error) throw new Error((data as any)?.message || error.message || "The voice service is unavailable.");
-  if (data && (data as any).ok === false) throw new Error((data as any).message || "The voice service rejected that request.");
-  return data as any;
+// The provider's private key lives only in the edge function; nothing here
+// ever sees it. Every call is bounded so the UI resolves to a real state.
+async function vapiAction<T = any>(action: string, payload: Record<string, unknown> = {}, timeoutMs = 45_000) {
+  return invokeFn<T>("vapi-agent", { action, ...payload }, timeoutMs);
+}
+
+export interface VoiceDiagnostics {
+  ok: boolean;
+  keyPresent: boolean;
+  auth?: "pass" | "fail" | "fail_auth";
+  assistantCount?: number;
+  assistants?: { id: string | null; name: string | null }[];
+  numberCount?: number | null;
+  numbers?: { id: string; number: string | null; provider: string; assistantId: string | null }[];
+  message?: string;
+}
+
+export interface VoiceAgentStatus {
+  ok: boolean;
+  agentId: string;
+  name: string;
+  localStatus: string;
+  assistantId: string | null;
+  phoneNumber: string | null;
+  phoneNumberId: string | null;
+  deployedAt: string | null;
+  state: "not_deployed" | "deployed" | "provider_missing" | "provider_unreachable";
+  message?: string;
+  provider?: {
+    name: string | null; model: string | null; modelProvider: string | null;
+    voice: string | null; voiceProvider: string | null; transcriber: string | null;
+    firstMessage: string | null; systemPrompt: string | null; updatedAt: string | null;
+  };
+}
+
+export interface VoiceNumber {
+  id: string;
+  number: string | null;
+  provider: string;
+  assistantId: string | null;
+  name?: string | null;
+  outboundCapable: boolean;
+}
+
+export interface VoiceCallState {
+  ok: boolean;
+  callId: string;
+  status: string | null;
+  endedReason: string | null;
+  startedAt: string | null;
+  endedAt: string | null;
+  durationSec: number | null;
+  cost: number | null;
+  transcript: string | null;
+  recordingUrl: string | null;
+  summary: string | null;
 }
 
 export const voiceOps = {
-  status: () => vapiAction("status"),
-  deploy: (agentId: string) => vapiAction("deploy", { agentId }),
-  update: (agentId: string) => vapiAction("update", { agentId }),
+  status: () => vapiAction<{ connected: boolean; reason?: string }>("status", {}, 20_000),
+  diagnostics: () => vapiAction<VoiceDiagnostics>("diagnostics", {}, 30_000),
+  agentStatus: (agentId: string) => vapiAction<VoiceAgentStatus>("agent_status", { agentId }, 30_000),
+  deploy: (agentId: string) => vapiAction("deploy", { agentId }, 60_000),
+  update: (agentId: string) => vapiAction("update", { agentId }, 60_000),
   pause: (agentId: string) => vapiAction("pause", { agentId }),
   resume: (agentId: string) => vapiAction("resume", { agentId }),
-  syncCalls: (agentId: string) => vapiAction("sync_calls", { agentId }),
-  listNumbers: (orgId: string) => vapiAction("list_numbers", { orgId }),
+  syncCalls: (agentId: string) => vapiAction<{ synced: number; reason?: string; message?: string }>("sync_calls", { agentId }, 60_000),
+  listNumbers: (orgId?: string) => vapiAction<{ numbers: VoiceNumber[]; count: number }>("list_numbers", orgId ? { orgId } : {}, 30_000),
   assignNumber: (agentId: string, phoneNumberId: string) => vapiAction("assign_number", { agentId, phoneNumberId }),
-  placeCall: (input: { agentId: string; to: string; name?: string; purpose?: string }) => vapiAction("place_call", input),
+  /** Chargeable — always confirmed by the user first. */
+  createNumber: (input: { areaCode?: string }) => vapiAction<{ id: string; number: string | null }>("create_number", { ...input, confirm: true }, 60_000),
+  importNumber: (input: { number: string; accountSid: string; authToken: string }) =>
+    vapiAction<{ id: string; number: string | null }>("import_number", { ...input, confirm: true }, 60_000),
+  placeCall: (input: { agentId: string; to: string; name?: string; purpose?: string }) =>
+    vapiAction<{ callId: string; status: string; from: string | null; to: string }>("place_call", input, 60_000),
+  getCall: (agentId: string, callId: string) => vapiAction<VoiceCallState>("get_call", { agentId, callId }, 30_000),
+  webTest: (agentId: string) =>
+    vapiAction<{ available: boolean; reason?: string; message?: string; publicKey?: string; assistantId?: string }>(
+      "web_test", { agentId }, 20_000,
+    ),
 };
+
 
