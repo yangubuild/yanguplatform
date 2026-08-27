@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import {
   Plus, FileText, Link2, HelpCircle, File, Search, Sparkles, Package, Wrench,
-  Globe, Trash2, History, Archive, RotateCcw, ShieldCheck, Upload, ChevronDown, ChevronRight, Loader2,
+  Globe, Trash2, History, Archive, RotateCcw, ShieldCheck, Upload, ChevronDown, ChevronRight,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import type {
 } from "../data/types";
 import { db as mockDb } from "../data/mock";
 import { PageHeader } from "../components/PageHeader";
+import { YanguSpinner } from "../components/YanguSpinner";
 import { toast } from "@/hooks/use-toast";
 import {
   useAgents,
@@ -161,7 +162,7 @@ function SourcesTab() {
       <Card><CardContent className="p-0 divide-y divide-border">
         {isLoading && (
           <p className="text-sm text-muted-foreground p-8 text-center flex items-center justify-center gap-2">
-            <Loader2 className="h-4 w-4 animate-spin" />Loading sources…
+            <YanguSpinner size={16} />Loading sources…
           </p>
         )}
         {!isLoading && sources.length === 0 && (
@@ -364,7 +365,7 @@ function AddSourceDialog({ open, onOpenChange, collections }: { open: boolean; o
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button onClick={submit} disabled={create.isPending}>
-            {create.isPending && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}Add source
+            {create.isPending && <YanguSpinner size={16} className="mr-1.5" />}Add source
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,7 +1,7 @@
 // Contextual cards the Composer renders inline under an assistant reply.
 // Every card acts on real workspace data — there are no placeholder controls.
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -89,6 +89,8 @@ export function ComposerCard({ ui }: { ui: ComposerUi }) {
   // Real outbound-call lifecycle, polled from the voice provider.
   const [placed, setPlaced] = useState<{ callId: string; status: string; from: string | null; to: string } | null>(null);
   const [callState, setCallState] = useState<VoiceCallState | null>(null);
+  const callPolls = useRef(0);
+  const [callStatusUnknown, setCallStatusUnknown] = useState(false);
   // Connect-a-number flow (both options are explicitly confirmed by the user).
   const [connectMode, setConnectMode] = useState<"none" | "new" | "import">("none");
   const [areaCode, setAreaCode] = useState("");
@@ -126,14 +128,27 @@ export function ComposerCard({ ui }: { ui: ComposerUi }) {
   // Poll the placed call until it reaches a terminal state — real status only.
   useEffect(() => {
     if (!placed || !agent?.id) return;
+    callPolls.current = 0;
+    setCallStatusUnknown(false);
     const terminal = ["ended", "failed", "busy", "no-answer", "canceled"];
     if (callState && terminal.includes(String(callState.status))) return;
     const t = setInterval(async () => {
+      callPolls.current += 1;
+      if (callPolls.current > 24) {
+        clearInterval(t);
+        setCallStatusUnknown(true);
+        return;
+      }
       try {
         const s = await voiceOps.getCall(agent.id, placed.callId);
         setCallState(s);
         if (terminal.includes(String(s.status))) clearInterval(t);
-      } catch { /* keep the last known state; the panel shows it */ }
+      } catch {
+        if (callPolls.current >= 3) {
+          clearInterval(t);
+          setCallStatusUnknown(true);
+        }
+      }
     }, 5000);
     return () => clearInterval(t);
   }, [placed, agent?.id, callState?.status]);
@@ -250,11 +265,11 @@ export function ComposerCard({ ui }: { ui: ComposerUi }) {
           {placed ? (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                {["ended", "failed", "busy", "no-answer", "canceled"].includes(String(callState?.status ?? placed.status))
+                {callStatusUnknown || ["ended", "failed", "busy", "no-answer", "canceled"].includes(String(callState?.status ?? placed.status))
                   ? <CheckCircle2 className="h-4 w-4 text-primary" />
                   : <YanguSpinner size={16} />}
                 <p className="text-sm font-medium capitalize">
-                  {String(callState?.status ?? placed.status).replace(/-/g, " ")}
+                  {callStatusUnknown ? "Status unavailable — check Calls" : String(callState?.status ?? placed.status).replace(/-/g, " ")}
                 </p>
                 <Badge variant="secondary" className="ml-auto">{placed.to}</Badge>
               </div>

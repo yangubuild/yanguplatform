@@ -58,10 +58,6 @@ function productError(error: string, fallback?: string): string {
   return messages[error] ?? fallback ?? "Voice service is temporarily unavailable. Try again.";
 }
 
-function shortId(id?: string | null) {
-  return id ? `${String(id).slice(0, 8)}…` : null;
-}
-
 /** Normalise user-entered phone input to E.164 (+<digits>) where possible.
  *  Accepts "+971 50 123 4567", "00971501234567", "971501234567". */
 function toE164(raw: unknown): string {

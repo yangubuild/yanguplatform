@@ -100,6 +100,7 @@ export default function ComposerPage() {
 
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const stageTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const { data: threads = [] } = useBuilderThreads();
   const { data: thread } = useBuilderThread(threadId);
@@ -111,6 +112,16 @@ export default function ComposerPage() {
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages.length, turn.isPending]);
   useEffect(() => { inputRef.current?.focus(); }, [threadId, turn.isPending]);
+  useEffect(() => {
+    stageTimersRef.current.forEach(clearTimeout);
+    stageTimersRef.current = [];
+    setStage(null);
+    setLastError(null);
+    return () => {
+      stageTimersRef.current.forEach(clearTimeout);
+      stageTimersRef.current = [];
+    };
+  }, [threadId]);
 
   async function send(value?: string) {
     const body = (value ?? text).trim();
@@ -122,6 +133,7 @@ export default function ComposerPage() {
     const t1 = setTimeout(() => setStage("Choosing the right skill…"), 1200);
     const t2 = setTimeout(() => setStage("Working on it…"), 4000);
     const t3 = setTimeout(() => setStage("Still working — almost there…"), 20000);
+    stageTimersRef.current = [t1, t2, t3];
     try {
       const result = await turn.mutateAsync({ threadId, text: body });
       if (!threadId) navigate(`/dashboard/agents/build/${result.threadId}`, { replace: true });
@@ -131,6 +143,7 @@ export default function ComposerPage() {
       toast({ title: "Yangu AI couldn't respond", description: message, variant: "destructive" });
     } finally {
       [t1, t2, t3].forEach(clearTimeout);
+      stageTimersRef.current = [];
       setStage(null);
     }
   }

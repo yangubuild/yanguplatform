@@ -18,7 +18,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { db } from "../data/mock";
 import { useAgent, useAgentConfig, useSaveAgentConfig, usePublishAgentConfig, useUpdateAgent, useDeleteAgent, useAgents } from "../data/hooks";
-import { Loader2 } from "lucide-react";
+import { YanguSpinner } from "../components/YanguSpinner";
 import { TEST_SCENARIOS } from "../data/conversationDb";
 import { answerViaEngine, type AnswerResult } from "../data/aiEngine";
 import type {
@@ -120,10 +120,17 @@ export default function AgentBuilderPage() {
   const errors = useMemo(() => (cfg ? validate(cfg) : ["Loading configuration…"]), [cfg]);
   const saving = saveMut.isPending || publishMut.isPending;
 
-  if (!cfg || cfgLoading) {
+  if (cfgLoading) {
     return (
       <div className="flex items-center gap-2 p-12 text-sm text-muted-foreground justify-center">
-        <Loader2 className="h-4 w-4 animate-spin" />Loading agent configuration…
+        <YanguSpinner size={16} />Loading agent configuration…
+      </div>
+    );
+  }
+  if (!cfg) {
+    return (
+      <div className="p-12 text-center text-sm text-muted-foreground">
+        No saved configuration exists for this agent yet. Open Composer to continue setup.
       </div>
     );
   }
