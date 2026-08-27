@@ -273,14 +273,68 @@ export default function AgentCommandCenterPage() {
         </TabsList>
 
         <TabsContent value="overview" className="mt-4 space-y-4">
-          {rowLoading || callsLoading ? (
-            <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Loading…</p>
+          {/* Voice provider mapping — always a definite answer, never a spinner. */}
+          <Card>
+            <CardContent className="space-y-2 p-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="mr-auto text-sm font-semibold">Voice status</p>
+                {provider.isFetching && <YanguSpinner size={14} />}
+                <Button size="sm" variant="ghost" onClick={() => provider.refetch()}>
+                  <RefreshCw className="mr-1.5 h-3.5 w-3.5" />Recheck
+                </Button>
+              </div>
+              {provider.isLoading ? (
+                <p className="flex items-center gap-2 text-xs text-muted-foreground" role="status">
+                  <YanguSpinner size={14} />Checking voice setup…
+                </p>
+              ) : provider.isError ? (
+                <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" />
+                  {provider.error instanceof Error ? provider.error.message : "Voice status is unavailable right now."}
+                </p>
+              ) : provider.data?.state === "deployed" ? (
+                <>
+                  <p className="flex items-center gap-1.5 text-xs text-foreground">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-primary" />Live on the voice network
+                  </p>
+                  <dl className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+                    <div><dt className="text-muted-foreground">Voice</dt><dd>{provider.data.provider?.voice ?? "—"}</dd></div>
+                    <div><dt className="text-muted-foreground">Understanding</dt><dd>{provider.data.provider?.transcriber ?? "—"}</dd></div>
+                    <div><dt className="text-muted-foreground">Number</dt><dd>{provider.data.phoneNumber ?? "Not assigned"}</dd></div>
+                    <div><dt className="text-muted-foreground">Last updated</dt><dd>{provider.data.provider?.updatedAt ? new Date(provider.data.provider.updatedAt).toLocaleString() : "—"}</dd></div>
+                  </dl>
+                  {provider.data.provider?.firstMessage && (
+                    <p className="rounded-lg bg-muted p-2 text-xs">“{provider.data.provider.firstMessage}”</p>
+                  )}
+                  <BrowserTestButton agentId={id!} />
+                </>
+              ) : (
+                <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" />
+                  {provider.data?.message ?? "Not deployed to voice provider."}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {callsLoading ? (
+            <p className="flex items-center gap-2 text-sm text-muted-foreground" role="status">
+              <YanguSpinner size={16} />Loading call data…
+            </p>
+          ) : callsError ? (
+            <Card className="border-destructive/40 bg-destructive/5">
+              <CardContent className="flex flex-wrap items-center gap-2 p-4">
+                <AlertTriangle className="h-4 w-4 text-destructive" />
+                <p className="mr-auto text-sm">Call data couldn't be loaded.</p>
+                <Button size="sm" variant="outline" onClick={() => refetch()}>Try again</Button>
+              </CardContent>
+            </Card>
           ) : calls.length === 0 ? (
             <EmptyState
               title="No call data yet"
               body={deployed
                 ? "Once this agent handles real calls, metrics, transcripts and recordings appear here."
-                : "Deploy this agent and assign a phone number to start collecting real call data."}
+                : "Deploy this agent and connect a phone number to start collecting real call data."}
             />
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -296,6 +350,8 @@ export default function AgentCommandCenterPage() {
               Sync call data
             </Button>
           </div>
+        </TabsContent>
+
         </TabsContent>
 
         <TabsContent value="calls" className="mt-4 space-y-3">
