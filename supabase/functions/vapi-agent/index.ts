@@ -49,6 +49,20 @@ function shortId(id?: string | null) {
   return id ? `${String(id).slice(0, 8)}…` : null;
 }
 
+/** Normalise user-entered phone input to E.164 (+<digits>) where possible.
+ *  Accepts "+971 50 123 4567", "00971501234567", "971501234567". */
+function toE164(raw: unknown): string {
+  let v = String(raw ?? "").trim().replace(/[\s\-().]/g, "");
+  if (!v) return "";
+  if (v.startsWith("00")) v = `+${v.slice(2)}`;
+  if (!v.startsWith("+")) v = `+${v.replace(/\D/g, "")}`;
+  else v = `+${v.slice(1).replace(/\D/g, "")}`;
+  return v;
+}
+
+const isE164 = (v: string) => /^\+[1-9]\d{6,15}$/.test(v);
+
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
