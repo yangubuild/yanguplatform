@@ -247,41 +247,79 @@ export function ComposerCard({ ui }: { ui: ComposerUi }) {
     case "call_confirm":
       return (
         <CardShell icon={PhoneOutgoing} title={`Place a call with ${agent?.name ?? "your agent"}`}>
-          <div className="grid gap-2 sm:grid-cols-2">
-            <div>
-              <Label className="text-xs">Number to call</Label>
-              <Input
-                value={to} onChange={(e) => setTo(e.target.value)} inputMode="tel"
-                placeholder="+971 50 123 4567" className="rounded-lg"
-              />
+          {placed ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                {["ended", "failed", "busy", "no-answer", "canceled"].includes(String(callState?.status ?? placed.status))
+                  ? <CheckCircle2 className="h-4 w-4 text-primary" />
+                  : <YanguSpinner size={16} />}
+                <p className="text-sm font-medium capitalize">
+                  {String(callState?.status ?? placed.status).replace(/-/g, " ")}
+                </p>
+                <Badge variant="secondary" className="ml-auto">{placed.to}</Badge>
+              </div>
+              <dl className="grid grid-cols-2 gap-2 text-xs">
+                <div><dt className="text-muted-foreground">From</dt><dd>{placed.from ?? "—"}</dd></div>
+                <div><dt className="text-muted-foreground">Duration</dt><dd>{callState?.durationSec != null ? `${callState.durationSec}s` : "—"}</dd></div>
+                <div><dt className="text-muted-foreground">Result</dt><dd className="capitalize">{callState?.endedReason?.replace(/-/g, " ") ?? "In progress"}</dd></div>
+                <div><dt className="text-muted-foreground">Cost</dt><dd>{callState?.cost != null ? `$${Number(callState.cost).toFixed(3)}` : "—"}</dd></div>
+              </dl>
+              {callState?.summary && <p className="rounded-lg bg-muted p-2 text-xs">{callState.summary}</p>}
+              {callState?.recordingUrl && (
+                <a href={callState.recordingUrl} target="_blank" rel="noreferrer" className="text-xs text-primary underline">
+                  Listen to the recording
+                </a>
+              )}
+              <Button asChild size="sm" variant="outline">
+                <Link to={`/dashboard/agents/agent/${agent?.id}`}>Open agent</Link>
+              </Button>
             </div>
-            <div>
-              <Label className="text-xs">Purpose</Label>
-              <Input
-                value={callPurpose} onChange={(e) => setCallPurpose(e.target.value)}
-                placeholder="Follow up on the quote" className="rounded-lg"
-              />
-            </div>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Calling from {agent?.phone_number ?? "your agent's number"}. Nothing is dialled until you confirm.
-          </p>
-          <Button
-            size="sm" disabled={busy || !to.trim() || !agent}
-            onClick={() =>
-              run(`Calling ${to.trim()} now.`, () =>
-                voiceOps.placeCall({
-                  agentId: agent.id, to: to.trim(),
-                  name: String(ui.person ?? "") || undefined,
-                  purpose: callPurpose || undefined,
-                }))
-            }
-          >
-            {busy ? <YanguSpinner size={16} className="mr-1.5" /> : <PhoneCall className="mr-1.5 h-4 w-4" />}
-            Call now
-          </Button>
+          ) : (
+            <>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div>
+                  <Label className="text-xs">Number to call</Label>
+                  <Input
+                    value={to} onChange={(e) => setTo(e.target.value)} inputMode="tel"
+                    placeholder="+971 50 123 4567" className="rounded-lg"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Purpose</Label>
+                  <Input
+                    value={callPurpose} onChange={(e) => setCallPurpose(e.target.value)}
+                    placeholder="Follow up on the quote" className="rounded-lg"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Calling from {agent?.phone_number ?? "your connected number"}. Nothing is dialled until you press Call now.
+              </p>
+              {errorBanner}
+              <Button
+                size="sm" disabled={busy || !to.trim() || !agent}
+                onClick={async () => {
+                  setBusy(true); setError(null);
+                  try {
+                    const res = await voiceOps.placeCall({
+                      agentId: agent.id, to: to.trim(),
+                      name: String(ui.person ?? "") || undefined,
+                      purpose: callPurpose || undefined,
+                    });
+                    setPlaced({ callId: res.callId, status: res.status, from: res.from, to: res.to });
+                    qc.invalidateQueries({ queryKey: ["agents"] });
+                  } catch (e) { fail(e); } finally { setBusy(false); }
+                }}
+              >
+                {busy ? <YanguSpinner size={16} className="mr-1.5" /> : <PhoneCall className="mr-1.5 h-4 w-4" />}
+                Call now
+              </Button>
+            </>
+          )}
         </CardShell>
       );
+
+
 
     case "call_list":
       return (
