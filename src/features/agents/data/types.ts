@@ -1,4 +1,4 @@
-export type AgentType = "sales" | "receptionist" | "support" | "knowledge";
+export type AgentType = "sales" | "receptionist" | "support" | "knowledge" | "inbound" | "outbound";
 export type AgentStatus = "live" | "draft" | "paused";
 export type Channel = "whatsapp" | "web" | "voice" | "instagram" | "email" | "sms";
 
@@ -7,7 +7,11 @@ export interface Agent {
   channels: Channel[]; language: string; voice: string;
   conversationsToday: number; leadsThisWeek: number; handoverRate: number;
   updatedAt: string; description: string;
+  phoneNumber?: string | null;
+  vapiAssistantId?: string | null;
+  deployedAt?: string | null;
 }
+
 
 // ─── Production-ready AI Employee configuration ────────────────────────
 
