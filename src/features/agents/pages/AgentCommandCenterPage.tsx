@@ -352,8 +352,6 @@ export default function AgentCommandCenterPage() {
           </div>
         </TabsContent>
 
-        </TabsContent>
-
         <TabsContent value="calls" className="mt-4 space-y-3">
           {calls.length === 0 && <EmptyState title="No calls recorded" body="Call history appears here after this agent handles its first call." />}
           {calls.map((c) => (
