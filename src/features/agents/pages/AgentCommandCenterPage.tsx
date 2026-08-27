@@ -106,8 +106,10 @@ export default function AgentCommandCenterPage() {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
   const { data: agent } = useAgent(id);
-  const { data: row, isLoading: rowLoading } = useAgentRow(id);
-  const { data: calls = [], isLoading: callsLoading, refetch } = useAgentCalls(id);
+  const { data: row, isLoading: rowLoading, isError: rowError, error: rowErrObj, refetch: refetchRow } = useAgentRow(id);
+  const { data: calls = [], isLoading: callsLoading, isError: callsError, refetch } = useAgentCalls(id);
+  const provider = useProviderStatus(id);
+
   const sync = useSyncAgentCalls();
   const runState = useSetAgentRunState();
   const deploy = useDeployAgent();
