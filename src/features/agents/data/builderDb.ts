@@ -91,20 +91,29 @@ export async function deleteThread(id: string): Promise<void> {
   if (error) throw error;
 }
 
+/** Inline UI payload the Composer renders under an assistant reply. */
+export interface ComposerUi {
+  type: string;
+  [k: string]: unknown;
+}
+
 export interface BuilderTurn {
   threadId: string;
   title: string;
   reply: string;
+  skill: string;
+  skillLabel: string;
+  ui: ComposerUi | null;
   config: AgentDraftConfig;
   missing: string[];
   ready: boolean;
   status: string;
 }
 
-/** One conversational turn of the Agent Builder skill. */
-export async function sendBuilderTurn(input: { threadId?: string; text: string }): Promise<BuilderTurn> {
+/** One conversational turn of the Composer. The skill is chosen server-side. */
+export async function sendBuilderTurn(input: { threadId?: string; text: string; skill?: string }): Promise<BuilderTurn> {
   const { data, error } = await supabase.functions.invoke("agent-builder-chat", {
-    body: { threadId: input.threadId, text: input.text, skill: "agent_builder" },
+    body: { threadId: input.threadId, text: input.text, skill: input.skill },
   });
   if (error) {
     const msg = (data as any)?.message || error.message || "Yangu AI could not respond.";
@@ -112,6 +121,37 @@ export async function sendBuilderTurn(input: { threadId?: string; text: string }
   }
   return data as BuilderTurn;
 }
+
+/** Patch an existing agent's configuration and push it live when deployed. */
+export async function updateAgentFields(
+  agentId: string,
+  patch: Record<string, unknown>,
+): Promise<void> {
+  const orgId = await requireOrgId();
+  const userId = await currentUserId();
+  const { data: agent } = await sb.from("agent_agents").select("id, status, vapi_assistant_id").eq("id", agentId).maybeSingle();
+  const { data: latest } = await sb
+    .from("agent_configs").select("version, config").eq("agent_id", agentId).eq("environment", "draft")
+    .order("version", { ascending: false }).limit(1).maybeSingle();
+
+  const merged = { ...(latest?.config ?? {}), ...patch };
+  const { error } = await sb.from("agent_configs").insert({
+    org_id: orgId, agent_id: agentId, environment: "draft",
+    version: (latest?.version ?? 0) + 1, config: merged, updated_by: userId,
+  });
+  if (error) throw error;
+
+  const row: Record<string, unknown> = {};
+  if (typeof patch.voice === "string") row.voice = patch.voice;
+  if (Array.isArray(patch.languages) && patch.languages.length) row.language = patch.languages[0];
+  if (Object.keys(row).length) {
+    const { error: upErr } = await sb.from("agent_agents").update(row).eq("id", agentId);
+    if (upErr) throw upErr;
+  }
+
+  if (agent?.vapi_assistant_id) await voiceOps.update(agentId);
+}
+
 
 /** Persist the gathered configuration as a draft agent (no paid resources created). */
 export async function saveDraftAgent(thread: BuilderThread): Promise<string> {
@@ -173,4 +213,6 @@ export const voiceOps = {
   syncCalls: (agentId: string) => vapiAction("sync_calls", { agentId }),
   listNumbers: (orgId: string) => vapiAction("list_numbers", { orgId }),
   assignNumber: (agentId: string, phoneNumberId: string) => vapiAction("assign_number", { agentId, phoneNumberId }),
+  placeCall: (input: { agentId: string; to: string; name?: string; purpose?: string }) => vapiAction("place_call", input),
 };
+

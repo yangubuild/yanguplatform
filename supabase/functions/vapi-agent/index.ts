@@ -201,8 +201,39 @@ Deno.serve(async (req) => {
         return json({ ok: true, number: updated.number ?? null });
       }
 
+      case "place_call": {
+        const { agent, error } = await loadAgent(String(body.agentId));
+        if (error) return error;
+        if (!agent.vapi_assistant_id) {
+          return json({ ok: false, error: "not_deployed", message: "Deploy this agent before it can make calls." }, 400);
+        }
+        if (!agent.vapi_phone_number_id) {
+          return json({ ok: false, error: "no_number", message: "Give this agent a phone number before it can make calls." }, 400);
+        }
+        const to = String(body.to ?? "").trim();
+        if (!/^\+?[0-9\s\-()]{7,20}$/.test(to)) {
+          return json({ ok: false, error: "invalid_number", message: "That doesn't look like a valid phone number." }, 400);
+        }
+        const call = await vapiFetch("/call", {
+          method: "POST",
+          body: {
+            assistantId: agent.vapi_assistant_id,
+            phoneNumberId: agent.vapi_phone_number_id,
+            customer: { number: to.replace(/[\s\-()]/g, ""), name: body.name ? String(body.name).slice(0, 80) : undefined },
+          },
+        });
+        await db.from("agent_calls").upsert({
+          org_id: agent.org_id, agent_id: agent.id, vapi_call_id: call.id,
+          direction: "outbound", destination: to, contact_name: body.name ? String(body.name).slice(0, 80) : null,
+          status: call.status ?? "queued", started_at: call.createdAt ?? new Date().toISOString(),
+          meta: { purpose: body.purpose ? String(body.purpose).slice(0, 300) : null },
+        }, { onConflict: "vapi_call_id" });
+        return json({ ok: true, callId: call.id, status: call.status ?? "queued" });
+      }
+
       default:
         return json({ error: "unknown_action" }, 400);
+
     }
   } catch (e) {
     const status = e instanceof VapiError ? e.status : 500;
