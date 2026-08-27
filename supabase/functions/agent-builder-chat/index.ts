@@ -52,11 +52,21 @@ Rules:
 - When every required field is known, set ready=true and reply with a one-sentence confirmation that the agent is ready to test.`;
 
 async function callGateway(messages: unknown[], temperature = 0.3) {
-  const res = await fetch(AI_URL, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ model: MODEL, messages, temperature }),
-  });
+  // No artificial deadline here — generation takes as long as it takes. A
+  // network-level failure is turned into an explicit, safe message instead of
+  // leaving the Composer pending.
+  let res: Response;
+  try {
+    res = await fetch(AI_URL, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: MODEL, messages, temperature }),
+    });
+  } catch (e) {
+    console.error("gateway network failure", String(e).slice(0, 200));
+    throw { status: 503, message: "Yangu AI is temporarily unreachable. Your conversation is saved — please try again." };
+  }
+
   if (!res.ok) {
     const detail = await res.text();
     console.error("gateway error", res.status, detail.slice(0, 300));
