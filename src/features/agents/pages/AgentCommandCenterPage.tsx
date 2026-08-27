@@ -409,8 +409,8 @@ export default function AgentCommandCenterPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="phone" className="mt-4">
-          {row?.phone_number ? (
+        <TabsContent value="phone" className="mt-4 space-y-3">
+          {row?.phone_number && (
             <Card>
               <CardContent className="flex items-center gap-3 p-5">
                 <Phone className="h-5 w-5 text-primary" />
@@ -420,12 +420,9 @@ export default function AgentCommandCenterPage() {
                 </div>
               </CardContent>
             </Card>
-          ) : (
-            <EmptyState
-              title="No phone number assigned"
-              body="This agent can be tested without a number. Number provisioning requires telephony setup and is never purchased automatically — connect or assign a number when you're ready."
-            />
           )}
+          {/* Live number manager: list, connect and assign real numbers. */}
+          <ComposerCard ui={{ type: "phone_numbers", agent: row }} />
         </TabsContent>
 
         <TabsContent value="knowledge" className="mt-4">
@@ -439,9 +436,24 @@ export default function AgentCommandCenterPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="monitoring" className="mt-4">
-          <EmptyState title="Monitoring coming with live traffic" body="Alerts and health checks activate once this agent is deployed and handling calls." />
+        <TabsContent value="monitoring" className="mt-4 space-y-3">
+          <Card>
+            <CardContent className="space-y-2 p-5 text-sm">
+              <p className="font-medium">Connection check</p>
+              <ul className="space-y-1 text-xs text-muted-foreground">
+                <li>Agent record: {row ? "loaded" : "missing"}</li>
+                <li>Deployed to voice network: {provider.data?.state === "deployed" ? "yes" : "no"}</li>
+                <li>Assigned number: {row?.phone_number ?? "none"}</li>
+                <li>Call records stored: {calls.length}</li>
+                <li>Last deployment: {row?.deployed_at ? new Date(row.deployed_at).toLocaleString() : "never"}</li>
+              </ul>
+              <Button size="sm" variant="outline" onClick={() => { provider.refetch(); refetch(); }}>
+                <RefreshCw className="mr-1.5 h-4 w-4" />Recheck now
+              </Button>
+            </CardContent>
+          </Card>
         </TabsContent>
+
       </Tabs>
     </div>
   );
