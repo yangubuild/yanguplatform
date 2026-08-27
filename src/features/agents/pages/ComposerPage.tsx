@@ -346,7 +346,7 @@ export default function ComposerPage() {
               <Wrench className="h-4 w-4 text-primary" />
               <p className="mr-auto text-sm font-medium">Agent ready</p>
               <Button size="sm" variant="outline" onClick={onSaveDraft} disabled={saveDraft.isPending}>
-                {saveDraft.isPending ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <TestTube2 className="mr-1.5 h-4 w-4" />}
+                {saveDraft.isPending ? <YanguSpinner size={16} className="mr-1.5" /> : <TestTube2 className="mr-1.5 h-4 w-4" />}
                 Save draft &amp; test
               </Button>
               {thread?.agentId && (
@@ -357,7 +357,7 @@ export default function ComposerPage() {
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button size="sm" disabled={deploy.isPending}>
-                    {deploy.isPending ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Rocket className="mr-1.5 h-4 w-4" />}
+                    {deploy.isPending ? <YanguSpinner size={16} className="mr-1.5" /> : <Rocket className="mr-1.5 h-4 w-4" />}
                     Deploy agent
                   </Button>
                 </AlertDialogTrigger>
@@ -393,7 +393,7 @@ export default function ComposerPage() {
             size="icon" aria-label="Send" onClick={() => send()} disabled={!text.trim() || turn.isPending}
             className="absolute bottom-2.5 right-2.5 h-9 w-9 rounded-lg"
           >
-            {turn.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUp className="h-4 w-4" />}
+            {turn.isPending ? <YanguSpinner size={16} /> : <ArrowUp className="h-4 w-4" />}
           </Button>
         </div>
       </section>
