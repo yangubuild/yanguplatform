@@ -1,11 +1,11 @@
 // Contextual cards the Composer renders inline under an assistant reply.
 // Every card acts on real workspace data — there are no placeholder controls.
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowUpRight, BarChart3, BookOpen, Bot, Calendar, CheckCircle2, Loader2,
+  ArrowUpRight, BarChart3, BookOpen, Bot, Calendar, CheckCircle2, AlertTriangle, Plus, Link2,
   PhoneCall, PhoneOutgoing, Play, Pause, Phone, Users, Volume2, Languages, MessageSquareQuote,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { updateAgentFields, voiceOps, type ComposerUi } from "../data/builderDb";
+import { updateAgentFields, voiceOps, type ComposerUi, type VoiceCallState, type VoiceNumber } from "../data/builderDb";
+import { YanguSpinner } from "./YanguSpinner";
 import { useSetAgentRunState } from "../data/builderHooks";
 import { useOrgId } from "../data/hooks";
 
@@ -83,7 +84,17 @@ export function ComposerCard({ ui }: { ui: ComposerUi }) {
   const [callPurpose, setCallPurpose] = useState<string>(String(ui.purpose ?? ""));
   const [campaignAgent, setCampaignAgent] = useState<string>(agents[0]?.id ?? "");
   const [picked, setPicked] = useState<string[]>([]);
-  const [numbers, setNumbers] = useState<any[] | null>(null);
+  const [numbers, setNumbers] = useState<VoiceNumber[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  // Real outbound-call lifecycle, polled from the voice provider.
+  const [placed, setPlaced] = useState<{ callId: string; status: string; from: string | null; to: string } | null>(null);
+  const [callState, setCallState] = useState<VoiceCallState | null>(null);
+  // Connect-a-number flow (both options are explicitly confirmed by the user).
+  const [connectMode, setConnectMode] = useState<"none" | "new" | "import">("none");
+  const [areaCode, setAreaCode] = useState("");
+  const [importNumber, setImportNumber] = useState("");
+  const [importSid, setImportSid] = useState("");
+  const [importToken, setImportToken] = useState("");
 
   const contacts = (ui.contacts ?? []) as any[];
   const calls = (ui.calls ?? []) as any[];
@@ -93,21 +104,45 @@ export function ComposerCard({ ui }: { ui: ComposerUi }) {
   const totals = (ui.totals ?? {}) as Record<string, number>;
   const agentName = useMemo(() => new Map(agents.map((a) => [a.id, a.name])), [agents]);
 
-  const fail = (e: unknown) =>
+  const fail = (e: unknown) => {
+    setError(e instanceof Error ? e.message : "Please try again.");
     toast({
       title: "That didn't go through",
       description: e instanceof Error ? e.message : "Please try again.",
       variant: "destructive",
     });
+  };
 
   async function run(label: string, fn: () => Promise<unknown>) {
     setBusy(true);
+    setError(null);
     try {
       await fn();
       setDone(label);
       qc.invalidateQueries({ queryKey: ["agents"] });
     } catch (e) { fail(e); } finally { setBusy(false); }
   }
+
+  // Poll the placed call until it reaches a terminal state — real status only.
+  useEffect(() => {
+    if (!placed || !agent?.id) return;
+    const terminal = ["ended", "failed", "busy", "no-answer", "canceled"];
+    if (callState && terminal.includes(String(callState.status))) return;
+    const t = setInterval(async () => {
+      try {
+        const s = await voiceOps.getCall(agent.id, placed.callId);
+        setCallState(s);
+        if (terminal.includes(String(s.status))) clearInterval(t);
+      } catch { /* keep the last known state; the panel shows it */ }
+    }, 5000);
+    return () => clearInterval(t);
+  }, [placed, agent?.id, callState?.status]);
+
+  const errorBanner = error ? (
+    <p className="flex items-start gap-1.5 text-xs text-destructive">
+      <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />{error}
+    </p>
+  ) : null;
 
   if (done) {
     return (
@@ -147,7 +182,7 @@ export function ComposerCard({ ui }: { ui: ComposerUi }) {
             size="sm" disabled={busy || !agent}
             onClick={() => run(`Voice updated to ${voice}.`, () => updateAgentFields(agent.id, { voice }))}
           >
-            {busy && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}Save voice
+            {busy && <YanguSpinner size={16} className="mr-1.5" />}Save voice
           </Button>
         </CardShell>
       );
@@ -164,7 +199,7 @@ export function ComposerCard({ ui }: { ui: ComposerUi }) {
             size="sm" disabled={busy || !greeting.trim() || !agent}
             onClick={() => run("Greeting updated.", () => updateAgentFields(agent.id, { greeting: greeting.trim() }))}
           >
-            {busy && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}Save greeting
+            {busy && <YanguSpinner size={16} className="mr-1.5" />}Save greeting
           </Button>
         </CardShell>
       );
@@ -186,7 +221,7 @@ export function ComposerCard({ ui }: { ui: ComposerUi }) {
             size="sm" disabled={busy || !langs.length || !agent}
             onClick={() => run(`Languages updated: ${langs.join(", ")}.`, () => updateAgentFields(agent.id, { languages: langs }))}
           >
-            {busy && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}Save languages
+            {busy && <YanguSpinner size={16} className="mr-1.5" />}Save languages
           </Button>
         </CardShell>
       );
@@ -202,7 +237,7 @@ export function ComposerCard({ ui }: { ui: ComposerUi }) {
                 runState.mutateAsync({ agentId: agent.id, next: next as "pause" | "resume" }))
             }
           >
-            {runState.isPending && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+            {runState.isPending && <YanguSpinner size={16} className="mr-1.5" />}
             {next === "pause" ? "Pause agent" : "Resume agent"}
           </Button>
         </CardShell>
@@ -242,7 +277,7 @@ export function ComposerCard({ ui }: { ui: ComposerUi }) {
                 }))
             }
           >
-            {busy ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <PhoneCall className="mr-1.5 h-4 w-4" />}
+            {busy ? <YanguSpinner size={16} className="mr-1.5" /> : <PhoneCall className="mr-1.5 h-4 w-4" />}
             Call now
           </Button>
         </CardShell>
@@ -374,7 +409,7 @@ export function ComposerCard({ ui }: { ui: ComposerUi }) {
                 } catch (e) { fail(e); } finally { setBusy(false); }
               }}
             >
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Refresh"}
+              {busy ? <YanguSpinner size={16} /> : "Refresh"}
             </Button>
           }
         >
@@ -467,7 +502,7 @@ export function ComposerCard({ ui }: { ui: ComposerUi }) {
               })
             }
           >
-            {busy ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <PhoneOutgoing className="mr-1.5 h-4 w-4" />}
+            {busy ? <YanguSpinner size={16} className="mr-1.5" /> : <PhoneOutgoing className="mr-1.5 h-4 w-4" />}
             Launch campaign
           </Button>
         </CardShell>
