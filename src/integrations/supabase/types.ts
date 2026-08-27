@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.1"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -977,42 +977,57 @@ export type Database = {
           channels: string[]
           created_at: string
           created_by: string | null
+          deployed_at: string | null
           description: string | null
           id: string
           language: string
+          last_deploy_error: string | null
           name: string
           org_id: string
+          phone_number: string | null
           status: string
           type: string
           updated_at: string
+          vapi_assistant_id: string | null
+          vapi_phone_number_id: string | null
           voice: string | null
         }
         Insert: {
           channels?: string[]
           created_at?: string
           created_by?: string | null
+          deployed_at?: string | null
           description?: string | null
           id?: string
           language?: string
+          last_deploy_error?: string | null
           name: string
           org_id: string
+          phone_number?: string | null
           status?: string
           type?: string
           updated_at?: string
+          vapi_assistant_id?: string | null
+          vapi_phone_number_id?: string | null
           voice?: string | null
         }
         Update: {
           channels?: string[]
           created_at?: string
           created_by?: string | null
+          deployed_at?: string | null
           description?: string | null
           id?: string
           language?: string
+          last_deploy_error?: string | null
           name?: string
           org_id?: string
+          phone_number?: string | null
           status?: string
           type?: string
           updated_at?: string
+          vapi_assistant_id?: string | null
+          vapi_phone_number_id?: string | null
           voice?: string | null
         }
         Relationships: [
@@ -1155,54 +1170,72 @@ export type Database = {
       agent_calls: {
         Row: {
           agent_id: string | null
+          caller_id: string | null
           contact_id: string | null
           contact_name: string | null
           conversation_id: string | null
+          cost: number | null
           created_at: string
+          destination: string | null
           direction: string
           duration_sec: number
+          ended_at: string | null
           id: string
           meta: Json
           org_id: string
           outcome: string | null
           recording_url: string | null
           started_at: string
+          status: string | null
           transcript: string | null
           updated_at: string
+          vapi_call_id: string | null
         }
         Insert: {
           agent_id?: string | null
+          caller_id?: string | null
           contact_id?: string | null
           contact_name?: string | null
           conversation_id?: string | null
+          cost?: number | null
           created_at?: string
+          destination?: string | null
           direction: string
           duration_sec?: number
+          ended_at?: string | null
           id?: string
           meta?: Json
           org_id: string
           outcome?: string | null
           recording_url?: string | null
           started_at?: string
+          status?: string | null
           transcript?: string | null
           updated_at?: string
+          vapi_call_id?: string | null
         }
         Update: {
           agent_id?: string | null
+          caller_id?: string | null
           contact_id?: string | null
           contact_name?: string | null
           conversation_id?: string | null
+          cost?: number | null
           created_at?: string
+          destination?: string | null
           direction?: string
           duration_sec?: number
+          ended_at?: string | null
           id?: string
           meta?: Json
           org_id?: string
           outcome?: string | null
           recording_url?: string | null
           started_at?: string
+          status?: string | null
           transcript?: string | null
           updated_at?: string
+          vapi_call_id?: string | null
         }
         Relationships: [
           {
@@ -1999,6 +2032,138 @@ export type Database = {
             columns: ["agent_id"]
             isOneToOne: false
             referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_phone_numbers: {
+        Row: {
+          agent_id: string | null
+          created_at: string
+          id: string
+          label: string | null
+          meta: Json
+          number: string
+          org_id: string
+          provider: string
+          status: string
+          updated_at: string
+          vapi_phone_number_id: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          created_at?: string
+          id?: string
+          label?: string | null
+          meta?: Json
+          number: string
+          org_id: string
+          provider?: string
+          status?: string
+          updated_at?: string
+          vapi_phone_number_id?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          created_at?: string
+          id?: string
+          label?: string | null
+          meta?: Json
+          number?: string
+          org_id?: string
+          provider?: string
+          status?: string
+          updated_at?: string
+          vapi_phone_number_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_phone_numbers_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_thread_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          metadata: Json
+          org_id: string
+          role: string
+          thread_id: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          org_id: string
+          role: string
+          thread_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          org_id?: string
+          role?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_thread_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "agent_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_threads: {
+        Row: {
+          agent_id: string | null
+          config: Json
+          created_at: string
+          id: string
+          org_id: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agent_id?: string | null
+          config?: Json
+          created_at?: string
+          id?: string
+          org_id: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agent_id?: string | null
+          config?: Json
+          created_at?: string
+          id?: string
+          org_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_threads_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_agents"
             referencedColumns: ["id"]
           },
         ]

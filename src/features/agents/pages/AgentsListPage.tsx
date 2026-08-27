@@ -3,23 +3,15 @@ import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Bot, Plus, Copy, Pause, Play, Loader2 } from "lucide-react";
+import { Bot, Plus, Copy, Pause, Play, Loader2, Phone } from "lucide-react";
 import { useAgents, useCreateAgent, useUpdateAgent } from "../data/hooks";
-import type { AgentType } from "../data/types";
 import { PageHeader, StatusDot } from "../components/PageHeader";
 
-const FILTERS = ["All", "Live", "Draft", "Paused", "Sales", "Receptionist", "Support", "Knowledge"];
-const TEMPLATES: { id: AgentType; name: string; desc: string }[] = [
-  { id: "sales", name: "Sales Agent", desc: "Qualifies leads, books demos, closes deals." },
-  { id: "receptionist", name: "Receptionist", desc: "Answers calls, books appointments, takes messages." },
-  { id: "support", name: "Support Agent", desc: "Resolves tickets, escalates when unsure." },
-  { id: "knowledge", name: "Knowledge Agent", desc: "Answers from your knowledge base." },
-];
+const FILTERS = ["All", "Live", "Draft", "Paused", "Inbound", "Outbound", "Support"];
+
 
 export default function AgentsListPage() {
   const [filter, setFilter] = useState("All");
-  const [picker, setPicker] = useState(false);
   const { data: allAgents = [], isLoading, error, refetch } = useAgents();
   const createMut = useCreateAgent();
   const updateMut = useUpdateAgent();
@@ -34,8 +26,9 @@ export default function AgentsListPage() {
       <PageHeader
         title="Agents"
         description="Manage all your AI employees in one place."
-        actions={<Button onClick={() => setPicker(true)}><Plus className="h-4 w-4 mr-1.5" />New agent</Button>}
+        actions={<Button asChild><Link to="/dashboard/agents/agents/new"><Plus className="h-4 w-4 mr-1.5" />New agent</Link></Button>}
       />
+
       <div className="flex flex-wrap gap-2">
         {FILTERS.map((f) => (
           <Button key={f} size="sm" variant={filter === f ? "default" : "outline"} onClick={() => setFilter(f)}>{f}</Button>
@@ -52,8 +45,13 @@ export default function AgentsListPage() {
           </div>
         )}
         {!isLoading && agents.length === 0 && !error && (
-          <div className="col-span-full rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-            No agents yet. Click <span className="font-medium">New agent</span> to build your first AI employee.
+          <div className="col-span-full rounded-lg border border-dashed border-border p-8 text-center">
+            <Bot className="mx-auto h-8 w-8 text-muted-foreground" />
+            <p className="mt-2 text-sm font-medium">No agents yet</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Describe what you need and Yangu will build your first AI employee.
+            </p>
+            <Button asChild className="mt-4"><Link to="/dashboard/agents/agents/new"><Plus className="h-4 w-4 mr-1.5" />New agent</Link></Button>
           </div>
         )}
         {agents.map((a) => (
@@ -70,16 +68,16 @@ export default function AgentsListPage() {
                 <div className="flex items-center gap-1.5"><StatusDot status={a.status} /><span className="text-xs capitalize">{a.status}</span></div>
               </div>
               <p className="text-sm text-muted-foreground line-clamp-2">{a.description}</p>
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap items-center gap-1">
                 {a.channels.map((c) => <Badge key={c} variant="secondary">{c}</Badge>)}
-              </div>
-              <div className="grid grid-cols-3 gap-2 text-center py-2 border-y border-border">
-                <div><div className="text-sm font-semibold">{a.conversationsToday}</div><div className="text-[10px] text-muted-foreground">Today</div></div>
-                <div><div className="text-sm font-semibold">{a.leadsThisWeek}</div><div className="text-[10px] text-muted-foreground">Leads</div></div>
-                <div><div className="text-sm font-semibold">{a.handoverRate}%</div><div className="text-[10px] text-muted-foreground">Handover</div></div>
+                {a.phoneNumber && (
+                  <span className="ml-1 flex items-center gap-1 text-xs text-muted-foreground">
+                    <Phone className="h-3 w-3" />{a.phoneNumber}
+                  </span>
+                )}
               </div>
               <div className="flex gap-2">
-                <Button asChild size="sm" className="flex-1"><Link to={`/dashboard/agents/agents/${a.id}`}>Open builder</Link></Button>
+                <Button asChild size="sm" className="flex-1"><Link to={`/dashboard/agents/agent/${a.id}`}>Open</Link></Button>
                 <Button size="sm" variant="outline" aria-label="Duplicate"
                   onClick={() => createMut.mutate({ name: `${a.name} copy`, type: a.type, status: "draft", description: a.description, channels: a.channels, language: a.language, voice: a.voice })}>
                   <Copy className="h-4 w-4" />
@@ -94,23 +92,6 @@ export default function AgentsListPage() {
         ))}
       </div>
 
-      <Dialog open={picker} onOpenChange={setPicker}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader><DialogTitle>Pick a template</DialogTitle></DialogHeader>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
-            {TEMPLATES.map((t) => (
-              <Card key={t.id} className="cursor-pointer hover:border-primary transition"
-                onClick={() => { createMut.mutate({ name: t.name, type: t.id, status: "draft", description: t.desc, channels: ["web"], language: "English" }); setPicker(false); }}>
-                <CardContent className="p-4">
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-2"><Bot className="h-4 w-4" /></div>
-                  <p className="font-semibold text-sm">{t.name}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{t.desc}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
