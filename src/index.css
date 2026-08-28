@@ -336,6 +336,7 @@ html {
       radial-gradient(60% 100% at 12% 130%, hsl(var(--yangu-orange-hsl) / 0.28) 0%, transparent 70%),
       radial-gradient(60% 100% at 88% 130%, hsl(var(--yangu-green-hsl) / 0.24) 0%, transparent 70%);
     filter: blur(10px);
+    animation: yangu-drift 18s ease-in-out infinite;
   }
 
   /* Same lower ambient light, but painted over opaque page backgrounds using
@@ -352,6 +353,7 @@ html {
       radial-gradient(55% 100% at 8% 130%, hsl(var(--yangu-orange-hsl) / 0.35) 0%, transparent 70%),
       radial-gradient(55% 100% at 92% 130%, hsl(var(--yangu-green-hsl) / 0.30) 0%, transparent 70%);
     filter: blur(14px);
+    animation: yangu-drift 22s ease-in-out infinite;
   }
 
 
