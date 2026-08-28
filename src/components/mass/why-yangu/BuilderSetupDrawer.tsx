@@ -59,7 +59,7 @@ export function BuilderSetupDrawer({ open, onOpenChange, selectedKeys }: Builder
                 border: "1px solid rgba(255,255,255,0.08)" }}>
               <div
                 className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-                style={{ background: "#F46D2A" }}>
+                className="yangu-cta">
                 <Check className="w-3.5 h-3.5 text-foreground" />
               </div>
               <div>

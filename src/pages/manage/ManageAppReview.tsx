@@ -368,7 +368,7 @@ function ActionButton({ label, onClick, isPending, variant }: {
 }) {
   const bg = variant === "success" ? "rgba(34,197,94,0.15)" :
     variant === "danger" ? "rgba(239,68,68,0.15)" :
-    variant === "primary" ? "linear-gradient(135deg, #F46D2A, #d45a1f)" :
+    variant === "primary" ? "var(--yangu-gradient)" :
     "rgba(255,255,255,0.06)";
   const color = variant === "success" ? "rgb(134,239,172)" :
     variant === "danger" ? "rgb(252,165,165)" :

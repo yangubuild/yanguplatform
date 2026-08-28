@@ -1789,7 +1789,7 @@ export default function EmenuNewEditor() {
           <span className="hidden xl:inline">{liveUrl ? "Live" : "Not published"}</span>
         </button>
         {/* Publish button — visible on all sizes */}
-        <Button size="sm" onClick={() => setPublishOpen(true)} className="gap-1" style={{ background: "linear-gradient(135deg, #c47a3a 0%, #b5622a 50%, #5c2a12 100%)" }}>
+        <Button size="sm" onClick={() => setPublishOpen(true)} className="gap-1">
           <Rocket className="h-4 w-4 text-white" /> <span className="text-white hidden sm:inline">Publish</span>
         </Button>
       </header>

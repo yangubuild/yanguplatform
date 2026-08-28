@@ -87,7 +87,7 @@ export function WhyYanguContent() {
         <Button
           onClick={() => navigate("/sandbox")}
           className="shrink-0"
-          style={{ background: "#F46D2A", color: "#fff" }}
+          className="yangu-cta"
         >
           Open sandbox <ArrowRight className="w-4 h-4 ml-1" />
         </Button>
