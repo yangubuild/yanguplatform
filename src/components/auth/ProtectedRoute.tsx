@@ -38,9 +38,7 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
     // If profile isn't loaded yet, wait (shouldn't happen since authLoading covers it)
     if (!profile) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <Loader2 className="h-8 w-8 animate-spin text-accent" />
-        </div>
+        <YanguLoadingScreen />
       );
     }
 
@@ -68,9 +66,7 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
     // Org check — only block on initial load (no cached data yet)
     if (orgLoading && !activeOrg) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <Loader2 className="h-8 w-8 animate-spin text-accent" />
-        </div>
+        <YanguLoadingScreen />
       );
     }
     if (!orgLoading && !activeOrg) return <Navigate to="/onboarding" replace />;
