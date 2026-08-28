@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { cloudAuth } from "@/integrations/cloudAuth";
+import { getPostAuthDestination, resolvePostAuthPath } from "@/lib/routing/postAuth";
 
 interface SocialAuthButtonsProps {
   disabled?: boolean;
@@ -13,24 +14,8 @@ export function SocialAuthButtons({ disabled }: SocialAuthButtonsProps) {
   const [isAppleLoading, setIsAppleLoading] = useState(false);
   const [searchParams] = useSearchParams();
 
-  const getPostAuthDestination = () => {
-    const rawReturnTo = searchParams.get("returnTo");
-    if (!rawReturnTo) return "/dashboard";
+  const getDestination = () => getPostAuthDestination(searchParams.get("returnTo"));
 
-    try {
-      const decoded = decodeURIComponent(rawReturnTo);
-      if (decoded.startsWith("/")) return decoded;
-
-      const parsed = new URL(decoded);
-      if (parsed.origin === window.location.origin) {
-        return `${parsed.pathname}${parsed.search}${parsed.hash}`;
-      }
-    } catch {
-      // ignore malformed returnTo and fallback below
-    }
-
-    return "/dashboard";
-  };
 
   const setProviderLoading = (provider: "google" | "apple", loading: boolean) => {
     if (provider === "google") {
