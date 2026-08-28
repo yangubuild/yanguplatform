@@ -15,6 +15,7 @@ export interface BuilderThread {
   config: AgentDraftConfig;
   createdAt: string;
   updatedAt: string;
+  archivedAt?: string | null;
 }
 
 export interface BuilderMessage {
@@ -58,14 +59,16 @@ function rowToThread(r: any): BuilderThread {
     config: (r.config ?? {}) as AgentDraftConfig,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
+    archivedAt: r.archived_at ?? null,
   };
 }
 
-export async function listThreads(): Promise<BuilderThread[]> {
+/** Active list hides archived conversations; archived keeps every message. */
+export async function listThreads(scope: "active" | "archived" = "active"): Promise<BuilderThread[]> {
   const orgId = await requireOrgId();
-  const { data, error } = await sb
-    .from("agent_threads").select("*").eq("org_id", orgId)
-    .order("updated_at", { ascending: false }).limit(50);
+  let q = sb.from("agent_threads").select("*").eq("org_id", orgId);
+  q = scope === "archived" ? q.not("archived_at", "is", null) : q.is("archived_at", null);
+  const { data, error } = await q.order("updated_at", { ascending: false }).limit(50);
   if (error) throw error;
   return (data ?? []).map(rowToThread);
 }
@@ -86,6 +89,24 @@ export async function listMessages(threadId: string): Promise<BuilderMessage[]> 
   }));
 }
 
+export async function renameThread(id: string, title: string): Promise<void> {
+  const clean = title.trim().slice(0, 120);
+  if (!clean) throw new Error("Give the conversation a title.");
+  const { error } = await sb.from("agent_threads").update({ title: clean }).eq("id", id);
+  if (error) throw error;
+}
+
+export async function setThreadArchived(id: string, archived: boolean): Promise<void> {
+  const { error } = await sb.from("agent_threads")
+    .update({ archived_at: archived ? new Date().toISOString() : null }).eq("id", id);
+  if (error) throw error;
+}
+
+/**
+ * Deletes only the conversation row; agent_thread_messages cascade with it.
+ * agent_threads.agent_id is ON DELETE SET NULL on the agent side, so agents,
+ * numbers, calls, leads, knowledge and campaigns are never touched.
+ */
 export async function deleteThread(id: string): Promise<void> {
   const { error } = await sb.from("agent_threads").delete().eq("id", id);
   if (error) throw error;

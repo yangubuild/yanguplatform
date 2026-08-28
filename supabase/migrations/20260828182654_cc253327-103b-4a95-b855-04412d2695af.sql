@@ -1,0 +1,2 @@
+ALTER TABLE public.agent_threads ADD COLUMN IF NOT EXISTS archived_at timestamptz;
+CREATE INDEX IF NOT EXISTS agent_threads_org_archived_idx ON public.agent_threads (org_id, archived_at, updated_at DESC);

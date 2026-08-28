@@ -1,19 +1,25 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOrgId } from "./hooks";
 import {
-  listThreads, getThread, listMessages, deleteThread, sendBuilderTurn,
-  saveDraftAgent, voiceOps, type BuilderThread,
+  listThreads, getThread, listMessages, deleteThread, renameThread, setThreadArchived,
+  sendBuilderTurn, saveDraftAgent, voiceOps, type BuilderThread,
 } from "./builderDb";
 
 const K = {
   threads: ["agents", "builder", "threads"] as const,
+  threadScope: (scope: "active" | "archived") => ["agents", "builder", "threads", scope] as const,
   thread: (id?: string) => ["agents", "builder", "thread", id] as const,
   messages: (id?: string) => ["agents", "builder", "messages", id] as const,
 };
 
-export function useBuilderThreads() {
+export function useBuilderThreads(scope: "active" | "archived" = "active") {
   const { data: orgId } = useOrgId();
-  return useQuery({ queryKey: K.threads, queryFn: listThreads, enabled: !!orgId, staleTime: 15_000 });
+  return useQuery({
+    queryKey: K.threadScope(scope),
+    queryFn: () => listThreads(scope),
+    enabled: !!orgId,
+    staleTime: 15_000,
+  });
 }
 
 export function useBuilderThread(id: string | undefined) {
@@ -41,6 +47,28 @@ export function useDeleteBuilderThread() {
   return useMutation({
     mutationFn: deleteThread,
     onSuccess: () => qc.invalidateQueries({ queryKey: K.threads }),
+  });
+}
+
+export function useRenameBuilderThread() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, title }: { id: string; title: string }) => renameThread(id, title),
+    onSuccess: (_v, { id }) => {
+      qc.invalidateQueries({ queryKey: K.threads });
+      qc.invalidateQueries({ queryKey: K.thread(id) });
+    },
+  });
+}
+
+export function useArchiveBuilderThread() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, archived }: { id: string; archived: boolean }) => setThreadArchived(id, archived),
+    onSuccess: (_v, { id }) => {
+      qc.invalidateQueries({ queryKey: K.threads });
+      qc.invalidateQueries({ queryKey: K.thread(id) });
+    },
   });
 }
 

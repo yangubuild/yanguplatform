@@ -2127,6 +2127,7 @@ export type Database = {
       agent_threads: {
         Row: {
           agent_id: string | null
+          archived_at: string | null
           config: Json
           created_at: string
           id: string
@@ -2138,6 +2139,7 @@ export type Database = {
         }
         Insert: {
           agent_id?: string | null
+          archived_at?: string | null
           config?: Json
           created_at?: string
           id?: string
@@ -2149,6 +2151,7 @@ export type Database = {
         }
         Update: {
           agent_id?: string | null
+          archived_at?: string | null
           config?: Json
           created_at?: string
           id?: string
