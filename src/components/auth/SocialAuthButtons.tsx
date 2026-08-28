@@ -40,9 +40,9 @@ export function SocialAuthButtons({ disabled }: SocialAuthButtonsProps) {
     try {
       // Preserve the caller's returnTo through the provider round-trip so
       // OAuth consent flows land back on the original consent URL, not "/".
-      const rawReturnTo = searchParams.get("returnTo");
+      const safeReturnTo = resolvePostAuthPath(searchParams.get("returnTo"));
       const callback = new URL(`${window.location.origin}/auth/callback`);
-      if (rawReturnTo) callback.searchParams.set("returnTo", rawReturnTo);
+      if (safeReturnTo) callback.searchParams.set("returnTo", safeReturnTo);
       const result = await cloudAuth.auth.signInWithOAuth(provider, {
         redirect_uri: callback.toString(),
       });
@@ -57,7 +57,7 @@ export function SocialAuthButtons({ disabled }: SocialAuthButtonsProps) {
       if (result.redirected) return;
 
       // In iframe/preview contexts OAuth returns tokens via web_message; route manually.
-      window.location.href = getPostAuthDestination();
+      window.location.href = getDestination();
     } catch (err) {
       toast.error("An unexpected error occurred. Please try again.");
       console.error(`[OAuth] ${providerName} unexpected error:`, err);

@@ -4,8 +4,8 @@
  * redirect to yangu.io with a safe returnTo param.
  */
 
-const IDENTITY_ORIGIN = "https://yangu.io";
-const LOGIN_PATH = "/auth/login";
+const IDENTITY_ORIGIN = "https://app.yangu.io";
+const LOGIN_PATH = "/login";
 
 /**
  * Allowed returnTo domains (prevent open-redirect).
