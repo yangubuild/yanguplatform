@@ -155,13 +155,13 @@ export default function AuthCallback() {
             if (ctx === "developer" && !returnTo.startsWith("/developers")) {
               navigate("/developers/portal/apps", { replace: true });
             } else if (ctx === "platform" && returnTo.startsWith("/developers/portal")) {
-              navigate("/dashboard", { replace: true });
+              navigate(POST_AUTH_HOME, { replace: true });
             } else {
-              window.location.href = returnTo;
+              navigate(returnTo, { replace: true });
             }
           } else {
             const ctx = getActiveContext();
-            navigate(ctx === "developer" ? "/developers/portal/apps" : "/dashboard", { replace: true });
+            navigate(ctx === "developer" ? "/developers/portal/apps" : POST_AUTH_HOME, { replace: true });
           }
         } else {
           setErrorMsg("No session found. Please sign in again.");
