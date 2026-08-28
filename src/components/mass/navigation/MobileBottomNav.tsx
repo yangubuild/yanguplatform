@@ -31,7 +31,8 @@ export function MobileBottomNav({ onMenuToggle }: MobileBottomNavProps) {
       className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around lg:hidden"
       style={{
         minHeight: 56,
-        background: "linear-gradient(180deg, #1f262b 0%, #1a2025 100%)",
+        background: "rgba(12,17,14,0.82)",
+        backdropFilter: "blur(14px)",
         borderTop: "1px solid rgba(255,255,255,0.06)",
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}
@@ -53,19 +54,11 @@ export function MobileBottomNav({ onMenuToggle }: MobileBottomNavProps) {
             className="flex flex-col items-center justify-center gap-0.5 flex-1 h-full relative min-w-[48px]"
             style={{ color: active ? "hsl(var(--accent))" : "rgba(255,255,255,0.4)" }}
           >
-            {item.key === "ada" ? (
-              <img
-                src={adaIcon}
-                alt="Ada"
-                className="w-5 h-5 object-contain"
-                style={{
-                  filter: active ? "brightness(1.3)" : "grayscale(0.6) opacity(0.5)",
-                }}
-              />
-            ) : item.icon ? (
+            {item.icon ? (
               <div className="relative">
                 <item.icon className="w-5 h-5" />
                 {item.key === "messages" && unreadDmCount > 0 && (
+
                   <span
                     className="absolute -top-1 -right-2 min-w-[14px] h-[14px] rounded-full flex items-center justify-center text-[8px] font-bold text-white px-0.5"
                     style={{ background: "#ef4444" }}
