@@ -2,6 +2,7 @@ import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { YanguPageBackground } from "@/components/brand/YanguPageBackground";
+import yangu404 from "@/assets/yangu-404.png";
 
 const NotFound = () => {
   const location = useLocation();
@@ -15,20 +16,12 @@ const NotFound = () => {
   return (
     <YanguPageBackground contentClassName="min-h-dvh flex items-center justify-center px-6">
       <main className="text-center">
-        <h1
-          className="select-none font-black leading-none tracking-tight"
-          style={{
-            fontSize: "clamp(6rem, 26vw, 16rem)",
-            background:
-              "linear-gradient(120deg, hsl(var(--yangu-green-hsl) / 0.95) 0%, hsl(150 20% 60% / 0.55) 35%, hsl(var(--yangu-orange-hsl) / 0.95) 70%, hsl(var(--yangu-green-hsl) / 0.9) 100%)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            filter:
-              "drop-shadow(0 0 32px hsl(var(--yangu-orange-hsl) / 0.35)) drop-shadow(0 0 60px hsl(var(--yangu-green-hsl) / 0.28))",
-          }}>
-          404
-        </h1>
+        <img
+          src={yangu404}
+          alt="404 — page not found"
+          className="mx-auto w-full max-w-[520px] select-none object-contain"
+          draggable={false}
+        />
 
         <p className="mx-auto mt-6 max-w-md text-lg text-foreground/90">
           Hmmmm... I couldn't find that page.
