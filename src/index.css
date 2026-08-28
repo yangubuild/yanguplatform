@@ -426,7 +426,7 @@ html {
 
   @media (prefers-reduced-motion: reduce) {
     .yangu-border-flow::before,
-    .yangu-border-flow::after,
+    
     .yangu-ambient,
     .yangu-ambient-overlay {
       animation: none !important;
