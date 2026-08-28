@@ -400,25 +400,13 @@ html {
     animation: yangu-flow 7s linear infinite;
     will-change: transform;
   }
-  .yangu-border-flow::after {
-    content: "";
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    pointer-events: none;
-    z-index: -1;
-    opacity: 0.5;
-    filter: blur(12px);
-    background: conic-gradient(
-      from var(--yangu-flow-angle, 0deg),
-      hsl(var(--yangu-orange-hsl) / 0.7),
-      transparent 90deg,
-      hsl(var(--yangu-green-hsl) / 0.7) 180deg,
-      transparent 270deg,
-      hsl(var(--yangu-orange-hsl) / 0.7)
-    );
-    animation: yangu-flow 7s linear infinite;
+  /* Outer glow is a box-shadow, never a painted layer over the interior. */
+  .yangu-border-flow {
+    box-shadow:
+      0 0 22px -6px hsl(var(--yangu-green-hsl) / 0.28),
+      0 0 22px -6px hsl(var(--yangu-orange-hsl) / 0.22);
   }
+
 
   @property --yangu-flow-angle {
     syntax: "<angle>";
