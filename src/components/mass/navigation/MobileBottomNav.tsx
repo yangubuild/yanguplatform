@@ -1,6 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Home, Bot, Hammer, Palette, Menu } from "lucide-react";
-import { useUnreadDmCount } from "@/hooks/useUnreadMessages";
 
 const NAV_ITEMS = [
   { key: "home", label: "Home", icon: Home, to: "/dashboard/home" },
@@ -24,7 +23,6 @@ interface MobileBottomNavProps {
 export function MobileBottomNav({ onMenuToggle }: MobileBottomNavProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { data: unreadDmCount = 0 } = useUnreadDmCount();
 
   return (
     <nav
