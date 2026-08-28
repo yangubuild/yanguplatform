@@ -26,6 +26,8 @@ export function NavigationDashboardPage() {
       className="relative min-h-screen w-full max-w-full overflow-x-hidden bg-background">
       {/* Global lower orange/green ambient light (yangu.io identity) */}
       <YanguAmbientGlow className="fixed h-[36vh]" />
+      <YanguAmbientGlow variant="overlay" />
+
       <NavDashHeader onMenuToggle={() => setSidebarOpen((p) => !p)} />
       <NavDashSidebar
         isOpen={sidebarOpen}
