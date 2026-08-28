@@ -7,14 +7,20 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowUp, Bot, Plus, Rocket, Trash2, TestTube2, AlertTriangle, RefreshCw,
   PanelRightClose, PanelRightOpen, PhoneOutgoing, BarChart3, Users, BookOpen, Wrench,
+  MoreHorizontal, Pencil, Share2, Archive, ArchiveRestore, ChevronDown,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -22,8 +28,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import {
-  useBuilderMessages, useBuilderThread, useBuilderThreads, useDeleteBuilderThread,
-  useDeployAgent, useSaveDraftAgent, useSendBuilderTurn,
+  useArchiveBuilderThread, useBuilderMessages, useBuilderThread, useBuilderThreads,
+  useDeleteBuilderThread, useDeployAgent, useRenameBuilderThread, useSaveDraftAgent, useSendBuilderTurn,
 } from "../data/builderHooks";
 import type { AgentDraftConfig, BuilderThread, ComposerUi } from "../data/builderDb";
 import { ComposerCard, SkillTag } from "../components/ComposerCards";
