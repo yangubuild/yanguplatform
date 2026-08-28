@@ -24,9 +24,9 @@ export function NavigationDashboardPage() {
   return (
     <div
       className="relative min-h-screen w-full max-w-full overflow-x-hidden bg-background">
-      {/* Global lower orange/green ambient light (yangu.io identity) */}
+      {/* Global lower orange/green ambient light (yangu.io identity) — one
+          continuous field behind the whole authenticated shell. */}
       <YanguAmbientGlow className="fixed h-[36vh]" />
-      <YanguAmbientGlow variant="overlay" />
 
       <NavDashHeader onMenuToggle={() => setSidebarOpen((p) => !p)} />
       <NavDashSidebar
@@ -45,9 +45,14 @@ export function NavigationDashboardPage() {
         </Suspense>
       </div>
 
+      {/* Ambient light painted ABOVE opaque page backgrounds (screen blend,
+          pointer-events none) so every route inherits the same field even when
+          the page paints its own background. */}
+      <YanguAmbientGlow variant="overlay" className="z-[30]" />
 
       {/* Mobile bottom navigation — hidden on desktop (lg+) */}
       <MobileBottomNav onMenuToggle={() => setSidebarOpen((p) => !p)} />
     </div>
   );
 }
+
