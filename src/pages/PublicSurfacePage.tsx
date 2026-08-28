@@ -18,7 +18,10 @@ import type {
   BuilderPublicSchemaResult,
   BuilderPublishedSection,
 } from "@/types/builder";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { YanguPageBackground } from "@/components/brand/YanguPageBackground";
+import { YanguLoadingScreen } from "@/components/brand/YanguLoadingScreen";
+import NotFound from "@/pages/NotFound";
 import { recordSurfaceView } from "@/lib/analytics/recordSurfaceView";
 
 /**
@@ -366,16 +369,3 @@ export default function PublicSurfacePage() {
   );
 }
 
-function PublicNotFound({ host, slug, message = "Page not found" }: { host: string; slug: string; message?: string }) {
-  return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="text-center max-w-md">
-        <h1 className="text-4xl font-bold text-foreground mb-2">404</h1>
-        <p className="text-muted-foreground mb-1">{message}</p>
-        <p className="text-xs text-muted-foreground/60">
-          {host}/{slug}
-        </p>
-      </div>
-    </div>
-  );
-}
