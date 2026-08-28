@@ -316,6 +316,61 @@ html {
     opacity: 1;
   }
 
+  /* ── GLOBAL YANGU CTA SYSTEM ───────────────────────────────────────────
+     One source of truth for primary/secondary actions. Any legacy solid
+     orange / brown / white CTA should use `.yangu-cta` (primary) or
+     `.yangu-cta-secondary`. Destructive actions keep red semantics. */
+  .yangu-cta {
+    position: relative;
+    isolation: isolate;
+    background: #0a0f0c;
+    color: hsl(var(--foreground));
+    border: 0;
+    border-radius: 0.5rem;
+    box-shadow: 0 6px 24px -10px hsl(25 100% 50% / 0.35);
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+  }
+  .yangu-cta::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: var(--yangu-gradient-border);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
+  }
+  .yangu-cta:hover {
+    background: #0e1512;
+    box-shadow: 0 8px 30px -8px hsl(25 100% 50% / 0.45);
+  }
+  .yangu-cta:hover::before {
+    opacity: 1;
+  }
+  .yangu-cta:active {
+    background: #080c0a;
+  }
+  .yangu-cta:disabled {
+    box-shadow: none;
+    opacity: 0.5;
+  }
+  .yangu-cta-secondary {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: hsl(var(--foreground));
+    border-radius: 0.5rem;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+  .yangu-cta-secondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+
   /* Subtle ambient glow behind a surface. */
   .yangu-glow {
     box-shadow: var(--yangu-glow);
