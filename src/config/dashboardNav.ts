@@ -9,7 +9,7 @@ import {
   UtensilsCrossed, Home, Lightbulb, Bookmark, TrendingUp,
   Layers, Image, FileText, Settings, Zap, Sparkle, Grid3X3,
   Building2, CreditCard, FileBarChart, BarChart3, UserCircle,
-  ShieldCheck, Briefcase, GraduationCap, FlaskConical, Bot,
+  ShieldCheck, Briefcase, GraduationCap, FlaskConical, Bot, Hammer, Mic,
 } from "lucide-react";
 
 // ── Account type model ───────────────────────────────────────
