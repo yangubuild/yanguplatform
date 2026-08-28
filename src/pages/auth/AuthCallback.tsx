@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { getReturnToFromParams } from "@/lib/routing/identityRedirect";
+import { POST_AUTH_HOME, resolvePostAuthPath } from "@/lib/routing/postAuth";
 import { getActiveContext, setActiveContext } from "@/lib/routing/activeContext";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { Button } from "@/components/ui/button";
