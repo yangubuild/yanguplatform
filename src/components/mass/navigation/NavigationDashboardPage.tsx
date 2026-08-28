@@ -1,5 +1,5 @@
 import { useState, Suspense } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { NavDashSidebar } from "./NavDashSidebar";
 import { NavDashHeader } from "./NavDashHeader";
 import { MobileBottomNav } from "./MobileBottomNav";
@@ -11,14 +11,21 @@ import { YanguAmbientGlow } from "@/components/brand/YanguAmbientGlow";
 const RAIL_WIDTH = 60;
 const FULL_WIDTH = 260;
 const EXTENDED_WIDTH = 260;
-const EXTENDED_ITEMS = ["Visionaire", "Dashboard"];
+const HOME_AREA = [
+  "/dashboard/home", "/dashboard/my-apps", "/dashboard/my-business",
+  "/dashboard/payment-settings", "/dashboard/invoices", "/dashboard/social-media",
+  "/dashboard/ads", "/dashboard/affiliates", "/dashboard/profile", "/dashboard/agency",
+];
 
 export function NavigationDashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeItem, setActiveItem] = useState("Offers");
   const isMobile = useIsMobile();
+  const location = useLocation();
 
-  const hasExtended = EXTENDED_ITEMS.includes(activeItem);
+  const onHomeArea =
+    location.pathname === "/dashboard" || HOME_AREA.some((p) => location.pathname.startsWith(p));
+  const hasExtended = activeItem === "Home" && onHomeArea;
   const totalWidth = hasExtended ? RAIL_WIDTH + EXTENDED_WIDTH : FULL_WIDTH;
 
   return (
