@@ -68,8 +68,7 @@ export function DriveConnectModal({ open, onOpenChange }: DriveConnectModalProps
             <button
               onClick={handleConnect}
               disabled={connecting}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-foreground transition-colors disabled:opacity-50 flex items-center gap-2"
-              style={{ background: "linear-gradient(135deg, #D4952B, #F4A83D)" }}>
+              className="yangu-cta px-4 py-2 rounded-lg text-sm font-medium text-foreground disabled:opacity-50 flex items-center gap-2">
               {connecting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               Connect Drive
             </button>

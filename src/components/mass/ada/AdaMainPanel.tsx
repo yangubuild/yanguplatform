@@ -1931,7 +1931,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                 style={{
                   background: isRecording
                     ? "linear-gradient(135deg, #dc2626, #ef4444)"
-                    : "linear-gradient(135deg, #D4952B, #F4A83D)",
+                    : "var(--yangu-gradient)",
                   boxShadow: isRecording ? "0 0 20px rgba(220,38,38,0.4)" : "0 0 20px rgba(212,149,43,0.2)" }}>
                 {isRecording ? <Mic className="w-6 h-6 animate-pulse" /> : <ArrowUp className="w-6 h-6" />}
               </button>
@@ -2090,7 +2090,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                       onClick={() => handleSend()}
                       disabled={!inputValue.trim() && pendingAttachments.length === 0}
                       className="w-9 h-9 rounded-full flex items-center justify-center transition-colors disabled:opacity-30"
-                      style={{ background: (inputValue.trim() || pendingAttachments.length> 0) ? "linear-gradient(135deg, #D4952B, #F4A83D)" : "rgba(255,255,255,0.1)" }}>
+                      style={{ background: (inputValue.trim() || pendingAttachments.length> 0) ? "var(--yangu-gradient)" : "rgba(255,255,255,0.1)" }}>
                       <ArrowUp className="w-5 h-5 text-foreground" />
                     </button>
                   </div>
@@ -2248,7 +2248,7 @@ export function AdaMainPanel({ hideBottomSection, isLanding }: { hideBottomSecti
                         onClick={() => handleSend()}
                         disabled={!inputValue.trim() && pendingAttachments.length === 0}
                         className="w-9 h-9 rounded-full flex items-center justify-center transition-colors disabled:opacity-30"
-                        style={{ background: (inputValue.trim() || pendingAttachments.length> 0) ? "linear-gradient(135deg, #D4952B, #F4A83D)" : "rgba(255,255,255,0.1)" }}>
+                        style={{ background: (inputValue.trim() || pendingAttachments.length> 0) ? "var(--yangu-gradient)" : "rgba(255,255,255,0.1)" }}>
                         <ArrowUp className="w-5 h-5 text-foreground" />
                       </button>
                     </div>

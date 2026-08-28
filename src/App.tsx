@@ -260,6 +260,8 @@ const InfluencerPage = lazy(() => lazyRetry(() => import("./pages/dashboard/Infl
 const SellerSurfacePage = lazy(() => lazyRetry(() => import("./pages/dashboard/SellerSurfacePage")));
 const EshopConnectPage = lazy(() => lazyRetry(() => import("./pages/seller/eshop-connect/EshopConnectPage")));
 const SellerSpeakToBuildPage = lazy(() => lazyRetry(() => import("./pages/dashboard/SellerSpeakToBuildPage")));
+const BuildersPage = lazy(() => lazyRetry(() => import("./pages/dashboard/BuildersPage")));
+const SmartMeetingsPage = lazy(() => lazyRetry(() => import("./pages/dashboard/SmartMeetingsPage")));
 const DashboardOffers = lazy(() => lazyRetry(() => import("./pages/dashboard/DashboardOffers")));
 const CustomProductWizard = lazy(() => lazyRetry(() => import("./pages/dashboard/CustomProductWizard")));
 const DashboardExplore = lazy(() => lazyRetry(() => import("./pages/dashboard/DashboardExplore")));
@@ -482,12 +484,17 @@ const App = () => (
                       </AllowlistGate>
                     </ProtectedRoute>
                   }>
-                  <Route index element={<Navigate to="/dashboard/offers" replace />} />
+                  <Route index element={<Navigate to="/dashboard/home" replace />} />
                   <Route path="home" element={<DashboardHome />} />
                   <Route path="explore" element={<DashboardExplore />} />
                   <Route path="offers" element={<DashboardOffers />} />
                   <Route path="offers/custom-product" element={<CustomProductWizard />} />
                   <Route path="messages" element={<MessagesPage />} />
+                  {/* New Yangu product architecture */}
+                  <Route path="builders" element={<BuildersPage />} />
+                  <Route path="meetings" element={<SmartMeetingsPage />} />
+                  {/* AI Workspace — reuses the existing Yangu AI chat infrastructure */}
+                  <Route path="workspace" element={<AdaAi />} />
                   <Route path="ada" element={<AdaAi />} />
                   <Route path="studio" element={<Studio />} />
                   <Route path="studio/image-ads" element={<ImageAdsFlow />} />
