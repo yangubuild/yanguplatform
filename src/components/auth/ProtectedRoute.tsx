@@ -2,7 +2,7 @@ import { ReactNode, useEffect } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveOrg } from "@/hooks/useActiveOrg";
-import { Loader2 } from "lucide-react";
+import { YanguLoadingScreen } from "@/components/brand/YanguLoadingScreen";
 import { setActiveContext, getActiveContext } from "@/lib/routing/activeContext";
 
 interface ProtectedRouteProps {
@@ -23,9 +23,7 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
   // Auth is still resolving — show spinner (blocks everything)
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
-      </div>
+      <YanguLoadingScreen />
     );
   }
 

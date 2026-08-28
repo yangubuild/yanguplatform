@@ -312,8 +312,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
                   </p>
                   <button
                     onClick={() => navigate("/dashboard/profile/subscription")}
-                    className="w-full py-2 rounded-lg text-xs font-bold text-white"
-                    style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
+                    className="yangu-border-gradient w-full py-2 rounded-lg text-xs font-bold text-white bg-[#0A0F0C] shadow-[0_6px_24px_-10px_hsl(25_100%_50%/0.35)] transition-shadow hover:shadow-[0_8px_30px_-8px_hsl(25_100%_50%/0.45)]"
                   >
                     See Plans
                   </button>
