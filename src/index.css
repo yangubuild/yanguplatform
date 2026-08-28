@@ -338,6 +338,24 @@ html {
     filter: blur(10px);
   }
 
+  /* Same lower ambient light, but painted over opaque page backgrounds using
+     a screen blend so it reads as atmospheric light from underneath the UI. */
+  .yangu-ambient-overlay {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    height: 30vh;
+    pointer-events: none;
+    z-index: 5;
+    mix-blend-mode: screen;
+    background:
+      radial-gradient(55% 100% at 10% 135%, hsl(var(--yangu-orange-hsl) / 0.22) 0%, transparent 70%),
+      radial-gradient(55% 100% at 90% 135%, hsl(var(--yangu-green-hsl) / 0.18) 0%, transparent 70%);
+    filter: blur(14px);
+  }
+
+
+
   .yangu-surface {
     background: hsl(150 18% 6% / 0.72);
     border: 1px solid hsl(150 12% 18% / 0.7);
