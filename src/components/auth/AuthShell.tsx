@@ -5,6 +5,7 @@ import { PLATFORM_NAME } from "@/config/platform";
 import { Button } from "@/components/ui/button";
 import { Sun, Moon, ArrowLeft } from "lucide-react";
 import { YanguLogo, YANGU_SITE_URL } from "@/components/brand/YanguLogo";
+import { YanguAmbientGlow } from "@/components/brand/YanguAmbientGlow";
 
 interface AuthShellProps {
   children: ReactNode;
@@ -29,9 +30,11 @@ export function AuthShell({
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="relative min-h-screen flex flex-col bg-background overflow-hidden">
+      <YanguAmbientGlow className="fixed h-[42vh]" />
+
       {/* Header */}
-      <header className="flex items-center justify-between p-4 md:p-6">
+      <header className="relative z-10 flex items-center justify-between p-4 md:p-6">
         <a href={YANGU_SITE_URL} className="flex items-center gap-2">
           <YanguLogo className="h-8" />
         </a>
@@ -46,7 +49,7 @@ export function AuthShell({
       </header>
 
       {/* Main content */}
-      <main className="flex-1 flex items-center justify-center p-4 md:p-8">
+      <main className="relative z-10 flex-1 flex items-center justify-center p-4 md:p-8">
         <div className={`w-full ${maxWidth || "max-w-md"} space-y-8`}>
           {/* Back link */}
           {showBackLink && (
@@ -76,14 +79,14 @@ export function AuthShell({
           </div>
 
           {/* Auth form container */}
-          <div className="bg-surface rounded-2xl border border-border p-6 md:p-8 shadow-lg">
+          <div className="yangu-surface yangu-border-gradient yangu-glow rounded-2xl p-6 md:p-8">
             {children}
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="p-4 text-center text-sm text-muted-foreground">
+      <footer className="relative z-10 p-4 text-center text-sm text-muted-foreground">
         <p>
           &copy; {new Date().getFullYear()} yangu. All rights reserved.
         </p>

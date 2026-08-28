@@ -34,6 +34,16 @@ import {
 import type { AgentDraftConfig, BuilderThread, ComposerUi } from "../data/builderDb";
 import { ComposerCard, SkillTag } from "../components/ComposerCards";
 import { YanguSpinner } from "../components/YanguSpinner";
+import { YanguGlowBall, VOICE_STATE_LABEL, type VoiceState } from "@/components/brand/YanguGlowBall";
+import { YanguAmbientGlow } from "@/components/brand/YanguAmbientGlow";
+import { Globe, MessageCircle, Phone } from "lucide-react";
+
+type ComposerMode = "chat" | "whatsapp" | "voice";
+const MODES: { id: ComposerMode; label: string; icon: typeof MessageCircle }[] = [
+  { id: "chat", label: "Chat", icon: MessageCircle },
+  { id: "whatsapp", label: "WhatsApp", icon: MessageCircle },
+  { id: "voice", label: "Voice Call", icon: Phone },
+];
 
 
 const SUGGESTIONS = [
@@ -108,6 +118,7 @@ export default function ComposerPage() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const stageTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
+  const [mode, setMode] = useState<ComposerMode>("chat");
   const [scope, setScope] = useState<"active" | "archived">("active");
   const [renameFor, setRenameFor] = useState<BuilderThread | null>(null);
   const [renameValue, setRenameValue] = useState("");
@@ -203,12 +214,20 @@ export default function ComposerPage() {
     } finally { setStage(null); }
   }
 
+  const voiceState: VoiceState = lastError
+    ? "error"
+    : turn.isPending
+      ? "thinking"
+      : mode === "voice"
+        ? "listening"
+        : "idle";
+
   const ready = thread?.status === "ready" || thread?.status === "deployed";
   const empty = !msgsLoading && messages.length === 0 && !turn.isPending;
 
   const threadList = (
-    <div className="space-y-1">
-      <Button asChild variant="outline" size="sm" className="w-full justify-start">
+    <div className="min-w-0 space-y-1">
+      <Button asChild size="sm" className="w-full justify-start">
         <Link to="/dashboard/agents"><Plus className="mr-1.5 h-4 w-4" />New conversation</Link>
       </Button>
       {threads.length === 0 && (
@@ -220,8 +239,10 @@ export default function ComposerPage() {
         <div
           key={t.id}
           className={cn(
-            "group flex items-center gap-1 rounded-lg px-2 py-2 text-sm",
-            t.id === threadId ? "bg-muted" : "hover:bg-muted/60",
+            "group relative flex items-center gap-1 rounded-lg px-2.5 py-2 text-sm transition-colors",
+            t.id === threadId
+              ? "yangu-border-gradient bg-white/[0.04]"
+              : "border border-transparent hover:border-border/60 hover:bg-white/[0.02]",
           )}
         >
           <Link to={`/dashboard/agents/build/${t.id}`} className="min-w-0 flex-1">
@@ -312,7 +333,8 @@ export default function ComposerPage() {
   );
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_300px]">
+    <div className="relative grid gap-4 lg:grid-cols-[230px_minmax(0,1fr)] xl:grid-cols-[230px_minmax(0,1fr)_300px]">
+      <YanguAmbientGlow className="fixed left-0 right-0 bottom-0 h-[38vh]" />
       <Dialog open={!!renameFor} onOpenChange={(o) => { if (!o) setRenameFor(null); }}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader><DialogTitle>Rename conversation</DialogTitle></DialogHeader>
@@ -360,7 +382,7 @@ export default function ComposerPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <aside className="hidden lg:block">
+      <aside className="hidden w-full min-w-0 max-w-[230px] overflow-hidden lg:block">
         <div className="mb-2 flex items-center justify-between gap-1 pl-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Conversations</p>
           {scopeFilter}
@@ -403,8 +425,8 @@ export default function ComposerPage() {
           </div>
         </div>
 
-        <ScrollArea className="flex-1 rounded-lg border border-border bg-card/40 p-3 sm:p-4">
-          <div className="space-y-4">
+        <ScrollArea className="yangu-surface flex-1 rounded-2xl p-3 sm:p-5">
+          <div className="space-y-6">
             {msgsLoading && (
               <p className="flex items-center gap-2 text-sm text-muted-foreground" role="status">
                 <YanguSpinner size={16} />Loading conversation…
@@ -412,24 +434,22 @@ export default function ComposerPage() {
             )}
 
             {empty && (
-              <div className="py-8 text-center sm:py-12">
-                <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Bot className="h-5 w-5" />
-                </div>
+              <div className="py-10 text-center sm:py-16">
+                <YanguGlowBall state="idle" size={92} className="mx-auto" />
 
-                <p className="mt-3 text-base font-semibold">What would you like to get done?</p>
-                <p className="mx-auto mt-1 max-w-md text-xs text-muted-foreground">
+                <p className="mt-6 text-xl font-semibold tracking-tight">What would you like to get done?</p>
+                <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
                   Ask for anything — build an AI employee, call a customer, run a follow-up campaign,
                   add business knowledge or review performance. Yangu handles the rest.
                 </p>
-                <div className="mx-auto mt-5 grid max-w-xl grid-cols-1 gap-2 sm:grid-cols-2">
+                <div className="mx-auto mt-7 grid max-w-xl grid-cols-1 gap-2.5 sm:grid-cols-2">
                   {SUGGESTIONS.map((s) => (
                     <button
                       key={s.label}
                       onClick={() => send(s.prompt)}
-                      className="flex items-center gap-2 rounded-lg border border-border/70 px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted/60"
+                      className="group flex items-center gap-2.5 rounded-xl border border-border/60 bg-white/[0.02] px-3.5 py-3 text-left text-sm transition-all hover:border-[hsl(25_100%_50%/0.45)] hover:bg-white/[0.04]"
                     >
-                      <s.icon className="h-4 w-4 shrink-0 text-primary" />
+                      <s.icon className="h-4 w-4 shrink-0 text-[hsl(157_100%_38%)] transition-colors group-hover:text-[hsl(25_100%_50%)]" />
                       <span className="min-w-0 truncate">{s.label}</span>
                     </button>
                   ))}
@@ -440,13 +460,16 @@ export default function ComposerPage() {
             {messages.map((m) => {
               const meta = (m.metadata ?? {}) as { skillLabel?: string; ui?: ComposerUi | null };
               return (
-                <div key={m.id} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
+                <div key={m.id} className={cn("flex gap-3", m.role === "user" ? "justify-end" : "justify-start")}>
+                  {m.role === "assistant" && <YanguGlowBall state="idle" size={28} className="mt-1" />}
                   <div className={cn("max-w-[92%] space-y-1 sm:max-w-[85%]", m.role === "user" && "text-right")}>
                     {m.role === "assistant" && <SkillTag label={meta.skillLabel} />}
                     <div
                       className={cn(
-                        "rounded-lg px-3.5 py-2.5 text-sm leading-relaxed",
-                        m.role === "user" ? "bg-primary/10 text-foreground" : "bg-muted",
+                        "rounded-2xl px-4 py-3 text-sm leading-relaxed",
+                        m.role === "user"
+                          ? "border border-border/60 bg-white/[0.05] text-foreground"
+                          : "border border-border/40 bg-[#0B120E]/80 text-foreground",
                       )}
                     >
                       {m.content}
@@ -519,22 +542,79 @@ export default function ComposerPage() {
           </Card>
         )}
 
-        <div className="relative mt-3">
+        {mode === "voice" && (
+          <div className="yangu-surface mt-4 flex items-center gap-4 rounded-2xl p-4">
+            <YanguGlowBall state={voiceState} size={72} />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold">{VOICE_STATE_LABEL[voiceState]}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Voice runs through your live agents. Tell Yangu who to call and it places the call
+                with your connected number.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {mode === "whatsapp" && (
+          <div className="mt-4 flex items-start gap-2 rounded-2xl border border-[hsl(25_100%_50%/0.3)] bg-[hsl(25_100%_50%/0.06)] p-4">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[hsl(25_100%_50%)]" />
+            <p className="text-xs text-muted-foreground">
+              WhatsApp mode needs setup before messages can be sent. Connect a WhatsApp business
+              number first — typed requests here still run as normal Chat requests.
+            </p>
+          </div>
+        )}
+
+        <div className="yangu-border-gradient yangu-glow mt-4 rounded-2xl bg-[#080C0A]/90 p-3 sm:p-4">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-white/[0.03] px-2.5 py-1.5">
+              <YanguGlowBall state="idle" size={18} />
+              <span className="text-sm font-medium">Yangu AI</span>
+            </div>
+            <Button
+              variant="outline" size="icon" aria-label="Language"
+              className="h-9 w-9 border-border/60 bg-white/[0.02]"
+              onClick={() => toast({ title: "Yangu AI replies in your agent's languages", description: "Set languages in the agent configuration." })}
+            >
+              <Globe className="h-4 w-4" />
+            </Button>
+          </div>
+
           <Textarea
             ref={inputRef}
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
             rows={2}
-            placeholder="Ask Yangu to build an agent, call someone, run a campaign…"
-            className="min-h-[64px] resize-none rounded-lg pr-14"
+            placeholder="Ask Yangu to get something done…"
+            className="mt-3 min-h-[56px] resize-none border-0 bg-transparent px-1 text-base shadow-none focus-visible:ring-0"
           />
-          <Button
-            size="icon" aria-label="Send" onClick={() => send()} disabled={!text.trim() || turn.isPending}
-            className="absolute bottom-2.5 right-2.5 h-9 w-9 rounded-lg"
-          >
-            {turn.isPending ? <YanguSpinner size={16} /> : <ArrowUp className="h-4 w-4" />}
-          </Button>
+
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            {MODES.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => setMode(m.id)}
+                aria-pressed={mode === m.id}
+                className={cn(
+                  "rounded-lg border px-3.5 py-2 text-sm transition-all",
+                  mode === m.id
+                    ? "border-[hsl(25_100%_50%/0.5)] bg-white/[0.05] text-foreground"
+                    : "border-border/60 bg-transparent text-muted-foreground hover:bg-white/[0.03] hover:text-foreground",
+                )}
+              >
+                {m.label}
+              </button>
+            ))}
+            <Button
+              aria-label="Send" onClick={() => send()} disabled={!text.trim() || turn.isPending}
+              className="ml-auto"
+            >
+              {turn.isPending ? <YanguSpinner size={16} /> : <ArrowUp className="h-4 w-4" />}
+              Send
+            </Button>
+          </div>
         </div>
       </section>
 
