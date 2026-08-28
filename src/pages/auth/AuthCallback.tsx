@@ -11,7 +11,7 @@ import { toast } from "sonner";
 export default function AuthCallback() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const returnTo = getReturnToFromParams(searchParams);
+  const returnTo = resolvePostAuthPath(searchParams.get("returnTo"));
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
 
