@@ -15,6 +15,7 @@ export interface BuilderThread {
   config: AgentDraftConfig;
   createdAt: string;
   updatedAt: string;
+  archivedAt?: string | null;
 }
 
 export interface BuilderMessage {
