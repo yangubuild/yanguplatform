@@ -59,11 +59,7 @@ export default function Login() {
       }
 
       toast.success("Welcome back!");
-      if (returnTo) {
-        window.location.href = returnTo;
-      } else {
-        navigate("/dashboard");
-      }
+      navigate(returnTo ?? POST_AUTH_HOME, { replace: true });
     } catch (err) {
       toast.error("An unexpected error occurred");
     } finally {
