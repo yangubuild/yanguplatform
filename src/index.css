@@ -371,6 +371,80 @@ html {
     50% { opacity: 0.7; transform: scale(1.12); }
   }
 
+  /* Living illuminated edge — orange/green light flows around the perimeter.
+     Used by the Yangu AI Composer and any "alive" input surface. */
+  .yangu-border-flow {
+    position: relative;
+    isolation: isolate;
+  }
+  .yangu-border-flow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1.5px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from var(--yangu-flow-angle, 0deg),
+      hsl(var(--yangu-orange-hsl) / 0.95) 0deg,
+      hsl(var(--yangu-green-hsl) / 0.2) 70deg,
+      hsl(var(--yangu-green-hsl) / 0.95) 180deg,
+      hsl(var(--yangu-orange-hsl) / 0.2) 260deg,
+      hsl(var(--yangu-orange-hsl) / 0.95) 360deg
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: yangu-flow 7s linear infinite;
+    will-change: transform;
+  }
+  .yangu-border-flow::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.5;
+    filter: blur(12px);
+    background: conic-gradient(
+      from var(--yangu-flow-angle, 0deg),
+      hsl(var(--yangu-orange-hsl) / 0.7),
+      transparent 90deg,
+      hsl(var(--yangu-green-hsl) / 0.7) 180deg,
+      transparent 270deg,
+      hsl(var(--yangu-orange-hsl) / 0.7)
+    );
+    animation: yangu-flow 7s linear infinite;
+  }
+
+  @property --yangu-flow-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+  @keyframes yangu-flow {
+    to { --yangu-flow-angle: 360deg; }
+  }
+  @keyframes yangu-spin {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes yangu-drift {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.9; }
+    50% { transform: translate3d(2%, -2%, 0) scale(1.06); opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .yangu-border-flow::before,
+    .yangu-border-flow::after,
+    .yangu-ambient,
+    .yangu-ambient-overlay {
+      animation: none !important;
+    }
+  }
+
+
+
 
   /* Glass effect cards */
   .glass {
