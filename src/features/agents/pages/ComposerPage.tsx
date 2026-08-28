@@ -189,7 +189,9 @@ export default function ComposerPage() {
         <Link to="/dashboard/agents"><Plus className="mr-1.5 h-4 w-4" />New conversation</Link>
       </Button>
       {threads.length === 0 && (
-        <p className="px-2 py-3 text-xs text-muted-foreground">Your conversations will be saved here.</p>
+        <p className="px-2 py-3 text-xs text-muted-foreground">
+          {scope === "archived" ? "No archived conversations." : "Your conversations will be saved here."}
+        </p>
       )}
       {threads.map((t) => (
         <div
@@ -206,41 +208,140 @@ export default function ComposerPage() {
               {new Date(t.updatedAt).toLocaleDateString()}
             </p>
           </Link>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button size="icon" variant="ghost" aria-label="Delete conversation" className="h-7 w-7 opacity-0 group-hover:opacity-100">
-                <Trash2 className="h-3.5 w-3.5" />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                size="icon" variant="ghost" aria-label="Conversation options"
+                className={cn(
+                  "h-7 w-7 shrink-0 lg:opacity-0 lg:group-hover:opacity-100 lg:focus-visible:opacity-100",
+                  t.id === threadId && "lg:opacity-100",
+                )}
+              >
+                <MoreHorizontal className="h-4 w-4" />
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete this conversation?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  The conversation will be removed. Any agent already saved from it stays untouched.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={async () => {
-                    await removeThread.mutateAsync(t.id);
-                    if (t.id === threadId) navigate("/dashboard/agents");
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-44">
+              {scope === "active" ? (
+                <>
+                  <DropdownMenuItem onSelect={() => { setRenameFor(t); setRenameValue(t.title); }}>
+                    <Pencil className="mr-2 h-4 w-4" />Rename
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={() =>
+                      toast({
+                        title: "Share requires backend implementation",
+                        description: "Secure conversation sharing isn't available yet, so no link was created.",
+                      })
+                    }
+                  >
+                    <Share2 className="mr-2 h-4 w-4" />Share
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={async () => {
+                      try {
+                        await archiveThread.mutateAsync({ id: t.id, archived: true });
+                        if (t.id === threadId) navigate("/dashboard/agents");
+                      } catch (e) {
+                        toast({ title: "Couldn't archive", description: e instanceof Error ? e.message : "Please try again.", variant: "destructive" });
+                      }
+                    }}
+                  >
+                    <Archive className="mr-2 h-4 w-4" />Archive
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <DropdownMenuItem
+                  onSelect={async () => {
+                    try {
+                      await archiveThread.mutateAsync({ id: t.id, archived: false });
+                    } catch (e) {
+                      toast({ title: "Couldn't restore", description: e instanceof Error ? e.message : "Please try again.", variant: "destructive" });
+                    }
                   }}
                 >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                  <ArchiveRestore className="mr-2 h-4 w-4" />Restore
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-destructive" onSelect={() => setDeleteFor(t)}>
+                <Trash2 className="mr-2 h-4 w-4" />Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       ))}
     </div>
   );
 
+  const scopeFilter = (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs">
+          {scope === "archived" ? "Archived" : "Active"}
+          <ChevronDown className="h-3.5 w-3.5" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-36">
+        <DropdownMenuItem onSelect={() => setScope("active")}>Active</DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => setScope("archived")}>Archived</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
   return (
     <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_300px]">
+      <Dialog open={!!renameFor} onOpenChange={(o) => { if (!o) setRenameFor(null); }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader><DialogTitle>Rename conversation</DialogTitle></DialogHeader>
+          <Input
+            value={renameValue}
+            autoFocus
+            maxLength={120}
+            onChange={(e) => setRenameValue(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void submitRename(); } }}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRenameFor(null)}>Cancel</Button>
+            <Button onClick={submitRename} disabled={renameThread.isPending || !renameValue.trim()}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={!!deleteFor} onOpenChange={(o) => { if (!o) setDeleteFor(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this conversation?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this conversation and its messages. Agents, calls, leads,
+              knowledge and appointments are not affected.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                const target = deleteFor;
+                setDeleteFor(null);
+                if (!target) return;
+                try {
+                  await removeThread.mutateAsync(target.id);
+                  if (target.id === threadId) navigate("/dashboard/agents");
+                } catch (e) {
+                  toast({ title: "Couldn't delete", description: e instanceof Error ? e.message : "Please try again.", variant: "destructive" });
+                }
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <aside className="hidden lg:block">
-        <p className="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Conversations</p>
+        <div className="mb-2 flex items-center justify-between gap-1 pl-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Conversations</p>
+          {scopeFilter}
+        </div>
         <ScrollArea className="h-[calc(100vh-14rem)] pr-1">{threadList}</ScrollArea>
       </aside>
 
