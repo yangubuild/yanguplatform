@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Menu, Search, Gift, Bell, ChevronDown, User, TrendingUp, Globe } from "lucide-react";
+import { Menu, Search, Gift, Bell, ChevronDown, User, TrendingUp, Globe, MessageCircle } from "lucide-react";
 import chatIcon1 from "@/assets/chat_icon_1.png";
+import { SafeImage } from "@/components/ui/safe-image";
 import { useRoles } from "@/hooks/useRoles";
 import { useAuth } from "@/hooks/useAuth";
 import { resolveAvatarUrl } from "@/lib/avatarUtils";
@@ -204,10 +205,11 @@ function MessagesBadgeButton({ globalChatOpen, onToggle }: { globalChatOpen: boo
       style={{ background: "transparent" }}
       title="Global Chat"
     >
-      <img
+      <SafeImage
         src={chatIcon1}
         alt="Chat"
         className="w-7 h-7 object-contain transition-transform hover:scale-105"
+        fallback={<MessageCircle className="w-6 h-6 text-muted-foreground" />}
         style={{ filter: globalChatOpen ? "drop-shadow(0 0 6px rgba(249,115,22,0.4))" : "none" }}
       />
     </button>
