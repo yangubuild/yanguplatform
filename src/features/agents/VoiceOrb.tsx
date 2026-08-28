@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Mic, PhoneOff, Volume2 } from "lucide-react";
+import { PhoneOff, Volume2 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useAgents } from "./data/hooks";
+import { YanguGlowBall, VOICE_STATE_LABEL, type VoiceState } from "@/components/brand/YanguGlowBall";
 
-const STATES = ["Listening…", "Thinking…", "Speaking…"];
+const STATES: VoiceState[] = ["listening", "thinking", "speaking"];
 
 export function VoiceOrb() {
   const [open, setOpen] = useState(false);
@@ -13,6 +14,7 @@ export function VoiceOrb() {
   const [activeId, setActiveId] = useState(defaultAgent?.id);
   const active = agents.find((a) => a.id === activeId) ?? defaultAgent;
   const [stateIdx, setStateIdx] = useState(0);
+  const voiceState: VoiceState = STATES[stateIdx];
 
   useEffect(() => {
     if (!open) return;
@@ -26,15 +28,13 @@ export function VoiceOrb() {
       <button
         onClick={() => setOpen(true)}
         aria-label="Talk to your agent"
-        className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:brightness-110 active:scale-95 transition"
-        style={{ animation: "voiceorb-pulse 2.4s ease-in-out infinite" }}
+        className="fixed bottom-24 right-4 z-40 flex h-14 w-14 sm:bottom-6 sm:right-6 items-center justify-center rounded-full transition active:scale-95"
       >
-        <Mic className="h-6 w-6" />
-        <style>{`@keyframes voiceorb-pulse {0%,100%{box-shadow:0 0 0 0 hsl(var(--primary)/0.35)}50%{box-shadow:0 0 0 14px hsl(var(--primary)/0)}}`}</style>
+        <YanguGlowBall state="idle" size={56} />
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl yangu-surface yangu-border-gradient">
           <div className="flex flex-col items-center py-8 gap-6">
             <div className="flex items-center gap-2">
               <span className="text-xs uppercase tracking-wider text-muted-foreground">Talking to ·</span>
@@ -49,17 +49,10 @@ export function VoiceOrb() {
               </select>
             </div>
 
-            <div className="relative h-56 w-56 flex items-center justify-center">
-              <div className="absolute inset-0 rounded-full bg-primary/20" style={{ animation: "voiceorb-breathe 3s ease-in-out infinite" }} />
-              <div className="absolute inset-4 rounded-full bg-primary/30" style={{ animation: "voiceorb-breathe 3s ease-in-out infinite reverse" }} />
-              <div className="relative h-32 w-32 rounded-full bg-primary shadow-2xl flex items-center justify-center">
-                <Mic className="h-10 w-10 text-primary-foreground" />
-              </div>
-              <style>{`@keyframes voiceorb-breathe {0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.08);opacity:1}}`}</style>
-            </div>
+            <YanguGlowBall state={voiceState} size={200} />
 
             <div className="text-center space-y-1">
-              <p className="text-lg font-semibold">{STATES[stateIdx]}</p>
+              <p className="text-lg font-semibold">{VOICE_STATE_LABEL[voiceState]}</p>
               <p className="text-sm text-muted-foreground">Ask about your pipeline, book a demo, or run a workflow.</p>
             </div>
 

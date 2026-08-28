@@ -9,14 +9,21 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg",
+        // Global Yangu primary CTA — dark interior, thin green→orange gradient
+        // border, subtle glow. Matches yangu.io. Used by every primary action.
+        default:
+          "yangu-border-gradient bg-[#0A0F0C] text-foreground rounded-lg shadow-[0_6px_24px_-10px_hsl(25_100%_50%/0.35)] hover:bg-[#0E1512] hover:shadow-[0_8px_30px_-8px_hsl(25_100%_50%/0.45)] active:bg-[#080C0A] disabled:shadow-none",
+
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-lg",
         outline: "border border-input bg-transparent text-foreground hover:bg-muted rounded-lg",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-lg",
         ghost: "hover:bg-accent/10 hover:text-accent-foreground rounded-lg",
         link: "text-primary underline-offset-4 hover:underline",
-        // yangu primary gradient CTA — master Build/Explore gradient
-        accent: "text-foreground border-0 shadow-md hover:shadow-lg hover:brightness-110 transition-all rounded-lg [background:linear-gradient(135deg,#c47a3a_0%,#b5622a_50%,#5c2a12_100%)]",
+        // yangu primary CTA — same shared gradient-border + glow as `default`
+        // so every primary action across the platform looks identical.
+        accent:
+          "yangu-border-gradient bg-[#0A0F0C] text-foreground rounded-lg transition-all shadow-[0_6px_24px_-10px_hsl(25_100%_50%/0.35)] hover:bg-[#0E1512] hover:shadow-[0_8px_30px_-8px_hsl(25_100%_50%/0.45)] active:bg-[#080C0A] disabled:shadow-none",
+
         // yangu solid green button
         solid: "text-foreground border-0 rounded-lg transition-all hover:brightness-110 [background:#152A20]",
         // yangu transparent dark green

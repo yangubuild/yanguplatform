@@ -119,6 +119,16 @@ html {
     --admin-glow: 0 0 30px hsl(25 85% 45% / 0.18);
     --admin-text: 150 10% 92%;
     --admin-text-muted: 150 8% 48%;
+
+    /* ── YANGU.IO IDENTITY TOKENS (shared, do not fork) ── */
+    --yangu-green: #00C47A;
+    --yangu-orange: #FF6A00;
+    --yangu-green-hsl: 157 100% 38%;
+    --yangu-orange-hsl: 25 100% 50%;
+    --yangu-gradient: linear-gradient(90deg, #00C47A 0%, #6f9a3f 45%, #FF6A00 100%);
+    --yangu-gradient-border: linear-gradient(120deg, #00C47A 0%, #1f6b4d 35%, #FF6A00 100%);
+    --yangu-glow: 0 0 0 1px hsl(25 100% 50% / 0.08), 0 8px 30px -8px hsl(25 100% 50% / 0.28), 0 8px 40px -14px hsl(157 100% 38% / 0.26);
+    --yangu-glow-strong: 0 0 0 1px hsl(25 100% 50% / 0.14), 0 10px 44px -8px hsl(25 100% 50% / 0.42), 0 10px 50px -12px hsl(157 100% 38% / 0.38);
   }
 
   .dark {
@@ -206,6 +216,16 @@ html {
     --admin-glow: 0 0 30px hsl(25 85% 45% / 0.18);
     --admin-text: 150 10% 92%;
     --admin-text-muted: 150 8% 48%;
+
+    /* ── YANGU.IO IDENTITY TOKENS (shared, do not fork) ── */
+    --yangu-green: #00C47A;
+    --yangu-orange: #FF6A00;
+    --yangu-green-hsl: 157 100% 38%;
+    --yangu-orange-hsl: 25 100% 50%;
+    --yangu-gradient: linear-gradient(90deg, #00C47A 0%, #6f9a3f 45%, #FF6A00 100%);
+    --yangu-gradient-border: linear-gradient(120deg, #00C47A 0%, #1f6b4d 35%, #FF6A00 100%);
+    --yangu-glow: 0 0 0 1px hsl(25 100% 50% / 0.08), 0 8px 30px -8px hsl(25 100% 50% / 0.28), 0 8px 40px -14px hsl(157 100% 38% / 0.26);
+    --yangu-glow-strong: 0 0 0 1px hsl(25 100% 50% / 0.14), 0 10px 44px -8px hsl(25 100% 50% / 0.42), 0 10px 50px -12px hsl(157 100% 38% / 0.38);
   }
 }
 
@@ -256,6 +276,84 @@ html {
 }
 
 @layer components {
+  /* ═══════════════════════════════════════════════
+     YANGU.IO SHARED VISUAL SYSTEM
+     One gradient, one glow, one border treatment.
+     Reuse these classes — never hand-roll a variant.
+     ═══════════════════════════════════════════════ */
+
+  .yangu-gradient {
+    background: var(--yangu-gradient);
+  }
+
+  .yangu-text-gradient {
+    background: var(--yangu-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Thin green→orange gradient border over a dark interior. */
+  .yangu-border-gradient {
+    position: relative;
+    isolation: isolate;
+  }
+  .yangu-border-gradient::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: var(--yangu-gradient-border);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
+  }
+  .yangu-border-gradient:hover::before {
+    opacity: 1;
+  }
+
+  /* Subtle ambient glow behind a surface. */
+  .yangu-glow {
+    box-shadow: var(--yangu-glow);
+  }
+  .yangu-glow-strong {
+    box-shadow: var(--yangu-glow-strong);
+  }
+
+  /* Global lower ambient light — orange left, green right. */
+  .yangu-ambient {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 40vh;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(60% 100% at 12% 130%, hsl(var(--yangu-orange-hsl) / 0.28) 0%, transparent 70%),
+      radial-gradient(60% 100% at 88% 130%, hsl(var(--yangu-green-hsl) / 0.24) 0%, transparent 70%);
+    filter: blur(10px);
+  }
+
+  .yangu-surface {
+    background: hsl(150 18% 6% / 0.72);
+    border: 1px solid hsl(150 12% 18% / 0.7);
+    backdrop-filter: blur(10px);
+  }
+
+  @keyframes yangu-breathe {
+    0%, 100% { transform: scale(1); opacity: 0.92; }
+    50% { transform: scale(1.045); opacity: 1; }
+  }
+  @keyframes yangu-halo {
+    0%, 100% { opacity: 0.35; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.12); }
+  }
+
+
   /* Glass effect cards */
   .glass {
     background: hsl(var(--card) / 0.7);
