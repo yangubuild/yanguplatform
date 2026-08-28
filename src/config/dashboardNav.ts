@@ -65,35 +65,24 @@ export interface NavSection {
 }
 
 // ── Primary sidebar items ────────────────────────────────────
+// GLOBAL YANGU PRODUCT ARCHITECTURE (locked order).
+// Explore / Offers / Seller / Influencer / Visionaire are intentionally NOT
+// here — their routes and backend engines remain available internally and are
+// invoked by Yangu AI / Builders / Studio instead of being user-facing nav.
 export const PRIMARY_NAV_ITEMS: NavItem[] = [
-  { icon: Compass, label: "Explore", chevron: true, to: "/dashboard/explore" },
-  { icon: Tag, label: "Offers", chevron: false, badge: "+120%", dot: true, to: "/dashboard/offers" },
-  { icon: MessageCircle, label: "Messages", chevron: false, to: "/dashboard/messages" },
-  { icon: LayoutDashboard, label: "Dashboard", chevron: true, to: "/dashboard/home" },
-  { icon: null, label: "Ada AI", chevron: true, customIcon: "ada", to: "/dashboard/ada" },
-  {
-    icon: ShoppingBag,
-    label: "Seller",
-    chevron: true,
-    subItems: [
-      { icon: ShoppingBag, label: "Eshop", to: "/dashboard/seller/eshop" },
-      { icon: Store, label: "Estore", to: "/dashboard/seller/estore" },
-      { icon: UtensilsCrossed, label: "Emenu", to: "/dashboard/seller/emenu" },
-      { icon: Globe, label: "Esite", to: "/dashboard/seller/esite" },
-      { icon: Link, label: "Eshop Connect", to: "/dashboard/seller/eshop-connect" },
-    ],
-  },
-  { icon: Sparkles, label: "Influencer", chevron: true, to: "/dashboard/influencer" },
-  { icon: Bot, label: "AI Agents", chevron: false, badge: "NEW", to: "/dashboard/agents" },
-  { icon: Palette, label: "Yangu Studio", chevron: true, to: "/dashboard/studio" },
-  { icon: BookOpen, label: "Visionaire", chevron: true, to: "/dashboard/visionaire" },
-  { icon: Package, label: "App Store", chevron: false, badge: "+120%", to: "/dashboard/app-store" },
+  { icon: Home, label: "Home", chevron: true, to: "/dashboard/home" },
+  { icon: Bot, label: "AI Agents", chevron: false, to: "/dashboard/agents" },
+  { icon: Sparkles, label: "AI Workspace", chevron: false, to: "/dashboard/workspace" },
+  { icon: Hammer, label: "Builders", chevron: false, to: "/dashboard/builders" },
+  { icon: Palette, label: "Studio", chevron: false, to: "/dashboard/studio" },
+  { icon: Mic, label: "Smart Meetings", chevron: false, to: "/dashboard/meetings" },
   { icon: Users, label: "Community", chevron: false, to: "/dashboard/community" },
-  { icon: FlaskConical, label: "Sandbox", chevron: false, badge: "NEW", to: "/sandbox" },
+  { icon: Package, label: "Apps & Integrations", chevron: false, to: "/dashboard/app-store" },
 ];
 
 // ── Extended sidebar panels ──────────────────────────────────
-export const EXTENDED_SIDEBAR_ITEMS = ["Visionaire", "Dashboard"];
+export const EXTENDED_SIDEBAR_ITEMS = ["Home"];
+
 
 export const VISIONAIRE_SECTIONS: NavSection[] = [
   {
