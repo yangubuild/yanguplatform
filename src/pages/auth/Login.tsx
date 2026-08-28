@@ -25,7 +25,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const returnTo = useMemo(() => getReturnToFromParams(searchParams), [searchParams]);
+  const returnTo = useMemo(() => resolvePostAuthPath(searchParams.get("returnTo")), [searchParams]);
   const [isLoading, setIsLoading] = useState(false);
   const [isMagicLinkLoading, setIsMagicLinkLoading] = useState(false);
   const [showMagicLink, setShowMagicLink] = useState(false);
