@@ -21,7 +21,9 @@ export function NavigationDashboardPage() {
 
   return (
     <div
-      className="min-h-screen w-full max-w-full overflow-x-hidden bg-background">
+      className="relative min-h-screen w-full max-w-full overflow-x-hidden bg-background">
+      {/* Global lower orange/green ambient light (yangu.io identity) */}
+      <YanguAmbientGlow className="fixed h-[36vh]" />
       <NavDashHeader onMenuToggle={() => setSidebarOpen((p) => !p)} />
       <NavDashSidebar
         isOpen={sidebarOpen}
@@ -30,7 +32,7 @@ export function NavigationDashboardPage() {
       />
 
       <div
-        className="mt-16 transition-all duration-300 min-h-[calc(100vh-64px)] overflow-y-auto bg-background"
+        className="relative z-10 mt-16 transition-all duration-300 min-h-[calc(100vh-64px)] overflow-y-auto"
         style={{
           marginLeft: isMobile ? 0 : totalWidth,
           paddingBottom: isMobile ? "calc(56px + env(safe-area-inset-bottom, 0px))" : 0 }}>
@@ -38,6 +40,7 @@ export function NavigationDashboardPage() {
           <Outlet />
         </Suspense>
       </div>
+
 
       {/* Mobile bottom navigation — hidden on desktop (lg+) */}
       <MobileBottomNav onMenuToggle={() => setSidebarOpen((p) => !p)} />
