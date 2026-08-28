@@ -25,18 +25,24 @@ const CHECK_TIMEOUT_MS = 12000;
 export function AllowlistGate({ children }: AllowlistGateProps) {
   const [state, setState] = useState<State>("checking");
   const cancelled = useRef(false);
+  // Once access is granted the app shell stays mounted. Background re-checks
+  // (token refresh, tab focus, realtime auth events) must never blank the app.
+  const grantedRef = useRef(false);
+  const checkedUidRef = useRef<string | null>(null);
 
-  const check = useCallback(async () => {
-    setState("checking");
+  const check = useCallback(async (opts?: { silent?: boolean }) => {
+    const silent = opts?.silent ?? grantedRef.current;
+    if (!silent) setState("checking");
     try {
       const { data: userData, error: userErr } = await supabase.auth.getUser();
       if (cancelled.current) return;
       if (userErr) {
-        setState("failed");
+        if (!grantedRef.current) setState("failed");
         return;
       }
       const uid = userData?.user?.id;
       if (!uid) {
+        grantedRef.current = false;
         setState("signed_out");
         return;
       }
@@ -50,26 +56,50 @@ export function AllowlistGate({ children }: AllowlistGateProps) {
 
       if (result?.timedOut || result?.error) {
         if (import.meta.env.DEV) console.error("allowlist check failed", result?.error);
-        setState("failed");
+        if (!grantedRef.current) setState("failed");
         return;
       }
-      setState(result?.data === true ? "allowed" : "pending");
+      if (result?.data === true) {
+        grantedRef.current = true;
+        checkedUidRef.current = uid;
+        setState("allowed");
+      } else {
+        grantedRef.current = false;
+        setState("pending");
+      }
     } catch (e) {
       if (cancelled.current) return;
       if (import.meta.env.DEV) console.error("allowlist check threw", e);
-      setState("failed");
+      if (!grantedRef.current) setState("failed");
     }
   }, []);
 
   useEffect(() => {
     cancelled.current = false;
     check();
-    const { data: sub } = supabase.auth.onAuthStateChange(() => check());
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      const uid = session?.user?.id ?? null;
+      if (event === "SIGNED_OUT" || !uid) {
+        grantedRef.current = false;
+        checkedUidRef.current = null;
+        setState("signed_out");
+        return;
+      }
+      // Same user (token refresh / re-validation): re-verify silently so the
+      // app shell is never replaced by a full-screen spinner.
+      if (uid === checkedUidRef.current) {
+        check({ silent: true });
+        return;
+      }
+      checkedUidRef.current = uid;
+      check();
+    });
     return () => {
       cancelled.current = true;
       sub.subscription.unsubscribe();
     };
   }, [check]);
+
 
   if (state === "allowed") return <>{children}</>;
   if (state === "checking") return <YanguLoadingScreen />;

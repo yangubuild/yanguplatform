@@ -149,7 +149,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
           className="h-full flex flex-col shrink-0 overflow-hidden transition-all duration-300"
           style={{
             width: hasExtendedPanel ? RAIL_WIDTH : FULL_WIDTH,
-            background: "#1a2025",
+            background: "rgba(12,17,14,0.72)", backdropFilter: "blur(14px)",
             borderRight: "1px solid rgba(255,255,255,0.06)",
           }}
         >
@@ -394,7 +394,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
               className="h-full flex flex-col overflow-hidden"
               style={{
                 width: EXTENDED_WIDTH,
-                background: "#1a2025",
+                background: "rgba(12,17,14,0.72)", backdropFilter: "blur(14px)",
                 borderLeft: "1px solid rgba(255,255,255,0.06)",
               }}
             >
