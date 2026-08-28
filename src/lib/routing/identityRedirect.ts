@@ -4,8 +4,8 @@
  * redirect to yangu.io with a safe returnTo param.
  */
 
-const IDENTITY_ORIGIN = "https://yangu.io";
-const LOGIN_PATH = "/auth/login";
+const IDENTITY_ORIGIN = "https://app.yangu.io";
+const LOGIN_PATH = "/login";
 
 /**
  * Allowed returnTo domains (prevent open-redirect).
@@ -46,11 +46,11 @@ export function getReturnToFromParams(searchParams: URLSearchParams): string | n
 }
 
 /**
- * Check if the current host is the identity/auth domain (yangu.io).
+ * Check if the current host is the identity/auth domain (app.yangu.io).
  */
 export function isIdentityDomain(host: string = window.location.hostname): boolean {
   const normalized = host.replace(/^www\./, "").toLowerCase();
-  return normalized === "yangu.io";
+  return normalized === "app.yangu.io";
 }
 
 /**

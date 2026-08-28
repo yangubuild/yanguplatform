@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { getReturnToFromParams } from "@/lib/routing/identityRedirect";
+import { POST_AUTH_HOME, resolvePostAuthPath } from "@/lib/routing/postAuth";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,7 +25,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const returnTo = useMemo(() => getReturnToFromParams(searchParams), [searchParams]);
+  const returnTo = useMemo(() => resolvePostAuthPath(searchParams.get("returnTo")), [searchParams]);
   const [isLoading, setIsLoading] = useState(false);
   const [isMagicLinkLoading, setIsMagicLinkLoading] = useState(false);
   const [showMagicLink, setShowMagicLink] = useState(false);
@@ -59,11 +59,7 @@ export default function Login() {
       }
 
       toast.success("Welcome back!");
-      if (returnTo) {
-        window.location.href = returnTo;
-      } else {
-        navigate("/dashboard");
-      }
+      navigate(returnTo ?? POST_AUTH_HOME, { replace: true });
     } catch (err) {
       toast.error("An unexpected error occurred");
     } finally {

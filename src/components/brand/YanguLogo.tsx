@@ -2,7 +2,7 @@ import lockup from "@/assets/yangu-logo.png";
 import mark from "@/assets/yangu-y-icon.png";
 
 /** Official public marketing site — auth-page brand links point here. */
-export const YANGU_SITE_URL = "https://yangu.io";
+export const YANGU_SITE_URL = "https://yangu.io/";
 
 export const YANGU_LOGO_LOCKUP = lockup;
 export const YANGU_LOGO_MARK = mark;

@@ -35,7 +35,7 @@ export function AuthShell({
 
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between p-4 md:p-6">
-        <a href={YANGU_SITE_URL} className="flex items-center gap-2">
+        <a href={YANGU_SITE_URL} target="_top" rel="noopener" className="flex items-center gap-2">
           <YanguLogo className="h-8" />
         </a>
 
@@ -56,6 +56,8 @@ export function AuthShell({
             /^https?:\/\//.test(backLinkHref) ? (
               <a
                 href={backLinkHref}
+                target="_top"
+                rel="noopener"
                 className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
                 <ArrowLeft className="h-4 w-4" />
                 {backLinkLabel}

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { getReturnToFromParams } from "@/lib/routing/identityRedirect";
+import { POST_AUTH_HOME, resolvePostAuthPath } from "@/lib/routing/postAuth";
 import { getActiveContext, setActiveContext } from "@/lib/routing/activeContext";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { toast } from "sonner";
 export default function AuthCallback() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const returnTo = getReturnToFromParams(searchParams);
+  const returnTo = resolvePostAuthPath(searchParams.get("returnTo"));
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
 
@@ -155,13 +155,13 @@ export default function AuthCallback() {
             if (ctx === "developer" && !returnTo.startsWith("/developers")) {
               navigate("/developers/portal/apps", { replace: true });
             } else if (ctx === "platform" && returnTo.startsWith("/developers/portal")) {
-              navigate("/dashboard", { replace: true });
+              navigate(POST_AUTH_HOME, { replace: true });
             } else {
-              window.location.href = returnTo;
+              navigate(returnTo, { replace: true });
             }
           } else {
             const ctx = getActiveContext();
-            navigate(ctx === "developer" ? "/developers/portal/apps" : "/dashboard", { replace: true });
+            navigate(ctx === "developer" ? "/developers/portal/apps" : POST_AUTH_HOME, { replace: true });
           }
         } else {
           setErrorMsg("No session found. Please sign in again.");
