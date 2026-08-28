@@ -108,13 +108,30 @@ export default function ComposerPage() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const stageTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  const { data: threads = [] } = useBuilderThreads();
+  const [scope, setScope] = useState<"active" | "archived">("active");
+  const [renameFor, setRenameFor] = useState<BuilderThread | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const [deleteFor, setDeleteFor] = useState<BuilderThread | null>(null);
+
+  const { data: threads = [] } = useBuilderThreads(scope);
   const { data: thread } = useBuilderThread(threadId);
   const { data: messages = [], isLoading: msgsLoading } = useBuilderMessages(threadId);
   const turn = useSendBuilderTurn();
   const saveDraft = useSaveDraftAgent();
   const deploy = useDeployAgent();
   const removeThread = useDeleteBuilderThread();
+  const renameThread = useRenameBuilderThread();
+  const archiveThread = useArchiveBuilderThread();
+
+  const submitRename = async () => {
+    if (!renameFor || !renameValue.trim()) return;
+    try {
+      await renameThread.mutateAsync({ id: renameFor.id, title: renameValue });
+      setRenameFor(null);
+    } catch (e) {
+      toast({ title: "Couldn't rename", description: e instanceof Error ? e.message : "Please try again.", variant: "destructive" });
+    }
+  };
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages.length, turn.isPending]);
   useEffect(() => { inputRef.current?.focus(); }, [threadId, turn.isPending]);
