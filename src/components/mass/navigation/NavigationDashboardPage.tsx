@@ -5,6 +5,8 @@ import { NavDashHeader } from "./NavDashHeader";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { YanguLoader } from "@/components/YanguLoader";
+import { YanguAmbientGlow } from "@/components/brand/YanguAmbientGlow";
+
 
 const RAIL_WIDTH = 60;
 const FULL_WIDTH = 260;
