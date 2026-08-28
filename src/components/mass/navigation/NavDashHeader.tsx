@@ -457,8 +457,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
                 </div>
                 <button
                   onClick={() => navigate("/dashboard/profile")}
-                  className="w-full h-8 rounded-lg text-xs font-bold text-white mt-1"
-                  style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
+                  className="yangu-border-gradient w-full h-8 rounded-lg text-xs font-bold text-white mt-1 bg-[#0A0F0C]"
                 >
                   View reports
                 </button>
