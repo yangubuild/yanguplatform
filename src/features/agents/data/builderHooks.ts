@@ -50,6 +50,28 @@ export function useDeleteBuilderThread() {
   });
 }
 
+export function useRenameBuilderThread() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, title }: { id: string; title: string }) => renameThread(id, title),
+    onSuccess: (_v, { id }) => {
+      qc.invalidateQueries({ queryKey: K.threads });
+      qc.invalidateQueries({ queryKey: K.thread(id) });
+    },
+  });
+}
+
+export function useArchiveBuilderThread() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, archived }: { id: string; archived: boolean }) => setThreadArchived(id, archived),
+    onSuccess: (_v, { id }) => {
+      qc.invalidateQueries({ queryKey: K.threads });
+      qc.invalidateQueries({ queryKey: K.thread(id) });
+    },
+  });
+}
+
 export function useSaveDraftAgent() {
   const qc = useQueryClient();
   return useMutation({
