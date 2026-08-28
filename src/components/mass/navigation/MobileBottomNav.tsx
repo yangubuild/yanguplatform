@@ -57,15 +57,6 @@ export function MobileBottomNav({ onMenuToggle }: MobileBottomNavProps) {
             {item.icon ? (
               <div className="relative">
                 <item.icon className="w-5 h-5" />
-                {item.key === "messages" && unreadDmCount > 0 && (
-
-                  <span
-                    className="absolute -top-1 -right-2 min-w-[14px] h-[14px] rounded-full flex items-center justify-center text-[8px] font-bold text-white px-0.5"
-                    style={{ background: "#ef4444" }}
-                  >
-                    {unreadDmCount > 9 ? "9+" : unreadDmCount}
-                  </span>
-                )}
               </div>
             ) : null}
             <span className="text-[10px] font-medium leading-tight">{item.label}</span>

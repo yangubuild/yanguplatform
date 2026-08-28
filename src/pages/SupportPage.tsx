@@ -118,8 +118,7 @@ function ContactSupportModal({ open, onOpenChange }: { open: boolean; onOpenChan
               onClick={handleSubmit}
               disabled={sending}
               size="sm"
-              className="text-white"
-              className="yangu-cta">
+              className="yangu-cta text-foreground">
               {sending ? "Submitting..." : "Submit"}
             </Button>
           </div>
