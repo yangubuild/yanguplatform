@@ -1,100 +1,136 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useTheme } from "@/components/ThemeProvider";
 import { Button } from "@/components/ui/button";
-import { Sun, Moon, LogOut } from "lucide-react";
+import { LogOut, RefreshCw } from "lucide-react";
 import { YanguLogo } from "@/components/brand/YanguLogo";
+import { YanguPageBackground } from "@/components/brand/YanguPageBackground";
+import { YanguLoadingScreen } from "@/components/brand/YanguLoadingScreen";
 
 interface AllowlistGateProps {
   children: ReactNode;
 }
 
-type State = "loading" | "allowed" | "blocked";
-
 /**
- * Gates every dashboard/builder/editor entry point behind the
- * `dashboard_allowlist` table. Non-allowlisted users see a
- * non-dismissible themed popup that mirrors AuthShell styling.
- * SELECT on public storefronts, auth flows, and password-reset
- * routes are NOT mounted under this gate.
+ * Access states are strictly independent:
+ *  - checking       → Yangu spinner only (no copy)
+ *  - allowed        → render app immediately
+ *  - pending        → approval required (backend actually decided)
+ *  - signed_out     → session expired
+ *  - failed         → technical failure, retryable (NEVER "access denied")
  */
+type State = "checking" | "allowed" | "pending" | "signed_out" | "failed";
+
+const CHECK_TIMEOUT_MS = 12000;
+
 export function AllowlistGate({ children }: AllowlistGateProps) {
-  const [state, setState] = useState<State>("loading");
-  const { theme, toggleTheme } = useTheme();
+  const [state, setState] = useState<State>("checking");
+  const cancelled = useRef(false);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    const check = async () => {
-      const { data: userData } = await supabase.auth.getUser();
+  const check = useCallback(async () => {
+    setState("checking");
+    try {
+      const { data: userData, error: userErr } = await supabase.auth.getUser();
+      if (cancelled.current) return;
+      if (userErr) {
+        setState("failed");
+        return;
+      }
       const uid = userData?.user?.id;
       if (!uid) {
-        // ProtectedRoute should have already redirected; fail closed.
-        if (!cancelled) setState("blocked");
+        setState("signed_out");
         return;
       }
-      const { data, error } = await supabase.rpc("is_dashboard_allowed", {
-        _user_id: uid,
-      });
-      if (cancelled) return;
-      if (error) {
-        if (import.meta.env.DEV) console.error("allowlist check failed", error);
-        setState("blocked");
-        return;
-      }
-      setState(data === true ? "allowed" : "blocked");
-    };
 
+      const rpc = supabase.rpc("is_dashboard_allowed", { _user_id: uid });
+      const timeout = new Promise<{ timedOut: true }>((resolve) =>
+        setTimeout(() => resolve({ timedOut: true }), CHECK_TIMEOUT_MS)
+      );
+      const result = (await Promise.race([rpc, timeout])) as any;
+      if (cancelled.current) return;
+
+      if (result?.timedOut || result?.error) {
+        if (import.meta.env.DEV) console.error("allowlist check failed", result?.error);
+        setState("failed");
+        return;
+      }
+      setState(result?.data === true ? "allowed" : "pending");
+    } catch (e) {
+      if (cancelled.current) return;
+      if (import.meta.env.DEV) console.error("allowlist check threw", e);
+      setState("failed");
+    }
+  }, []);
+
+  useEffect(() => {
+    cancelled.current = false;
     check();
     const { data: sub } = supabase.auth.onAuthStateChange(() => check());
     return () => {
-      cancelled = true;
+      cancelled.current = true;
       sub.subscription.unsubscribe();
     };
-  }, []);
+  }, [check]);
 
   if (state === "allowed") return <>{children}</>;
+  if (state === "checking") return <YanguLoadingScreen />;
+
+  const copy = {
+    pending: {
+      title: "Access approval required",
+      body: "Your Yangu account has been created successfully. Access to Yangu services requires administrator approval — you'll receive an email as soon as it's ready.",
+    },
+    signed_out: {
+      title: "Please sign in again",
+      body: "Your session has expired. Sign in again to continue where you left off.",
+    },
+    failed: {
+      title: "Something went wrong",
+      body: "We couldn't reach Yangu just now. This isn't a problem with your account — please try again.",
+    },
+  }[state];
 
   return (
-    <div
-      className="fixed inset-0 z-[9999] min-h-screen flex flex-col bg-background"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="allowlist-gate-title">
+    <YanguPageBackground contentClassName="min-h-dvh flex flex-col">
       <header className="flex items-center justify-between p-4 md:p-6">
-        <div className="flex items-center gap-2">
-          <YanguLogo className="h-8" />
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleTheme}
-          aria-label="Toggle theme">
-          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </Button>
+        <YanguLogo className="h-8" />
       </header>
 
-      <main className="flex-1 flex items-center justify-center p-4 md:p-8">
-        <div className="w-full max-w-md space-y-8">
-          <div className="space-y-2 text-center">
-            <h1
-              id="allowlist-gate-title"
-              className="text-2xl md:text-3xl font-bold tracking-tight">
-              {state === "loading" ? "Checking your access…" : "Almost there"}
-            </h1>
-          </div>
+      <main
+        className="flex-1 flex items-center justify-center p-4 md:p-8"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="allowlist-gate-title">
+        <div className="w-full max-w-md space-y-6 text-center">
+          <h1 id="allowlist-gate-title" className="text-2xl md:text-3xl font-bold tracking-tight">
+            {copy.title}
+          </h1>
+          <p className="text-base text-muted-foreground leading-relaxed">{copy.body}</p>
 
-          <div className="bg-surface rounded-2xl border border-border p-6 md:p-8 shadow-lg space-y-6">
-            <p className="text-base text-foreground leading-relaxed text-center">
-              {state === "loading"
-                ? "One moment while we confirm your account…"
-                : "We're getting things ready! You'll receive an email as soon as your Yangu account is ready to use."}
-            </p>
-
-            {state === "blocked" && (
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            {state === "failed" ? (
+              <>
+                <Button className="w-full sm:w-auto" onClick={() => check()}>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Try again
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-auto"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    window.location.href = "/";
+                  }}>
+                  Sign out
+                </Button>
+              </>
+            ) : state === "signed_out" ? (
+              <Button className="w-full sm:w-auto" onClick={() => (window.location.href = "/auth/login")}>
+                Sign in
+              </Button>
+            ) : (
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full sm:w-auto"
                 onClick={async () => {
                   await supabase.auth.signOut();
                   window.location.href = "/";
@@ -110,6 +146,6 @@ export function AllowlistGate({ children }: AllowlistGateProps) {
       <footer className="p-4 text-center text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} yangu. All rights reserved.</p>
       </footer>
-    </div>
+    </YanguPageBackground>
   );
 }
