@@ -66,7 +66,15 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [extendedActiveItem, setExtendedActiveItem] = useState("Home");
 
-  const hasExtendedPanel = EXTENDED_SIDEBAR_ITEMS.includes(activeItem);
+  // Home is the only product with a sub-panel. Derive it from the route so the
+  // panel closes automatically when the user moves to another product.
+  const onHomeArea =
+    location.pathname === "/dashboard" ||
+    ["/dashboard/home", "/dashboard/my-apps", "/dashboard/my-business", "/dashboard/payment-settings",
+     "/dashboard/invoices", "/dashboard/social-media", "/dashboard/ads", "/dashboard/affiliates",
+     "/dashboard/profile", "/dashboard/agency"].some((p) => location.pathname.startsWith(p));
+  const hasExtendedPanel = EXTENDED_SIDEBAR_ITEMS.includes(activeItem) && onHomeArea;
+
 
   // Total sidebar width for layout offset
   const totalWidth = hasExtendedPanel ? RAIL_WIDTH + EXTENDED_WIDTH : FULL_WIDTH;
