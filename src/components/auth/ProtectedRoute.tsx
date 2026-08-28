@@ -2,7 +2,7 @@ import { ReactNode, useEffect } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveOrg } from "@/hooks/useActiveOrg";
-import { Loader2 } from "lucide-react";
+import { YanguLoadingScreen } from "@/components/brand/YanguLoadingScreen";
 import { setActiveContext, getActiveContext } from "@/lib/routing/activeContext";
 
 interface ProtectedRouteProps {
@@ -23,9 +23,7 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
   // Auth is still resolving — show spinner (blocks everything)
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
-      </div>
+      <YanguLoadingScreen />
     );
   }
 
@@ -40,9 +38,7 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
     // If profile isn't loaded yet, wait (shouldn't happen since authLoading covers it)
     if (!profile) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <Loader2 className="h-8 w-8 animate-spin text-accent" />
-        </div>
+        <YanguLoadingScreen />
       );
     }
 
@@ -70,9 +66,7 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
     // Org check — only block on initial load (no cached data yet)
     if (orgLoading && !activeOrg) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <Loader2 className="h-8 w-8 animate-spin text-accent" />
-        </div>
+        <YanguLoadingScreen />
       );
     }
     if (!orgLoading && !activeOrg) return <Navigate to="/onboarding" replace />;

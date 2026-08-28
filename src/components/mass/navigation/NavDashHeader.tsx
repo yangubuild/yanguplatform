@@ -421,11 +421,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="h-8 sm:h-9 rounded-lg text-[10px] sm:text-xs font-bold text-white whitespace-nowrap shrink-0 flex items-center justify-center"
-                style={{
-                  background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)",
-                  padding: "0 10px",
-                }}
+                className="yangu-border-gradient h-8 sm:h-9 rounded-lg text-[10px] sm:text-xs font-bold text-white whitespace-nowrap shrink-0 flex items-center justify-center bg-[#0A0F0C] px-2.5 shadow-[0_6px_24px_-10px_hsl(25_100%_50%/0.35)] transition-shadow hover:shadow-[0_8px_30px_-8px_hsl(25_100%_50%/0.45)]"
               >
                 <TrendingUp className="w-3.5 h-3.5 min-[360px]:hidden" />
                 <span className="hidden min-[360px]:inline">Earnings</span>
@@ -461,8 +457,7 @@ export function NavDashHeader({ onMenuToggle }: NavDashHeaderProps) {
                 </div>
                 <button
                   onClick={() => navigate("/dashboard/profile")}
-                  className="w-full h-8 rounded-lg text-xs font-bold text-white mt-1"
-                  style={{ background: "linear-gradient(90deg, #b5622a 0%, #5c2a12 100%)" }}
+                  className="yangu-border-gradient w-full h-8 rounded-lg text-xs font-bold text-white mt-1 bg-[#0A0F0C]"
                 >
                   View reports
                 </button>

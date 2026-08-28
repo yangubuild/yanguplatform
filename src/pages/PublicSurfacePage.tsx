@@ -18,7 +18,10 @@ import type {
   BuilderPublicSchemaResult,
   BuilderPublishedSection,
 } from "@/types/builder";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { YanguPageBackground } from "@/components/brand/YanguPageBackground";
+import { YanguLoadingScreen } from "@/components/brand/YanguLoadingScreen";
+import NotFound from "@/pages/NotFound";
 import { recordSurfaceView } from "@/lib/analytics/recordSurfaceView";
 
 /**
@@ -155,16 +158,31 @@ export default function PublicSurfacePage() {
   }, [surfaceId, pathSlug]);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <YanguLoadingScreen />;
   }
 
+  // A genuine missing route/resource renders the branded Yangu 404.
+  // Any other failure (network/API/database) is a technical error with retry —
+  // never presented as "page not found".
   if (error || !data) {
-    return <PublicNotFound host={host} slug={pathSlug} />;
+    const reason = (error as any)?.message ?? "not_found";
+    const isMissing = reason === "not_found" || reason === "not_published";
+    if (!isMissing) {
+      return (
+        <YanguPageBackground contentClassName="min-h-dvh flex items-center justify-center p-6">
+          <div className="text-center max-w-md space-y-4">
+            <h1 className="text-2xl font-bold text-foreground">Something went wrong</h1>
+            <p className="text-sm text-muted-foreground">
+              We couldn't load this page just now. Please try again.
+            </p>
+            <Button onClick={() => window.location.reload()}>Try again</Button>
+          </div>
+        </YanguPageBackground>
+      );
+    }
+    return <NotFound />;
   }
+
 
   const pubSurfaceType = surfaceData.surface_type;
 
@@ -351,16 +369,3 @@ export default function PublicSurfacePage() {
   );
 }
 
-function PublicNotFound({ host, slug, message = "Page not found" }: { host: string; slug: string; message?: string }) {
-  return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="text-center max-w-md">
-        <h1 className="text-4xl font-bold text-foreground mb-2">404</h1>
-        <p className="text-muted-foreground mb-1">{message}</p>
-        <p className="text-xs text-muted-foreground/60">
-          {host}/{slug}
-        </p>
-      </div>
-    </div>
-  );
-}

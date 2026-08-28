@@ -565,7 +565,7 @@ export default function ComposerPage() {
           </div>
         )}
 
-        <div className="yangu-border-gradient yangu-glow mt-4 rounded-2xl bg-[#080C0A]/90 p-3 sm:p-4">
+        <div className="yangu-border-flow yangu-glow mt-4 rounded-2xl bg-[#080C0A]/90 p-3 sm:p-4">
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-white/[0.03] px-2.5 py-1.5">
               <YanguGlowBall state="idle" size={18} />
