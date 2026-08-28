@@ -9,7 +9,6 @@ import {
   TrendingUp,
   Users,
   LayoutDashboard,
-  BookOpen,
   LogOut,
   HelpCircle,
   Languages,
@@ -34,7 +33,6 @@ import { useDailySalesCounter } from "@/hooks/useDailySalesCounter";
 import {
   PRIMARY_NAV_ITEMS,
   EXTENDED_SIDEBAR_ITEMS,
-  VISIONAIRE_SECTIONS,
   DASHBOARD_SECTIONS,
   resolveAccountType,
   isNavItemVisible,
@@ -64,7 +62,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
   // Owner = the org's owner_user_id matches current user
   const isOrgOwner = !!(activeOrg && user && activeOrg.role === "owner");
 
-  const [activeItem, setActiveItem] = useState("Offers");
+  const [activeItem, setActiveItem] = useState("Home");
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [extendedActiveItem, setExtendedActiveItem] = useState("Home");
 
@@ -384,9 +382,7 @@ export function NavDashSidebar({ isOpen = true, onClose, onActiveChange }: NavDa
 
         {/* === EXTENDED SIDEBAR === */}
         {hasExtendedPanel && (() => {
-          const panelConfig = activeItem === "Visionaire"
-            ? { icon: BookOpen, title: "Visionaire Library", sections: VISIONAIRE_SECTIONS, defaultActive: "Home" }
-            : { icon: LayoutDashboard, title: "Dashboard", sections: DASHBOARD_SECTIONS, defaultActive: "Dashboard" };
+          const panelConfig = { icon: LayoutDashboard, title: "Dashboard", sections: DASHBOARD_SECTIONS, defaultActive: "Dashboard" };
           const PanelIcon = panelConfig.icon;
 
           return (
