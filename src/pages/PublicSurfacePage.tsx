@@ -155,16 +155,31 @@ export default function PublicSurfacePage() {
   }, [surfaceId, pathSlug]);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <YanguLoadingScreen />;
   }
 
+  // A genuine missing route/resource renders the branded Yangu 404.
+  // Any other failure (network/API/database) is a technical error with retry —
+  // never presented as "page not found".
   if (error || !data) {
-    return <PublicNotFound host={host} slug={pathSlug} />;
+    const reason = (error as any)?.message ?? "not_found";
+    const isMissing = reason === "not_found" || reason === "not_published";
+    if (!isMissing) {
+      return (
+        <YanguPageBackground contentClassName="min-h-dvh flex items-center justify-center p-6">
+          <div className="text-center max-w-md space-y-4">
+            <h1 className="text-2xl font-bold text-foreground">Something went wrong</h1>
+            <p className="text-sm text-muted-foreground">
+              We couldn't load this page just now. Please try again.
+            </p>
+            <Button onClick={() => window.location.reload()}>Try again</Button>
+          </div>
+        </YanguPageBackground>
+      );
+    }
+    return <NotFound />;
   }
+
 
   const pubSurfaceType = surfaceData.surface_type;
 
