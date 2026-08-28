@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App.tsx";
 import { startBuildVersionGuard } from "./lib/lazyRetry";
+import { startServiceWorkerHygiene } from "./lib/swHygiene";
 import { initCapacitor } from "./lib/capacitor";
 import { initSentry, Sentry } from "./lib/sentry";
 import "./index.css";
@@ -29,6 +30,9 @@ if (isPreviewHost || isInIframe) {
   navigator.serviceWorker?.getRegistrations().then((regs) => {
     regs.forEach((r) => r.unregister());
   });
+} else {
+  // Production: keep the newest build in control and drop stale app-shell caches
+  startServiceWorkerHygiene();
 }
 
 // Create QueryClient instance ONCE at module scope (outside component render)

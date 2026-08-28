@@ -26,10 +26,19 @@ export default defineConfig(({ mode }) => ({
         enabled: false,
       },
       manifest: false, // we use our own public/manifest.json
+      includeAssets: ["offline.html"],
       workbox: {
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-        globPatterns: ["**/*.{js,css,html,ico,svg,woff,woff2}"],
-        navigateFallback: "/index.html",
+        // HTML is deliberately NOT precached. A precached index.html keeps an
+        // old deploy's bundle (and its hashed asset URLs, which 503 after the
+        // next deploy) alive and lets stale app versions control live routes.
+        globPatterns: ["**/*.{js,css,ico,svg,woff,woff2}"],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+        // Offline-only fallback; online navigations always hit the network so
+        // the newest index.html (and therefore the newest bundle) always wins.
+        navigateFallback: "/offline.html",
         navigateFallbackDenylist: [
           /^\/~oauth/,
           /^\/api\//,
@@ -40,6 +49,16 @@ export default defineConfig(({ mode }) => ({
           /^\/\.well-known\//,
         ],
         runtimeCaching: [
+          {
+            // Navigations: network first, cache only as an offline safety net.
+            urlPattern: ({ request }) => request.mode === "navigate",
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "yangu-pages",
+              networkTimeoutSeconds: 10,
+              expiration: { maxEntries: 20 },
+            },
+          },
           {
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
             handler: "CacheFirst",
