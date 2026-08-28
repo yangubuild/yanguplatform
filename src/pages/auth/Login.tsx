@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { getReturnToFromParams } from "@/lib/routing/identityRedirect";
+import { POST_AUTH_HOME, resolvePostAuthPath } from "@/lib/routing/postAuth";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
