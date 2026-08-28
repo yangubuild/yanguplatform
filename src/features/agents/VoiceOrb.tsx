@@ -28,7 +28,7 @@ export function VoiceOrb() {
       <button
         onClick={() => setOpen(true)}
         aria-label="Talk to your agent"
-        className="fixed bottom-24 right-4 z-40 flex h-14 w-14 sm:bottom-6 sm:right-6 items-center justify-center rounded-full transition active:scale-95"
+        className="fixed bottom-[104px] right-3 z-40 flex h-14 w-14 sm:bottom-6 sm:right-6 items-center justify-center rounded-full transition active:scale-95"
       >
         <YanguGlowBall state="idle" size={56} />
       </button>
