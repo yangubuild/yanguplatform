@@ -376,7 +376,10 @@ export default function ComposerPage() {
                 <Button variant="outline" size="sm" className="lg:hidden">Conversations</Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[85vw] max-w-xs overflow-y-auto">
-                <p className="mb-3 text-sm font-semibold">Conversations</p>
+                <div className="mb-3 flex items-center justify-between gap-1">
+                  <p className="text-sm font-semibold">Conversations</p>
+                  {scopeFilter}
+                </div>
                 {threadList}
               </SheetContent>
             </Sheet>
