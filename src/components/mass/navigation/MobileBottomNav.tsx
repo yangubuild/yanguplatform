@@ -1,15 +1,15 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, Compass, MessageCircle, Menu } from "lucide-react";
-import adaIcon from "@/assets/ada-icon.png";
+import { Home, Bot, Hammer, Palette, Menu } from "lucide-react";
 import { useUnreadDmCount } from "@/hooks/useUnreadMessages";
 
 const NAV_ITEMS = [
   { key: "home", label: "Home", icon: Home, to: "/dashboard/home" },
-  { key: "discover", label: "Discover", icon: Compass, to: "/dashboard/explore" },
-  { key: "messages", label: "Messages", icon: MessageCircle, to: "/dashboard/messages" },
-  { key: "ada", label: "Ada", icon: null, to: "/dashboard/ada" },
+  { key: "agents", label: "Agents", icon: Bot, to: "/dashboard/agents" },
+  { key: "builders", label: "Builders", icon: Hammer, to: "/dashboard/builders" },
+  { key: "studio", label: "Studio", icon: Palette, to: "/dashboard/studio" },
   { key: "menu", label: "Menu", icon: Menu, to: null },
 ] as const;
+
 
 function isActive(pathname: string, to: string | null) {
   if (!to) return false;
