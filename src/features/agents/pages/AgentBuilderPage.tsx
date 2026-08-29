@@ -87,18 +87,69 @@ const CHANNEL_META: { id: Channel; label: string; hint: string }[] = [
   { id: "sms",       label: "SMS",        hint: "Two-way SMS conversations." },
 ];
 
+/** Saved configurations can be partial (for example when created from the
+ *  Composer), so merge them over a complete default shape before the editor
+ *  renders or validates them. */
+const DAY_KEYS = ["mon","tue","wed","thu","fri","sat","sun"] as const;
+
+function defaultConfig(agentId: string, agentName: string): AgentConfig {
+  return {
+    id: "", agentId,
+    name: agentName, role: "", department: "sales",
+    personaDescription: "", toneStyle: "friendly",
+    formalCasual: 50, conciseDetailed: 50, warmDirect: 50,
+    doSay: "", dontSay: "", sampleGreetings: "",
+    voiceEnabled: false, voiceProvider: "elevenlabs", voiceId: "", gender: "female",
+    language: "English", secondaryLanguages: [], regionalAccent: "",
+    speakingSpeed: 100, pitch: 50, fillerWords: false,
+    greeting: "", businessGoals: "", companyInstructions: "", companyKnowledge: "",
+    businessRules: "", commands: [], qualificationQuestions: [],
+    attachedKnowledgeIds: [], topK: 5, similarityThreshold: 0.7, fallbackAnswer: "",
+    allowedActions: {},
+    channels: {} as AgentConfig["channels"], webWidgetTheme: "auto",
+    attachedWorkflowIds: [],
+    handoverRules: [], confidenceThreshold: 0.6, notifyChannel: "", businessHoursRoute: "", afterHoursRoute: "",
+    connectedIntegrationIds: [],
+    workingHours: {
+      timezone: "UTC",
+      days: Object.fromEntries(DAY_KEYS.map((d) => [d, { enabled: d !== "sat" && d !== "sun", open: "09:00", close: "17:00" }])) as AgentConfig["workingHours"]["days"],
+      holidays: [], afterHoursBehavior: "take_message",
+    },
+    memoryEnabled: false, memoryScope: "conversation", memoryRetentionDays: 30,
+    piiRedaction: false, recordingConsent: false, gdprMode: false, dataResidency: "global", disclaimer: "",
+    rateLimitPerMin: 60,
+    environment: "draft", version: 1, webhookUrl: "", updatedAt: new Date().toISOString(),
+  } as unknown as AgentConfig;
+}
+
+function normalise(cfg: AgentConfig, agentName: string): AgentConfig {
+  const base = defaultConfig(cfg.agentId, agentName);
+  const merged = { ...base } as Record<string, unknown>;
+  for (const [k, v] of Object.entries(cfg as unknown as Record<string, unknown>)) {
+    if (v !== null && v !== undefined) merged[k] = v;
+  }
+  const wh = (cfg.workingHours ?? {}) as Partial<AgentConfig["workingHours"]>;
+  merged.workingHours = {
+    ...base.workingHours, ...wh,
+    days: { ...base.workingHours.days, ...(wh.days ?? {}) },
+    holidays: wh.holidays ?? [],
+  };
+  if (!merged.name) merged.name = agentName;
+  return merged as unknown as AgentConfig;
+}
+
 function validate(cfg: AgentConfig): string[] {
   const errs: string[] = [];
-  if (!cfg.name.trim()) errs.push("Employee name is required.");
-  if (cfg.name.length > 60) errs.push("Employee name must be 60 characters or less.");
-  if (!cfg.role.trim()) errs.push("Role is required.");
-  if (!cfg.greeting.trim()) errs.push("Greeting is required.");
+  if (!(cfg.name ?? "").trim()) errs.push("Employee name is required.");
+  if ((cfg.name ?? "").length > 60) errs.push("Employee name must be 60 characters or less.");
+  if (!(cfg.role ?? "").trim()) errs.push("Role is required.");
+  if (!(cfg.greeting ?? "").trim()) errs.push("Greeting is required.");
   if (!cfg.language) errs.push("Primary language is required.");
   if (cfg.voiceEnabled && !cfg.voiceId) errs.push("Voice is enabled but no voice is selected.");
-  if (cfg.similarityThreshold < 0 || cfg.similarityThreshold > 1) errs.push("Similarity threshold must be between 0 and 1.");
+  if ((cfg.similarityThreshold ?? 0) < 0 || (cfg.similarityThreshold ?? 0) > 1) errs.push("Similarity threshold must be between 0 and 1.");
   if (cfg.topK < 1 || cfg.topK > 20) errs.push("Top-K must be between 1 and 20.");
   if (cfg.rateLimitPerMin < 1) errs.push("Rate limit must be at least 1.");
-  const hasChannel = Object.values(cfg.channels).some(c => c.enabled);
+  const hasChannel = Object.values(cfg.channels ?? {}).some((c: any) => c?.enabled);
   if (!hasChannel) errs.push("Enable at least one channel.");
   return errs;
 }
@@ -126,7 +177,7 @@ export default function AgentBuilderPage() {
 
   // Hydrate local editor state whenever the remote config resolves (or mock fallback).
   useMemo(() => {
-    if (remoteCfg && !dirty) setCfg(remoteCfg);
+    if (remoteCfg && !dirty) setCfg(normalise(remoteCfg, agent?.name ?? ""));
   }, [remoteCfg?.id, remoteCfg?.version]);
   const errors = useMemo(() => (cfg ? validate(cfg) : ["Loading configuration…"]), [cfg]);
   const saving = saveMut.isPending || publishMut.isPending;
@@ -210,7 +261,7 @@ export default function AgentBuilderPage() {
               <StatusDot status={agent.status} />
               <Badge variant="secondary" className="capitalize">{cfg.environment}</Badge>
               <Badge variant="outline">v{cfg.version}</Badge>
-              <Badge variant="outline">{cfg.language}{cfg.secondaryLanguages.length ? ` +${cfg.secondaryLanguages.length}` : ""}</Badge>
+              <Badge variant="outline">{cfg.language}{(cfg.secondaryLanguages ?? []).length ? ` +${cfg.secondaryLanguages.length}` : ""}</Badge>
               {dirty && <Badge variant="outline" className="text-amber-600 border-amber-500/40">Unsaved</Badge>}
             </div>
             <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">{cfg.personaDescription}</p>
