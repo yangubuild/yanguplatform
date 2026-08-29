@@ -1325,41 +1325,83 @@ export type Database = {
       agent_contacts: {
         Row: {
           channel: string | null
+          company: string | null
+          consent: Json
           created_at: string
+          custom_fields: Json
           email: string | null
+          first_name: string | null
           handle: string | null
           id: string
+          job_title: string | null
           language: string | null
+          last_interaction_at: string | null
+          last_name: string | null
+          location: string | null
           meta: Json
           name: string
           org_id: string
+          owner_user_id: string | null
           phone: string | null
+          phone_e164: string | null
+          source: string | null
+          status: string
+          tags: string[]
+          timezone: string | null
           updated_at: string
         }
         Insert: {
           channel?: string | null
+          company?: string | null
+          consent?: Json
           created_at?: string
+          custom_fields?: Json
           email?: string | null
+          first_name?: string | null
           handle?: string | null
           id?: string
+          job_title?: string | null
           language?: string | null
+          last_interaction_at?: string | null
+          last_name?: string | null
+          location?: string | null
           meta?: Json
           name: string
           org_id: string
+          owner_user_id?: string | null
           phone?: string | null
+          phone_e164?: string | null
+          source?: string | null
+          status?: string
+          tags?: string[]
+          timezone?: string | null
           updated_at?: string
         }
         Update: {
           channel?: string | null
+          company?: string | null
+          consent?: Json
           created_at?: string
+          custom_fields?: Json
           email?: string | null
+          first_name?: string | null
           handle?: string | null
           id?: string
+          job_title?: string | null
           language?: string | null
+          last_interaction_at?: string | null
+          last_name?: string | null
+          location?: string | null
           meta?: Json
           name?: string
           org_id?: string
+          owner_user_id?: string | null
           phone?: string | null
+          phone_e164?: string | null
+          source?: string | null
+          status?: string
+          tags?: string[]
+          timezone?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1522,6 +1564,168 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_customer_events: {
+        Row: {
+          agent_id: string | null
+          contact_id: string
+          created_at: string
+          event_type: string
+          id: string
+          meta: Json
+          occurred_at: string
+          org_id: string
+          ref_id: string | null
+          ref_type: string | null
+          title: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          contact_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          meta?: Json
+          occurred_at?: string
+          org_id: string
+          ref_id?: string | null
+          ref_type?: string | null
+          title?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          contact_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          meta?: Json
+          occurred_at?: string
+          org_id?: string
+          ref_id?: string | null
+          ref_type?: string | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_customer_events_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "agent_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_customer_identities: {
+        Row: {
+          contact_id: string
+          created_at: string
+          id: string
+          identity_type: string
+          identity_value: string
+          is_verified: boolean
+          meta: Json
+          org_id: string
+          source: string | null
+          updated_at: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          id?: string
+          identity_type: string
+          identity_value: string
+          is_verified?: boolean
+          meta?: Json
+          org_id: string
+          source?: string | null
+          updated_at?: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          id?: string
+          identity_type?: string
+          identity_value?: string
+          is_verified?: boolean
+          meta?: Json
+          org_id?: string
+          source?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_customer_identities_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "agent_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_customer_memories: {
+        Row: {
+          agent_id: string | null
+          confidence: number
+          contact_id: string
+          content: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          last_used_at: string | null
+          memory_key: string | null
+          memory_type: string
+          meta: Json
+          org_id: string
+          source_id: string | null
+          source_type: string | null
+          updated_at: string
+        }
+        Insert: {
+          agent_id?: string | null
+          confidence?: number
+          contact_id: string
+          content: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          last_used_at?: string | null
+          memory_key?: string | null
+          memory_type?: string
+          meta?: Json
+          org_id: string
+          source_id?: string | null
+          source_type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string | null
+          confidence?: number
+          contact_id?: string
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          last_used_at?: string | null
+          memory_key?: string | null
+          memory_type?: string
+          meta?: Json
+          org_id?: string
+          source_id?: string | null
+          source_type?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_customer_memories_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "agent_contacts"
             referencedColumns: ["id"]
           },
         ]
@@ -12103,6 +12307,54 @@ export type Database = {
           p_starter_limit: number
         }
         Returns: undefined
+      }
+      agent_delete_customer_memory: {
+        Args: { p_memory_id: string }
+        Returns: undefined
+      }
+      agent_get_customer_context: {
+        Args: {
+          p_contact_id: string
+          p_event_limit?: number
+          p_memory_limit?: number
+        }
+        Returns: Json
+      }
+      agent_normalize_email: { Args: { p_email: string }; Returns: string }
+      agent_normalize_phone: { Args: { p_phone: string }; Returns: string }
+      agent_resolve_customer: {
+        Args: {
+          p_channel?: string
+          p_create?: boolean
+          p_email?: string
+          p_name?: string
+          p_org_id: string
+          p_phone?: string
+        }
+        Returns: string
+      }
+      agent_resolve_customer_for_org: {
+        Args: {
+          p_channel?: string
+          p_email?: string
+          p_name?: string
+          p_org_id: string
+          p_phone?: string
+        }
+        Returns: string
+      }
+      agent_save_customer_memory: {
+        Args: {
+          p_agent_id?: string
+          p_confidence?: number
+          p_contact_id: string
+          p_content: string
+          p_memory_key?: string
+          p_memory_type: string
+          p_source_id?: string
+          p_source_type?: string
+        }
+        Returns: string
       }
       app_has_scope: {
         Args: { p_app_id: string; p_scope_key: string }
