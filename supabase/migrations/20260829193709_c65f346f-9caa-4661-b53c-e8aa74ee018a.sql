@@ -1,0 +1,12 @@
+REVOKE ALL ON FUNCTION public.agent_resolve_customer(uuid,text,text,text,text,boolean) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.agent_link_call_customer() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.agent_timeline_from_record() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.agent_contacts_normalize() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.agent_resolve_customer_for_org(uuid,text,text,text,text) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.agent_save_customer_memory(uuid,text,text,text,numeric,text,uuid,uuid) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.agent_delete_customer_memory(uuid) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.agent_get_customer_context(uuid,integer,integer) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.agent_resolve_customer_for_org(uuid,text,text,text,text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.agent_save_customer_memory(uuid,text,text,text,numeric,text,uuid,uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.agent_delete_customer_memory(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.agent_get_customer_context(uuid,integer,integer) TO authenticated;
