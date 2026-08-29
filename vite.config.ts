@@ -34,6 +34,10 @@ export default defineConfig(({ mode }) => ({
         // next deploy) alive and lets stale app versions control live routes.
         globPatterns: ["**/*.{js,css,ico,svg,woff,woff2}"],
         cleanupOutdatedCaches: true,
+        // Explicitly disabled: vite-plugin-pwa defaults this to "index.html",
+        // which (a) is not precached here and (b) registers a NavigationRoute
+        // ahead of runtimeCaching that hijacks every navigation.
+        navigateFallback: undefined,
         clientsClaim: true,
         skipWaiting: true,
         // NOTE: `navigateFallback` is deliberately NOT used. Workbox registers
