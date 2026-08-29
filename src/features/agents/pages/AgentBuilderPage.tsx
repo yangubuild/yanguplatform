@@ -109,7 +109,6 @@ function normalise(cfg: AgentConfig, agentName: string): AgentConfig {
     handoverRules: cfg.handoverRules ?? [],
     commands: cfg.commands ?? [],
     qualificationQuestions: cfg.qualificationQuestions ?? [],
-    enabledActions: cfg.enabledActions ?? [],
     channels: cfg.channels ?? ({} as AgentConfig["channels"]),
     topK: cfg.topK ?? 5,
     similarityThreshold: cfg.similarityThreshold ?? 0.7,
