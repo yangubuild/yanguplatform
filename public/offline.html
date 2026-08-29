@@ -54,10 +54,26 @@
 </head>
 <body>
   <div class="container">
-    <img src="/android-chrome-192x192.png" alt="YANGU" class="icon" />
+    <img src="/yangu-y-loader.png" alt="YANGU" class="icon" />
     <h1>You're offline</h1>
     <p>YANGU needs an internet connection to work. Check your connection and try again.</p>
-    <button onclick="window.location.reload()">Retry</button>
+    <button id="retry" type="button">Retry</button>
   </div>
+  <script>
+    var btn = document.getElementById('retry');
+    btn.addEventListener('click', function () {
+      btn.disabled = true;
+      btn.textContent = 'Retrying...';
+      // Go back to the app root over the network rather than reloading the
+      // cached offline document (a plain reload can re-serve this page).
+      fetch('/?offline-retry=' + Date.now(), { cache: 'reload' })
+        .then(function () { window.location.replace('/'); })
+        .catch(function () {
+          btn.disabled = false;
+          btn.textContent = 'Retry';
+        });
+    });
+    window.addEventListener('online', function () { window.location.replace('/'); });
+  </script>
 </body>
 </html>

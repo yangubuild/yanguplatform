@@ -25,7 +25,7 @@ export function startServiceWorkerHygiene() {
         keys
           // Old plugin versions precached HTML; those entries can serve an
           // outdated app shell. Page responses are re-fetched from network.
-          .filter((k) => /precache|html|pages/i.test(k) && k !== "yangu-pages")
+          .filter((k) => /html|pages/i.test(k) && k !== "yangu-pages")
           .map((k) => caches.delete(k)),
       );
     } catch {

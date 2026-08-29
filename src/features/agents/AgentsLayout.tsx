@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { Bot, MessageSquare } from "lucide-react";
+import { Bot, MessageSquare, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VoiceOrb } from "./VoiceOrb";
 import { YanguGlowBall } from "@/components/brand/YanguGlowBall";
@@ -10,7 +10,9 @@ import { YanguGlowBall } from "@/components/brand/YanguGlowBall";
 const NAV = [
   { to: "/dashboard/agents", label: "Composer", icon: MessageSquare, end: true },
   { to: "/dashboard/agents/agents", label: "Agents", icon: Bot },
+  { to: "/dashboard/agents/customers", label: "Customers", icon: Users },
 ];
+
 
 
 export default function AgentsLayout() {
