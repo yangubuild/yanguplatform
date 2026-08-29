@@ -163,6 +163,9 @@ function LegacyAgentDetailRedirect() {
 const AgentsInboxPage = lazy(() => lazyRetry(() => import("./features/agents/pages/InboxPage")));
 const AgentsCallsPage = lazy(() => lazyRetry(() => import("./features/agents/pages/CallsPage")));
 const AgentsLeadsPage = lazy(() => lazyRetry(() => import("./features/agents/pages/LeadsPage")));
+const AgentsCustomersPage = lazy(() => lazyRetry(() => import("./features/agents/pages/CustomersPage")));
+const AgentsCustomerDetailPage = lazy(() => lazyRetry(() => import("./features/agents/pages/CustomerDetailPage")));
+
 const AgentsAppointmentsPage = lazy(() => lazyRetry(() => import("./features/agents/pages/AppointmentsPage")));
 const AgentsKnowledgePage = lazy(() => lazyRetry(() => import("./features/agents/pages/KnowledgePage")));
 const AgentsWorkflowsPage = lazy(() => lazyRetry(() => import("./features/agents/pages/WorkflowsPage")));
