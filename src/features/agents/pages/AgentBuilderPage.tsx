@@ -107,6 +107,7 @@ function normalise(cfg: AgentConfig, agentName: string): AgentConfig {
     attachedWorkflowIds: cfg.attachedWorkflowIds ?? [],
     connectedIntegrationIds: cfg.connectedIntegrationIds ?? [],
     handoverRules: cfg.handoverRules ?? [],
+    allowedActions: cfg.allowedActions ?? ({} as AgentConfig["allowedActions"]),
     commands: cfg.commands ?? [],
     qualificationQuestions: cfg.qualificationQuestions ?? [],
     channels: cfg.channels ?? ({} as AgentConfig["channels"]),
