@@ -87,18 +87,51 @@ const CHANNEL_META: { id: Channel; label: string; hint: string }[] = [
   { id: "sms",       label: "SMS",        hint: "Two-way SMS conversations." },
 ];
 
+/** Saved configurations can be partial (created by Composer), so fill the
+ *  editor's required shape before validating or rendering. */
+function normalise(cfg: AgentConfig, agentName: string): AgentConfig {
+  return {
+    ...cfg,
+    name: cfg.name ?? agentName ?? "",
+    role: cfg.role ?? "",
+    greeting: cfg.greeting ?? "",
+    personaDescription: cfg.personaDescription ?? "",
+    language: cfg.language ?? "English",
+    secondaryLanguages: cfg.secondaryLanguages ?? [],
+    companyKnowledge: cfg.companyKnowledge ?? "",
+    companyInstructions: cfg.companyInstructions ?? "",
+    businessRules: cfg.businessRules ?? "",
+    businessGoals: cfg.businessGoals ?? "",
+    fallbackAnswer: cfg.fallbackAnswer ?? "",
+    attachedKnowledgeIds: cfg.attachedKnowledgeIds ?? [],
+    attachedWorkflowIds: cfg.attachedWorkflowIds ?? [],
+    connectedIntegrationIds: cfg.connectedIntegrationIds ?? [],
+    handoverRules: cfg.handoverRules ?? [],
+    commands: cfg.commands ?? [],
+    qualificationQuestions: cfg.qualificationQuestions ?? [],
+    enabledActions: cfg.enabledActions ?? [],
+    channels: cfg.channels ?? ({} as AgentConfig["channels"]),
+    topK: cfg.topK ?? 5,
+    similarityThreshold: cfg.similarityThreshold ?? 0.7,
+    memoryRetentionDays: cfg.memoryRetentionDays ?? 30,
+    rateLimitPerMin: cfg.rateLimitPerMin ?? 60,
+    confidenceThreshold: cfg.confidenceThreshold ?? 0.6,
+    version: cfg.version ?? 1,
+  };
+}
+
 function validate(cfg: AgentConfig): string[] {
   const errs: string[] = [];
-  if (!cfg.name.trim()) errs.push("Employee name is required.");
-  if (cfg.name.length > 60) errs.push("Employee name must be 60 characters or less.");
-  if (!cfg.role.trim()) errs.push("Role is required.");
-  if (!cfg.greeting.trim()) errs.push("Greeting is required.");
+  if (!(cfg.name ?? "").trim()) errs.push("Employee name is required.");
+  if ((cfg.name ?? "").length > 60) errs.push("Employee name must be 60 characters or less.");
+  if (!(cfg.role ?? "").trim()) errs.push("Role is required.");
+  if (!(cfg.greeting ?? "").trim()) errs.push("Greeting is required.");
   if (!cfg.language) errs.push("Primary language is required.");
   if (cfg.voiceEnabled && !cfg.voiceId) errs.push("Voice is enabled but no voice is selected.");
-  if (cfg.similarityThreshold < 0 || cfg.similarityThreshold > 1) errs.push("Similarity threshold must be between 0 and 1.");
+  if ((cfg.similarityThreshold ?? 0) < 0 || (cfg.similarityThreshold ?? 0) > 1) errs.push("Similarity threshold must be between 0 and 1.");
   if (cfg.topK < 1 || cfg.topK > 20) errs.push("Top-K must be between 1 and 20.");
   if (cfg.rateLimitPerMin < 1) errs.push("Rate limit must be at least 1.");
-  const hasChannel = Object.values(cfg.channels).some(c => c.enabled);
+  const hasChannel = Object.values(cfg.channels ?? {}).some((c: any) => c?.enabled);
   if (!hasChannel) errs.push("Enable at least one channel.");
   return errs;
 }
@@ -126,7 +159,7 @@ export default function AgentBuilderPage() {
 
   // Hydrate local editor state whenever the remote config resolves (or mock fallback).
   useMemo(() => {
-    if (remoteCfg && !dirty) setCfg(remoteCfg);
+    if (remoteCfg && !dirty) setCfg(normalise(remoteCfg, agent?.name ?? ""));
   }, [remoteCfg?.id, remoteCfg?.version]);
   const errors = useMemo(() => (cfg ? validate(cfg) : ["Loading configuration…"]), [cfg]);
   const saving = saveMut.isPending || publishMut.isPending;
@@ -210,7 +243,7 @@ export default function AgentBuilderPage() {
               <StatusDot status={agent.status} />
               <Badge variant="secondary" className="capitalize">{cfg.environment}</Badge>
               <Badge variant="outline">v{cfg.version}</Badge>
-              <Badge variant="outline">{cfg.language}{cfg.secondaryLanguages.length ? ` +${cfg.secondaryLanguages.length}` : ""}</Badge>
+              <Badge variant="outline">{cfg.language}{(cfg.secondaryLanguages ?? []).length ? ` +${cfg.secondaryLanguages.length}` : ""}</Badge>
               {dirty && <Badge variant="outline" className="text-amber-600 border-amber-500/40">Unsaved</Badge>}
             </div>
             <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">{cfg.personaDescription}</p>
