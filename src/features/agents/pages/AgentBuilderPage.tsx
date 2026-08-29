@@ -87,37 +87,55 @@ const CHANNEL_META: { id: Channel; label: string; hint: string }[] = [
   { id: "sms",       label: "SMS",        hint: "Two-way SMS conversations." },
 ];
 
-/** Saved configurations can be partial (created by Composer), so fill the
- *  editor's required shape before validating or rendering. */
-function normalise(cfg: AgentConfig, agentName: string): AgentConfig {
+/** Saved configurations can be partial (for example when created from the
+ *  Composer), so merge them over a complete default shape before the editor
+ *  renders or validates them. */
+const DAY_KEYS = ["mon","tue","wed","thu","fri","sat","sun"] as const;
+
+function defaultConfig(agentId: string, agentName: string): AgentConfig {
   return {
-    ...cfg,
-    name: cfg.name ?? agentName ?? "",
-    role: cfg.role ?? "",
-    greeting: cfg.greeting ?? "",
-    personaDescription: cfg.personaDescription ?? "",
-    language: cfg.language ?? "English",
-    secondaryLanguages: cfg.secondaryLanguages ?? [],
-    companyKnowledge: cfg.companyKnowledge ?? "",
-    companyInstructions: cfg.companyInstructions ?? "",
-    businessRules: cfg.businessRules ?? "",
-    businessGoals: cfg.businessGoals ?? "",
-    fallbackAnswer: cfg.fallbackAnswer ?? "",
-    attachedKnowledgeIds: cfg.attachedKnowledgeIds ?? [],
-    attachedWorkflowIds: cfg.attachedWorkflowIds ?? [],
-    connectedIntegrationIds: cfg.connectedIntegrationIds ?? [],
-    handoverRules: cfg.handoverRules ?? [],
-    allowedActions: cfg.allowedActions ?? ({} as AgentConfig["allowedActions"]),
-    commands: cfg.commands ?? [],
-    qualificationQuestions: cfg.qualificationQuestions ?? [],
-    channels: cfg.channels ?? ({} as AgentConfig["channels"]),
-    topK: cfg.topK ?? 5,
-    similarityThreshold: cfg.similarityThreshold ?? 0.7,
-    memoryRetentionDays: cfg.memoryRetentionDays ?? 30,
-    rateLimitPerMin: cfg.rateLimitPerMin ?? 60,
-    confidenceThreshold: cfg.confidenceThreshold ?? 0.6,
-    version: cfg.version ?? 1,
+    id: "", agentId,
+    name: agentName, role: "", department: "sales",
+    personaDescription: "", toneStyle: "friendly",
+    formalCasual: 50, conciseDetailed: 50, warmDirect: 50,
+    doSay: "", dontSay: "", sampleGreetings: "",
+    voiceEnabled: false, voiceProvider: "elevenlabs", voiceId: "", gender: "female",
+    language: "English", secondaryLanguages: [], regionalAccent: "",
+    speakingSpeed: 100, pitch: 50, fillerWords: false,
+    greeting: "", businessGoals: "", companyInstructions: "", companyKnowledge: "",
+    businessRules: "", commands: [], qualificationQuestions: [],
+    attachedKnowledgeIds: [], topK: 5, similarityThreshold: 0.7, fallbackAnswer: "",
+    allowedActions: {},
+    channels: {} as AgentConfig["channels"], webWidgetTheme: "auto",
+    attachedWorkflowIds: [],
+    handoverRules: [], confidenceThreshold: 0.6, notifyChannel: "", businessHoursRoute: "", afterHoursRoute: "",
+    connectedIntegrationIds: [],
+    workingHours: {
+      timezone: "UTC",
+      days: Object.fromEntries(DAY_KEYS.map((d) => [d, { enabled: d !== "sat" && d !== "sun", open: "09:00", close: "17:00" }])) as AgentConfig["workingHours"]["days"],
+      holidays: [], afterHoursBehavior: "take_message",
+    },
+    memoryEnabled: false, memoryScope: "conversation", memoryRetentionDays: 30,
+    piiRedaction: false, recordingConsent: false, gdprMode: false, dataResidency: "global", disclaimer: "",
+    rateLimitPerMin: 60,
+    environment: "draft", version: 1, webhookUrl: "",
+  } as AgentConfig;
+}
+
+function normalise(cfg: AgentConfig, agentName: string): AgentConfig {
+  const base = defaultConfig(cfg.agentId, agentName);
+  const merged = { ...base } as Record<string, unknown>;
+  for (const [k, v] of Object.entries(cfg as Record<string, unknown>)) {
+    if (v !== null && v !== undefined) merged[k] = v;
+  }
+  const wh = (cfg.workingHours ?? {}) as Partial<AgentConfig["workingHours"]>;
+  merged.workingHours = {
+    ...base.workingHours, ...wh,
+    days: { ...base.workingHours.days, ...(wh.days ?? {}) },
+    holidays: wh.holidays ?? [],
   };
+  if (!merged.name) merged.name = agentName;
+  return merged as AgentConfig;
 }
 
 function validate(cfg: AgentConfig): string[] {
