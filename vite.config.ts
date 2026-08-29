@@ -36,18 +36,11 @@ export default defineConfig(({ mode }) => ({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
-        // Offline-only fallback; online navigations always hit the network so
-        // the newest index.html (and therefore the newest bundle) always wins.
-        navigateFallback: "/offline.html",
-        navigateFallbackDenylist: [
-          /^\/~oauth/,
-          /^\/api\//,
-          /^\/robots\.txt$/,
-          /^\/sitemap\.xml$/,
-          /^\/llms\.txt$/,
-          /^\/manifest\.json$/,
-          /^\/\.well-known\//,
-        ],
+        // NOTE: `navigateFallback` is deliberately NOT used. Workbox registers
+        // its NavigationRoute BEFORE runtimeCaching routes, so it hijacked every
+        // navigation and served /offline.html from precache even while online
+        // (the "You're offline" regression). The offline page is instead used
+        // only as a last-resort error fallback of the navigation strategy below.
         runtimeCaching: [
           {
             // Navigations: network first, cache only as an offline safety net.
@@ -57,8 +50,18 @@ export default defineConfig(({ mode }) => ({
               cacheName: "yangu-pages",
               networkTimeoutSeconds: 10,
               expiration: { maxEntries: 20 },
+              plugins: [
+                {
+                  // Only reached when the network failed AND no cached page
+                  // exists — i.e. a genuine offline navigation.
+                  handlerDidError: async () =>
+                    (await caches.match("/offline.html")) ??
+                    Response.error(),
+                },
+              ],
             },
           },
+
           {
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
             handler: "CacheFirst",
