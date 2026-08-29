@@ -16,10 +16,13 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { db } from "../data/mock";
-import { useAgent, useAgentConfig, useSaveAgentConfig, usePublishAgentConfig, useUpdateAgent, useDeleteAgent, useAgents } from "../data/hooks";
+import {
+  useAgent, useAgentConfig, useSaveAgentConfig, usePublishAgentConfig, useUpdateAgent,
+  useDeleteAgent, useAgents, useKnowledgeSources, useWorkflows, useIntegrations, useConversations, useCalls,
+  useAssignKnowledgeToAgent, useUnassignKnowledgeFromAgent,
+} from "../data/hooks";
 import { YanguSpinner } from "../components/YanguSpinner";
-import { TEST_SCENARIOS } from "../data/conversationDb";
+import { TEST_SCENARIOS } from "../data/testScenarios";
 import { answerViaEngine, type AnswerResult } from "../data/aiEngine";
 import type {
   AgentConfig, AgentCommand, QualificationQuestion, HandoverRule, Channel,
@@ -104,8 +107,16 @@ export default function AgentBuilderPage() {
   const { id } = useParams();
   const { data: allAgents = [] } = useAgents();
   const { data: liveAgent } = useAgent(id);
-  const agent = liveAgent ?? allAgents[0] ?? db.agents.get(id ?? "") ?? db.agents.list()[0];
+  const agent = liveAgent ?? allAgents[0];
   const { data: remoteCfg, isLoading: cfgLoading } = useAgentConfig(agent?.id, "draft");
+  const { data: knowledgeSources = [] } = useKnowledgeSources();
+  const { data: workflows = [] } = useWorkflows();
+  const { data: integrations = [] } = useIntegrations();
+  const { data: conversations = [] } = useConversations();
+  const { data: calls = [] } = useCalls();
+  const [tab, setTab] = useState<string>("overview");
+  const assignMut = useAssignKnowledgeToAgent();
+  const unassignMut = useUnassignKnowledgeFromAgent();
   const [cfg, setCfg] = useState<AgentConfig | null>(null);
   const [dirty, setDirty] = useState(false);
   const saveMut = useSaveAgentConfig();
@@ -124,6 +135,13 @@ export default function AgentBuilderPage() {
     return (
       <div className="flex items-center gap-2 p-12 text-sm text-muted-foreground justify-center">
         <YanguSpinner size={16} />Loading agent configuration…
+      </div>
+    );
+  }
+  if (!agent) {
+    return (
+      <div className="p-12 text-center text-sm text-muted-foreground">
+        This agent could not be found. Open Composer to create one.
       </div>
     );
   }
@@ -167,6 +185,16 @@ export default function AgentBuilderPage() {
     updateAgentMut.mutate({ id: cfg.agentId, patch: { status: env === "live" ? "live" : env === "staging" ? "paused" : "draft" } });
   }
 
+  const agentConversations = conversations.filter((c) => c.agentId === agent.id);
+  const resolved = agentConversations.filter((c) => c.status === "resolved" || c.status === "closed").length;
+  const agentCalls = calls.filter((c) => c.agentId === agent.id);
+  const agentStats: [string, string | number][] = [
+    ["Conversations", agentConversations.length],
+    ["Resolved", resolved],
+    ["Resolution rate", agentConversations.length ? `${Math.round((resolved / agentConversations.length) * 100)}%` : "—"],
+    ["Calls", agentCalls.length],
+  ];
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -192,7 +220,7 @@ export default function AgentBuilderPage() {
           <Button variant="outline" onClick={handleSave} disabled={!dirty || saving}>
             <Save className="h-4 w-4 mr-1.5" />{saving ? "Saving…" : "Save"}
           </Button>
-          <Button variant="outline"><Play className="h-4 w-4 mr-1.5" />Test</Button>
+          <Button variant="outline" onClick={() => setTab("testing")}><Play className="h-4 w-4 mr-1.5" />Test</Button>
           <Button onClick={() => handlePublish("live")} disabled={errors.length > 0}>
             <Rocket className="h-4 w-4 mr-1.5" />Publish
           </Button>
@@ -213,7 +241,7 @@ export default function AgentBuilderPage() {
         </Card>
       )}
 
-      <Tabs defaultValue="overview">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="flex flex-wrap h-auto">
           {TABS.map((t) => <TabsTrigger key={t} value={t} className="capitalize">{t}</TabsTrigger>)}
         </TabsList>
@@ -396,21 +424,33 @@ export default function AgentBuilderPage() {
 
           <Card><CardContent className="p-5 space-y-3">
             <SectionTitle title="Knowledge sources" hint="Attach documents, URLs, and FAQs for retrieval." />
-            {db.knowledge.list().map((k) => {
-              const attached = cfg.attachedKnowledgeIds.includes(k.id);
+            {knowledgeSources.length === 0 && (
+              <p className="text-sm text-muted-foreground">No knowledge sources yet. Add them in Knowledge, then attach them here.</p>
+            )}
+            {knowledgeSources.map((k) => {
+              // Single source of truth: the shared knowledge assignment records.
+              const attached = k.permission === "all" || k.agentIds.includes(agent.id);
+              const global = k.permission === "all";
               return (
                 <div key={k.id} className="flex items-center justify-between border-b border-border last:border-0 pb-3 last:pb-0">
                   <div>
-                    <p className="font-medium text-sm">{k.title}</p>
-                    <p className="text-xs text-muted-foreground">{k.type} · {k.size} · {k.status}</p>
+                    <p className="font-medium text-sm">{k.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {k.kind} · {k.size} · {k.status}{global ? " · available to all agents" : ""}
+                    </p>
                   </div>
-                  <Switch checked={attached} onCheckedChange={(v) => {
-                    const next = v ? [...cfg.attachedKnowledgeIds, k.id] : cfg.attachedKnowledgeIds.filter(x => x !== k.id);
-                    update("attachedKnowledgeIds", next);
-                  }} />
+                  <Switch
+                    checked={attached}
+                    disabled={global || assignMut.isPending || unassignMut.isPending}
+                    onCheckedChange={(v) => {
+                      if (v) assignMut.mutate({ agentId: agent.id, sourceId: k.id, assign: true });
+                      else unassignMut.mutate({ agentId: agent.id, sourceId: k.id });
+                    }}
+                  />
                 </div>
               );
             })}
+
             <Button asChild variant="outline" className="w-full"><Link to="/dashboard/agents/knowledge"><Plus className="h-4 w-4 mr-1.5" />Manage sources</Link></Button>
             <Separator />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -554,7 +594,10 @@ export default function AgentBuilderPage() {
         <TabsContent value="workflows" className="mt-5 space-y-4">
           <Card><CardContent className="p-5 space-y-3">
             <SectionTitle title="Attached workflows" hint="Workflows this employee can trigger." />
-            {db.workflows.list().map((w) => {
+            {workflows.length === 0 && (
+              <p className="text-sm text-muted-foreground">No workflows created yet.</p>
+            )}
+            {workflows.map((w) => {
               const on = cfg.attachedWorkflowIds.includes(w.id);
               return (
                 <div key={w.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
@@ -573,7 +616,10 @@ export default function AgentBuilderPage() {
           </CardContent></Card>
           <Card><CardContent className="p-5 space-y-3">
             <SectionTitle title="Connected integrations" hint="External tools this employee can use." />
-            {db.integrations.list().map((i) => {
+            {integrations.length === 0 && (
+              <p className="text-sm text-muted-foreground">No integrations available yet.</p>
+            )}
+            {integrations.map((i) => {
               const on = cfg.connectedIntegrationIds.includes(i.id);
               return (
                 <div key={i.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
@@ -649,7 +695,7 @@ export default function AgentBuilderPage() {
 
         {/* ─── ANALYTICS ─── */}
         <TabsContent value="analytics" className="mt-5 grid grid-cols-1 md:grid-cols-4 gap-4">
-          {[["Conversations",agent.conversationsToday],["Resolution %","82"],["Avg msgs / resolve","4.1"],["CSAT","4.6/5"]].map(([l,v]) => (
+          {agentStats.map(([l,v]) => (
             <Card key={l as string}><CardContent className="p-5"><div className="text-2xl font-semibold">{v}</div><p className="text-xs text-muted-foreground mt-1">{l}</p></CardContent></Card>
           ))}
           <Card className="md:col-span-4"><CardContent className="p-5 space-y-2">

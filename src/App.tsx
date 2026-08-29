@@ -4,7 +4,7 @@ import { lazyRetry } from "@/lib/lazyRetry";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import RouteMeta from "@/components/seo/RouteMeta";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -154,6 +154,12 @@ const AgentBuilderPage = lazy(() => lazyRetry(() => import("./features/agents/pa
 const AgentCreatePage = lazy(() => lazyRetry(() => import("./features/agents/pages/CreateAgentPage")));
 const AgentComposerPage = lazy(() => lazyRetry(() => import("./features/agents/pages/ComposerPage")));
 const AgentCommandCenterPage = lazy(() => lazyRetry(() => import("./features/agents/pages/AgentCommandCenterPage")));
+
+/** Legacy agent-builder links now resolve to the agent's configuration tab. */
+function LegacyAgentDetailRedirect() {
+  const { id } = useParams();
+  return <Navigate to={`/dashboard/agents/agent/${id}/configure`} replace />;
+}
 const AgentsInboxPage = lazy(() => lazyRetry(() => import("./features/agents/pages/InboxPage")));
 const AgentsCallsPage = lazy(() => lazyRetry(() => import("./features/agents/pages/CallsPage")));
 const AgentsLeadsPage = lazy(() => lazyRetry(() => import("./features/agents/pages/LeadsPage")));
@@ -589,10 +595,12 @@ const App = () => (
                     <Route path="agents" element={<AgentsListPage />} />
 
                     <Route path="agents/new" element={<AgentCreatePage />} />
-                    <Route path="agents/:id" element={<AgentBuilderPage />} />
+                    {/* Legacy builder path — the command centre is the single agent detail surface. */}
+                    <Route path="agents/:id" element={<LegacyAgentDetailRedirect />} />
                     <Route path="build" element={<AgentComposerPage />} />
                     <Route path="build/:threadId" element={<AgentComposerPage />} />
                     <Route path="agent/:id" element={<AgentCommandCenterPage />} />
+                    <Route path="agent/:id/configure" element={<AgentBuilderPage />} />
                     <Route path="inbox" element={<AgentsInboxPage />} />
                     <Route path="calls" element={<AgentsCallsPage />} />
                     <Route path="leads" element={<AgentsLeadsPage />} />

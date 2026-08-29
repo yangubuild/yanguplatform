@@ -260,7 +260,7 @@ export default function AgentCommandCenterPage() {
               </Button>
             )}
             <Button asChild size="sm" variant="outline">
-              <Link to={`/dashboard/agents/agents/${id}`}><Settings2 className="mr-1.5 h-4 w-4" />Configure</Link>
+              <Link to={`/dashboard/agents/agent/${id}/configure`}><Settings2 className="mr-1.5 h-4 w-4" />Configure</Link>
             </Button>
           </div>
         }
@@ -317,7 +317,14 @@ export default function AgentCommandCenterPage() {
                   {provider.data.provider?.firstMessage && (
                     <p className="rounded-lg bg-muted p-2 text-xs">“{provider.data.provider.firstMessage}”</p>
                   )}
+                  {provider.data.webhook && !provider.data.webhook.configured && (
+                    <p className="flex items-start gap-1.5 rounded-lg border border-destructive/40 bg-destructive/5 p-2 text-xs">
+                      <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" />
+                      Call results are not being reported back yet. Redeploy this agent to reconnect the secure results channel.
+                    </p>
+                  )}
                   <BrowserTestButton agentId={id!} />
+
                 </>
               ) : (
                 <p className="flex items-start gap-1.5 text-xs text-muted-foreground">

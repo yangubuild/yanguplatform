@@ -298,6 +298,8 @@ export interface VoiceAgentStatus {
     voice: string | null; voiceProvider: string | null; transcriber: string | null;
     firstMessage: string | null; systemPrompt: string | null; updatedAt: string | null;
   };
+  /** Whether the provider is wired to report call results back securely. */
+  webhook?: { configured: boolean; secretConfigured: boolean };
 }
 
 export interface VoiceNumber {

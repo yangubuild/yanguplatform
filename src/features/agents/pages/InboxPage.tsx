@@ -6,23 +6,26 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   MessageCircle, PhoneCall, Mail, Instagram, Globe, Send, UserPlus,
-  StickyNote, Calendar, TicketCheck, CheckCircle2, ShieldAlert, Archive,
+  StickyNote, Calendar, CheckCircle2, ShieldAlert, Archive,
   Bot, User, AlertTriangle, Sparkles,
 } from "lucide-react";
-import { db } from "../data/mock";
-import { conversationDb } from "../data/conversationDb";
 import {
-  useConversations, useSendHumanMessage, useAddConversationNote,
+  useConversations, useConversation, useAgents, useSendHumanMessage, useAddConversationNote,
   useTakeoverConversation, useReturnToAI, useSetConversationStatus,
+  useCreateLead, useCreateAppointment,
 } from "../data/hooks";
 import type { Conversation, ConversationStatus, Message } from "../data/types";
 import { PageHeader } from "../components/PageHeader";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { toast } from "@/hooks/use-toast";
+import { YanguSpinner } from "../components/YanguSpinner";
 
 const channelIcon: Record<string, any> = {
   whatsapp: MessageCircle, web: Globe, voice: PhoneCall,
@@ -33,23 +36,29 @@ type StatusFilter = "all" | "new" | "active" | "waiting" | "escalated" | "human"
 type ChannelFilter = "all" | "web" | "whatsapp" | "email" | "voice";
 
 export default function InboxPage() {
-  const { data: convosRemote = [], isLoading, refetch } = useConversations();
-  const [, setTick] = useState(0); // force re-render for conversationDb mutations
-  const convos = convosRemote;
+  const { data: convos = [], isLoading } = useConversations();
   const [activeId, setActiveId] = useState<string | undefined>();
   useEffect(() => {
     if (!activeId && convos.length > 0) setActiveId(convos[0]?.id);
   }, [activeId, convos]);
+  const { data: activeDetail } = useConversation(activeId);
+  const { data: agents = [] } = useAgents();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [channelFilter, setChannelFilter] = useState<ChannelFilter>("all");
   const [reply, setReply] = useState("");
   const [note, setNote] = useState("");
-  const team = db.team.list();
+  const [apptOpen, setApptOpen] = useState(false);
+  const [apptTitle, setApptTitle] = useState("");
+  const [apptWhen, setApptWhen] = useState("");
+  const [apptDuration, setApptDuration] = useState(30);
+
   const sendHumanMut = useSendHumanMessage();
   const addNoteMut = useAddConversationNote();
   const takeoverMut = useTakeoverConversation();
   const returnAIMut = useReturnToAI();
   const statusMut = useSetConversationStatus();
+  const createLeadMut = useCreateLead();
+  const createApptMut = useCreateAppointment();
 
   const filtered = useMemo(() => convos.filter((c) => {
     if (channelFilter !== "all" && c.channel !== channelFilter) return false;
@@ -58,53 +67,62 @@ export default function InboxPage() {
     if (statusFilter === "escalated") return c.status === "escalated" || c.status === "handover";
     return c.status === statusFilter;
   }), [convos, statusFilter, channelFilter]);
-  const active = convos.find((c) => c.id === activeId);
-  const agent = active ? db.agents.get(active.agentId) : undefined;
 
-  const refresh = () => { setTick((n) => n + 1); void refetch(); };
+  const listItem = convos.find((c) => c.id === activeId);
+  const active = activeDetail ?? listItem;
+  const agent = active ? agents.find((a) => a.id === active.agentId) : undefined;
+  const isHumanMode = active?.status === "human";
 
   const send = () => {
-    if (!active || !reply.trim()) return;
-    if (active.status === "human") {
-      conversationDb.sendHuman(active.id, reply.trim());
-      sendHumanMut.mutate({ conversationId: active.id, text: reply.trim() });
-    } else {
-      // In the inbox, a typed reply from the operator posts as a customer-simulation only if we're in human mode.
-      // Otherwise, simulate an inbound customer message so the AI answers (useful for demos).
-      conversationDb.send(active.id, reply.trim());
-    }
+    if (!active || !reply.trim() || !isHumanMode) return;
+    sendHumanMut.mutate({ conversationId: active.id, text: reply.trim() });
     setReply("");
-    refresh();
   };
-  const takeover = () => {
-    if (!active) return;
-    conversationDb.takeover(active.id);
-    takeoverMut.mutate({ conversationId: active.id });
-    refresh();
-  };
+  const takeover = () => { if (active) takeoverMut.mutate({ conversationId: active.id }); };
   const returnAI = () => {
     if (!active) return;
-    const c = conversationDb.returnToAI(active.id);
-    returnAIMut.mutate({ conversationId: active.id, summary: c.handoverSummary ?? "Returned by operator" });
-    refresh();
+    returnAIMut.mutate({ conversationId: active.id, summary: "Returned to AI by operator" });
   };
-  const doStatus = (s: ConversationStatus, label: string) => {
+  const doStatus = (s: ConversationStatus) => {
+    if (active) statusMut.mutate({ conversationId: active.id, status: s });
+  };
+  const createLead = () => {
     if (!active) return;
-    conversationDb.setStatus(active.id, s, { note: label });
-    statusMut.mutate({ conversationId: active.id, status: s });
-    refresh();
+    const handle = active.contactHandle ?? "";
+    createLeadMut.mutate({
+      name: active.contactName,
+      email: handle.includes("@") ? handle : undefined,
+      phone: handle.startsWith("+") ? handle : undefined,
+      source: active.channel,
+      intent: (active.lastMessage ?? "").slice(0, 200) || "Captured from inbox",
+      score: 50,
+      stage: "new",
+      owner: "",
+    });
   };
-  const createLead = () => { if (!active) return; conversationDb.createLead(active.id); refresh(); toast({ title: "Lead created" }); };
-  const bookAppt = () => { if (!active) return; conversationDb.bookAppointment(active.id); refresh(); toast({ title: "Appointment booked" }); };
-  const createTicket = () => { if (!active) return; conversationDb.createTicket(active.id); refresh(); toast({ title: "Support ticket created" }); };
-  const resolve = () => { if (!active) return; conversationDb.resolve(active.id); statusMut.mutate({ conversationId: active.id, status: "resolved" }); refresh(); };
+  const openAppt = () => {
+    if (!active) return;
+    setApptTitle(`Appointment — ${active.contactName}`);
+    setApptWhen("");
+    setApptDuration(30);
+    setApptOpen(true);
+  };
+  const bookAppt = () => {
+    if (!active || !apptWhen) return;
+    createApptMut.mutate({
+      title: apptTitle.trim() || `Appointment — ${active.contactName}`,
+      contact: active.contactName,
+      channel: active.channel,
+      when: new Date(apptWhen).toISOString(),
+      duration: apptDuration,
+      agentId: active.agentId,
+      status: "scheduled",
+    }, { onSuccess: () => setApptOpen(false) });
+  };
   const addNote = () => {
     if (!active || !note.trim()) return;
-    conversationDb.addNote(active.id, note.trim());
-    addNoteMut.mutate({ conversationId: active.id, text: note.trim() });
-    setNote(""); refresh();
+    addNoteMut.mutate({ conversationId: active.id, text: note.trim() }, { onSuccess: () => setNote("") });
   };
-  const assign = (member: string) => { if (!active) return; conversationDb.assignTo(active.id, member); refresh(); };
 
   const priorityBadge = (p?: Conversation["priority"]) =>
     p === "urgent" ? "bg-destructive text-destructive-foreground" :
@@ -113,7 +131,7 @@ export default function InboxPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title="Inbox" description="Every channel, one thread — powered by the Conversation Engine." />
+      <PageHeader title="Inbox" description="Live conversations from every connected channel." />
       <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-4 h-[calc(100vh-260px)] min-h-[560px]">
         {/* List */}
         <Card className="overflow-hidden flex flex-col">
@@ -144,6 +162,11 @@ export default function InboxPage() {
             </Select>
           </div>
           <div className="flex-1 overflow-auto">
+            {isLoading && (
+              <div className="p-6 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                <YanguSpinner size={16} />Loading conversations…
+              </div>
+            )}
             {filtered.map((c) => {
               const Icon = channelIcon[c.channel] ?? MessageCircle;
               return (
@@ -174,7 +197,11 @@ export default function InboxPage() {
                 </button>
               );
             })}
-            {filtered.length === 0 && <div className="p-6 text-sm text-muted-foreground text-center">No conversations match.</div>}
+            {!isLoading && filtered.length === 0 && (
+              <div className="p-6 text-sm text-muted-foreground text-center">
+                {convos.length === 0 ? "No conversations yet. They appear here as soon as a channel starts receiving messages." : "No conversations match these filters."}
+              </div>
+            )}
           </div>
         </Card>
 
@@ -188,27 +215,36 @@ export default function InboxPage() {
                   <p className="text-xs text-muted-foreground">{active.contactHandle} · {active.channel} · <span className="capitalize">{active.status}</span></p>
                 </div>
                 <div className="flex gap-1 flex-wrap">
-                  {active.status !== "human" ? (
-                    <Button size="sm" variant="outline" onClick={takeover}><User className="h-3.5 w-3.5 mr-1" />Take over</Button>
+                  {!isHumanMode ? (
+                    <Button size="sm" variant="outline" onClick={takeover} disabled={takeoverMut.isPending}><User className="h-3.5 w-3.5 mr-1" />Take over</Button>
                   ) : (
-                    <Button size="sm" onClick={returnAI}><Bot className="h-3.5 w-3.5 mr-1" />Return to AI</Button>
+                    <Button size="sm" onClick={returnAI} disabled={returnAIMut.isPending}><Bot className="h-3.5 w-3.5 mr-1" />Return to AI</Button>
                   )}
-                  <Button size="sm" variant="outline" onClick={resolve}><CheckCircle2 className="h-3.5 w-3.5 mr-1" />Resolve</Button>
-                  <Button size="sm" variant="outline" onClick={() => doStatus("spam", "Marked spam")}><ShieldAlert className="h-3.5 w-3.5" /></Button>
-                  <Button size="sm" variant="outline" onClick={() => doStatus("archived", "Archived")}><Archive className="h-3.5 w-3.5" /></Button>
+                  <Button size="sm" variant="outline" onClick={() => doStatus("resolved")}><CheckCircle2 className="h-3.5 w-3.5 mr-1" />Resolve</Button>
+                  <Button size="sm" variant="outline" title="Mark as spam" onClick={() => doStatus("spam")}><ShieldAlert className="h-3.5 w-3.5" /></Button>
+                  <Button size="sm" variant="outline" title="Archive" onClick={() => doStatus("archived")}><Archive className="h-3.5 w-3.5" /></Button>
                 </div>
               </div>
               <div className="flex-1 overflow-auto p-4 space-y-3 bg-muted/20">
-                {active.messages.map((m) => <MessageBubble key={m.id} m={m} agentName={agent?.name} />)}
+                {(active.messages ?? []).map((m) => <MessageBubble key={m.id} m={m} agentName={agent?.name} />)}
+                {(active.messages ?? []).length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center">No messages in this conversation yet.</p>
+                )}
               </div>
-              <div className="p-3 border-t border-border flex gap-2">
-                <Input
-                  placeholder={active.status === "human" ? "Reply as human…" : "Simulate a customer message (AI will respond)…"}
-                  value={reply}
-                  onChange={(e) => setReply(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && send()}
-                />
-                <Button onClick={send}><Send className="h-4 w-4" /></Button>
+              <div className="p-3 border-t border-border space-y-2">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder={isHumanMode ? "Reply as human…" : "Take over the conversation to reply"}
+                    value={reply}
+                    onChange={(e) => setReply(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && send()}
+                    disabled={!isHumanMode || sendHumanMut.isPending}
+                  />
+                  <Button onClick={send} disabled={!isHumanMode || !reply.trim() || sendHumanMut.isPending}><Send className="h-4 w-4" /></Button>
+                </div>
+                {!isHumanMode && (
+                  <p className="text-xs text-muted-foreground">The AI is handling this conversation. Take over to reply as a human.</p>
+                )}
               </div>
             </>
           ) : <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">Select a conversation</div>}
@@ -226,29 +262,22 @@ export default function InboxPage() {
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <Stat label="Priority" value={active.priority ?? "normal"} />
-                <Stat label="Sentiment" value={active.sentiment ?? "neutral"} />
-                <Stat label="Language" value={active.language ?? "English"} />
+                <Stat label="Sentiment" value={active.sentiment ?? "unknown"} />
+                <Stat label="Language" value={active.language ?? "unknown"} />
                 <Stat label="Outcome" value={active.outcome ?? "open"} />
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Agent handling</p>
-                <p className="text-sm">{agent?.name} · <span className="capitalize text-muted-foreground">{agent?.type}</span></p>
-                {active.assignedTo && <p className="text-xs text-muted-foreground mt-1">Assigned to {active.assignedTo}</p>}
-                {active.takeoverBy && <p className="text-xs text-muted-foreground">Taken over by {active.takeoverBy}</p>}
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Assign to</p>
-                <Select onValueChange={assign}>
-                  <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Choose teammate…" /></SelectTrigger>
-                  <SelectContent>
-                    {team.map((t) => <SelectItem key={t.id} value={t.name}>{t.name} · {t.role}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <p className="text-sm">{agent?.name ?? "Unassigned"}{agent ? <> · <span className="capitalize text-muted-foreground">{agent.type}</span></> : null}</p>
+                {active.takeoverBy && <p className="text-xs text-muted-foreground">Currently handled by a human operator.</p>}
               </div>
               <div className="space-y-2">
-                <Button variant="outline" size="sm" className="w-full" onClick={createLead}><UserPlus className="h-4 w-4 mr-1.5" />Create lead</Button>
-                <Button variant="outline" size="sm" className="w-full" onClick={bookAppt}><Calendar className="h-4 w-4 mr-1.5" />Book appointment</Button>
-                <Button variant="outline" size="sm" className="w-full" onClick={createTicket}><TicketCheck className="h-4 w-4 mr-1.5" />Create ticket</Button>
+                <Button variant="outline" size="sm" className="w-full" onClick={createLead} disabled={createLeadMut.isPending}>
+                  <UserPlus className="h-4 w-4 mr-1.5" />Create lead
+                </Button>
+                <Button variant="outline" size="sm" className="w-full" onClick={openAppt}>
+                  <Calendar className="h-4 w-4 mr-1.5" />Book appointment
+                </Button>
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Internal notes</p>
@@ -262,7 +291,9 @@ export default function InboxPage() {
                   {(!active.notes || active.notes.length === 0) && <p className="text-xs text-muted-foreground">No notes yet.</p>}
                 </div>
                 <Textarea rows={2} placeholder="Add an internal note…" value={note} onChange={(e) => setNote(e.target.value)} />
-                <Button variant="outline" size="sm" className="w-full mt-2" onClick={addNote}><StickyNote className="h-4 w-4 mr-1.5" />Add note</Button>
+                <Button variant="outline" size="sm" className="w-full mt-2" onClick={addNote} disabled={!note.trim() || addNoteMut.isPending}>
+                  <StickyNote className="h-4 w-4 mr-1.5" />Add note
+                </Button>
               </div>
               {active.handoverSummary && (
                 <div>
@@ -274,6 +305,32 @@ export default function InboxPage() {
           )}
         </Card>
       </div>
+
+      <Dialog open={apptOpen} onOpenChange={setApptOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Book appointment</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label>Title</Label>
+              <Input value={apptTitle} onChange={(e) => setApptTitle(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Date and time</Label>
+              <Input type="datetime-local" value={apptWhen} onChange={(e) => setApptWhen(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Duration (minutes)</Label>
+              <Input type="number" min={5} max={480} value={apptDuration} onChange={(e) => setApptDuration(Number(e.target.value))} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setApptOpen(false)}>Cancel</Button>
+            <Button onClick={bookAppt} disabled={!apptWhen || createApptMut.isPending}>
+              {createApptMut.isPending ? "Booking…" : "Book"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

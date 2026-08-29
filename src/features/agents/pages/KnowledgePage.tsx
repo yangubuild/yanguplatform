@@ -19,7 +19,6 @@ import type {
   KSource, KSourceKind, KSourceStatus, KPermission, KCollection, KFAQ,
   KProduct, KService, KTestResult,
 } from "../data/types";
-import { db as mockDb } from "../data/mock";
 import { PageHeader } from "../components/PageHeader";
 import { YanguSpinner } from "../components/YanguSpinner";
 import { toast } from "@/hooks/use-toast";

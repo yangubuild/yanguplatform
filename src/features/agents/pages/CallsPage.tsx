@@ -19,14 +19,23 @@ export default function CallsPage() {
   const [open, setOpen] = useState<Call | null>(null);
   const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
+  const answered = calls.filter((c) => c.duration > 0).length;
+  const bookings = calls.filter((c) => c.outcome === "booked").length;
+  const voicemails = calls.filter((c) => c.outcome === "voicemail").length;
+  const withDuration = calls.filter((c) => c.duration > 0);
+  const avg = withDuration.length
+    ? fmt(Math.round(withDuration.reduce((s, c) => s + c.duration, 0) / withDuration.length))
+    : "—";
+
   return (
     <div className="space-y-5">
       <PageHeader title="Calls" description="Every inbound and outbound call, transcribed." />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[["Answered", 1247],["Bookings", 168],["Voicemails", 42],["Avg duration", "3:12"]].map(([l,v]) => (
+        {[["Answered", answered], ["Bookings", bookings], ["Voicemails", voicemails], ["Avg duration", avg]].map(([l,v]) => (
           <Card key={l as string}><CardContent className="p-5"><div className="text-2xl font-semibold">{v}</div><p className="text-xs text-muted-foreground mt-1">{l}</p></CardContent></Card>
         ))}
       </div>
+
       <Card>
         {error && <div className="p-4 text-sm flex items-center justify-between"><span>Could not load calls.</span><Button size="sm" variant="outline" onClick={() => refetch()}>Retry</Button></div>}
         {!isLoading && !error && calls.length === 0 && <div className="p-8 text-center text-sm text-muted-foreground">No calls recorded yet.</div>}

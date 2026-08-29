@@ -143,9 +143,34 @@ Deno.serve(async (req) => {
       transcript: c.transcript ?? c.artifact?.transcript ?? null,
       started_at: c.startedAt ?? c.createdAt ?? null,
       ended_at: c.endedAt ?? null,
-      meta: { messages: c.messages ?? c.artifact?.messages ?? [], summary: c.summary ?? c.analysis?.summary ?? null },
+      meta: {
+        messages: c.messages ?? c.artifact?.messages ?? [],
+        summary: c.summary ?? c.analysis?.summary ?? null,
+        sentiment: (() => {
+          const s = String(c.analysis?.structuredData?.sentiment ?? c.analysis?.sentiment ?? "").toLowerCase();
+          return ["positive", "neutral", "negative"].includes(s) ? s : null;
+        })(),
+        endedReason: c.endedReason ?? null,
+        successEvaluation: c.analysis?.successEvaluation ?? null,
+        structuredData: c.analysis?.structuredData ?? null,
+      },
     };
   }
+
+  /** Append an operational audit record. Never fails the caller's action. */
+  async function audit(orgId: string, action: string, entityId: string | null, data: Record<string, unknown>) {
+    const { error } = await db.from("agent_audit_logs").insert({
+      org_id: orgId,
+      actor_user_id: userId,
+      action,
+      entity_type: "agent",
+      entity_id: entityId,
+      new_data: data,
+      meta: { source: "vapi-agent" },
+    });
+    if (error) console.error("audit insert failed", action, error.message);
+  }
+
 
   if (!keyPresent && action !== "status" && action !== "web_test") {
     return json({ ok: false, error: "not_configured", message: "The voice provider is not connected yet." }, 400);
@@ -237,9 +262,14 @@ Deno.serve(async (req) => {
         }
         try {
           const a: any = await vapiFetch(`/assistant/${agent.vapi_assistant_id}`);
+          const expectedWebhook = webhookUrl();
           return json({
             ...base,
             state: "deployed",
+            webhook: {
+              configured: Boolean(a.server?.url) && a.server?.url === expectedWebhook,
+              secretConfigured: Boolean(Deno.env.get("VAPI_WEBHOOK_SECRET")),
+            },
             provider: {
               name: a.name ?? null,
               model: a.model?.model ?? null,
@@ -276,6 +306,10 @@ Deno.serve(async (req) => {
             deployed_at: new Date().toISOString(),
             last_deploy_error: null,
           }).eq("id", agent.id);
+          await audit(agent.org_id, action === "deploy" ? "agent_deployed" : "agent_updated", agent.id, {
+            assistant_id: assistant.id,
+            status: action === "deploy" ? "live" : agent.status,
+          });
           return json({ ok: true, assistantId: assistant.id, status: action === "deploy" ? "live" : agent.status });
         } catch (e) {
           const detail = e instanceof VapiError ? e.detail : String(e);
@@ -306,6 +340,7 @@ Deno.serve(async (req) => {
           }
         }
         await db.from("agent_agents").update({ status: next }).eq("id", agent.id);
+        await audit(agent.org_id, action === "pause" ? "agent_paused" : "agent_resumed", agent.id, { status: next });
         return json({ ok: true, status: next });
       }
 
@@ -361,6 +396,7 @@ Deno.serve(async (req) => {
           org_id: agent.org_id, vapi_phone_number_id: updated.id, number: updated.number,
           provider: updated.provider ?? "vapi", status: "assigned", agent_id: agent.id,
         }, { onConflict: "vapi_phone_number_id" });
+        await audit(agent.org_id, "agent_number_assigned", agent.id, { phone_number_id: updated.id, number: updated.number ?? null });
         return json({ ok: true, number: updated.number ?? null, id: updated.id });
       }
 
@@ -490,6 +526,11 @@ Deno.serve(async (req) => {
           status: call.status ?? "queued", started_at: call.createdAt ?? new Date().toISOString(),
           meta: { purpose: body.purpose ? String(body.purpose).slice(0, 300) : null, from: fromNumber },
         }, { onConflict: "vapi_call_id" });
+        await audit(agent.org_id, "outbound_call_placed", agent.id, {
+          vapi_call_id: call.id,
+          to: `${to.slice(0, 4)}••••${to.slice(-4)}`,
+          from: fromNumber,
+        });
         return json({ ok: true, callId: call.id, status: call.status ?? "queued", from: fromNumber, to });
       }
 

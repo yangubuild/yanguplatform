@@ -1,5 +1,6 @@
 // Voice provider webhook receiver. Public endpoint (no JWT) — authenticity is
-// checked with the shared secret when VAPI_WEBHOOK_SECRET is configured.
+// enforced with the shared secret VAPI_WEBHOOK_SECRET, which is also written
+// onto every assistant's server configuration when an agent is deployed.
 // Processing is idempotent: calls upsert on vapi_call_id.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -13,16 +14,56 @@ const corsHeaders = {
 const json = (b: unknown, status = 200) =>
   new Response(JSON.stringify(b), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
+/** Constant-time string comparison — avoids leaking the secret via timing. */
+function safeEqual(a: string, b: string): boolean {
+  const ab = new TextEncoder().encode(a);
+  const bb = new TextEncoder().encode(b);
+  if (ab.length !== bb.length) return false;
+  let diff = 0;
+  for (let i = 0; i < ab.length; i++) diff |= ab[i] ^ bb[i];
+  return diff === 0;
+}
+
+/** Redacted description of the caller, for rejection logs only. */
+function requestFingerprint(req: Request) {
+  return {
+    ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+    userAgent: (req.headers.get("user-agent") ?? "").slice(0, 120),
+    secretHeaderPresent: Boolean(req.headers.get("x-vapi-secret")),
+  };
+}
+
+/** Pull the useful, structured bits out of the provider's analysis payload. */
+function parseAnalysis(msg: any) {
+  const analysis = msg?.analysis ?? {};
+  const structured = analysis.structuredData ?? {};
+  const rawSentiment = String(
+    structured.sentiment ?? structured.customerSentiment ?? analysis.sentiment ?? "",
+  ).toLowerCase();
+  const sentiment = ["positive", "neutral", "negative"].includes(rawSentiment) ? rawSentiment : null;
+  const summary = typeof analysis.summary === "string" ? analysis.summary
+    : typeof msg?.summary === "string" ? msg.summary : null;
+  return {
+    summary,
+    sentiment,
+    successEvaluation: analysis.successEvaluation ?? null,
+    structuredData: Object.keys(structured).length ? structured : null,
+  };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   const expected = Deno.env.get("VAPI_WEBHOOK_SECRET");
-  if (expected) {
-    const provided = req.headers.get("x-vapi-secret") ?? "";
-    if (provided !== expected) {
-      console.error("webhook rejected: bad secret");
-      return json({ error: "unauthorized" }, 401);
-    }
+  if (!expected) {
+    // Fail closed: an unverifiable webhook is never processed.
+    console.error("webhook rejected: VAPI_WEBHOOK_SECRET is not configured");
+    return json({ error: "not_configured" }, 503);
+  }
+  const provided = req.headers.get("x-vapi-secret") ?? "";
+  if (!provided || !safeEqual(provided, expected)) {
+    console.warn("webhook rejected: invalid shared secret", requestFingerprint(req));
+    return json({ error: "unauthorized" }, 401);
   }
 
   let payload: any;
@@ -60,6 +101,7 @@ Deno.serve(async (req) => {
     ended_at: endedAt,
   };
   if (type === "end-of-call-report") {
+    const parsed = parseAnalysis(msg);
     row.status = "ended";
     row.outcome = msg.endedReason ?? null;
     row.cost = msg.cost ?? null;
@@ -68,7 +110,15 @@ Deno.serve(async (req) => {
     row.duration_sec = msg.durationSeconds
       ? Math.round(Number(msg.durationSeconds))
       : (startedAt && endedAt ? Math.round((new Date(endedAt).getTime() - new Date(startedAt).getTime()) / 1000) : null);
-    row.meta = { messages: artifact.messages ?? msg.messages ?? [], analysis: msg.analysis ?? null };
+    row.meta = {
+      messages: artifact.messages ?? msg.messages ?? [],
+      analysis: msg.analysis ?? null,
+      summary: parsed.summary,
+      sentiment: parsed.sentiment,
+      endedReason: msg.endedReason ?? null,
+      successEvaluation: parsed.successEvaluation,
+      structuredData: parsed.structuredData,
+    };
   }
 
   // Drop nulls so a later partial event can't erase data from an earlier one.
@@ -79,6 +129,22 @@ Deno.serve(async (req) => {
   if (error) {
     console.error("webhook upsert failed", call.id, error.message);
     return json({ error: "persist_failed" }, 500);
+  }
+
+  if (type === "end-of-call-report") {
+    // Operational audit trail — identifiers and outcome only, never transcripts.
+    await db.from("agent_audit_logs").insert({
+      org_id: agent.org_id,
+      action: "call_completed",
+      entity_type: "call",
+      new_data: {
+        vapi_call_id: call.id,
+        direction: row.direction,
+        outcome: row.outcome ?? null,
+        duration_sec: row.duration_sec ?? null,
+      },
+      meta: { agent_id: agent.id, source: "vapi_webhook" },
+    });
   }
   return json({ ok: true, type });
 });
