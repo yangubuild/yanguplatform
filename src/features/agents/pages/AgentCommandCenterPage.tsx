@@ -260,7 +260,7 @@ export default function AgentCommandCenterPage() {
               </Button>
             )}
             <Button asChild size="sm" variant="outline">
-              <Link to={`/dashboard/agents/agents/${id}`}><Settings2 className="mr-1.5 h-4 w-4" />Configure</Link>
+              <Link to={`/dashboard/agents/agent/${id}/configure`}><Settings2 className="mr-1.5 h-4 w-4" />Configure</Link>
             </Button>
           </div>
         }

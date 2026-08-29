@@ -99,7 +99,7 @@ export default function DashboardPage() {
                   {a.conversationsToday} chats today · {a.handoverRate}% handover
                 </div>
                 <Button asChild variant="outline" size="sm" className="w-full">
-                  <Link to={`/dashboard/agents/agents/${a.id}`}>Open builder<ArrowUpRight className="h-3.5 w-3.5 ml-1" /></Link>
+                  <Link to={`/dashboard/agents/agent/${a.id}`}>Open agent<ArrowUpRight className="h-3.5 w-3.5 ml-1" /></Link>
                 </Button>
               </CardContent>
             </Card>
