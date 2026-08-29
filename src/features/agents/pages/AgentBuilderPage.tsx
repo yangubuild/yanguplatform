@@ -118,14 +118,14 @@ function defaultConfig(agentId: string, agentName: string): AgentConfig {
     memoryEnabled: false, memoryScope: "conversation", memoryRetentionDays: 30,
     piiRedaction: false, recordingConsent: false, gdprMode: false, dataResidency: "global", disclaimer: "",
     rateLimitPerMin: 60,
-    environment: "draft", version: 1, webhookUrl: "",
-  } as AgentConfig;
+    environment: "draft", version: 1, webhookUrl: "", updatedAt: new Date().toISOString(),
+  } as unknown as AgentConfig;
 }
 
 function normalise(cfg: AgentConfig, agentName: string): AgentConfig {
   const base = defaultConfig(cfg.agentId, agentName);
   const merged = { ...base } as Record<string, unknown>;
-  for (const [k, v] of Object.entries(cfg as Record<string, unknown>)) {
+  for (const [k, v] of Object.entries(cfg as unknown as Record<string, unknown>)) {
     if (v !== null && v !== undefined) merged[k] = v;
   }
   const wh = (cfg.workingHours ?? {}) as Partial<AgentConfig["workingHours"]>;
@@ -135,7 +135,7 @@ function normalise(cfg: AgentConfig, agentName: string): AgentConfig {
     holidays: wh.holidays ?? [],
   };
   if (!merged.name) merged.name = agentName;
-  return merged as AgentConfig;
+  return merged as unknown as AgentConfig;
 }
 
 function validate(cfg: AgentConfig): string[] {
