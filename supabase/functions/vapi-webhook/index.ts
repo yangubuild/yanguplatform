@@ -132,6 +132,58 @@ Deno.serve(async (req) => {
   }
 
   if (type === "end-of-call-report") {
+    // ── Customer identity + call memory (real provider data only) ──
+    try {
+      const customerNumber = row.direction === "outbound" ? row.destination : row.caller_id;
+      if (customerNumber) {
+        const { data: customerId } = await db.rpc("agent_resolve_customer", {
+          p_org_id: agent.org_id,
+          p_phone: customerNumber,
+          p_email: null,
+          p_name: null,
+          p_channel: "phone",
+          p_create: true,
+        });
+        if (customerId) {
+          const { data: callRow } = await db
+            .from("agent_calls").select("id, contact_id")
+            .eq("vapi_call_id", call.id).maybeSingle();
+          if (callRow && !callRow.contact_id) {
+            await db.from("agent_calls").update({ contact_id: customerId }).eq("id", callRow.id);
+          }
+          const parsed = parseAnalysis(msg);
+          if (parsed.summary && String(parsed.summary).trim()) {
+            // Durable, genuinely useful context: the provider's own call summary.
+            await db.from("agent_customer_memories").insert({
+              org_id: agent.org_id,
+              contact_id: customerId,
+              memory_type: "fact",
+              memory_key: `call_summary:${call.id}`,
+              content: String(parsed.summary).slice(0, 2000),
+              confidence: 0.8,
+              source_type: "call",
+              source_id: callRow?.id ?? null,
+              agent_id: agent.id,
+            });
+          }
+          if (callRow) {
+            await db.from("agent_customer_events").insert({
+              org_id: agent.org_id,
+              contact_id: customerId,
+              event_type: "call_completed",
+              title: `${row.direction === "outbound" ? "Outbound" : "Inbound"} call completed`,
+              ref_type: "call",
+              ref_id: callRow.id,
+              agent_id: agent.id,
+            });
+          }
+        }
+      }
+    } catch (e) {
+      // Identity/memory enrichment must never break call recording.
+      console.error("customer enrichment failed", (e as Error).message);
+    }
+
     // Operational audit trail — identifiers and outcome only, never transcripts.
     await db.from("agent_audit_logs").insert({
       org_id: agent.org_id,
@@ -146,5 +198,6 @@ Deno.serve(async (req) => {
       meta: { agent_id: agent.id, source: "vapi_webhook" },
     });
   }
+
   return json({ ok: true, type });
 });
