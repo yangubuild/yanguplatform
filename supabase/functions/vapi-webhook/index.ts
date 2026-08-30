@@ -132,61 +132,39 @@ Deno.serve(async (req) => {
   }
 
   if (type === "end-of-call-report") {
-    // ── Customer identity + call memory (real provider data only) ──
+    // ── Persistent customer memory (real provider data only) ──
+    // Contact linking and timeline events are handled by DB triggers on agent_calls.
     try {
-      const customerNumber = row.direction === "outbound" ? row.destination : row.caller_id;
-      if (customerNumber) {
-        const { data: customerId } = await db.rpc("agent_resolve_customer", {
-          p_org_id: agent.org_id,
-          p_phone: customerNumber,
-          p_email: null,
-          p_name: null,
-          p_channel: "phone",
-          p_create: true,
-        });
-        if (customerId) {
-          const { data: callRow } = await db
-            .from("agent_calls").select("id, contact_id")
-            .eq("vapi_call_id", call.id).maybeSingle();
-          if (callRow && !callRow.contact_id) {
-            await db.from("agent_calls").update({ contact_id: customerId }).eq("id", callRow.id);
-          }
-          const parsed = parseAnalysis(msg);
-          if (parsed.summary && String(parsed.summary).trim()) {
-            // Durable, genuinely useful context: the provider's own call summary.
-            // Idempotent: webhook retries must not duplicate memories.
-            const { data: existing } = await db.from("agent_customer_memories")
-              .select("id").eq("contact_id", customerId)
-              .eq("memory_type", "fact").eq("memory_key", `call_summary:${call.id}`)
-              .maybeSingle();
-            if (!existing) await db.from("agent_customer_memories").insert({
+      const parsed = parseAnalysis(msg);
+      const summary = parsed.summary ? String(parsed.summary).trim() : "";
+      if (summary) {
+        const { data: callRow } = await db
+          .from("agent_calls").select("id, contact_id")
+          .eq("vapi_call_id", call.id).maybeSingle();
+        if (callRow?.contact_id) {
+          // Idempotent: webhook retries must not duplicate memories.
+          const { data: existing } = await db.from("agent_customer_memories")
+            .select("id").eq("contact_id", callRow.contact_id)
+            .eq("memory_type", "fact").eq("memory_key", `call_summary:${call.id}`)
+            .maybeSingle();
+          if (!existing) {
+            await db.from("agent_customer_memories").insert({
               org_id: agent.org_id,
-              contact_id: customerId,
+              contact_id: callRow.contact_id,
               memory_type: "fact",
               memory_key: `call_summary:${call.id}`,
-              content: String(parsed.summary).slice(0, 2000),
+              content: summary.slice(0, 2000),
               confidence: 0.8,
               source_type: "call",
-              source_id: callRow?.id ?? null,
+              source_id: callRow.id,
               agent_id: agent.id,
             });
-          }
-          if (callRow) {
-            await db.from("agent_customer_events").upsert({
-              org_id: agent.org_id,
-              contact_id: customerId,
-              event_type: "call_completed",
-              title: `${row.direction === "outbound" ? "Outbound" : "Inbound"} call completed`,
-              ref_type: "call",
-              ref_id: callRow.id,
-              agent_id: agent.id,
-            }, { onConflict: "contact_id,event_type,ref_type,ref_id", ignoreDuplicates: true });
           }
         }
       }
     } catch (e) {
-      // Identity/memory enrichment must never break call recording.
-      console.error("customer enrichment failed", (e as Error).message);
+      // Memory enrichment must never break call recording.
+      console.error("customer memory enrichment failed", (e as Error).message);
     }
 
     // Operational audit trail — identifiers and outcome only, never transcripts.
