@@ -154,7 +154,12 @@ Deno.serve(async (req) => {
           const parsed = parseAnalysis(msg);
           if (parsed.summary && String(parsed.summary).trim()) {
             // Durable, genuinely useful context: the provider's own call summary.
-            await db.from("agent_customer_memories").insert({
+            // Idempotent: webhook retries must not duplicate memories.
+            const { data: existing } = await db.from("agent_customer_memories")
+              .select("id").eq("contact_id", customerId)
+              .eq("memory_type", "fact").eq("memory_key", `call_summary:${call.id}`)
+              .maybeSingle();
+            if (!existing) await db.from("agent_customer_memories").insert({
               org_id: agent.org_id,
               contact_id: customerId,
               memory_type: "fact",
@@ -167,7 +172,7 @@ Deno.serve(async (req) => {
             });
           }
           if (callRow) {
-            await db.from("agent_customer_events").insert({
+            await db.from("agent_customer_events").upsert({
               org_id: agent.org_id,
               contact_id: customerId,
               event_type: "call_completed",
@@ -175,7 +180,7 @@ Deno.serve(async (req) => {
               ref_type: "call",
               ref_id: callRow.id,
               agent_id: agent.id,
-            });
+            }, { onConflict: "contact_id,event_type,ref_type,ref_id", ignoreDuplicates: true });
           }
         }
       }
