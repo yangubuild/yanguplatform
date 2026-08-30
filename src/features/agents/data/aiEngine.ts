@@ -12,6 +12,12 @@ export interface AnswerInput {
   history?: Message[];
   agentConfig?: AgentConfig | null;
   testMode?: boolean;
+  /** Optional recognised customer — enables persistent memory context server-side. */
+  customerId?: string;
+  customerPhone?: string;
+  customerEmail?: string;
+  customerName?: string;
+  channel?: string;
 }
 
 export interface AnswerResult extends ConversationDecision {
@@ -34,6 +40,11 @@ export async function answerViaEngine(input: AnswerInput): Promise<AnswerResult>
         history: (input.history ?? []).map((m) => ({ role: m.role, text: m.text })),
         agentConfig: input.agentConfig ?? undefined,
         testMode: input.testMode ?? false,
+        customerId: input.customerId,
+        customerPhone: input.customerPhone,
+        customerEmail: input.customerEmail,
+        customerName: input.customerName,
+        channel: input.channel,
       },
     });
     if (error) throw new Error(error.message);

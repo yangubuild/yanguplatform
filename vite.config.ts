@@ -59,8 +59,9 @@ export default defineConfig(({ mode }) => ({
                   // Only reached when the network failed AND no cached page
                   // exists — i.e. a genuine offline navigation.
                   handlerDidError: async () =>
-                    (await caches.match("/offline.html")) ??
+                    (await (globalThis as any).caches?.match("/offline.html")) ??
                     Response.error(),
+
                 },
               ],
             },

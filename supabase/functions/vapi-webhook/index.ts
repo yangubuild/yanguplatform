@@ -132,6 +132,41 @@ Deno.serve(async (req) => {
   }
 
   if (type === "end-of-call-report") {
+    // ── Persistent customer memory (real provider data only) ──
+    // Contact linking and timeline events are handled by DB triggers on agent_calls.
+    try {
+      const parsed = parseAnalysis(msg);
+      const summary = parsed.summary ? String(parsed.summary).trim() : "";
+      if (summary) {
+        const { data: callRow } = await db
+          .from("agent_calls").select("id, contact_id")
+          .eq("vapi_call_id", call.id).maybeSingle();
+        if (callRow?.contact_id) {
+          // Idempotent: webhook retries must not duplicate memories.
+          const { data: existing } = await db.from("agent_customer_memories")
+            .select("id").eq("contact_id", callRow.contact_id)
+            .eq("memory_type", "fact").eq("memory_key", `call_summary:${call.id}`)
+            .maybeSingle();
+          if (!existing) {
+            await db.from("agent_customer_memories").insert({
+              org_id: agent.org_id,
+              contact_id: callRow.contact_id,
+              memory_type: "fact",
+              memory_key: `call_summary:${call.id}`,
+              content: summary.slice(0, 2000),
+              confidence: 0.8,
+              source_type: "call",
+              source_id: callRow.id,
+              agent_id: agent.id,
+            });
+          }
+        }
+      }
+    } catch (e) {
+      // Memory enrichment must never break call recording.
+      console.error("customer memory enrichment failed", (e as Error).message);
+    }
+
     // Operational audit trail — identifiers and outcome only, never transcripts.
     await db.from("agent_audit_logs").insert({
       org_id: agent.org_id,
@@ -146,5 +181,6 @@ Deno.serve(async (req) => {
       meta: { agent_id: agent.id, source: "vapi_webhook" },
     });
   }
+
   return json({ ok: true, type });
 });
