@@ -1268,6 +1268,41 @@ export type Database = {
           },
         ]
       }
+      agent_channel_secrets: {
+        Row: {
+          channel_id: string
+          created_at: string
+          org_id: string
+          secrets: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          channel_id: string
+          created_at?: string
+          org_id: string
+          secrets?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          channel_id?: string
+          created_at?: string
+          org_id?: string
+          secrets?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_channel_secrets_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: true
+            referencedRelation: "agent_channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_channels: {
         Row: {
           agent_id: string
