@@ -1268,6 +1268,56 @@ export type Database = {
           },
         ]
       }
+      agent_channels: {
+        Row: {
+          agent_id: string
+          channel: string
+          config: Json
+          created_at: string
+          enabled: boolean
+          id: string
+          last_error: string | null
+          last_health_check_at: string | null
+          org_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          agent_id: string
+          channel: string
+          config?: Json
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_error?: string | null
+          last_health_check_at?: string | null
+          org_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string
+          channel?: string
+          config?: Json
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_error?: string | null
+          last_health_check_at?: string | null
+          org_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_channels_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_configs: {
         Row: {
           agent_id: string
@@ -1468,6 +1518,7 @@ export type Database = {
           archived: boolean
           assigned_to: string | null
           channel: string
+          channel_id: string | null
           contact_id: string | null
           created_at: string
           handover_summary: string | null
@@ -1495,6 +1546,7 @@ export type Database = {
           archived?: boolean
           assigned_to?: string | null
           channel?: string
+          channel_id?: string | null
           contact_id?: string | null
           created_at?: string
           handover_summary?: string | null
@@ -1522,6 +1574,7 @@ export type Database = {
           archived?: boolean
           assigned_to?: string | null
           channel?: string
+          channel_id?: string | null
           contact_id?: string | null
           created_at?: string
           handover_summary?: string | null
@@ -1550,6 +1603,13 @@ export type Database = {
             columns: ["agent_id"]
             isOneToOne: false
             referencedRelation: "agent_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_conversations_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "agent_channels"
             referencedColumns: ["id"]
           },
           {
@@ -2149,33 +2209,51 @@ export type Database = {
         Row: {
           at: string
           author_user_id: string | null
+          channel: string | null
           conversation_id: string
           created_at: string
+          delivery_status: string | null
+          delivery_status_at: string | null
+          direction: string | null
           id: string
           meta: Json
           org_id: string
+          provider: string | null
+          provider_message_id: string | null
           role: string
           text: string
         }
         Insert: {
           at?: string
           author_user_id?: string | null
+          channel?: string | null
           conversation_id: string
           created_at?: string
+          delivery_status?: string | null
+          delivery_status_at?: string | null
+          direction?: string | null
           id?: string
           meta?: Json
           org_id: string
+          provider?: string | null
+          provider_message_id?: string | null
           role: string
           text: string
         }
         Update: {
           at?: string
           author_user_id?: string | null
+          channel?: string | null
           conversation_id?: string
           created_at?: string
+          delivery_status?: string | null
+          delivery_status_at?: string | null
+          direction?: string | null
           id?: string
           meta?: Json
           org_id?: string
+          provider?: string | null
+          provider_message_id?: string | null
           role?: string
           text?: string
         }
@@ -2456,6 +2534,86 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_webchat_sessions: {
+        Row: {
+          agent_id: string
+          channel_id: string | null
+          contact_id: string | null
+          conversation_id: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          last_seen_at: string
+          message_count: number
+          org_id: string
+          origin: string | null
+          token_hash: string
+          user_agent: string | null
+          visitor_key: string | null
+        }
+        Insert: {
+          agent_id: string
+          channel_id?: string | null
+          contact_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          last_seen_at?: string
+          message_count?: number
+          org_id: string
+          origin?: string | null
+          token_hash: string
+          user_agent?: string | null
+          visitor_key?: string | null
+        }
+        Update: {
+          agent_id?: string
+          channel_id?: string | null
+          contact_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          last_seen_at?: string
+          message_count?: number
+          org_id?: string
+          origin?: string | null
+          token_hash?: string
+          user_agent?: string | null
+          visitor_key?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_webchat_sessions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_webchat_sessions_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "agent_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_webchat_sessions_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "agent_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_webchat_sessions_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "agent_conversations"
             referencedColumns: ["id"]
           },
         ]
@@ -12341,6 +12499,10 @@ export type Database = {
           p_org_id: string
           p_phone?: string
         }
+        Returns: string
+      }
+      agent_resolve_webchat_customer: {
+        Args: { p_name?: string; p_org_id: string; p_visitor_key: string }
         Returns: string
       }
       agent_save_customer_memory: {
