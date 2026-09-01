@@ -219,10 +219,16 @@ export async function isHumanControlled(svc: Svc, conversationId: string): Promi
 }
 
 /** Simple fixed-window rate limiter backed by the existing rate-limit RPC. */
-export async function rateLimitOk(svc: Svc, key: string, maxRequests: number, windowSeconds: number): Promise<boolean> {
+export async function rateLimitOk(
+  svc: Svc,
+  identifier: string,
+  actionKey: string,
+  maxCount: number,
+  windowSeconds: number,
+): Promise<boolean> {
   try {
     const { data, error } = await svc.rpc("check_rate_limit_anon", {
-      p_key: key, p_max_requests: maxRequests, p_window_seconds: windowSeconds,
+      p_identifier: identifier, p_action_key: actionKey, p_max_count: maxCount, p_window_seconds: windowSeconds,
     });
     if (error) return true; // never block real traffic on limiter failure
     return data !== false;
