@@ -8,6 +8,7 @@ import * as Icons from "lucide-react";
 import { useIntegrations, useSetIntegrationConnected } from "../data/hooks";
 import type { Integration } from "../data/types";
 import { PageHeader } from "../components/PageHeader";
+import { ChannelSetupPanel } from "../components/ChannelSetupPanel";
 
 const CATEGORIES: Integration["category"][] = ["channels","calendar","crm","payments","automation","storage"];
 
@@ -65,6 +66,8 @@ export default function IntegrationsPage() {
           </div>
         );
       })}
+
+      <ChannelSetupPanel />
 
       <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
         <DialogContent>
