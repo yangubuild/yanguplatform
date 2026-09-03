@@ -116,6 +116,14 @@ project_id = "xcipuyvcwfytlsjryhvs"
     verify_jwt = false
   [functions.agents-index-source]
     verify_jwt = false
+  [functions.channel-send]
+    verify_jwt = false
+  [functions.webchat]
+    verify_jwt = false
+  [functions.whatsapp-connect]
+    verify_jwt = false
+  [functions.whatsapp-webhook]
+    verify_jwt = false
   [functions.vapi-agent]
     verify_jwt = false
   [functions.vapi-webhook]

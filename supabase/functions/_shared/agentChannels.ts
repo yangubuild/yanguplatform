@@ -234,3 +234,26 @@ export async function rateLimitOk(
     return data !== false;
   } catch { return true; }
 }
+
+/**
+ * Organization role gate for authenticated channel operations.
+ * Resolved directly from memberships/ownership so it cannot be bypassed by a
+ * client-supplied org id.
+ */
+export async function hasOrgRole(
+  svc: Svc,
+  orgId: string,
+  userId: string,
+  roles: string[] = ["owner", "admin", "editor", "operator"],
+): Promise<boolean> {
+  const { data: owner } = await svc.from("orgs").select("id").eq("id", orgId).eq("owner_user_id", userId).maybeSingle();
+  if ((owner as any)?.id) return true;
+  const { data: mem } = await svc
+    .from("org_memberships")
+    .select("role")
+    .eq("org_id", orgId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  const role = (mem as any)?.role;
+  return !!role && roles.includes(String(role));
+}

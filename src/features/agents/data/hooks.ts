@@ -231,13 +231,17 @@ export function useSendHumanMessage() {
   const remote = useRemote();
   return useMutation({
     mutationFn: async ({ conversationId, text }: { conversationId: string; text: string }) => {
-      if (remote) {
-        const at = new Date().toISOString();
-        await conversationsRepo.appendMessage(conversationId, { role: "human", text, at });
-        await usageRepo.record("human_message", 1, { conversationId });
-      }
+      if (!remote) return;
+      const { data, error } = await supabase.functions.invoke("channel-send", { body: { conversationId, text } });
+      if (error) throw new Error(error.message);
+      if ((data as any)?.error) throw new Error((data as any).message || (data as any).error);
+      await usageRepo.record("human_message", 1, { conversationId });
+      return data;
     },
-    onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ["agents", "conversation", v.conversationId] }),
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: ["agents", "conversation", v.conversationId] });
+      qc.invalidateQueries({ queryKey: ["agents", "conversations"] });
+    },
     onError: (e: Error) => toast.error(e.message ?? "Send failed"),
   });
 }
