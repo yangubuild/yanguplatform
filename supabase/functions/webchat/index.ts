@@ -43,7 +43,7 @@ function originAllowed(allowed: unknown, origin: string | null): boolean {
   if (list.includes("*")) return true;
   if (!origin) return false;
   const host = (() => { try { return new URL(origin).host.toLowerCase(); } catch { return ""; } })();
-  return list.some((a) => a === origin || a === host || a === `https://${a}` && false);
+  return list.some((a) => a === origin || a === host || a.replace(/^https?:\/\//, "").replace(/\/$/, "") === host);
 }
 
 Deno.serve(async (req) => {
