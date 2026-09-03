@@ -4,7 +4,7 @@
 // agent_channel_secrets table — it is never returned to the browser.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { CHANNEL_CORS, jsonResponse } from "../_shared/agentChannels.ts";
+import { CHANNEL_CORS, hasOrgRole, jsonResponse } from "../_shared/agentChannels.ts";
 
 const GRAPH_VERSION = "v21.0";
 
@@ -37,13 +37,8 @@ Deno.serve(async (req) => {
   if (!agent) return jsonResponse({ error: "agent_not_found" }, 404);
 
   // Only operators and above of the owning organization may change channels.
-  const { data: allowed } = await svc.rpc("org_role_in", {
-    p_org_id: (agent as any).org_id,
-    p_user_id: userId,
-    p_roles: ["owner", "admin", "editor", "operator"],
-  });
-  if (allowed !== true) return jsonResponse({ error: "forbidden" }, 403);
   const orgId = (agent as any).org_id as string;
+  if (!(await hasOrgRole(svc, orgId, userId))) return jsonResponse({ error: "forbidden" }, 403);
 
   if (action === "disconnect") {
     const { data: ch } = await svc.from("agent_channels")
