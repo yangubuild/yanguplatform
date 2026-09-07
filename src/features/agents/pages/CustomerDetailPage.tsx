@@ -31,6 +31,25 @@ function Empty({ children }: { children: string }) {
   );
 }
 
+/** Human label for a timeline entry, derived from the canonical record it points at. */
+function timelineLabel(eventType: string, refType?: string | null): string {
+  const key = `${eventType} ${refType ?? ""}`.toLowerCase();
+  if (key.includes("takeover") || key.includes("human")) return "HUMAN TAKEOVER";
+  if (key.includes("whatsapp")) return "WHATSAPP";
+  if (key.includes("webchat") || key.includes("web_chat")) return "WEB CHAT";
+  if (key.includes("call") || key.includes("voice")) return "CALL";
+  if (key.includes("appointment")) return "APPOINTMENT";
+  if (key.includes("lead")) return "LEAD";
+  if (key.includes("memory")) return "MEMORY";
+  if (key.includes("message") || key.includes("conversation")) return "CONVERSATION";
+  return eventType.replace(/_/g, " ").toUpperCase();
+}
+
+const CHANNEL_LABELS: Record<string, string> = {
+  whatsapp: "WhatsApp", web: "Web chat", webchat: "Web chat", voice: "Voice", sms: "SMS", email: "Email",
+};
+
+
 export default function CustomerDetailPage() {
   const { id = "" } = useParams();
   const { data: customer, isLoading, error, refetch } = useCustomer(id);
