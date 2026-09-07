@@ -100,11 +100,15 @@ Deno.serve(async (req) => {
       ok: true,
       token,
       visitorKey,
-      agentName: (agent as any)?.name ?? "Assistant",
+      agentName: ch.config?.display_name ?? (agent as any)?.name ?? "Assistant",
       greeting: ch.config?.greeting ?? null,
       accentColor: ch.config?.accent_color ?? null,
       launcherLabel: ch.config?.launcher_label ?? null,
+      launcherPosition: ch.config?.launcher_position === "left" ? "left" : "right",
+      avatarUrl: ch.config?.avatar_url ?? null,
+      offlineMessage: ch.config?.offline_message ?? null,
     }, 200, rawOrigin);
+
   }
 
   // Every other action needs a valid session.
