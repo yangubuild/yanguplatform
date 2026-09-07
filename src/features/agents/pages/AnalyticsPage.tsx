@@ -51,6 +51,11 @@ const CHANNEL_COLORS: Record<string, string> = {
   voice: "#10b981", email: "#f59e0b", sms: "#6366f1", instagram: "#ec4899",
 };
 
+const CHANNEL_LABELS_TEXT: Record<string, string> = {
+  whatsapp: "WhatsApp", web: "Web chat", voice: "Voice", sms: "SMS", email: "Email", instagram: "Instagram",
+};
+
+
 export default function AnalyticsPage() {
   const { data: agents = [] } = useAgents();
   const { data: conversations = [], isLoading: convLoading } = useConversations();
@@ -120,6 +125,29 @@ export default function AnalyticsPage() {
       ? leadsInRange.filter((l) => convosInRange.some((c) => c.agentId === a.id && c.contactName === l.name)).length
       : 0,
   })), [agents, convosInRange, callsInRange, leadsInRange, conversations.length]);
+
+  // Real per-channel counts. Voice is counted from call records, not text conversations.
+  const perChannel = useMemo(() => {
+    const rows = new Map<string, { conversations: number; human: number }>();
+    for (const c of convosInRange) {
+      if (c.channel === "voice") continue;
+      const row = rows.get(c.channel) ?? { conversations: 0, human: 0 };
+      row.conversations += 1;
+      if (c.status === "handover" || c.status === "escalated" || c.status === "human") row.human += 1;
+      rows.set(c.channel, row);
+    }
+    const out = [...rows.entries()].map(([channel, row]) => ({
+      channel: CHANNEL_LABELS_TEXT[channel] ?? channel,
+      conversations: row.conversations,
+      ai: row.conversations - row.human,
+      human: row.human,
+    }));
+    if (callsInRange.length) {
+      out.push({ channel: "Voice calls", conversations: callsInRange.length, ai: callsInRange.length, human: 0 });
+    }
+    return out.sort((a, b) => b.conversations - a.conversations);
+  }, [convosInRange, callsInRange]);
+
 
   return (
     <div className="space-y-5">
