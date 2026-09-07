@@ -169,11 +169,17 @@ export default function CustomerDetailPage() {
                       {new Date(e.occurredAt).toLocaleString()}
                     </span>
                     <div className="min-w-0">
-                      <p className="text-sm">{e.title ?? e.eventType}</p>
-                      <p className="text-xs text-muted-foreground">{e.eventType}{e.refType ? ` · ${e.refType}` : ""}</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant="outline" className="text-[10px] tracking-wider">
+                          {timelineLabel(e.eventType, e.refType)}
+                        </Badge>
+                        <p className="text-sm">{e.title ?? e.eventType}</p>
+                      </div>
+                      <p className="mt-0.5 text-xs text-muted-foreground">{e.eventType}{e.refType ? ` · ${e.refType}` : ""}</p>
                     </div>
                   </div>
                 ))}
+
               </CardContent>
             </Card>
           )}
