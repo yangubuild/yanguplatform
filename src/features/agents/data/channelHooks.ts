@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { auditRepo } from "./repo";
 import { useOrgId } from "./hooks";
+
 
 export type AgentChannel = {
   id: string;
