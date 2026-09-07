@@ -207,6 +207,27 @@ export default function AnalyticsPage() {
         </Card>
       </div>
       <Card>
+        <CardHeader><CardTitle className="text-base">Channel breakdown</CardTitle></CardHeader>
+        {perChannel.length === 0 ? (
+          <CardContent><Empty text="No channel activity in this period yet." /></CardContent>
+        ) : (
+          <Table>
+            <TableHeader><TableRow><TableHead>Channel</TableHead><TableHead>Conversations</TableHead><TableHead>AI handled</TableHead><TableHead>Human handled</TableHead></TableRow></TableHeader>
+            <TableBody>
+              {perChannel.map((c) => (
+                <TableRow key={c.channel}>
+                  <TableCell className="font-medium">{c.channel}</TableCell>
+                  <TableCell>{c.conversations}</TableCell>
+                  <TableCell>{c.ai}</TableCell>
+                  <TableCell>{c.human}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </Card>
+      <Card>
+
         <CardHeader><CardTitle className="text-base">Per-agent breakdown</CardTitle></CardHeader>
         <Table>
           <TableHeader><TableRow><TableHead>Agent</TableHead><TableHead>Conversations</TableHead><TableHead>Calls</TableHead><TableHead>Leads</TableHead></TableRow></TableHeader>
