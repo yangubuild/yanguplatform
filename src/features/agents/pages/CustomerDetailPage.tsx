@@ -199,9 +199,13 @@ export default function CustomerDetailPage() {
                     className="block rounded-md border border-border p-3 text-sm hover:border-primary"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="capitalize">{c.channel ?? "unknown"} · {c.status}</span>
+                      <span className="flex items-center gap-2">
+                        <Badge variant="secondary">{CHANNEL_LABELS[String(c.channel ?? "")] ?? "Conversation"}</Badge>
+                        <span className="capitalize text-muted-foreground">{c.status}</span>
+                      </span>
                       <span className="text-xs text-muted-foreground">{new Date(c.created_at).toLocaleString()}</span>
                     </div>
+
                   </Link>
                 ))}
               </CardContent>
