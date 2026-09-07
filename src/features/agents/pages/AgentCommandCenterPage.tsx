@@ -20,7 +20,9 @@ import { PageHeader, StatusDot } from "../components/PageHeader";
 import { YanguSpinner } from "../components/YanguSpinner";
 import { BrowserTestButton } from "../components/BrowserTestButton";
 import { ComposerCard } from "../components/ComposerCards";
+import { ChannelSetupPanel } from "../components/ChannelSetupPanel";
 import { voiceOps } from "../data/builderDb";
+
 
 interface CallRow {
   id: string;
@@ -277,11 +279,17 @@ export default function AgentCommandCenterPage() {
       <Tabs defaultValue="overview">
         <TabsList className="flex w-full flex-wrap justify-start">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="channels">Channels</TabsTrigger>
           <TabsTrigger value="calls">Calls</TabsTrigger>
           <TabsTrigger value="phone">Phone number</TabsTrigger>
           <TabsTrigger value="knowledge">Knowledge</TabsTrigger>
           <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="channels" className="mt-4">
+          <ChannelSetupPanel agentId={id} />
+        </TabsContent>
+
 
         <TabsContent value="overview" className="mt-4 space-y-4">
           {/* Voice provider mapping — always a definite answer, never a spinner. */}

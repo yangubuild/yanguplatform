@@ -31,6 +31,25 @@ function Empty({ children }: { children: string }) {
   );
 }
 
+/** Human label for a timeline entry, derived from the canonical record it points at. */
+function timelineLabel(eventType: string, refType?: string | null): string {
+  const key = `${eventType} ${refType ?? ""}`.toLowerCase();
+  if (key.includes("takeover") || key.includes("human")) return "HUMAN TAKEOVER";
+  if (key.includes("whatsapp")) return "WHATSAPP";
+  if (key.includes("webchat") || key.includes("web_chat")) return "WEB CHAT";
+  if (key.includes("call") || key.includes("voice")) return "CALL";
+  if (key.includes("appointment")) return "APPOINTMENT";
+  if (key.includes("lead")) return "LEAD";
+  if (key.includes("memory")) return "MEMORY";
+  if (key.includes("message") || key.includes("conversation")) return "CONVERSATION";
+  return eventType.replace(/_/g, " ").toUpperCase();
+}
+
+const CHANNEL_LABELS: Record<string, string> = {
+  whatsapp: "WhatsApp", web: "Web chat", webchat: "Web chat", voice: "Voice", sms: "SMS", email: "Email",
+};
+
+
 export default function CustomerDetailPage() {
   const { id = "" } = useParams();
   const { data: customer, isLoading, error, refetch } = useCustomer(id);
@@ -150,11 +169,17 @@ export default function CustomerDetailPage() {
                       {new Date(e.occurredAt).toLocaleString()}
                     </span>
                     <div className="min-w-0">
-                      <p className="text-sm">{e.title ?? e.eventType}</p>
-                      <p className="text-xs text-muted-foreground">{e.eventType}{e.refType ? ` · ${e.refType}` : ""}</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant="outline" className="text-[10px] tracking-wider">
+                          {timelineLabel(e.eventType, e.refType)}
+                        </Badge>
+                        <p className="text-sm">{e.title ?? e.eventType}</p>
+                      </div>
+                      <p className="mt-0.5 text-xs text-muted-foreground">{e.eventType}{e.refType ? ` · ${e.refType}` : ""}</p>
                     </div>
                   </div>
                 ))}
+
               </CardContent>
             </Card>
           )}
@@ -174,9 +199,13 @@ export default function CustomerDetailPage() {
                     className="block rounded-md border border-border p-3 text-sm hover:border-primary"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="capitalize">{c.channel ?? "unknown"} · {c.status}</span>
+                      <span className="flex items-center gap-2">
+                        <Badge variant="secondary">{CHANNEL_LABELS[String(c.channel ?? "")] ?? "Conversation"}</Badge>
+                        <span className="capitalize text-muted-foreground">{c.status}</span>
+                      </span>
                       <span className="text-xs text-muted-foreground">{new Date(c.created_at).toLocaleString()}</span>
                     </div>
+
                   </Link>
                 ))}
               </CardContent>

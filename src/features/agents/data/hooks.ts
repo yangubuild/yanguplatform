@@ -263,7 +263,10 @@ export function useTakeoverConversation() {
   const remote = useRemote();
   return useMutation({
     mutationFn: async ({ conversationId, summary }: { conversationId: string; summary?: string }) => {
-      if (remote) await conversationsRepo.takeover(conversationId, summary);
+      if (remote) {
+        await conversationsRepo.takeover(conversationId, summary);
+        await auditRepo.log("conversation.takeover", "conversation", conversationId);
+      }
     },
     onSuccess: (_d, v) => {
       qc.invalidateQueries({ queryKey: ["agents", "conversations"] });
@@ -278,7 +281,10 @@ export function useReturnToAI() {
   const remote = useRemote();
   return useMutation({
     mutationFn: async ({ conversationId, summary }: { conversationId: string; summary: string }) => {
-      if (remote) await conversationsRepo.returnToAI(conversationId, summary);
+      if (remote) {
+        await conversationsRepo.returnToAI(conversationId, summary);
+        await auditRepo.log("conversation.return_to_ai", "conversation", conversationId);
+      }
     },
     onSuccess: (_d, v) => {
       qc.invalidateQueries({ queryKey: ["agents", "conversations"] });
@@ -287,6 +293,7 @@ export function useReturnToAI() {
     },
   });
 }
+
 
 export function useSetConversationStatus() {
   const qc = useQueryClient();

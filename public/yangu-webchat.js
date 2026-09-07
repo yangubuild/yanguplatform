@@ -21,6 +21,8 @@
     .panel.open { display: flex; flex-direction: column; }
     .head { padding: 16px; background: linear-gradient(135deg,#152a20,#9b4d20); display:flex; justify-content:space-between; align-items:center; }
     .head strong { font-size: 15px; } .close { background: transparent; color: inherit; border:0; font-size:20px; cursor:pointer; }
+    .ident { display:flex; align-items:center; gap:9px; } .avatar { width:26px; height:26px; border-radius:50%; object-fit:cover; }
+
     .messages { flex: 1; overflow:auto; padding: 14px; display:flex; flex-direction:column; gap:9px; }
     .bubble { max-width: 84%; white-space: pre-wrap; line-height:1.4; padding:9px 11px; border-radius:10px; }
     .customer { align-self:flex-end; background:#d96828; color:#fff; } .agent { align-self:flex-start; background:#202b24; color:#f6faf6; }
@@ -30,15 +32,31 @@
   root.appendChild(style);
   const button = document.createElement("button"); button.className = "launcher"; button.textContent = "Chat with us";
   const panel = document.createElement("section"); panel.className = "panel";
-  panel.innerHTML = `<div class="head"><strong>Chat with us</strong><button class="close" aria-label="Close">×</button></div><div class="messages"></div><div class="status"></div><form class="form"><textarea class="input" rows="1" placeholder="Write a message…"></textarea><button class="send" aria-label="Send">↑</button></form>`;
+  panel.innerHTML = `<div class="head"><span class="ident"><img class="avatar" alt="" hidden /><strong>Chat with us</strong></span><button class="close" aria-label="Close">×</button></div><div class="messages"></div><div class="status"></div><form class="form"><textarea class="input" rows="1" placeholder="Write a message…"></textarea><button class="send" aria-label="Send">↑</button></form>`;
   root.append(button, panel);
   const messages = panel.querySelector(".messages"); const status = panel.querySelector(".status"); const form = panel.querySelector(".form"); const input = panel.querySelector(".input");
-  let token = null; let lastAt = new Date(0).toISOString(); let opened = false; let polling = false;
+  const title = panel.querySelector(".head strong"); const avatar = panel.querySelector(".avatar");
+  let token = null; let lastAt = new Date(0).toISOString(); let opened = false; let polling = false; let offlineMessage = "A team member will follow up.";
   const add = (role, text, at) => { const el = document.createElement("div"); el.className = `bubble ${role === "customer" ? "customer" : "agent"}`; el.textContent = text; messages.appendChild(el); messages.scrollTop = messages.scrollHeight; if (at) lastAt = at; };
+  const applyBranding = (data) => {
+    if (data.launcherLabel) button.textContent = data.launcherLabel;
+    if (data.agentName) title.textContent = data.agentName;
+    if (data.offlineMessage) offlineMessage = data.offlineMessage;
+    if (data.avatarUrl) { avatar.src = data.avatarUrl; avatar.hidden = false; }
+    if (data.launcherPosition === "left") {
+      button.style.right = "auto"; button.style.left = "20px";
+      panel.style.right = "auto"; panel.style.left = "20px";
+    }
+    if (data.accentColor) {
+      button.style.background = data.accentColor;
+      panel.querySelector(".send").style.background = data.accentColor;
+    }
+  };
   async function api(body) { const res = await fetch(endpoint, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body) }); const data = await res.json().catch(() => ({})); if (!res.ok) throw new Error(data.message || data.error || "Chat unavailable"); return data; }
-  async function start() { if (token) return; status.textContent = "Connecting…"; try { const data = await api({ action:"session", channelId, visitorKey }); token = data.token; if (data.greeting) add("agent", data.greeting, new Date().toISOString()); status.textContent = ""; poll(); } catch (e) { status.textContent = e.message; } }
+  async function start() { if (token) return; status.textContent = "Connecting…"; try { const data = await api({ action:"session", channelId, visitorKey }); token = data.token; applyBranding(data); if (data.greeting) add("agent", data.greeting, new Date().toISOString()); status.textContent = ""; poll(); } catch (e) { status.textContent = e.message; } }
   async function poll() { if (!token || polling) return; polling = true; try { const data = await api({ action:"poll", token, since:lastAt }); (data.messages || []).forEach(m => { if (m.at > lastAt && m.role !== "customer") add(m.role, m.text, m.at); }); } catch (_) {} finally { polling = false; if (opened) setTimeout(poll, 5000); } }
   button.onclick = () => { opened = !opened; panel.classList.toggle("open", opened); if (opened) { start(); input.focus(); } };
   panel.querySelector(".close").onclick = () => { opened = false; panel.classList.remove("open"); };
-  form.onsubmit = async (event) => { event.preventDefault(); const text = input.value.trim(); if (!text || !token) return; add("customer", text, new Date().toISOString()); input.value = ""; status.textContent = "Typing…"; try { const data = await api({ action:"message", token, text }); if (data.reply) add("agent", data.reply, data.at); if (data.handover) status.textContent = "A team member will follow up."; else status.textContent = ""; } catch (e) { status.textContent = e.message; } };
+  form.onsubmit = async (event) => { event.preventDefault(); const text = input.value.trim(); if (!text || !token) return; add("customer", text, new Date().toISOString()); input.value = ""; status.textContent = "Typing…"; try { const data = await api({ action:"message", token, text }); if (data.reply) add("agent", data.reply, data.at); status.textContent = data.handover ? offlineMessage : ""; } catch (e) { status.textContent = e.message; } };
+
 })();
